@@ -23,5 +23,5 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // URL key=value&&key=value
 app.use('/api/sites', wp_sites);
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 app.listen(port, () => console.log(`Listening on port ${port} ...`));
