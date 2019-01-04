@@ -5,9 +5,23 @@ const Joi = require('joi'); // validate user data from REST API
 const router  = express.Router();
 
 const openshift_env_list = ['www', 'subdomains', 'sandbox'];
+const type_list = ['private', 'public', 'unmanaged'];
+const theme_list = ['2018', '2018-light'];
+const faculty_list = ['CDH', 'CDM', 'ENAC', 'IC', 'SB', 'STI', 'SV'];
+const language_list = ['fr', 'en'];
 
 const siteSchema = mongoose.Schema({
     url: {
+        type: String,
+        required: true,
+        maxlength: 255
+    },
+    tagline: {
+        type: String,
+        required: true,
+        maxlength: 255
+    },
+    title: {
         type: String,
         required: true,
         maxlength: 255
@@ -17,6 +31,38 @@ const siteSchema = mongoose.Schema({
         required: true,
         enum: this.openshift_env_list
     },
+    type: {
+        type: String,
+        required: true,
+        enum: this.type_list
+    },
+    
+    theme: {
+        type: String,
+        required: true,
+        enum: this.theme_list
+    },
+    
+    faculty: {
+        type: String,
+        required: true,
+        enum: this.faculty_list
+    },
+    language: {
+        type: String,
+        required: true,
+        enum: this.language_list
+    },
+    unit_id: {
+        type: String,
+        required: true,
+    },
+    snow_number: {
+        type: String,
+        required: true,
+        maxlength: 255
+    },
+
 });
 
 const Site = new mongoose.model('Site', siteSchema);
@@ -39,12 +85,27 @@ router.get('/:id', async (req, res) => {
 // Post a new site
 router.post('/', async (req, res) => {
 
+    console.log(req.body);
+
     // Validate site
     const { error } = validateSite(req.body);
     if (error) return res.status(400).send(error)
 
     // Create the new site
-    let site = new Site({ url: req.body.url, openshift_env: req.body.openshift_env });
+    let site = new Site(
+        { 
+            url: req.body.url,
+            tagline: req.body.tagline,
+            title: req.body.title,
+            openshift_env: req.body.openshift_env,
+            type: req.body.type,
+            theme: req.body.theme,
+            faculty: req.body.faculty,
+            language: req.body.language,
+            unit_id: req.body.unit_id,
+            snow_number: req.body.snow_number
+        }
+    );
     site = await site.save();
     
     res.send(site);
@@ -78,9 +139,17 @@ router.delete('/:id', async (req, res) => {
 function validateSite(site) {
     const schema = {
         url: Joi.string().required(),
-        openshift_env: Joi.string().valid(openshift_env_list)
+        tagline: Joi.string().required(),
+        title: Joi.string().required(),
+        openshift_env: Joi.string().valid(openshift_env_list),
+        type: Joi.string().valid(type_list),
+        theme: Joi.string().valid(theme_list),
+        faculty: Joi.string().valid(faculty_list),
+        language: Joi.string().valid(language_list),
+        unit_id: Joi.string().required(),
+        snow_number: Joi.string().required()
     };
     return Joi.validate(site, schema);
 }
 
-module.exports = router;
+module.exports = router; 

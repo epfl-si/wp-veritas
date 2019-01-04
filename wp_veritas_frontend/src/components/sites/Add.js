@@ -32,7 +32,18 @@ const CustomInput = ({ field, form, ...props }) => {
 
     userSchema = Yup.object().shape({
         url: Yup.string().url('Bad URL').required('Required'),
-        openshift_env: Yup.string().oneOf(['www', 'sandbox', 'subdomains'], 'Bad openshift environment').required('Required') 
+        tagline: Yup.string(),
+        title: Yup.string(),
+        openshift_env: Yup.string().oneOf(['www', 'sandbox', 'subdomains'], 'Bad openshift environment').required('Required'),
+        type: Yup.string().oneOf(['private', 'public', 'unmanaged']).required('Required'),
+      
+        theme: Yup.string().oneOf(['2018', '2018-light']).required('Required'),
+        
+        faculty: Yup.string().oneOf(['CDH', 'CDM', 'ENAC', 'IC', 'SB', 'STI', 'SV']).required('Required'),
+        language: Yup.string().oneOf(['fr', 'en']).required('Required'),
+        unit_id: Yup.string().required('Required'),
+        snow_number: Yup.string()
+
       })
     
       submit = (values, actions) => {
@@ -51,7 +62,7 @@ const CustomInput = ({ field, form, ...props }) => {
             
                 <Formik
                 onSubmit={ this.submit }
-                initialValues={ { url: '', openshift_env: '' } }
+                initialValues={ { url: '', tagline:'', title:'', openshift_env: '', type: '', theme:'', faculty:'', language:'', unit_id:'', snow_number:'' } }
                 validationSchema={ this.userSchema }
         
                 validateOnBlur={ true }
@@ -67,12 +78,55 @@ const CustomInput = ({ field, form, ...props }) => {
                     <Field label="URL" name="url" type="url" component={ CustomInput } />
                     <ErrorMessage name="url" component={ CustomError } />
 
+                    <Field label="Tagline" name="tagline" type="text" component={ CustomInput } />
+                    <ErrorMessage name="tagline" component={ CustomError } />
+
+                    <Field label="Titre" name="title" type="text" component={ CustomInput } />
+                    <ErrorMessage name="title" component={ CustomError } />
+
                     <Field label="Openshift Environnement" name="openshift_env" component={ CustomSelect }>
                         <option value="www">www</option>
                         <option value="sandbox">sandbox</option>
                         <option value="subdomains">subdomains</option>
                     </Field>
                     <ErrorMessage name="openshift_env" component={ CustomError } />
+                    
+                    <Field label="Type" name="type" type="text" component={ CustomSelect } >
+                        <option value="private">private</option>
+                        <option value="public">public</option>
+                        <option value="unmanaged">unmanaged</option>
+                    </Field>
+                    <ErrorMessage name="type" component={ CustomError } />
+
+                    <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
+                        <option value="2018">2018</option>
+                        <option value="2018-light">2018-light</option>
+                    </Field>
+                    <ErrorMessage name="theme" component={ CustomError } />
+
+                    
+                    <Field label="Faculté" name="faculty" type="text" component={ CustomSelect } >
+                        <option value="CDH">CDH</option>
+                        <option value="CDM">CDM</option>
+                        <option value="ENAC">ENAC</option>
+                        <option value="IC">IC</option>
+                        <option value="SB">SB</option>
+                        <option value="STI">STI</option>
+                        <option value="SV">SV</option>
+                    </Field>
+                    <ErrorMessage name="faculty" component={ CustomError } />
+
+                    <Field label="Langue" name="language" type="text" component={ CustomSelect } >
+                        <option value="fr">français</option>
+                        <option value="en">anglais</option>
+                    </Field>
+                    <ErrorMessage name="language" component={ CustomError } />
+
+                    <Field label="Unit ID" name="unit_id" type="text" component={ CustomInput } />
+                    <ErrorMessage name="unit_id" component={ CustomError } />
+
+                    <Field label="N°ticket SNOW" name="snow_number" type="text" component={ CustomInput } />
+                    <ErrorMessage name="snow_number" component={ CustomError } />
                     
                     <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Envoyer</button>
                     </form>
