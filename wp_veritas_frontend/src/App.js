@@ -17,8 +17,8 @@ class App extends React.Component {
         <div className="App">
           <Header />
           <Route exact path="/" component={ Homepage } />
-          <Route path="/add-new-wp-site" component={ Add } />
-          <Route path="/update-wp-site/:id" component={ Add } />
+          <Route path="/add" component={ Add } />
+          <Route path="/edit/:_id" component={ Add } />
           <Route path="/list" component={ List } />
           <Footer />
         </div>

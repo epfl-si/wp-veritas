@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import apiWPSite from '../../conf/api.wp_site';
 
 class Cells extends React.Component {
@@ -19,6 +20,7 @@ class Cells extends React.Component {
                         <td>{site.unit_id}</td>
                         <td>{site.snow_number}</td>
                         <td>
+                            <NavLink activeClassName="active" to={`/edit/${site._id}`}>Éditer</NavLink>
                             <button type="button" className="close" aria-label="Close">
                                 <span  onClick={() => this.props.deleteSite(site._id)} aria-hidden="true">&times;</span>
                             </button>

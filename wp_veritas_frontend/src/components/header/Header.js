@@ -17,7 +17,7 @@ export default class Header extends Component {
                         <NavLink className="nav-link" activeClassName="active" to="/list">Voir la source de vérité</NavLink>
                     </li>
                     <li className="nav-item">
-                        <NavLink className="nav-link" activeClassName="active" to="/add-new-wp-site">Ajouter un nouveau site</NavLink>
+                        <NavLink className="nav-link" activeClassName="active" to="/add">Ajouter un nouveau site</NavLink>
                     </li>
                 </ul>
             </div>
