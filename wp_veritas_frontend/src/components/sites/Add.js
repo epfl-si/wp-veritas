@@ -24,24 +24,24 @@ const CustomInput = ({ field, form, ...props }) => {
   
   const CustomError = (props) => {
     return (
-      <div className="text-danger">{ props.children }</div> 
+      <div className="text-danger mb-4">{ props.children }</div> 
     )
   }
 
   export default class Add extends React.Component {
 
     userSchema = Yup.object().shape({
-        url: Yup.string().url('Bad URL').required('Required'),
-        tagline: Yup.string(),
-        title: Yup.string(),
-        openshift_env: Yup.string().oneOf(['www', 'sandbox', 'subdomains'], 'Bad openshift environment').required('Required'),
-        type: Yup.string().oneOf(['private', 'public', 'unmanaged']).required('Required'),
+        url: Yup.string().url('Bad URL').required('Champ obligatoire'),
+        tagline: Yup.string().required('Champ obligatoire'),
+        title: Yup.string().required('Champ obligatoire'),
+        openshift_env: Yup.string().oneOf(['www', 'sandbox', 'subdomains'], 'Bad openshift environment').required('Champ obligatoire'),
+        type: Yup.string().oneOf(['private', 'public', 'unmanaged']).required('Champ obligatoire'),
       
-        theme: Yup.string().oneOf(['2018', '2018-light']).required('Required'),
+        theme: Yup.string().oneOf(['2018', '2018-light']).required('Champ obligatoire'),
         
-        faculty: Yup.string().oneOf(['CDH', 'CDM', 'ENAC', 'IC', 'SB', 'STI', 'SV']).required('Required'),
-        language: Yup.string().oneOf(['fr', 'en']).required('Required'),
-        unit_id: Yup.string().required('Required'),
+        faculty: Yup.string().oneOf(['CDH', 'CDM', 'ENAC', 'IC', 'SB', 'STI', 'SV']).required('Champ obligatoire'),
+        language: Yup.string().oneOf(['fr', 'en']).required('Champ obligatoire'),
+        unit_id: Yup.string().required('Champ obligatoire'),
         snow_number: Yup.string()
 
       })
@@ -62,10 +62,10 @@ const CustomInput = ({ field, form, ...props }) => {
             
                 <Formik
                 onSubmit={ this.submit }
-                initialValues={ { url: '', tagline:'', title:'', openshift_env: '', type: '', theme:'', faculty:'', language:'', unit_id:'', snow_number:'' } }
+                initialValues={ { url: '', tagline:'', title:'', openshift_env: 'www', type: 'private', theme:'2018', faculty:'CDH', language:'en', unit_id:'', snow_number:'' } }
                 validationSchema={ this.userSchema }
         
-                validateOnBlur={ true }
+                validateOnBlur={ false }
                 validateOnChange={ false }
                 >
                 { ({
@@ -104,7 +104,6 @@ const CustomInput = ({ field, form, ...props }) => {
                     </Field>
                     <ErrorMessage name="theme" component={ CustomError } />
 
-                    
                     <Field label="Faculté" name="faculty" type="text" component={ CustomSelect } >
                         <option value="CDH">CDH</option>
                         <option value="CDM">CDM</option>

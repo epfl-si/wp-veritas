@@ -59,7 +59,7 @@ const siteSchema = mongoose.Schema({
     },
     snow_number: {
         type: String,
-        required: true,
+        required: false,
         maxlength: 255
     },
 
@@ -147,7 +147,7 @@ function validateSite(site) {
         faculty: Joi.string().valid(faculty_list),
         language: Joi.string().valid(language_list),
         unit_id: Joi.string().required(),
-        snow_number: Joi.string().required()
+        snow_number: Joi.string().allow('')
     };
     return Joi.validate(site, schema);
 }
