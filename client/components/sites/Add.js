@@ -30,7 +30,7 @@ const CustomInput = ({ field, form, ...props }) => {
 
   export default class Add extends React.Component {
 
-    userSchema = Yup.object().shape({
+    siteSchema = Yup.object().shape({
         url: Yup.string().url('Bad URL').required('Champ obligatoire'),
         tagline: Yup.string().required('Champ obligatoire'),
         title: Yup.string().required('Champ obligatoire'),
@@ -64,7 +64,6 @@ const CustomInput = ({ field, form, ...props }) => {
     }
 
     componentDidMount() {
-
       if (this.state.action === 'edit') {
         let slug = '/sites/' + this.props.match.params._id
         apiWPSite.get(slug)
@@ -126,7 +125,7 @@ const CustomInput = ({ field, form, ...props }) => {
               <Formik
               onSubmit={ this.submit }
               initialValues={ initialValues }
-              validationSchema={ this.userSchema }
+              validationSchema={ this.siteSchema }
       
               validateOnBlur={ false }
               validateOnChange={ false }
@@ -190,7 +189,7 @@ const CustomInput = ({ field, form, ...props }) => {
                   <Field label="N°ticket SNOW" name="snow_number" type="text" component={ CustomInput } />
                   <ErrorMessage name="snow_number" component={ CustomError } />
                   
-                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Envoyer</button>
+                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                   </form>
               )}
               </Formik>

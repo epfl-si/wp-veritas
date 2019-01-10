@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 const Homepage = () => {
   return (
     <div className="container">
-      <h2 className="p-4">Vous devez être authentifiés (Tequila)</h2>
+      <h2 className="p-4">Homepage</h2>
     </div>
   )
 }
