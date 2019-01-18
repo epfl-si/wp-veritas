@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import apiWPSite from '../../conf/api.wp_site';
+
+import { Sites } from '../../../imports/api/sites';
 
 class Cells extends React.Component {
     render() {
@@ -42,23 +43,16 @@ export default class List extends React.Component {
     }
 
     componentDidMount() {
-        apiWPSite.get('/sites')
-          .then( response => response.data )
-          .then( sites => {
-              this.setState(
-                  {sites: sites}
-              )
-            }
-          )
-          .catch( err => console.log(err));
+        Tracker.autorun(()=>{
+            let sites = Sites.find({}).fetch();
+            this.setState({sites: sites});
+        });
     }
 
     deleteSite = (siteID) => {
         const sites = [...this.state.sites.filter(site => site._id !== siteID)];
         this.setState({sites});
-
-        apiWPSite.delete('/sites/' +  siteID)
-            .then( res => console.log(res) )
+        Sites.remove({_id:siteID});
     }
 
     render() {

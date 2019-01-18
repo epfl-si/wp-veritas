@@ -1,7 +1,8 @@
 import React from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import apiWPSite from '../../conf/api.wp_site';
+import { Sites } from '../../../imports/api/sites';
+
 
 
 const CustomInput = ({ field, form, ...props }) => {
@@ -48,7 +49,7 @@ const CustomInput = ({ field, form, ...props }) => {
 
     constructor(props){
       super(props);
-      console.log(props);
+      //console.log(props);
       
       let action;
       if (this.props.match.path.startsWith('/edit')) {
@@ -65,7 +66,18 @@ const CustomInput = ({ field, form, ...props }) => {
 
     componentDidMount() {
       if (this.state.action === 'edit') {
+        
+        Tracker.autorun(()=>{
+          let site_id = this.props.match.params._id;
+          console.log("Site_id " + site_id);
+          let site = Sites.findOne({_id: site_id});
+          console.log(site);
+          this.setState({site: site});
+        });
+        /*
         let slug = '/sites/' + this.props.match.params._id
+
+        
         apiWPSite.get(slug)
           .then( response => response.data )
           .then( site => {
@@ -75,20 +87,22 @@ const CustomInput = ({ field, form, ...props }) => {
             }
           )
           .catch( err => console.log(err));  
+          */
       }
   }
     
     submit = (values, actions) => {
       if (this.state.action === 'add') {
-        apiWPSite.post('/sites', values)
-          .then( response => {
-            actions.setSubmitting(false);
-            this.props.history.push('/list')
-            console.log(response);
-        })
         
+        Sites.insert(values); 
+        this.props.history.push('/list');
+
       }
       if (this.state.action === 'edit') {
+
+        Sites.update({_id:this.props.match.params._id}, { $set:values});
+        this.props.history.push('/list');
+/*
         let slug = '/sites/' + this.props.match.params._id;
         apiWPSite.put(slug, values)
         .then( response => {
@@ -96,12 +110,13 @@ const CustomInput = ({ field, form, ...props }) => {
           this.props.history.push('/list')
           console.log(response);
         })
+*/
       }
     }
 
     render() {
 
-      if (this.state.site === '' && this.state.action === 'edit') {
+      if (this.state.site === undefined && this.state.action === 'edit') {
         return <h1>Loading....</h1>
       } else {
         let initialValues;
@@ -109,9 +124,10 @@ const CustomInput = ({ field, form, ...props }) => {
         if (this.state.action === 'edit') {
           title = 'Modifier le site ci-dessous'
           initialValues = this.state.site;
+          console.log('toto');
           console.log(initialValues);
-          delete initialValues._id;
-          delete initialValues.__v;
+          //delete initialValues._id;
+          //delete initialValues.__v;
         } else { 
           title = 'Ajouter un nouveau site';
           initialValues = { url: '', tagline:'', title:'', openshift_env: 'www', type: 'private', theme:'2018', faculty:'CDH', language:'en', unit_id:'', snow_number:'' }
