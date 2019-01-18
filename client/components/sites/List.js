@@ -1,6 +1,5 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-
 import { Sites } from '../../../imports/api/sites';
 
 class Cells extends React.Component {
