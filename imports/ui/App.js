@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header, Footer, Add, List } from './components/'; 
+import { Header, Footer, Add, List } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 const Homepage = () => {

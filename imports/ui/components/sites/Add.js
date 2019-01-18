@@ -1,7 +1,7 @@
 import React from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Sites } from '../../../imports/api/sites';
+import { Sites } from '../../../api/sites';
 
 const CustomInput = ({ field, form, ...props }) => {
   return (
@@ -57,7 +57,7 @@ export default class Add extends React.Component {
         site: '',
         action: action
     }
-  }
+  } 
 
   componentDidMount() {
     if (this.state.action === 'edit') {        
@@ -71,12 +71,10 @@ export default class Add extends React.Component {
   submit = (values, actions) => {
     if (this.state.action === 'add') {
       Sites.insert(values); 
-      this.props.history.push('/list');
-    }
-    if (this.state.action === 'edit') {
+    } else if (this.state.action === 'edit') {
       Sites.update({_id:this.props.match.params._id}, { $set:values});
-      this.props.history.push('/list');
     }
+    this.props.history.push('/list');
   }
 
   render() {
