@@ -43,7 +43,7 @@ export default class List extends React.Component {
 
     componentDidMount() {
         Tracker.autorun(()=>{
-            let sites = Sites.find({}).fetch();
+            let sites = Sites.find({}, {sort: {url: 1}}).fetch();
             this.setState({sites: sites});
         });
     }
