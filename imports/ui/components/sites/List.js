@@ -55,8 +55,11 @@ export default class List extends React.Component {
     }
 
     render() {
-        return (
-            <div className="container-full ml-4 mr-4">
+        let content = "";
+
+        if (Meteor.userId()) {
+            content = (
+                <div className="container-full ml-4 mr-4">
                 <h2 className="p-4">Source de vérité des sites WordPress</h2>
                 <table className="table table-striped">
                     <thead>
@@ -78,6 +81,8 @@ export default class List extends React.Component {
                     <Cells sites={this.state.sites} deleteSite={ this.deleteSite }/>
                 </table>
             </div>
-        );
+            )
+        }
+        return content;
     }
 }

@@ -10,7 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.1.5",
     "axios": "^0.18.0",
-    "bootstrap": "^4.2.1",
+    "bcrypt": "^3.0.3",
     "formik": "^1.4.2",
     "jquery": "^3.3.1",
     "meteor-node-stubs": "^0.4.1",

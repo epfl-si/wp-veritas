@@ -5,6 +5,14 @@ import logo from './Logo_EPFL.svg';
 export default class Header extends Component {
 
   render() {
+
+    let logLink;
+    if (Meteor.userId()) {
+        logLink = <li className="nav-item"><NavLink className="nav-link" activeClassName="active" to="/logout">Déconnexion</NavLink></li> 
+    } else {
+        logLink = <li className="nav-item"><NavLink className="nav-link" activeClassName="active" to="/login">Connexion</NavLink></li>
+    }
+
     return (
       <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             <Link className="navbar-brand" to="/"><img src={logo} className="App-logo" alt="logo"/></Link>
@@ -19,8 +27,10 @@ export default class Header extends Component {
                     <li className="nav-item">
                         <NavLink className="nav-link" activeClassName="active" to="/add">Ajouter un nouveau site</NavLink>
                     </li>
+                    { logLink }
                 </ul>
             </div>
+
         </header>
     );
   }
