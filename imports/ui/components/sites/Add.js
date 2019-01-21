@@ -79,6 +79,13 @@ export default class Add extends React.Component {
 
   render() {
 
+    let content;
+
+    if (!Meteor.userId()) {
+      return <h2>Vous devez être connecté !</h2>;
+    } else {
+
+
     if ((this.state.site === undefined || this.state.site === '')  && this.state.action === 'edit') {
       
       return <h1>Loading....</h1>
@@ -181,4 +188,4 @@ export default class Add extends React.Component {
       )
     }
   }
-}
+}}

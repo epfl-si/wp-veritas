@@ -55,7 +55,7 @@ export default class List extends React.Component {
     }
 
     render() {
-        let content = "";
+        let content = <h2>Vous devez être connecté !</h2>;
 
         if (Meteor.userId()) {
             content = (
