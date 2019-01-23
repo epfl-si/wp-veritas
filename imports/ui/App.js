@@ -1,8 +1,6 @@
 import React from 'react';
 import { Header, Footer, Add, List, Admin } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import AccountsUIWrapper from './AccountsUIWrapper.js';
-import Logout from './Logout.js';
 
 const Homepage = () => {
   return (
@@ -24,8 +22,6 @@ class App extends React.Component {
           <Route path="/edit/:_id" component={ Add } />
           <Route path="/list" component={ List } />
           <Route exact path="/admin" component={ Admin } />
-          <Route path="/login" component={ AccountsUIWrapper } />
-          <Route path="/logout" component={ Logout } />
           <Footer />
         </div>
       </Router>

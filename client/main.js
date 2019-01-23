@@ -2,7 +2,6 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../imports/api/collections';
-import '../imports/ui/accounts-config';
 import App from '../imports/ui/App';
  
 Meteor.startup(() => {

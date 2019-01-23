@@ -57,34 +57,30 @@ export default class List extends React.Component {
     }
 
     render() {
-        let content = <h2>Vous devez être connecté !</h2>;
-
-        if (Meteor.userId()) {
-            content = (
-                <div className="container-full ml-4 mr-4">
-                <h2 className="p-4">Source de vérité des sites WordPress</h2>
-                <table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">URL</th>
-                            <th scope="col">Tagline</th>
-                            <th scope="col">Titre</th>
-                            <th scope="col">OpenShift Env</th>
-                            <th scope="col">Type</th>
-                            <th scope="col">Thème</th>
-                            <th scope="col">Faculté</th>
-                            <th scope="col">Langue</th>
-                            <th scope="col">Unit ID</th>
-                            <th scope="col">N°ticket Snow</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <Cells sites={this.state.sites} deleteSite={ this.deleteSite }/>
-                </table>
-            </div>
-            )
-        }
+        let content = (
+            <div className="container-full ml-4 mr-4">
+            <h2 className="p-4">Source de vérité des sites WordPress</h2>
+            <table className="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">URL</th>
+                        <th scope="col">Tagline</th>
+                        <th scope="col">Titre</th>
+                        <th scope="col">OpenShift Env</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Thème</th>
+                        <th scope="col">Faculté</th>
+                        <th scope="col">Langue</th>
+                        <th scope="col">Unit ID</th>
+                        <th scope="col">N°ticket Snow</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <Cells sites={this.state.sites} deleteSite={ this.deleteSite }/>
+            </table>
+        </div>
+        )
         return content;
     }
 }
