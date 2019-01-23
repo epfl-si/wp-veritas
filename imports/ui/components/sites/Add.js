@@ -1,46 +1,27 @@
 import React from 'react';
-import { Formik, Field, ErrorMessage } from 'formik';
+import { Formik, Field, ErrorMessage, FieldArray } from 'formik';
 import * as Yup from 'yup';
-import { Sites } from '../../../api/sites';
+import { Sites, OpenshiftEnvs, Types, Themes } from '../../../api/collections';
+import { CustomCheckbox, CustomError, CustomInput, CustomSelect } from './CustomFields';
+import { BAD_URL_MSG, REQUIRED_MSG, LANGUAGES_MSG } from '../Messages';
 
-const CustomInput = ({ field, form, ...props }) => {
-  return (
-    <div className="form-group">
-      <label>{ props.label }</label>
-      <input { ...field } { ...props } className="form-control" />
-    </div>
-  )
-}
-  
-const CustomSelect = ({ field, form, ...props }) => {
-  return (
-    <div className="form-group">
-      <label>{ props.label }</label>
-      <select className="form-control" { ...props } { ...field } />
-    </div>
-  )
-}
-
-const CustomError = (props) => {
-  return (
-    <div className="text-danger mb-4">{ props.children }</div> 
-  )
-}
 
 export default class Add extends React.Component {
 
   siteSchema = Yup.object().shape({
-      url: Yup.string().url('Bad URL').required('Champ obligatoire'),
-      tagline: Yup.string().required('Champ obligatoire'),
-      title: Yup.string().required('Champ obligatoire'),
-      openshift_env: Yup.string().oneOf(['www', 'sandbox', 'subdomains'], 'Bad openshift environment').required('Champ obligatoire'),
-      type: Yup.string().oneOf(['private', 'public', 'unmanaged']).required('Champ obligatoire'),
-      theme: Yup.string().oneOf(['2018', '2018-light']).required('Champ obligatoire'),
-      faculty: Yup.string().oneOf(['CDH', 'CDM', 'ENAC', 'IC', 'SB', 'STI', 'SV']).required('Champ obligatoire'),
-      language: Yup.string().oneOf(['fr', 'en']).required('Champ obligatoire'),
-      unit_id: Yup.string().required('Champ obligatoire'),
-      snow_number: Yup.string()
-
+      url: Yup.string().url(BAD_URL_MSG).required(REQUIRED_MSG),
+      tagline: Yup.string(),
+      title: Yup.string().required(REQUIRED_MSG),
+      openshift_env: Yup.string().required(REQUIRED_MSG),
+      type: Yup.string().required(REQUIRED_MSG),
+      category: Yup.string(),
+      theme: Yup.string().required(REQUIRED_MSG),
+      faculty: Yup.string(),
+      languages: Yup.array().required(LANGUAGES_MSG),
+      unit_id: Yup.string().required(REQUIRED_MSG),
+      snow_number: Yup.string(),
+      comment: Yup.string(),
+      planned_closing_date: Yup.date()
   })
 
   constructor(props){
@@ -55,11 +36,22 @@ export default class Add extends React.Component {
 
     this.state = {
         site: '',
-        action: action
+        action: action,
+        openshiftenvs: [],
+        types: [],
+        themes: [],
     }
   } 
 
   componentDidMount() {
+    
+    Tracker.autorun(()=>{
+      let openshiftenvs = OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch();
+      let types = Types.find({}, {sort: {name:1 }}).fetch();
+      let themes = Themes.find({}, {sort: {name:1 }}).fetch();
+      this.setState({openshiftenvs: openshiftenvs, types: types, themes: themes});
+    });
+
     if (this.state.action === 'edit') {        
       Tracker.autorun(()=>{
         let site = Sites.findOne({_id: this.props.match.params._id});
@@ -78,114 +70,124 @@ export default class Add extends React.Component {
   }
 
   render() {
-
-    let content;
-
     if (!Meteor.userId()) {
       return <h2>Vous devez être connecté !</h2>;
     } else {
+      if ((this.state.site === undefined || this.state.site === '')  && this.state.action === 'edit') {
+        return <h1>Loading....</h1>
 
+      } else {
 
-    if ((this.state.site === undefined || this.state.site === '')  && this.state.action === 'edit') {
-      
-      return <h1>Loading....</h1>
-
-    } else {
-      
-      let initialValues;
-      let title;
-      
-      if (this.state.action === 'edit') {
-      
-        title = 'Modifier le site ci-dessous'
-        initialValues = this.state.site;
-      
-      } else { 
-      
-        title = 'Ajouter un nouveau site';
-        initialValues = { 
-          url: '', tagline:'', title:'', openshift_env: 'www', type: 'private', theme:'2018', faculty:'CDH', language:'en', unit_id:'', snow_number:'' 
-        }
-      
-      }
-
-      return (
-          
-        <div className="container-fluid p-5 bg-light 
-        d-flex flex-column justify-content-center align-items-center">
+        let initialValues;
+        let title;
         
-            <Formik
-            onSubmit={ this.submit }
-            initialValues={ initialValues }
-            validationSchema={ this.siteSchema }
-            validateOnBlur={ false }
-            validateOnChange={ false }
-            >
-            { ({
-                handleSubmit,
-                isSubmitting,
-            }) => (
-              
-                <form onSubmit={ handleSubmit } className="bg-white border p-5 d-flex flex-column">
-                <h2 className="p-4">{title}</h2>  
-                <Field label="URL" name="url" type="url" component={ CustomInput } />
-                <ErrorMessage name="url" component={ CustomError } />
+        if (this.state.action === 'edit') {
+        
+          title = 'Modifier le site ci-dessous'
+          initialValues = this.state.site;
+        
+        } else { 
+        
+          title = 'Ajouter un nouveau site';
+          initialValues = { 
+            url: '', 
+            tagline:'', 
+            title:'', 
+            openshift_env: 'www', 
+            type: 'public', 
+            theme:'2018',
+            faculty:'',
+            languages: [], 
+            unit_id:'', 
+            snow_number:'',
+            comment:'',
+            planned_closing_date: ''
+          }
+        }
 
-                <Field label="Tagline" name="tagline" type="text" component={ CustomInput } />
-                <ErrorMessage name="tagline" component={ CustomError } />
-
-                <Field label="Titre" name="title" type="text" component={ CustomInput } />
-                <ErrorMessage name="title" component={ CustomError } />
-
-                <Field label="Openshift Environnement" name="openshift_env" component={ CustomSelect }>
-                    <option value="www">www</option>
-                    <option value="sandbox">sandbox</option>
-                    <option value="subdomains">subdomains</option>
-                </Field>
-                <ErrorMessage name="openshift_env" component={ CustomError } />
+        return (
+            
+          <div className="container-fluid p-5 bg-light d-flex flex-column justify-content-center align-items-center">
+          
+              <Formik
+              onSubmit={ this.submit }
+              initialValues={ initialValues }
+              validationSchema={ this.siteSchema }
+              validateOnBlur={ false }
+              validateOnChange={ false }
+              >
+              { ({
+                  handleSubmit,
+                  isSubmitting,
+                  values,
+              }) => (
                 
-                <Field label="Type" name="type" type="text" component={ CustomSelect } >
-                    <option value="private">private</option>
-                    <option value="public">public</option>
-                    <option value="unmanaged">unmanaged</option>
-                </Field>
-                <ErrorMessage name="type" component={ CustomError } />
+                  <form onSubmit={ handleSubmit } className="bg-white border p-5 d-flex flex-column">
+                  <h2 className="p-4">{title}</h2>  
+                  <Field label="URL" name="url" type="url" component={ CustomInput } />
+                  <ErrorMessage name="url" component={ CustomError } />
 
-                <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
-                    <option value="2018">2018</option>
-                    <option value="2018-light">2018-light</option>
-                </Field>
-                <ErrorMessage name="theme" component={ CustomError } />
+                  <Field label="Tagline" name="tagline" type="text" component={ CustomInput } />
+                  <ErrorMessage name="tagline" component={ CustomError } />
 
-                <Field label="Faculté" name="faculty" type="text" component={ CustomSelect } >
-                    <option value="CDH">CDH</option>
-                    <option value="CDM">CDM</option>
-                    <option value="ENAC">ENAC</option>
-                    <option value="IC">IC</option>
-                    <option value="SB">SB</option>
-                    <option value="STI">STI</option>
-                    <option value="SV">SV</option>
-                </Field>
-                <ErrorMessage name="faculty" component={ CustomError } />
+                  <Field label="Titre" name="title" type="text" component={ CustomInput } />
+                  <ErrorMessage name="title" component={ CustomError } />
 
-                <Field label="Langue" name="language" type="text" component={ CustomSelect } >
-                    <option value="fr">français</option>
-                    <option value="en">anglais</option>
-                </Field>
-                <ErrorMessage name="language" component={ CustomError } />
+                  <Field label="Openshift Environnement" name="openshift_env" component={ CustomSelect }>
+                   {this.state.openshiftenvs.map( (env, index) => (
+                    <option key={env._id} value={env.name}>{env.name}</option>
+                   ))}
+                  </Field>
+                  <ErrorMessage name="openshift_env" component={ CustomError } />
+                  
+                  <Field label="Type" name="type" type="text" component={ CustomSelect } >
+                  {this.state.types.map( (type, index) => (
+                    <option key={type._id} value={type.name}>{type.name}</option>
+                   ))}
+                  </Field>
+                  <ErrorMessage name="type" component={ CustomError } />
+                  
+                  <Field label="Category" name="category" type="text" component={ CustomInput } />
+                  <ErrorMessage name="category" component={ CustomError } />
 
-                <Field label="Unit ID" name="unit_id" type="text" component={ CustomInput } />
-                <ErrorMessage name="unit_id" component={ CustomError } />
+                  <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
+                  {this.state.themes.map( (theme, index) => (
+                    <option key={theme._id} value={theme.name}>{theme.name}</option>
+                   ))}
+                  </Field>
+                  <ErrorMessage name="theme" component={ CustomError } />
 
-                <Field label="N°ticket SNOW" name="snow_number" type="text" component={ CustomInput } />
-                <ErrorMessage name="snow_number" component={ CustomError } />
-                
-                <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                </form>
-            )}
-            </Formik>
-        </div>
-      )
+                  <Field label="Faculté" name="faculty" type="text" component={ CustomInput } />
+                  <ErrorMessage name="faculty" component={ CustomError } />
+                  
+                  <h6>Langues</h6>                  
+                  <Field label="FR" name="languages" type="checkbox" value="fr" component={ CustomCheckbox } />
+                  <Field label="EN" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
+                  <ErrorMessage name="languages" component={ CustomError } />
+
+                  <Field label="Unit ID" name="unit_id" type="text" component={ CustomInput } />
+                  <ErrorMessage name="unit_id" component={ CustomError } />
+
+                  <Field label="N°ticket SNOW" name="snow_number" type="text" component={ CustomInput } />
+                  <ErrorMessage name="snow_number" component={ CustomError } />
+                  
+                  <Field label="Date de fermeture planifiée" name="planned_closing_date" type="date" component={ CustomInput } />
+                  <ErrorMessage name="snow_number" component={ CustomError } />
+
+                  <div className="form-group">
+                    <label htmlFor="comment">Commentaire</label>
+                    <textarea className="form-control" id="comment" name="comment" rows="5" cols="33"></textarea>
+                  </div>
+                  
+                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                  <pre>{JSON.stringify(values, null, 2)}</pre>
+                  </form>
+
+              )}
+              </Formik>
+          </div>
+        )
+      }
     }
-  }
-}}
+  } 
+}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Sites } from '../../../api/sites';
+import { Sites } from '../../../api/collections';
 
 class Cells extends React.Component {
     render() {
@@ -16,7 +16,9 @@ class Cells extends React.Component {
                         <td>{site.type}</td>
                         <td>{site.theme}</td>
                         <td>{site.faculty}</td>
-                        <td>{site.language}</td>
+                        <td>{site.languages.map((lang, i) => (
+                          <span key={i}>{lang}, </span>  
+                        ))}</td>
                         <td>{site.unit_id}</td>
                         <td>{site.snow_number}</td>
                         <td>

@@ -27,10 +27,12 @@ export default class Header extends Component {
                     <li className="nav-item">
                         <NavLink className="nav-link" activeClassName="active" to="/add">Ajouter un nouveau site</NavLink>
                     </li>
+                    <li className="nav-item">
+                        <NavLink className="nav-link" activeClassName="active" to="/admin">Admin</NavLink>
+                    </li>
                     { logLink }
                 </ul>
             </div>
-
         </header>
     );
   }
