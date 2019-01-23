@@ -1,3 +1,4 @@
+import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Sites } from '../../../api/collections';
@@ -24,7 +25,7 @@ class Cells extends React.Component {
                         <td>
                             <NavLink activeClassName="active" to={`/edit/${site._id}`}>Éditer</NavLink>
                             <button type="button" className="close" aria-label="Close">
-                                <span  onClick={() => this.props.deleteSite(site._id)} aria-hidden="true">&times;</span>
+                                <span onClick={() => this.props.deleteSite(site._id)} aria-hidden="true">&times;</span>
                             </button>
                         </td>
                     </tr>
@@ -34,25 +35,10 @@ class Cells extends React.Component {
     }
 }
 
-export default class List extends React.Component {
-    
-    constructor(props){
-        super(props);
-        this.state = {
-            sites: []
-        }
-    }
-
-    componentDidMount() {
-        Tracker.autorun(()=>{
-            let sites = Sites.find({}, {sort: {url: 1}}).fetch();
-            this.setState({sites: sites});
-        });
-    }
+class List extends React.Component {
 
     deleteSite = (siteID) => {
-        const sites = [...this.state.sites.filter(site => site._id !== siteID)];
-        this.setState({sites});
+        const sites = [...this.props.sites.filter(site => site._id !== siteID)];
         Sites.remove({_id:siteID});
     }
 
@@ -77,10 +63,16 @@ export default class List extends React.Component {
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <Cells sites={this.state.sites} deleteSite={ this.deleteSite }/>
+                <Cells sites={this.props.sites} deleteSite={ this.deleteSite }/>
             </table>
         </div>
         )
         return content;
     }
 }
+
+export default withTracker(() => {
+    return {
+      sites: Sites.find({}, {sort: {url: 1}}).fetch(),
+    };
+  })(List);

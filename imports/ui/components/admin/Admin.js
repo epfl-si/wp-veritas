@@ -1,3 +1,4 @@
+import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
@@ -5,30 +6,11 @@ import { Types, OpenshiftEnvs, Themes } from '../../../api/collections';
 import { CustomError, CustomInput } from '../sites/CustomFields';
 import { REQUIRED_MSG } from '../Messages';
 
-export default class AddOpenshiftEnvs extends React.Component {
+class Admin extends React.Component {
 
     nameSchema = Yup.object().shape({
         name: Yup.string().required(REQUIRED_MSG),  
     })
-
-    constructor(props){
-        super(props);
-    
-        this.state = {
-            openshiftenvs: [],
-            types:[],
-            themes: [],
-        }
-    }
-
-    componentDidMount() {
-        Tracker.autorun(() => {
-          let openshiftenvs = OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch();
-          let types = Types.find({}, {sort: {name:1 }}).fetch();
-          let themes = Themes.find({}, {sort: {name:1 }}).fetch();
-          this.setState({openshiftenvs: openshiftenvs, types: types, themes: themes});
-        });
-    }
 
     submit = (collection, values, actions) => {
         collection.insert(values);
@@ -36,7 +18,6 @@ export default class AddOpenshiftEnvs extends React.Component {
         actions.resetForm();
     }
     
-
     submitOpenShiftEnv = (values, actions) => {
         this.submit(OpenshiftEnvs, values, actions);
     }
@@ -49,22 +30,20 @@ export default class AddOpenshiftEnvs extends React.Component {
         this.submit(Themes, values, actions);
     }
 
-    delete = (collection, elements, elementID) => {
-        const newElements = [...elements.filter(element => element._id !== elementID)];
-        this.setState({newElements});
+    delete = (collection, elementID) => {
         collection.remove({_id:elementID});
     }
 
     deleteOpenshiftEnv = (openshiftEnvID) => {
-        this.delete(OpenshiftEnvs, this.state.openshiftenvs, openshiftEnvID);
+        this.delete(OpenshiftEnvs, openshiftEnvID);
     }
 
     deleteType = (typeID) => {
-        this.delete(Types, this.state.types, typeID);
+        this.delete(Types, typeID);
     }
 
     deleteTheme = (themeID) => {
-        this.delete(Themes, this.state.themes, themeID);
+        this.delete(Themes, themeID);
     }
 
     render() {
@@ -75,7 +54,7 @@ export default class AddOpenshiftEnvs extends React.Component {
                 <div className="row col-6">
                     
                     <ul className="list-group w-100">
-                        {this.state.openshiftenvs.map( (env, index) => (
+                        {this.props.openshiftenvs.map( (env, index) => (
                             <li key={env._id} value={env.name} className="list-group-item">
                                 {env.name}
                                 <button type="button" className="close" aria-label="Close">
@@ -112,7 +91,7 @@ export default class AddOpenshiftEnvs extends React.Component {
                 <div className="row col-6">
                     
                     <ul className="list-group w-100">
-                        {this.state.types.map( (type, index) => (
+                        {this.props.types.map( (type, index) => (
                             <li key={type._id} value={type.name} className="list-group-item">
                                 {type.name}
                                 <button type="button" className="close" aria-label="Close">
@@ -149,7 +128,7 @@ export default class AddOpenshiftEnvs extends React.Component {
                 <div className="row col-6">
                     
                     <ul className="list-group w-100">
-                        {this.state.themes.map( (theme, index) => (
+                        {this.props.themes.map( (theme, index) => (
                             <li key={theme._id} value={theme.name} className="list-group-item">
                                 {theme.name}
                                 <button type="button" className="close" aria-label="Close">
@@ -185,3 +164,11 @@ export default class AddOpenshiftEnvs extends React.Component {
         )
     }
 }
+
+export default withTracker(() => {
+    return {
+        openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
+        types: Types.find({}, {sort: {name:1 }}).fetch(),
+        themes: Themes.find({}, {sort: {name:1 }}).fetch(),
+    };
+})(Admin);

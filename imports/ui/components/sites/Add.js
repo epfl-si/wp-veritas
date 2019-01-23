@@ -42,6 +42,11 @@ export default class Add extends React.Component {
     }
   } 
 
+  getSite = async () => {
+    let site = await Sites.findOne({_id: this.props.match.params._id});
+    return site;
+  }
+
   componentDidMount() {
     
     Tracker.autorun(()=>{
@@ -51,9 +56,8 @@ export default class Add extends React.Component {
       this.setState({openshiftenvs: openshiftenvs, types: types, themes: themes});
     });
 
-    if (this.state.action === 'edit') {        
-      Tracker.autorun(()=>{
-        let site = Sites.findOne({_id: this.props.match.params._id});
+    if (this.state.action === 'edit') {
+      let site = this.getSite().then((site) => {
         this.setState({site: site});
       });
     }
