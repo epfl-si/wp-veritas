@@ -26,5 +26,8 @@
       "server": "server/main.js"
     },
     "testModule": "tests/main.js"
+  },
+  "staticAssets": {
+    "exportAbsolutePaths": false
   }
 }
