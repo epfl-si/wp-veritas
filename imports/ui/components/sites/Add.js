@@ -149,7 +149,7 @@ export default class Add extends React.Component {
                 </Field>
                 <ErrorMessage name="type" component={ CustomError } />
                 
-                <Field label="Category" name="category" type="text" component={ CustomInput } />
+                <Field label="Catégorie" name="category" type="text" component={ CustomInput } />
                 <ErrorMessage name="category" component={ CustomError } />
 
                 <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
