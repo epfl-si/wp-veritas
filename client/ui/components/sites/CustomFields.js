@@ -12,6 +12,21 @@ export const CustomInput = ({ field, form: { errors }, ...props }) => {
     </div>
   )
 }
+
+export const CustomTextarea = ({ field, form: { errors }, ...props}) => {
+  return (
+    <div className="form-group">
+      <label>{ props.label }</label>
+      <textarea 
+        { ...field} 
+        { ...props } 
+        id={field.name} 
+        className="form-control" 
+        rows="5" 
+        cols="33" ></textarea>
+    </div>
+  )
+}
     
 export const CustomSelect = ({ field, form, ...props }) => {
   return (

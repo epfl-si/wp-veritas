@@ -2,7 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
 
 // In order to debug collections inside browser
-import { Sites } from '../imports/api/collections';
+import { Sites } from '../both';
+import './publications';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -15,14 +16,14 @@ if (Meteor.isServer) {
     prettyJson: true
   });
 
-  // Maps to: /api/articles/:id
+  // Maps to: /api/sites
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       return Sites.find({}).fetch();
     }
   });
 
-  // Maps to: /api/articles/:id
+  // Maps to: /api/sites/:id
   Api.addRoute('sites/:id', {authRequired: false}, {
     get: function () {
       return Sites.findOne(this.urlParams.id);
@@ -30,10 +31,6 @@ if (Meteor.isServer) {
   });
 }
 
-
 Meteor.startup(() => {
   // code to run on server at startup
 });
-
-
-

@@ -1,7 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Sites } from '../../../api/collections';
+import { Sites } from '../../../../both/collections';
 
 class Cells extends React.Component {
     render() {
@@ -13,15 +13,15 @@ class Cells extends React.Component {
                         <td>{site.url}</td>
                         <td>{site.tagline}</td>
                         <td>{site.title}</td>
-                        <td>{site.openshift_env}</td>
+                        <td>{site.openshiftEnv}</td>
                         <td>{site.type}</td>
                         <td>{site.theme}</td>
                         <td>{site.faculty}</td>
                         <td>{site.languages.map((lang, i) => (
                           <span key={i}>{lang}, </span>  
                         ))}</td>
-                        <td>{site.unit_id}</td>
-                        <td>{site.snow_number}</td>
+                        <td>{site.unitId}</td>
+                        <td>{site.snowNumber}</td>
                         <td>
                             <NavLink activeClassName="active" to={`/edit/${site._id}`}>Éditer</NavLink>
                             <button type="button" className="close" aria-label="Close">
@@ -37,15 +37,23 @@ class Cells extends React.Component {
 
 class List extends React.Component {
 
-    deleteSite = (siteID) => {
-        const sites = [...this.props.sites.filter(site => site._id !== siteID)];
-        Sites.remove({_id:siteID});
+    deleteSite = (siteId) => {
+        const sites = [...this.props.sites.filter(site => site._id !== siteId)];
+        Meteor.call(
+            'removeSite',
+            siteId, 
+            function(error, siteId) {
+                if (error) {
+                  console.log(`ERROR removeSite ${error}`);
+                }
+            }
+        );
     }
 
     render() {
         let content = (
-            <div className="container-full ml-4 mr-4">
-            <h2 className="p-4">Source de vérité des sites WordPress</h2>
+            <div className="">
+            <h2 className="py-4">Source de vérité des sites WordPress</h2>
             <table className="table table-striped">
                 <thead>
                     <tr>
@@ -72,6 +80,8 @@ class List extends React.Component {
 }
 
 export default withTracker(() => {
+    Meteor.subscribe('sites.list');
+
     return {
       sites: Sites.find({}, {sort: {url: 1}}).fetch(),
     };
