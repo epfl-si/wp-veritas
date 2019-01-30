@@ -53,7 +53,7 @@ class List extends React.Component {
     render() {
         let content = (
             <div className="">
-            <h2 className="py-4">Source de vérité des sites WordPress</h2>
+            <h4 className="py-4">Source de vérité des sites WordPress</h4>
             <table className="table table-striped">
                 <thead>
                     <tr>

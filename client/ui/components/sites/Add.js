@@ -1,11 +1,12 @@
 import React from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
 import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from './CustomFields';
 import { BAD_URL_MSG, REQUIRED_MSG, LANGUAGES_MSG } from '../Messages';
 
-export default class Add extends React.Component {
+class Add extends React.Component {
 
   siteSchema = Yup.object().shape({
       url: Yup.string().url(BAD_URL_MSG).required(REQUIRED_MSG),
@@ -37,9 +38,6 @@ export default class Add extends React.Component {
     this.state = {
         site: '',
         action: action,
-        openshiftenvs: [],
-        types: [],
-        themes: [],
     }
   } 
 
@@ -50,13 +48,6 @@ export default class Add extends React.Component {
 
   componentDidMount() {
     
-    Tracker.autorun(()=>{
-      let openshiftenvs = OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch();
-      let types = Types.find({}, {sort: {name:1 }}).fetch();
-      let themes = Themes.find({}, {sort: {name:1 }}).fetch();
-      this.setState({openshiftenvs: openshiftenvs, types: types, themes: themes});
-    });
-
     if (this.state.action === 'edit') {
       let site = this.getSite().then((site) => {
         this.setState({site: site});
@@ -156,14 +147,14 @@ export default class Add extends React.Component {
                 <ErrorMessage name="title" component={ CustomError } />
 
                 <Field label="Openshift Environnement" name="openshiftEnv" component={ CustomSelect }>
-                  {this.state.openshiftenvs.map( (env, index) => (
+                  {this.props.openshiftenvs.map( (env, index) => (
                   <option key={env._id} value={env.name}>{env.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
                 
                 <Field label="Type" name="type" type="text" component={ CustomSelect } >
-                {this.state.types.map( (type, index) => (
+                {this.props.types.map( (type, index) => (
                   <option key={type._id} value={type.name}>{type.name}</option>
                   ))}
                 </Field>
@@ -173,7 +164,7 @@ export default class Add extends React.Component {
                 <ErrorMessage name="category" component={ CustomError } />
 
                 <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
-                {this.state.themes.map( (theme, index) => (
+                {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
                 </Field>
@@ -211,3 +202,16 @@ export default class Add extends React.Component {
     return content;
   }
 }
+
+export default withTracker(() => {
+    Meteor.subscribe('openshiftEnv.list');
+    Meteor.subscribe('type.list');
+    Meteor.subscribe('theme.list');
+
+    return {
+        openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
+        types: Types.find({}, {sort: {name:1 }}).fetch(),
+        themes: Themes.find({}, {sort: {name:1 }}).fetch(),
+        
+    };  
+})(Add);
