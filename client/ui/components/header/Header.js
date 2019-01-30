@@ -15,7 +15,7 @@ export default class Header extends Component {
             <div className="collapse navbar-collapse">
                 <ul className="navbar-nav ml-auto">
                     <li className="nav-item">
-                        <NavLink className="nav-link" activeClassName="active" to="/list">Voir la source de vérité</NavLink>
+                        <NavLink className="nav-link" activeClassName="active" to="/">Voir la source de vérité</NavLink>
                     </li>
                     <li className="nav-item">
                         <NavLink className="nav-link" activeClassName="active" to="/add">Ajouter un nouveau site</NavLink>

@@ -4,24 +4,65 @@ import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
 import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from './CustomFields';
-import { BAD_URL_MSG, REQUIRED_MSG, LANGUAGES_MSG } from '../Messages';
+import Messages from '../Messages';
 
 class Add extends React.Component {
 
   siteSchema = Yup.object().shape({
-      url: Yup.string().url(BAD_URL_MSG).required(REQUIRED_MSG),
-      tagline: Yup.string(),
-      
-      title: Yup.string().required(REQUIRED_MSG),
-      openshiftEnv: Yup.string().required(REQUIRED_MSG),
-      type: Yup.string().required(REQUIRED_MSG),
-      category: Yup.string(),
-      theme: Yup.string().required(REQUIRED_MSG),
-      faculty: Yup.string(),
-      languages: Yup.array().required(LANGUAGES_MSG),
-      unitId: Yup.string().required(REQUIRED_MSG),
-      snowNumber: Yup.string(),
-      comment: Yup.string(),
+      url: Yup.
+        string().
+        url(Messages.BAD_URL_MSG).
+        required(Messages.REQUIRED_MSG).
+        min(19, Messages.MIN_19_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      tagline: Yup.
+        string().
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      title: Yup.
+        string().
+        required(Messages.REQUIRED_MSG).
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      openshiftEnv: Yup.
+        string().
+        required(Messages.REQUIRED_MSG).
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      type: Yup.
+        string().
+        required(Messages.REQUIRED_MSG).
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      category: Yup.
+        string().
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      theme: Yup.
+        string().
+        required(Messages.REQUIRED_MSG).
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      faculty: Yup.
+        string().
+        min(2, Messages.MIN_2_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      languages: Yup.
+        array().
+        required(Messages.LANGUAGES_MSG),
+      unitId: Yup.
+        string().
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG).
+        required(Messages.REQUIRED_MSG),
+      snowNumber: Yup.
+        string().
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(100, Messages.MAX_100_CHAR_MSG),
+      comment: Yup.
+        string().
+        min(3, Messages.MIN_3_CHAR_MSG).
+        max(255, Messages.MAX_255_CHAR_MSG),
       plannedClosingDate: Yup.date()
   })
 
@@ -62,6 +103,9 @@ class Add extends React.Component {
         values, 
         function(error, siteId) {
           if (error) {
+            console.log(error.message);
+            actions.setSubmitting(false);
+            form.errors[error.name]
           } else {
             this.props.history.push('/list');
           }
@@ -74,6 +118,7 @@ class Add extends React.Component {
         values, 
         (error, siteId) => {
           if (error) {
+            console.log(error);
           } else {
             this.props.history.push('/list');
           }

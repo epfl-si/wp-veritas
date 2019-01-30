@@ -32,67 +32,84 @@ export const themesSchema = new SimpleSchema({
  * TODO: Voir si on peut optimiser le type des champs. Exemple: URL ?, Date ?, etc
  */
 export const sitesSchema = new SimpleSchema({
+    // _id use to update a site
+    _id: {
+        type: String,
+        optional: true,
+    },
     url: {
         type: String,
+        optional: false,
         max: 100,
         min: 19, // https://www.epfl.ch is the minimum
-        optional: true
     }, 
     tagline: {
         type: String,
         optional: true,
         max: 100,
+        min: 3,
     },
     title: {
+        type: String,
+        optional: false,
+        max: 100,
+        min: 3,
+    },
+    openshiftEnv: {
+        type: String,
+        optional: false,
+        max: 100,
+        min: 3,
+    },
+    type: {
+        type: String,
+        optional: false,
+        max: 100,
+        min: 3,
+    },
+    category: {
         type: String,
         optional: true,
         max: 100,
         min: 3,
-    },
-    _id: {
-        type: String,
-        optional: true
-    },
-    openshiftEnv: {
-        type: String,
-        optional: true
-    },
-    type: {
-        type: String,
-        optional: true
-    },
-    category: {
-        type: String,
-        optional: true
     }, 
     theme: {
         type: String,
-        optional: true
+        optional: false,
+        max: 100,
+        min: 3,
     },
     faculty: {
         type: String,
-        optional: true
+        optional: true,
+        min: 2,
+        max: 100,
     },
-
     languages: {
         type: Array,
     },
     'languages.$': String,
     unitId: {
         type: String,
-        optional: true
+        optional: false,
+        min: 3,
+        max: 100,
     },
     snowNumber: {
         type: String,
-        optional: true
+        optional: true,
+        min: 3,
+        max: 100,
     },
     comment: {
         type: String,
-        optional: true
+        optional: true,
+        min: 3,
+        max: 255,
     },
     plannedClosingDate: {
         type: String,
-        optional: true
+        optional: true,
     }
 }, { check });
 
