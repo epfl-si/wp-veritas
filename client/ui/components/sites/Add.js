@@ -22,7 +22,7 @@ class Add extends React.Component {
       title: Yup.
         string().
         required(Messages.REQUIRED_MSG).
-        min(3, Messages.MIN_3_CHAR_MSG).
+        min(2, Messages.MIN_2_CHAR_MSG).
         max(100, Messages.MAX_100_CHAR_MSG),
       openshiftEnv: Yup.
         string().
@@ -79,6 +79,8 @@ class Add extends React.Component {
     this.state = {
         site: '',
         action: action,
+        add_success: false,
+        edit_success: false,
     }
   } 
 
@@ -101,13 +103,13 @@ class Add extends React.Component {
       Meteor.call(
         'insertSite',
         values, 
-        function(error, siteId) {
-          if (error) {
-            console.log(error.message);
-            actions.setSubmitting(false);
-            form.errors[error.name]
+        (errors, siteId) => {
+          if (errors) {
+            console.log(errors);
           } else {
-            this.props.history.push('/list');
+            actions.setSubmitting(false);
+            actions.resetForm(); 
+            this.setState({add_success: true});
           }
         }
       );
@@ -116,11 +118,13 @@ class Add extends React.Component {
       Meteor.call(
         'updateSite',
         values, 
-        (error, siteId) => {
-          if (error) {
-            console.log(error);
+        (errors, siteId) => {
+          if (errors) {
+            console.log(errors);
           } else {
-            this.props.history.push('/list');
+            actions.setSubmitting(false);
+            actions.resetForm(); 
+            this.setState({edit_success: true});
           }
         }
       );
@@ -137,6 +141,18 @@ class Add extends React.Component {
 
       let initialValues;
       let title;
+
+      let msg_add_success = (
+        <div class="alert alert-success" role="alert">
+          Le nouveau site a été ajouté avec succès ! 
+        </div> 
+      )
+
+      let msg_edit_success = (
+        <div class="alert alert-success" role="alert">
+          Le site a été modifié avec succès ! 
+        </div> 
+      )
       
       if (this.state.action === 'edit') {
       
@@ -166,7 +182,8 @@ class Add extends React.Component {
           
         <div className="card my-2">
             <h5 className="card-header">{title}</h5> 
-        
+            { this.state.add_success && msg_add_success }
+            { this.state.edit_success && msg_edit_success }
             <Formik
             onSubmit={ this.submit }
             initialValues={ initialValues }
@@ -241,6 +258,8 @@ class Add extends React.Component {
                 
             )}
             </Formik>
+            { this.state.add_success && msg_add_success }
+            { this.state.edit_success && msg_edit_success }
         </div>
       )
     }

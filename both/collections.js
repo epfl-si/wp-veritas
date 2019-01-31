@@ -6,6 +6,7 @@ export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
         min: 3,
+        optional: false,
     }
 }, { check });
 
@@ -13,6 +14,7 @@ export const typesSchema = new SimpleSchema({
     name: {
         type: String,
         min: 3,
+        optional: false,
     }
 }, { check });
 
@@ -20,6 +22,7 @@ export const themesSchema = new SimpleSchema({
     name: {
         type: String,
         min: 3,
+        optional: false,
     }
 }, { check });
 
@@ -47,13 +50,12 @@ export const sitesSchema = new SimpleSchema({
         type: String,
         optional: true,
         max: 100,
-        min: 3,
     },
     title: {
         type: String,
         optional: false,
         max: 100,
-        min: 3,
+        min: 2,
     },
     openshiftEnv: {
         type: String,
@@ -82,7 +84,6 @@ export const sitesSchema = new SimpleSchema({
     faculty: {
         type: String,
         optional: true,
-        min: 2,
         max: 100,
     },
     languages: {
@@ -98,13 +99,11 @@ export const sitesSchema = new SimpleSchema({
     snowNumber: {
         type: String,
         optional: true,
-        min: 3,
         max: 100,
     },
     comment: {
         type: String,
         optional: true,
-        min: 3,
         max: 255,
     },
     plannedClosingDate: {

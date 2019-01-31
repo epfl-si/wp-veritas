@@ -13,12 +13,8 @@ import { check } from 'meteor/check';
 Meteor.methods({
 
     insertSite(site){
-        try {
-            sitesSchema.validate(site);
-        }
-        catch(errors) {
-            throw new Meteor.Error(errors)
-        }
+        
+        sitesSchema.validate(site);
 
         // TODO: Lorsque TEQUILA sera en place
         /*

@@ -80,9 +80,10 @@ class List extends React.Component {
 }
 
 export default withTracker(() => {
+
     Meteor.subscribe('sites.list');
 
     return {
       sites: Sites.find({}, {sort: {url: 1}}).fetch(),
     };
-  })(List);
+})(List);
