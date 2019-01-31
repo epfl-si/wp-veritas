@@ -14,13 +14,11 @@ Meteor.methods({
 
     insertSite(site){
         
-        sitesSchema.validate(site);
-
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        sitesSchema.validate(site);
 
         let siteDocument = {
             url: site.url,
@@ -43,13 +41,11 @@ Meteor.methods({
     
     updateSite(site){
 
-        sitesSchema.validate(site);
-
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        sitesSchema.validate(site);
 
         let siteDocument = {
             url: site.url,
@@ -76,27 +72,23 @@ Meteor.methods({
     
     removeSite(siteId){
 
-        check(siteId, String);
-        
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        check(siteId, String);
 
         Sites.remove({_id: siteId});
     },
 
     insertOpenshiftEnv(openshiftEnv) {
 
-        openshiftEnvsSchema.validate(openshiftEnv);
-
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
 
+        openshiftEnvsSchema.validate(openshiftEnv);
+        
         let openshiftEnvDocument = {
             name: openshiftEnv.name,
         };
@@ -106,26 +98,22 @@ Meteor.methods({
 
     removeOpenshiftEnv(openshiftEnvId){
 
-        check(openshiftEnvId, String);
-        
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        check(openshiftEnvId, String);
 
         OpenshiftEnvs.remove({_id: openshiftEnvId});
     },
 
     insertType(type) {
 
-        typesSchema.validate(type);
-
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        typesSchema.validate(type);
 
         let typeDocument = {
             name: type.name,
@@ -137,44 +125,37 @@ Meteor.methods({
 
     removeType(typeId){
 
-        check(typeId, String);
-        
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        check(typeId, String);
 
         Types.remove({_id: typeId});
     },
 
     insertTheme(theme) {
 
-        themesSchema.validate(theme);
-
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        themesSchema.validate(theme);
 
         let themeDocument = {
             name: theme.name,
         };
 
         return Themes.insert(themeDocument);
-
     },
 
     removeTheme(themeId){
 
-        check(themeId, String);
-        
-        // TODO: Lorsque TEQUILA sera en place
-        /*
         if (!this.userId) {
             throw new Meteor.Error('not connected');
-        }*/
+        }
+
+        check(themeId, String);
 
         Themes.remove({_id: themeId});
     },
