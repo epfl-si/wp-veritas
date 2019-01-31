@@ -221,7 +221,6 @@ export default withTracker(() => {
         openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
         types: Types.find({}, {sort: {name:1 }}).fetch(),
         themes: Themes.find({}, {sort: {name:1 }}).fetch(),
-        
     };
     
 })(Admin);

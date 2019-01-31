@@ -5,10 +5,7 @@ Meteor.publish('sites.list', function() {
     
     let siteCursor = Sites.find(
         {}, 
-        {
-            // fields: {content: 0},  // champ à exclure => 0
-            sort: {url: 1},
-        }
+        { sort: {url: 1}, }
     );
 
     return [

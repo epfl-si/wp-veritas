@@ -28,7 +28,7 @@ if (Meteor.isServer) {
   };
 
   // Global API configuration
-  var Api = new Restivus({
+  let Api = new Restivus({
     useDefaultAuth: true,
     prettyJson: true
   });
