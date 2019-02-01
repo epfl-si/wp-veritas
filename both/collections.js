@@ -7,6 +7,7 @@ export const openshiftEnvsSchema = new SimpleSchema({
         type: String,
         min: 3,
         optional: false,
+        unique: true,
     }
 }, { check });
 

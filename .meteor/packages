@@ -21,6 +21,8 @@ static-html
 fourseven:scss
 seba:minifiers-autoprefixer
 nathantreid:static-assets
+aldeed:collection2
+aldeed:schema-index
 
 alexwine:bootstrap-4
 peppelg:bootstrap-3-modal

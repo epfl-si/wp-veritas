@@ -19,6 +19,17 @@ Meteor.methods({
         }
 
         sitesSchema.validate(site);
+        
+        // Delete "/" at the end of URL 
+        let url = site.url;
+        if (url.endsWith('/')) {
+            site.url = url.slice(0, -1);
+        }
+
+        // Check if url is unique
+        if (Sites.find({url:site.url}).count()>0) {
+            throw new Meteor.Error('Url existe déjà');
+        }
 
         let siteDocument = {
             url: site.url,
@@ -88,6 +99,11 @@ Meteor.methods({
         }
 
         openshiftEnvsSchema.validate(openshiftEnv);
+
+        // Check if name is unique
+        if (OpenshiftEnvs.find({name:openshiftEnv.name}).count()>0) {
+            throw new Meteor.Error('Nom de l\'environnement openshift existe déjà');
+        }
         
         let openshiftEnvDocument = {
             name: openshiftEnv.name,
@@ -111,6 +127,11 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        // Check if name is unique
+        if (Types.find({name: type.name}).count()>0) {
+            throw new Meteor.Error('Nom du type existe déjà');
         }
 
         typesSchema.validate(type);
@@ -141,6 +162,11 @@ Meteor.methods({
         }
 
         themesSchema.validate(theme);
+
+        // Check if name is unique
+        if (Themes.find({name: theme.name}).count()>0) {
+            throw new Meteor.Error('Nom du thème existe déjà');
+        }
 
         let themeDocument = {
             name: theme.name,

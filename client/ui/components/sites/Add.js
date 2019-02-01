@@ -14,7 +14,15 @@ class Add extends React.Component {
         url(Messages.BAD_URL_MSG).
         required(Messages.REQUIRED_MSG).
         min(19, Messages.MIN_19_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
+        max(100, Messages.MAX_100_CHAR_MSG).
+        test('checkStartsWithURL', Messages.URL_STARTSWITH_MSG, 
+          function(url) {
+            let validate = false;
+            if (url.startsWith('https://')) {
+              validate = true;
+            }
+            return validate;
+          }),
       tagline: Yup.
         string().
         min(3, Messages.MIN_3_CHAR_MSG).
@@ -81,6 +89,7 @@ class Add extends React.Component {
         action: action,
         add_success: false,
         edit_success: false,
+        error: '',
     }
   } 
 
@@ -105,7 +114,8 @@ class Add extends React.Component {
         values, 
         (errors, siteId) => {
           if (errors) {
-            console.log(errors);
+            this.setState({error: errors.error})
+            actions.setSubmitting(false);
           } else {
             actions.setSubmitting(false);
             actions.resetForm(); 
@@ -141,16 +151,23 @@ class Add extends React.Component {
 
       let initialValues;
       let title;
+      let error = this.state.error;
 
       let msg_add_success = (
-        <div class="alert alert-success" role="alert">
+        <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
         </div> 
       )
 
       let msg_edit_success = (
-        <div class="alert alert-success" role="alert">
+        <div className="alert alert-success" role="alert">
           Le site a été modifié avec succès ! 
+        </div> 
+      )
+      
+      let msg_error = (
+        <div className="alert alert-danger" role="alert">
+          { error }
         </div> 
       )
       
@@ -184,6 +201,7 @@ class Add extends React.Component {
             <h5 className="card-header">{title}</h5> 
             { this.state.add_success && msg_add_success }
             { this.state.edit_success && msg_edit_success }
+            { this.state.error && msg_error }
             <Formik
             onSubmit={ this.submit }
             initialValues={ initialValues }
@@ -198,7 +216,9 @@ class Add extends React.Component {
             }) => (
               
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
-                 
+                <div className="my-1 text-right">
+                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                </div>
                 <Field placeholder="URL du site à ajouter" label="URL" name="url" type="url" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
                 
@@ -251,8 +271,9 @@ class Add extends React.Component {
 
                 <Field label="Commentaire" name="comment" component={CustomTextarea} />
                 <ErrorMessage name="comment" component={ CustomError } />
-                
-                <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                <div className="my-1 text-right">
+                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                </div>
                 <pre>{JSON.stringify(values, null, 2)}</pre>
                 </form>
                 
@@ -260,6 +281,7 @@ class Add extends React.Component {
             </Formik>
             { this.state.add_success && msg_add_success }
             { this.state.edit_success && msg_edit_success }
+            { this.state.error && msg_error }
         </div>
       )
     }

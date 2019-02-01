@@ -13,6 +13,14 @@ class Admin extends React.Component {
         name: Yup.string().required(REQUIRED_MSG),  
     })
 
+    constructor(props){
+        super(props);
+        
+        this.state = {
+            error: '',
+        }
+    } 
+
     submit = (collection, values, actions) => {
         
         let meteorMethodName;
@@ -28,12 +36,15 @@ class Admin extends React.Component {
         Meteor.call(
             meteorMethodName,
             values, 
-            function(error, objectId) {
+            (error, objectId) => {
                 if (!error) {
                     actions.setSubmitting(false);
-                    actions.resetForm();                
+                    actions.resetForm();
                 } else {
                     console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
+                    this.setState({error: error.error});         
+                    actions.setSubmitting(false);
+                    actions.resetForm();
                 }
             }
         );
@@ -69,7 +80,7 @@ class Admin extends React.Component {
             function(error, objectId) {
                 if (error) {
                     console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
-                }
+                } 
             }
         );
     }
@@ -87,10 +98,17 @@ class Admin extends React.Component {
     }
 
     render() {
+        let error = this.state.error;
+        let msg_error = (
+            <div className="alert alert-danger" role="alert">
+              { error }
+            </div> 
+        )
 
         return (
         <div>
             <div className="card my-2">
+                { this.state.error && msg_error }
                 <h5 className="card-header">Liste des environnements openshift</h5>
                     
                 <ul className="list-group">
