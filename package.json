@@ -13,6 +13,7 @@
     "bcrypt": "^3.0.3",
     "formik": "^1.4.2",
     "jquery": "^3.3.1",
+    "message-box": "^0.2.0",
     "meteor-node-stubs": "^0.4.1",
     "popper.js": "^1.14.6",
     "react": "^16.7.0",

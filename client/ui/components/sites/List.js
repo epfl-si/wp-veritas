@@ -22,6 +22,7 @@ class Cells extends React.Component {
                         ))}</td>
                         <td>{site.unitId}</td>
                         <td>{site.snowNumber}</td>
+                        <td>{site.status}</td>
                         <td>
                             <NavLink activeClassName="active" to={`/edit/${site._id}`}>Éditer</NavLink>
                             <button type="button" className="close" aria-label="Close">
@@ -68,6 +69,7 @@ class List extends React.Component {
                         <th scope="col">Langue</th>
                         <th scope="col">Unit ID</th>
                         <th scope="col">N°ticket Snow</th>
+                        <th scope="col">Statut</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

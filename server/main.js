@@ -1,7 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-
-// In order to debug collections inside browser
 import { Sites } from '../both';
 import './publications';
 
@@ -10,6 +8,7 @@ WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 if (Meteor.isServer) {
 
+  /** TEQUILA 
   Tequila.options.request = ['uniqueid', 'email'];
 
   // In Meteor.users documents, the _id is the user's SCIPER:
@@ -26,6 +25,7 @@ if (Meteor.isServer) {
     );
     return tequilaResponse.uniqueid
   };
+  */
 
   // Global API configuration
   let Api = new Restivus({
@@ -47,7 +47,3 @@ if (Meteor.isServer) {
     }
   });
 }
-
-Meteor.startup(() => {
-  // code to run on server at startup
-});

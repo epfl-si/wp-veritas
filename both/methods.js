@@ -9,6 +9,53 @@ import {
     themesSchema } from './collections';
 
 import { check } from 'meteor/check'; 
+import { throwMeteorError } from './error';
+
+function prepareUpdateInsert(site, action) {
+
+    // Delete "/" at the end of URL 
+    let url = site.url;
+    if (url.endsWith('/')) {
+        site.url = url.slice(0, -1);
+    }
+    
+    // Check if url is unique
+    // TODO: Move this code to SimpleSchema custom validation function
+    let site_number;
+    if (action === 'update') {
+        number = 1;
+    } else {
+        number = 0;
+    }
+    if (Sites.find({url:site.url}).count() > 0) {
+        throwMeteorError('url', 'Cette URL existe déjà !');
+    }
+
+    if (site.status === 'requested') {
+        site.requestedDate = new Date();
+    } else {
+        site.requestedDate = null;
+    }
+
+    if (site.status === 'created') {
+        site.createdDate = new Date();
+    } else {
+        site.createdDate = null;
+    }
+    
+    if (site.status === 'archived') {
+        site.archivedDate = new Date();
+    } else {
+        site.archivedDate = null;
+    }
+
+    if (site.status === 'trashed') {
+        site.trashedDate = new Date();
+    } else {
+        site.trashedDate = null;
+    }
+    return site;
+}
 
 Meteor.methods({
 
@@ -19,18 +66,9 @@ Meteor.methods({
         }
 
         sitesSchema.validate(site);
+
+        site = prepareUpdateInsert(site);
         
-        // Delete "/" at the end of URL 
-        let url = site.url;
-        if (url.endsWith('/')) {
-            site.url = url.slice(0, -1);
-        }
-
-        // Check if url is unique
-        if (Sites.find({url:site.url}).count()>0) {
-            throw new Meteor.Error('Url existe déjà');
-        }
-
         let siteDocument = {
             url: site.url,
             tagline: site.tagline,
@@ -43,8 +81,13 @@ Meteor.methods({
             languages: site.languages,
             unitId: site.unitId,
             snowNumber: site.snowNumber,
+            status: site.status,
             comment: site.comment,
-            plannedClosingDate: site.plannedClosingDate
+            plannedClosingDate: site.plannedClosingDate,
+            requestedDate: site.requestedDate,
+            createdDate: site.createdDate,
+            archivedDate: site.archivedDate,
+            trashedDate: site.trashedDate,
         }
 
         return Sites.insert(siteDocument);
@@ -57,6 +100,8 @@ Meteor.methods({
         }
 
         sitesSchema.validate(site);
+
+        site = prepareUpdateInsert(site);
 
         let siteDocument = {
             url: site.url,
@@ -99,10 +144,11 @@ Meteor.methods({
         }
 
         openshiftEnvsSchema.validate(openshiftEnv);
-
+        
         // Check if name is unique
+        // TODO: Move this code to SimpleSchema custom validation function
         if (OpenshiftEnvs.find({name:openshiftEnv.name}).count()>0) {
-            throw new Meteor.Error('Nom de l\'environnement openshift existe déjà');
+            throwMeteorError('name', 'Cet environnement openshift existe déjà !');
         }
         
         let openshiftEnvDocument = {
@@ -130,8 +176,9 @@ Meteor.methods({
         }
 
         // Check if name is unique
+        // TODO: Move this code to SimpleSchema custom validation function
         if (Types.find({name: type.name}).count()>0) {
-            throw new Meteor.Error('Nom du type existe déjà');
+            throwMeteorError('name', 'Nom du type existe déjà !');
         }
 
         typesSchema.validate(type);
@@ -164,8 +211,9 @@ Meteor.methods({
         themesSchema.validate(theme);
 
         // Check if name is unique
+        // TODO: Move this code to SimpleSchema custom validation function
         if (Themes.find({name: theme.name}).count()>0) {
-            throw new Meteor.Error('Nom du thème existe déjà');
+            throwMeteorError('name', 'Nom du thème existe déjà !');
         }
 
         let themeDocument = {

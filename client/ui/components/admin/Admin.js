@@ -1,25 +1,11 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
-import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Types, OpenshiftEnvs, Themes } from '../../../../both/collections';
 import { CustomError, CustomInput } from '../sites/CustomFields';
-import { REQUIRED_MSG } from '../Messages';
 
 class Admin extends React.Component {
-
-    nameSchema = Yup.object().shape({
-        name: Yup.string().required(REQUIRED_MSG),  
-    })
-
-    constructor(props){
-        super(props);
-        
-        this.state = {
-            error: '',
-        }
-    } 
 
     submit = (collection, values, actions) => {
         
@@ -36,13 +22,15 @@ class Admin extends React.Component {
         Meteor.call(
             meteorMethodName,
             values, 
-            (error, objectId) => {
-                if (!error) {
+            (errors, objectId) => {
+                if (errors) {
+                    let formErrors = {};
+                    errors.details.forEach(function(error) {
+                        formErrors[error.name] = error.message;                        
+                    });
+                    actions.setErrors(formErrors);
                     actions.setSubmitting(false);
-                    actions.resetForm();
                 } else {
-                    console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
-                    this.setState({error: error.error});         
                     actions.setSubmitting(false);
                     actions.resetForm();
                 }
@@ -98,17 +86,9 @@ class Admin extends React.Component {
     }
 
     render() {
-        let error = this.state.error;
-        let msg_error = (
-            <div className="alert alert-danger" role="alert">
-              { error }
-            </div> 
-        )
-
         return (
         <div>
             <div className="card my-2">
-                { this.state.error && msg_error }
                 <h5 className="card-header">Liste des environnements openshift</h5>
                     
                 <ul className="list-group">
@@ -126,7 +106,7 @@ class Admin extends React.Component {
                     <Formik
                             onSubmit={ this.submitOpenShiftEnv }
                             initialValues={ { name: ''} }
-                            validationSchema={ this.nameSchema }
+                            
                             validateOnBlur={ false }
                             validateOnChange={ false }
                         >

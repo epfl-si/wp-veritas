@@ -46,7 +46,7 @@ export const CustomCheckbox = ({ field, form, ...props }) => {
       <input 
         { ...field } 
         { ...props } 
-        checked={form.values.languages.includes(field.value)} 
+        checked={form.values.languages && form.values.languages.includes(field.value)} 
         onChange={() => {
           if (form.values.languages.includes(field.value)){
             const nextValue = form.values.languages.filter(

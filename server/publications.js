@@ -46,4 +46,3 @@ Meteor.publish('type.list', function() {
         typeCursor,
     ]
 });
-

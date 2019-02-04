@@ -4,75 +4,10 @@ import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
 import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from './CustomFields';
-import Messages from '../Messages';
+
+const STATUS_LIST =  ['requested', 'created', 'archived', 'trashed'];
 
 class Add extends React.Component {
-
-  siteSchema = Yup.object().shape({
-      url: Yup.
-        string().
-        url(Messages.BAD_URL_MSG).
-        required(Messages.REQUIRED_MSG).
-        min(19, Messages.MIN_19_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG).
-        test('checkStartsWithURL', Messages.URL_STARTSWITH_MSG, 
-          function(url) {
-            let validate = false;
-            if (url.startsWith('https://')) {
-              validate = true;
-            }
-            return validate;
-          }),
-      tagline: Yup.
-        string().
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      title: Yup.
-        string().
-        required(Messages.REQUIRED_MSG).
-        min(2, Messages.MIN_2_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      openshiftEnv: Yup.
-        string().
-        required(Messages.REQUIRED_MSG).
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      type: Yup.
-        string().
-        required(Messages.REQUIRED_MSG).
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      category: Yup.
-        string().
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      theme: Yup.
-        string().
-        required(Messages.REQUIRED_MSG).
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      faculty: Yup.
-        string().
-        min(2, Messages.MIN_2_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      languages: Yup.
-        array().
-        required(Messages.LANGUAGES_MSG),
-      unitId: Yup.
-        string().
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG).
-        required(Messages.REQUIRED_MSG),
-      snowNumber: Yup.
-        string().
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(100, Messages.MAX_100_CHAR_MSG),
-      comment: Yup.
-        string().
-        min(3, Messages.MIN_3_CHAR_MSG).
-        max(255, Messages.MAX_255_CHAR_MSG),
-      plannedClosingDate: Yup.date()
-  })
 
   constructor(props){
     super(props);
@@ -89,7 +24,6 @@ class Add extends React.Component {
         action: action,
         add_success: false,
         edit_success: false,
-        error: '',
     }
   } 
 
@@ -114,12 +48,17 @@ class Add extends React.Component {
         values, 
         (errors, siteId) => {
           if (errors) {
-            this.setState({error: errors.error})
+            console.log(errors);
+            let formErrors = {};
+            errors.details.forEach(function(error) {
+              formErrors[error.name] = error.message;                        
+            });
+            actions.setErrors(formErrors);
             actions.setSubmitting(false);
           } else {
-            actions.setSubmitting(false);
-            actions.resetForm(); 
-            this.setState({add_success: true});
+              actions.setSubmitting(false);
+              actions.resetForm();
+              this.setState({add_success: true});
           }
         }
       );
@@ -131,9 +70,15 @@ class Add extends React.Component {
         (errors, siteId) => {
           if (errors) {
             console.log(errors);
-          } else {
+            let formErrors = {};
+            errors.details.forEach(function(error) {
+              formErrors[error.name] = error.message;                        
+            });
+            actions.setErrors(formErrors);
             actions.setSubmitting(false);
-            actions.resetForm(); 
+          } else {
+            actions.setSubmiting(false);
+            actions.resetForm();
             this.setState({edit_success: true});
           }
         }
@@ -151,7 +96,6 @@ class Add extends React.Component {
 
       let initialValues;
       let title;
-      let error = this.state.error;
 
       let msg_add_success = (
         <div className="alert alert-success" role="alert">
@@ -165,12 +109,6 @@ class Add extends React.Component {
         </div> 
       )
       
-      let msg_error = (
-        <div className="alert alert-danger" role="alert">
-          { error }
-        </div> 
-      )
-      
       if (this.state.action === 'edit') {
       
         title = 'Modifier le site ci-dessous'
@@ -181,16 +119,17 @@ class Add extends React.Component {
         title = 'Ajouter un nouveau site';
         initialValues = { 
           url: '',
-          tagline:'', 
-          title:'', 
+          tagline: '', 
+          title: '', 
           openshiftEnv: 'www', 
           type: 'public', 
           theme:'2018',
-          faculty:'',
+          faculty: '',
           languages: [], 
-          unitId:'', 
-          snowNumber:'',
-          comment:'',
+          unitId: '', 
+          snowNumber: '',
+          status:'requested',
+          comment: '',
           plannedClosingDate: ''
         }
       }
@@ -201,11 +140,9 @@ class Add extends React.Component {
             <h5 className="card-header">{title}</h5> 
             { this.state.add_success && msg_add_success }
             { this.state.edit_success && msg_edit_success }
-            { this.state.error && msg_error }
             <Formik
             onSubmit={ this.submit }
             initialValues={ initialValues }
-            validationSchema={ this.siteSchema }
             validateOnBlur={ false }
             validateOnChange={ false }
             >
@@ -219,7 +156,7 @@ class Add extends React.Component {
                 <div className="my-1 text-right">
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                 </div>
-                <Field placeholder="URL du site à ajouter" label="URL" name="url" type="url" component={ CustomInput } />
+                <Field placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
                 
                 <Field placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
@@ -235,7 +172,7 @@ class Add extends React.Component {
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
                 
-                <Field label="Type" name="type" type="text" component={ CustomSelect } >
+                <Field label="Type" name="type" component={ CustomSelect } >
                 {this.props.types.map( (type, index) => (
                   <option key={type._id} value={type.name}>{type.name}</option>
                   ))}
@@ -245,7 +182,7 @@ class Add extends React.Component {
                 <Field placeholder="Catégorie du site à ajouter" label="Catégorie" name="category" type="text" component={ CustomInput } />
                 <ErrorMessage name="category" component={ CustomError } />
 
-                <Field label="Thème" name="theme" type="text" component={ CustomSelect } >
+                <Field label="Thème" name="theme" component={ CustomSelect } >
                 {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
@@ -269,6 +206,13 @@ class Add extends React.Component {
                 <Field label="Date de fermeture planifiée" name="plannedClosingDate" type="date" component={ CustomInput } />
                 <ErrorMessage name="plannedClosingDate" component={ CustomError } />
 
+                <Field label="Statut" name="status" component={ CustomSelect } >
+                  <option value="requested">Demandé</option>
+                  <option value="created">Créé</option>
+                  <option value="archived">Archivé</option>
+                  <option value="trashed">Mis en corbeille</option>
+                </Field>
+                
                 <Field label="Commentaire" name="comment" component={CustomTextarea} />
                 <ErrorMessage name="comment" component={ CustomError } />
                 <div className="my-1 text-right">
@@ -281,7 +225,6 @@ class Add extends React.Component {
             </Formik>
             { this.state.add_success && msg_add_success }
             { this.state.edit_success && msg_edit_success }
-            { this.state.error && msg_error }
         </div>
       )
     }
