@@ -77,8 +77,6 @@ class Add extends React.Component {
             actions.setErrors(formErrors);
             actions.setSubmitting(false);
           } else {
-            actions.setSubmiting(false);
-            actions.resetForm();
             this.setState({edit_success: true});
           }
         }

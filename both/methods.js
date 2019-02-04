@@ -21,13 +21,15 @@ function prepareUpdateInsert(site, action) {
     
     // Check if url is unique
     // TODO: Move this code to SimpleSchema custom validation function
-    let site_number;
+    let sites_number_with_same_url;
+
     if (action === 'update') {
-        number = 1;
+        sites_number_with_same_url = 1;
     } else {
-        number = 0;
+        sites_number_with_same_url = 0;
     }
-    if (Sites.find({url:site.url}).count() > 0) {
+    
+    if (Sites.find({url:site.url}).count() > sites_number_with_same_url) {
         throwMeteorError('url', 'Cette URL existe déjà !');
     }
 
@@ -67,7 +69,7 @@ Meteor.methods({
 
         sitesSchema.validate(site);
 
-        site = prepareUpdateInsert(site);
+        site = prepareUpdateInsert(site, 'insert');
         
         let siteDocument = {
             url: site.url,
@@ -101,7 +103,7 @@ Meteor.methods({
 
         sitesSchema.validate(site);
 
-        site = prepareUpdateInsert(site);
+        site = prepareUpdateInsert(site, 'update');
 
         let siteDocument = {
             url: site.url,

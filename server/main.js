@@ -8,7 +8,6 @@ WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 if (Meteor.isServer) {
 
-  /** TEQUILA 
   Tequila.options.request = ['uniqueid', 'email'];
 
   // In Meteor.users documents, the _id is the user's SCIPER:
@@ -25,7 +24,6 @@ if (Meteor.isServer) {
     );
     return tequilaResponse.uniqueid
   };
-  */
 
   // Global API configuration
   let Api = new Restivus({

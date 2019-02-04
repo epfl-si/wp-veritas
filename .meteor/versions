@@ -1,6 +1,5 @@
 accounts-base@1.4.3
 accounts-password@1.5.1
-aldeed:collection2@3.0.1
 alexwine:bootstrap-4@4.1.0
 allow-deny@1.1.0
 autoupdate@1.5.0
@@ -30,6 +29,7 @@ ecmascript-runtime-client@0.8.0
 ecmascript-runtime-server@0.7.1
 ejson@1.1.0
 email@1.2.3
+epfl:accounts-tequila@0.2.0
 es5-shim@4.8.0
 fetch@0.1.0
 fourseven:scss@4.10.0
@@ -66,7 +66,6 @@ observe-sequence@1.0.16
 ordered-dict@1.1.0
 peppelg:bootstrap-3-modal@1.0.4
 promise@0.11.2
-raix:eventemitter@0.1.3
 random@1.1.0
 rate-limit@1.0.9
 react-meteor-data@0.2.16

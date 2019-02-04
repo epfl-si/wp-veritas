@@ -22,18 +22,16 @@ fourseven:scss
 seba:minifiers-autoprefixer
 nathantreid:static-assets
 
-aldeed:collection2
+alexwine:bootstrap-4         # bootstrap 4
+peppelg:bootstrap-3-modal    # bootstrap 3 modal but works with bootstrap 4
 
-#aldeed:schema-index
+react-meteor-data            
 
-alexwine:bootstrap-4
-peppelg:bootstrap-3-modal
-react-meteor-data
-nimble:restivus
-check
-#audit-argument-checks
+nimble:restivus              # API Rest
 
-#epfl:accounts-tequila
+check                        # Check schema mongoDB
 
+# TODO: install this package and check all warnings
+#audit-argument-checks        # Audit check mongoDB
 
-
+epfl:accounts-tequila
