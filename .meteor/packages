@@ -34,4 +34,7 @@ check                        # Check schema mongoDB
 # TODO: install this package and check all warnings
 #audit-argument-checks        # Audit check mongoDB
 
-epfl:accounts-tequila
+#epfl:accounts-tequila
+
+harrison:papa-parse       # Export CSV
+pfafman:filesaver         # Export CSV

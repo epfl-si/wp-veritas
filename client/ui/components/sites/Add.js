@@ -5,8 +5,6 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
 import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from './CustomFields';
 
-const STATUS_LIST =  ['requested', 'created', 'archived', 'trashed'];
-
 class Add extends React.Component {
 
   constructor(props){

@@ -51,10 +51,43 @@ class List extends React.Component {
         );
     }
 
+    export = () => {
+       const csv = Papa.unparse({
+           // Define fields to export
+           fields: [
+               "url",
+               "tagline",
+               "title",
+               "openshiftEnv",
+               "type",
+               "theme",
+               "faculty",
+               "languages",
+               "unitId",
+               "snowNumber",
+               "status",
+               "comment",
+               "plannedClosingDate",
+               "requestedDate",
+               "createdDate",
+               "archivedDate",
+               "trashedDate"
+            ],
+            data: Sites.find({}).fetch()
+        });
+  
+        const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
+        saveAs(blob, "wp-veritas.csv");
+    }
+
     render() {
         let content = (
             <div className="">
-            <h4 className="py-4">Source de vérité des sites WordPress</h4>
+            
+            <h4 className="py-4 float-left">Source de vérité des sites WordPress</h4>
+            <div className="mt-1 text-right" >
+                <button onClick={ (e) => this.export(e) } className="btn btn-primary">Exporter CSV</button>
+            </div>
             <table className="table table-striped">
                 <thead>
                     <tr>
