@@ -11,6 +11,7 @@ import {
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from './error';
 
+
 function prepareUpdateInsert(site, action) {
 
     // Delete "/" at the end of URL 

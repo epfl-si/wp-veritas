@@ -2,10 +2,10 @@ import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
 import { Sites } from '../both';
 import './publications';
+import getUnits from './units';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
-
 
 let activeTequila = false;
 
@@ -48,6 +48,26 @@ if (Meteor.isServer) {
   Api.addRoute('sites/:id', {authRequired: false}, {
     get: function () {
       return Sites.findOne(this.urlParams.id);
+    }
+  });
+
+  // Maps to: /api/sites/wp-admin/:sciper
+  Api.addRoute('sites/wp-admin/:sciper', {authRequired: false}, {
+    get: function()  {
+      
+      // Get units of sciper 
+      let units = getUnits(this.urlParams.sciper);
+      
+      // Get all sites whose unit is present in 'units' 
+      let sites = Sites.find({unitId: { $in: units }}).fetch();
+
+      // Create an array with only wp-admin URL 
+      admins = [];
+      for (let index in sites) {
+        admins.push(sites[index].url + '/wp-admin');
+      };
+
+      return admins;
     }
   });
 }
