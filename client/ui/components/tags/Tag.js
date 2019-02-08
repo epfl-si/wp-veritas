@@ -1,6 +1,6 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
-import {Tags} from '../../../../both/collections';
+import { Tags } from '../../../../both/collections';
 
 class Tag extends React.Component {
     render() {
