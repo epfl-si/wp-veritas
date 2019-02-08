@@ -5,6 +5,7 @@
 # but you can also edit it by hand.
 
 meteor-base@1.4.0             # Packages every Meteor app needs to have
+meteor
 mobile-experience@1.0.5       # Packages for a great mobile UX
 mongo@1.6.0                   # The database Meteor supports right now
 reactive-var@1.0.11            # Reactive variable for tracker

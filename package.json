@@ -27,5 +27,9 @@
       "server": "server/main.js"
     },
     "testModule": "tests/main.js"
+  },
+  "devDependencies": {
+    "babel-plugin-istanbul": "^5.1.0",
+    "chai": "^4.2.0"
   }
 }
