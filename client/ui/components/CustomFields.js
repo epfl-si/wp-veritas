@@ -27,7 +27,7 @@ export const CustomTextarea = ({ field, form: { errors }, ...props}) => {
     </div>
   )
 }
-    
+
 export const CustomSelect = ({ field, form, ...props }) => {
   return (
     <div className="form-group">
@@ -39,7 +39,7 @@ export const CustomSelect = ({ field, form, ...props }) => {
     </div>
   )
 }
-  
+
 export const CustomCheckbox = ({ field, form, ...props }) => {
   return (
     <div className="form-group form-check form-check-inline">

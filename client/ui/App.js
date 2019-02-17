@@ -1,9 +1,8 @@
 import React from 'react';
-import { Header, Footer, Add, List, Admin, Search, Tag } from './components'; 
+import { Header, Footer, Add, List, Admin, Search, Tag, SiteTags } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-export default class App extends React.Component {
-
+export default class Apps extends React.Component {
   render() {
     return (
       <Router>
@@ -13,6 +12,7 @@ export default class App extends React.Component {
           <Route exact path="/add" component={ Add } />
           <Route path="/edit/:_id" component={ Add } />
           <Route path="/tags" component={ Tag }/>
+          <Route path="/site-tags/:_id" component={ SiteTags }/>
           <Route exact path="/search" component={ Search } />
           <Route exact path="/admin" component={ Admin } />
           <Footer />

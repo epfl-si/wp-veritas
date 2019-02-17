@@ -1,9 +1,8 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import * as Yup from 'yup';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
-import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from './CustomFields';
+import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
 
 class Add extends React.Component {
 

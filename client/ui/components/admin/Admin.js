@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Types, OpenshiftEnvs, Themes } from '../../../../both/collections';
-import { CustomError, CustomInput } from '../sites/CustomFields';
+import { CustomError, CustomInput } from '../CustomFields';
 
 class Admin extends React.Component {
 

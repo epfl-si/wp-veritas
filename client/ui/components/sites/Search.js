@@ -2,7 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { Sites } from '../../../../both/collections';
 import { Formik, Field, ErrorMessage } from 'formik';
-import { CustomError, CustomInput } from './CustomFields';
+import { CustomError, CustomInput } from '../CustomFields';
 import * as yup from 'yup'; 
 
 class Search extends React.Component {

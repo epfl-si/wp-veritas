@@ -13,33 +13,40 @@ class Header extends Component {
         user = this.props.currentUser.username;
         content =  (
             <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                  <Link className="navbar-brand" to="/"><img src={logo} className="App-logo" alt="logo"/></Link>
-                
-                  <div className="collapse navbar-collapse">
-                      <ul className="navbar-nav mr-auto">
-                          <li className="nav-item">
-                              <NavLink exact className="nav-link" activeClassName="active" to="/">Voir la source de vérité</NavLink>
-                          </li>
-                          <li className="nav-item">
-                              <NavLink className="nav-link" activeClassName="active" to="/add">Ajouter un nouveau site</NavLink>
-                          </li>
-                          <li className="nav-item">
-                              <NavLink className="nav-link" activeClassName="active" to="/tags">Gestion des tags</NavLink>
-                          </li>
-                          <li className="nav-item">
-                              <NavLink className="nav-link" activeClassName="active" to="/search">Recherche</NavLink>
-                          </li>
-                          <li className="nav-item">
-                              <NavLink className="nav-link" activeClassName="active" to="/admin">Admin</NavLink>
-                          </li>
-                      </ul>
-                      <ul className="navbar-nav ml-auto">
-                          <li className="nav-item">
+                <Link className="navbar-brand" to="/"><img src={logo} className="App-logo" alt="logo"/></Link>           
+                <div className="collapse navbar-collapse">
+                    <ul className="navbar-nav mr-auto">
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Source de vérité
+                            </a>
+                            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <NavLink className="dropdown-item" to="/">Voir la source de vérité</NavLink>
+                                <NavLink className="dropdown-item" to="/add">Ajouter un nouveau site</NavLink>
+                            </div>
+                        </li>
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Tags
+                            </a>
+                            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <NavLink className="dropdown-item" to="/tags">Gestion des tags</NavLink>
+                            </div>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" activeClassName="active" to="/search">Instance WordPress ?</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link" activeClassName="active" to="/admin">Admin</NavLink>
+                        </li>
+                    </ul>
+                    <ul className="navbar-nav ml-auto">
+                        <li className="nav-item">
                             <div className="navbar-text">Utilisateur connecté <strong>{user}</strong></div>
-                          </li>
-                      </ul>
-                  </div>
-              </header>
+                        </li>
+                    </ul>
+                </div>
+            </header>
               )
     }
     return content;

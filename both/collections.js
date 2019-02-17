@@ -198,12 +198,71 @@ export const sitesSchema = new SimpleSchema({
     trashedDate: {
         type: Date,
         optional: true,
-    }
+    },
+    tags: {
+        type: Array,
+        label: "Tags",
+        optional: true,
+        custom: function () {
+            if (this.value && this.value.length === 0) {
+                return "required";
+            }
+        },
+    },
+    'tags.$': {
+        type: String,
+    },
 }, { check });
 
-sitesSchema.messageBox = messageBox;
+export const tagSchema = new SimpleSchema({
+    name: {
+        type: String,
+        label: "Nom du tag",
+        custom: isRequired,
+    },
+    url: {
+        type: String,
+        label: "URL du tag",
+        min: 10,
+        custom: isRequired,
+        regEx: SimpleSchema.RegEx.Url,
+    },
+    type: {
+        type: String,
+        label: "Type de tag",
+        allowedValues: ['faculty', 'institute', 'field-of-research'],
+    }
+}, { tracker: Tracker } )
 
-export const Sites = new Mongo.Collection('sites');
+sitesSchema.messageBox = messageBox;
+tagSchema.messageBox = messageBox;
+
+class Site {
+    constructor(doc) {
+        _.extend(this, doc);
+    }
+
+    // TODO: Use https://github.com/vazco/meteor-universe-i18n
+    getStatus() {
+        switch(this.status) {
+            case 'requested':
+              return 'Demandé';
+            case 'created':
+                return 'Créé';
+            case 'archived':
+                return 'Archivé';
+            case 'trashed':
+                return 'Supprimé';  
+            default:
+              return this.status;
+          }
+    }
+}
+
+export const Sites = new Mongo.Collection('sites', {
+    transform: (doc) => new Site(doc)
+});
+
 export const OpenshiftEnvs = new Mongo.Collection('openshift-envs');
 export const Types = new Mongo.Collection('types');
 export const Themes = new Mongo.Collection('themes');

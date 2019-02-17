@@ -26,6 +26,7 @@ nathantreid:static-assets
 alexwine:bootstrap-4         # bootstrap 4
 peppelg:bootstrap-3-modal    # bootstrap 3 modal but works with bootstrap 4
 
+
 react-meteor-data            
 
 nimble:restivus              # API Rest
@@ -41,3 +42,5 @@ harrison:papa-parse       # Export CSV
 pfafman:filesaver         # Export CSV
 
 http
+
+erasaur:meteor-lodash     # _.extends

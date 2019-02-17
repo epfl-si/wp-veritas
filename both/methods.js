@@ -6,7 +6,9 @@ import {
     sitesSchema, 
     openshiftEnvsSchema, 
     typesSchema, 
-    themesSchema } from './collections';
+    themesSchema, 
+    Tags,
+    tagSchema} from './collections';
 
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from './error';
@@ -57,20 +59,55 @@ function prepareUpdateInsert(site, action) {
     } else {
         site.trashedDate = null;
     }
+
+    if (site.tags === 'undefined') {
+        site.tags = [];
+    }
+
     return site;
 }
 
 Meteor.methods({
+
+    insertTag(tag){
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+
+        tagSchema.validate(tag);
+        
+        let tagDocument = {
+            name: tag.name,
+            url: tag.url,
+            type: tag.type
+        }
+        
+        return Tags.insert(tagDocument);
+    },
+
+    removeTag(tagId){
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+
+        check(tagId, String);
+
+        Tags.remove({_id: tagId});
+    },
 
     insertSite(site){
         
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
-
+        console.log("insertSite log 1");
         sitesSchema.validate(site);
-
+        console.log("insertSite log 2");
         site = prepareUpdateInsert(site, 'insert');
+
+        console.log("insertSite log 3");
         
         let siteDocument = {
             url: site.url,
@@ -91,9 +128,25 @@ Meteor.methods({
             createdDate: site.createdDate,
             archivedDate: site.archivedDate,
             trashedDate: site.trashedDate,
+            tags: site.tags,
         }
-
+        console.log("insertSite log 4");
         return Sites.insert(siteDocument);
+    },
+
+    associateTagsToSite(site, tags) {
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+        let siteDocument = {
+            tags: tags,
+        }
+        
+        Sites.update(
+            {_id: site._id}, 
+            { $set: siteDocument
+        });
     },
     
     updateSite(site){
@@ -119,7 +172,8 @@ Meteor.methods({
             unitId: site.unitId,
             snowNumber: site.snowNumber,
             comment: site.comment,
-            plannedClosingDate: site.plannedClosingDate
+            plannedClosingDate: site.plannedClosingDate,
+            tags: site.tags,
         }
         
         Sites.update(

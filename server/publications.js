@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Types, Themes } from "../both";
+import { Sites, OpenshiftEnvs, Types, Themes, Tags } from "../both";
 import { check } from "meteor/check";
 
 Meteor.publish('sites.list', function() {
@@ -14,6 +14,8 @@ Meteor.publish('sites.list', function() {
 });
 
 Meteor.publish('site.single', function(siteId) {
+
+    console.log(siteId);
 
     check(siteId, String);
     
@@ -44,5 +46,13 @@ Meteor.publish('type.list', function() {
     let typeCursor = Types.find({}, {sort: {name:1}});
     return [
         typeCursor,
+    ]
+});
+
+Meteor.publish('tag.list', function() {
+    
+    let tagCursor = Tags.find({}, {sort: {name:1}});
+    return [
+        tagCursor,
     ]
 });
