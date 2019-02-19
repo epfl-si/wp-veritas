@@ -86,6 +86,27 @@ Meteor.methods({
         return Tags.insert(tagDocument);
     },
 
+    updateTag(tag){
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+
+        tagSchema.validate(tag);
+
+        let tagDocument = {
+            name: tag.name,
+            url: tag.url,
+            type: tag.type
+        }
+        
+        Tags.update(
+            {_id: tag._id}, 
+            { $set: tagDocument
+        });
+
+    },
+
     removeTag(tagId){
 
         if (!this.userId) {

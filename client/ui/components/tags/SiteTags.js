@@ -79,7 +79,7 @@ export default class SiteTags extends React.Component {
             content = (
                 <div className="my-4">
                     <h4>Associer des tags à un site WordPress</h4>
-                    <p>Pour le site {this.state.site.url}, veuillez sélectionner ci-dessous les tags à associer: </p>
+                    <p>Pour le site <a href={this.state.site.url} target="_blank">{this.state.site.url}</a>, veuillez sélectionner ci-dessous les tags à associer: </p>
                     <Formik
                         onSubmit={ this.submit }
                         initialValues={ {facultyTags: this.state.site.tags.filter(tag => tag.type === 'faculty'), instituteTags:this.state.site.tags.filter(tag => tag.type === 'institute'), fieldOfResearchTags: this.state.site.tags.filter(tag => tag.type === 'field-of-research')} }
@@ -102,7 +102,8 @@ export default class SiteTags extends React.Component {
                 
                     <form onSubmit={ handleSubmit } className="bg-white border p-4">
                         <div className="form-group clearfix">
-                            <MySelect
+                                <MySelect
+                                id="facultyTags"
                                 value={values.facultyTags}
                                 onChange={setFieldValue}
                                 onBlur={setFieldTouched}
@@ -129,7 +130,7 @@ export default class SiteTags extends React.Component {
                                 error={errors.fieldOfResearchTags}
                                 touched={touched.fieldOfResearchTags}
                                 options={this.state.fieldOfResearchTags}
-                                placeholder="Sélectionner un tag champ de recherche"
+                                placeholder="Sélectionner un tag domaine de recherche"
                                 name="fieldOfResearchTags"
                             />    
                         </div>

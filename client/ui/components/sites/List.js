@@ -1,6 +1,6 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Sites } from '../../../../both/collections';
 
 class Cells extends React.Component {
@@ -12,18 +12,17 @@ class Cells extends React.Component {
                         <th scope="row">{index+1}</th>
                         <td><a href={site.url} target="_blank">{site.url}</a></td>
                         <td>{site.type}</td>
-                        <td>{site.faculty}</td>
                         <td>{site.getStatus()}</td>
                         <td>
-                            <NavLink className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
-                                <button type="button" className="btn btn-outline-primary">Voir toutes les infos</button>
-                            </NavLink>
-                            <NavLink className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
+                            <Link className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
+                                <button type="button" className="btn btn-outline-primary">Voir les infos</button>
+                            </Link>
+                            <Link className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
                                 <button type="button" className="btn btn-outline-primary">Éditer</button>
-                            </NavLink>
-                            <NavLink className="mr-2" activeClassName="active" to={`/site-tags/${site._id}`}>
+                            </Link>
+                            <Link className="mr-2" activeClassName="active" to={`/site-tags/${site._id}`}>
                                 <button type="button" className="btn btn-outline-primary">Associer des tags</button>
-                            </NavLink>
+                            </Link>
                             <button type="button" className="btn btn-outline-primary" onClick={() => this.props.deleteSite(site._id)}>Supprimer</button>
                         </td>
                     </tr>
@@ -91,7 +90,6 @@ class List extends React.Component {
                         <th scope="col">#</th>
                         <th scope="col">URL</th>
                         <th scope="col">Type</th>
-                        <th scope="col">Faculté</th>
                         <th scope="col">Statut</th>
                         <th className="w-50">Actions</th>
                     </tr>

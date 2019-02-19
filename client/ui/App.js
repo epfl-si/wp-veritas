@@ -12,6 +12,8 @@ export default class Apps extends React.Component {
           <Route exact path="/add" component={ Add } />
           <Route path="/edit/:_id" component={ Add } />
           <Route path="/tags" component={ Tag }/>
+          <Route path="/tag/:_id" component={ Tag }/>
+
           <Route path="/site-tags/:_id" component={ SiteTags }/>
           <Route exact path="/search" component={ Search } />
           <Route exact path="/admin" component={ Admin } />

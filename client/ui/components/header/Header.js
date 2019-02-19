@@ -34,10 +34,10 @@ class Header extends Component {
                             </div>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link" activeClassName="active" to="/search">Instance WordPress ?</NavLink>
+                            <NavLink className="nav-link"   to="/search">Instance WordPress ?</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link" activeClassName="active" to="/admin">Admin</NavLink>
+                            <NavLink className="nav-link" to="/admin">Admin</NavLink>
                         </li>
                     </ul>
                     <ul className="navbar-nav ml-auto">

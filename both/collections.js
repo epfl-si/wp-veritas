@@ -215,6 +215,11 @@ export const sitesSchema = new SimpleSchema({
 }, { check });
 
 export const tagSchema = new SimpleSchema({
+    // _id use to update a tag
+    _id: {
+        type: String,
+        optional: true,
+    },
     name: {
         type: String,
         label: "Nom du tag",

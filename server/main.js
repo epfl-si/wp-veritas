@@ -51,6 +51,24 @@ if (Meteor.isServer) {
     }
   });
 
+  // Maps to: /api/sites/:id/tags
+  Api.addRoute('sites/:id/tags', {authRequired: false}, {
+    get: function () {
+      let site = Sites.findOne(this.urlParams.id);
+      return site.tags;
+    }
+  });
+
+  // Maps to: /api/sites-with-tags/:tag1/:tag2
+  Api.addRoute('sites-with-tags/:tag1/:tag2', {authRequired: false}, {
+    get: function () {
+      let tag1 = this.urlParams.tag1.toUpperCase();
+      let tag2 = this.urlParams.tag2.toUpperCase();
+      let sites = Sites.find({'tags.name': tag1, 'tags.name': tag2}).fetch();
+      return sites;
+    }
+  });
+
   // Maps to: /api/sites/wp-admin/:sciper
   Api.addRoute('sites/wp-admin/:sciper', {authRequired: false}, {
     get: function()  {
@@ -70,4 +88,60 @@ if (Meteor.isServer) {
       return admins;
     }
   });
+
+
+importVeritas = () => {
+  const path = 'source-veritas.csv';
+  const file = Assets.getText(path);
+  Papa.parse(file, {
+    delimiter: ",",
+    header: true,
+    complete: function(results) {
+      
+      let data = JSON.parse(JSON.stringify(results.data));
+     
+      let index = 0;
+      data.forEach(site => {
+        index = index + 1;
+        console.log(index);
+
+        let langs;
+        if (site.langs == 'fr' || site.langs == 'en') {
+          langs = [site.langs];
+        } else {
+          langs = site.langs.split(',')
+        }
+
+        let siteDocument = {
+          url: site.wp_site_url,
+          tagline: site.wp_tagline,
+          title: site.wp_site_title,
+          openshiftEnv: site.openshift_env,
+          type: 'public',
+          category: null,
+          theme: site.theme,
+          faculty: site.theme_faculty,
+          languages: langs,
+          unitId: site.unit_id,
+          snowNumber: '',
+          status: 'created',
+          comment: '',
+          plannedClosingDate: null,
+          requestedDate: null,
+          createdDate: null,
+          archivedDate: null,
+          trashedDate: null,
+          tags: [],
+        }
+
+        if (!Sites.findOne({url: siteDocument.url})) {
+          console.log(`Insert ${siteDocument.url}`);
+          Sites.insert(siteDocument);
+        }
+      });
+      console.log("Importation veritas finished");
+    }    
+  });
+}
+
 }
