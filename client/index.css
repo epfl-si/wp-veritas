@@ -7,12 +7,13 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-
 .App-logo {
   height: 60px; 
+}
+.faculty-tags-select, .institute-tags-select, .fieldOfResearchTags-tags-select {
+  width: 33%;
 }

@@ -9,16 +9,18 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "axios": "^0.18.0",
-    "bootstrap": "^4.2.1",
+    "bcrypt": "^3.0.3",
     "formik": "^1.4.2",
     "jquery": "^3.3.1",
+    "message-box": "^0.2.0",
     "meteor-node-stubs": "^0.4.1",
     "popper.js": "^1.14.6",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1",
-    "yup": "^0.26.6"
+    "react-select": "^2.4.0",
+    "simpl-schema": "^1.5.3",
+    "yup": "^0.26.10"
   },
   "meteor": {
     "mainModule": {
@@ -26,5 +28,9 @@
       "server": "server/main.js"
     },
     "testModule": "tests/main.js"
+  },
+  "devDependencies": {
+    "babel-plugin-istanbul": "^5.1.0",
+    "chai": "^4.2.0"
   }
 }
