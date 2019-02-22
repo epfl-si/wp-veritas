@@ -17,16 +17,16 @@ class Header extends Component {
                 <div className="collapse navbar-collapse">
                     <ul className="navbar-nav mr-auto">
                         <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Source de vérité
                             </a>
-                            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <div className="dropdown-menu" >
                                 <NavLink className="dropdown-item" to="/">Voir la source de vérité</NavLink>
-                                <NavLink className="dropdown-item" to="/add">Ajouter un nouveau site</NavLink>
+                                <NavLink className="dropdown-item   " to="/add">Ajouter un nouveau site</NavLink>
                             </div>
                         </li>
                         <li className="nav-item dropdown">
-                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Tags
                             </a>
                             <div className="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -34,10 +34,16 @@ class Header extends Component {
                             </div>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link"   to="/search">Instance WordPress ?</NavLink>
+                            <NavLink className="nav-link" to="/search">Instance WordPress ?</NavLink>
                         </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link" to="/admin">Admin</NavLink>
+                        <li className="nav-item dropdown">
+                            <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Admin
+                            </a>
+                            <div className="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <NavLink className="nav-link" to="/admin">Admin</NavLink>
+                                <NavLink className="nav-link" to="/admin/users">Gestion des rôles</NavLink>
+                            </div>
                         </li>
                     </ul>
                     <ul className="navbar-nav ml-auto">

@@ -69,13 +69,47 @@ function prepareUpdateInsert(site, action) {
 
 Meteor.methods({
 
+    updateRole(userId, role) {
+        
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+        const canUpdate = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+        if (! canUpdate) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can update roles.');
+        }
+        Roles.setUserRoles(userId, [role], Roles.GLOBAL_GROUP); 
+    },
+
     insertTag(tag){
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
 
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin', 'tags-editor'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins and editors can insert tags.');
+        }
+
         tagSchema.validate(tag);
+
+        // Check if name is unique
+        // TODO: Move this code to SimpleSchema custom validation function
+        if (Tags.find({name: tag.name}).count()>0) {
+            throwMeteorError('name', 'Nom du type existe déjà !');
+        }
         
         let tagDocument = {
             name: tag.name,
@@ -90,6 +124,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const canUpdate = Roles.userIsInRole(
+            this.userId,
+            ['admin', 'tags-editor'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canUpdate) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins and editors can update tags.');
         }
 
         tagSchema.validate(tag);
@@ -113,6 +158,17 @@ Meteor.methods({
             throw new Meteor.Error('not connected');
         }
 
+        const canRemove = Roles.userIsInRole(
+            this.userId,
+            ['admin', 'tags-editor'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canRemove) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins and editors can remove tags.');
+        }
+
         check(tagId, String);
 
         Tags.remove({_id: tagId});
@@ -123,13 +179,21 @@ Meteor.methods({
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
-        console.log("insertSite log 1");
+
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can insert sites.');
+        }
+
         sitesSchema.validate(site);
-        console.log("insertSite log 2");
         site = prepareUpdateInsert(site, 'insert');
 
-        console.log("insertSite log 3");
-        
         let siteDocument = {
             url: site.url,
             tagline: site.tagline,
@@ -160,6 +224,18 @@ Meteor.methods({
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
+
+        const canAssociate = Roles.userIsInRole(
+            this.userId,
+            ['admin', 'tags-editor'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canAssociate) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins and editors can associate tags to a site.');
+        }
+
         let siteDocument = {
             tags: tags,
         }
@@ -174,6 +250,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const canUpdate = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canUpdate) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can update sites.');
         }
 
         sitesSchema.validate(site);
@@ -210,6 +297,17 @@ Meteor.methods({
             throw new Meteor.Error('not connected');
         }
 
+        const canRemove = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canRemove) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can remove sites.');
+        }
+
         check(siteId, String);
 
         Sites.remove({_id: siteId});
@@ -219,6 +317,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can insert openShiftEnv.');
         }
 
         openshiftEnvsSchema.validate(openshiftEnv);
@@ -242,6 +351,17 @@ Meteor.methods({
             throw new Meteor.Error('not connected');
         }
 
+        const canRemove = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canRemove) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can remove openShiftEnv.');
+        }
+
         check(openshiftEnvId, String);
 
         OpenshiftEnvs.remove({_id: openshiftEnvId});
@@ -251,6 +371,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can insert Type.');
         }
 
         // Check if name is unique
@@ -275,6 +406,17 @@ Meteor.methods({
             throw new Meteor.Error('not connected');
         }
 
+        const canRemove = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canRemove) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can remove Type.');
+        }
+
         check(typeId, String);
 
         Types.remove({_id: typeId});
@@ -284,6 +426,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can insert Theme.');
         }
 
         themesSchema.validate(theme);
@@ -305,6 +458,17 @@ Meteor.methods({
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
+        }
+
+        const removeTheme = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! removeTheme) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can remove Theme.');
         }
 
         check(themeId, String);

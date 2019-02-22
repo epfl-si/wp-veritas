@@ -13,14 +13,12 @@ class Cells extends React.Component {
                         <td><a href={site.url} target="_blank">{site.url}</a></td>
                         <td>{site.type}</td>
                         <td>{site.getStatus()}</td>
+                        <td>{site.openshiftEnv}</td>
                         <td>
-                            <Link className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
-                                <button type="button" className="btn btn-outline-primary">Voir les infos</button>
-                            </Link>
-                            <Link className="mr-2" activeClassName="active" to={`/edit/${site._id}`}>
+                            <Link className="mr-2" to={`/edit/${site._id}`}>
                                 <button type="button" className="btn btn-outline-primary">Éditer</button>
                             </Link>
-                            <Link className="mr-2" activeClassName="active" to={`/site-tags/${site._id}`}>
+                            <Link className="mr-2" to={`/site-tags/${site._id}`}>
                                 <button type="button" className="btn btn-outline-primary">Associer des tags</button>
                             </Link>
                             <button type="button" className="btn btn-outline-primary" onClick={() => this.props.deleteSite(site._id)}>Supprimer</button>
@@ -91,6 +89,7 @@ class List extends React.Component {
                         <th scope="col">URL</th>
                         <th scope="col">Type</th>
                         <th scope="col">Statut</th>
+                        <th scope="col">Env. Openshift</th>
                         <th className="w-50">Actions</th>
                     </tr>
                 </thead>

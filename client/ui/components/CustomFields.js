@@ -1,8 +1,14 @@
 import React from 'react';
 
 export const CustomInput = ({ field, form: { errors }, ...props }) => {
+  let cssClassName;
+  if (field.name == 'userId') {
+    cssClassName = 'd-none';
+  } else {
+    cssClassName = 'form-group';
+  }
   return (
-    <div className="form-group">
+    <div className={cssClassName}>
       <label>{ props.label }</label>
       <input 
         { ...field } 
@@ -29,13 +35,19 @@ export const CustomTextarea = ({ field, form: { errors }, ...props}) => {
 }
 
 export const CustomSelect = ({ field, form, ...props }) => {
+  let cssClassName;
+  if (field.name == 'role') {
+    cssClassName = 'form-group float-left px-2 mb-0';
+  } else {
+    cssClassName = 'form-group';
+  }
   return (
-    <div className="form-group">
-      <label>{ props.label }</label>
+    <div className={cssClassName}>
+      { props.label ? (<label>{ props.label }</label>) : null }
       <select 
         { ...field }
         { ...props }
-        className="form-control" />
+        className="form-control mt-0" />
     </div>
   )
 }

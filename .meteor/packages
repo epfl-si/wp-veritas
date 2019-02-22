@@ -44,3 +44,4 @@ pfafman:filesaver         # Export CSV
 http
 
 erasaur:meteor-lodash     # _.extends
+alanning:roles

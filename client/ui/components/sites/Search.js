@@ -32,16 +32,20 @@ class Search extends React.Component {
     }
 
     submit = (values, actions) => {
-        let sites = Sites.find({}).fetch();
-        let res;
-        sites.forEach(site => {
+        //console.log(values);
+        //console.log(this.props.sites);
+        
+        let res = "";
+        this.props.sites.forEach(site => {
+
             if (values.url.startsWith(site.url)) {
-                if (site.url.length > this.state.result) {
+
+                if (site.url.length > res.length) {
                     res = site.url;
                 }
             }
         });
-        this.setState({result: res});
+        this.setState({result: res + '/wp-admin'});
         actions.setSubmitting(false);
         actions.resetForm();
     }

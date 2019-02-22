@@ -8,7 +8,7 @@ import getUnits from './units';
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 let activeTequila = false;
-
+  
 if (Meteor.isServer) {
 
   if (activeTequila) {
@@ -17,17 +17,24 @@ if (Meteor.isServer) {
 
     // In Meteor.users documents, the _id is the user's SCIPER:
     Tequila.options.getUserId = function getUserId(tequilaResponse) {
-    
+
       Meteor.users.upsert(
         { _id: tequilaResponse.uniqueid, },
         { 
           $set: { 
             username: tequilaResponse.user,
-            emails: [tequilaResponse.email]
+            emails: [tequilaResponse.email],
+           
           }
         }
       );
-      return tequilaResponse.uniqueid
+      
+      // Add epfl-member by default
+      if (!Roles.userIsInRole(tequilaResponse.uniqueid, ['admin', 'tags-editor', 'epfl-member'], Roles.GLOBAL_GROUP)) {
+        Roles.addUsersToRoles(tequilaResponse.uniqueid, 'epfl-member', Roles.GLOBAL_GROUP);  
+      }
+
+      return tequilaResponse.uniqueid;
     }; 
   }
 
@@ -135,7 +142,6 @@ importVeritas = () => {
         }
 
         if (!Sites.findOne({url: siteDocument.url})) {
-          console.log(`Insert ${siteDocument.url}`);
           Sites.insert(siteDocument);
         }
       });

@@ -56,3 +56,11 @@ Meteor.publish('tag.list', function() {
         tagCursor,
     ]
 });
+
+Meteor.publish('user.list', function (){ 
+    return Meteor.users.find({});
+  });
+
+Meteor.publish('user.roles', function (){
+    return Meteor.roles.find({});
+})
