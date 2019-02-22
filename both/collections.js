@@ -49,6 +49,12 @@ function isRequired() {
     }
 }
 
+function isRequiredUnderCondition() {    
+    if (this.obj.type != 'field-of-research' && this.value === '') {
+        return "required";
+    }
+}
+
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
@@ -228,9 +234,7 @@ export const tagSchema = new SimpleSchema({
     url: {
         type: String,
         label: "URL du tag",
-        min: 10,
-        custom: isRequired,
-        regEx: SimpleSchema.RegEx.Url,
+        custom: isRequiredUnderCondition,
     },
     type: {
         type: String,
