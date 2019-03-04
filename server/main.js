@@ -52,6 +52,18 @@ if (Meteor.isServer) {
     }
   });
 
+  // Maps to: /api/sites/tags?site_url=https%3A%2F%2Fjahia2wp-httpd%2Flabs%2Fmy-lab
+  Api.addRoute('sites/tags', {authRequired: false}, {
+    get: function () {
+      var query = this.queryParams;
+
+      if (query) {
+        site_and_tags = Sites.findOne({'url': this.queryParams.site_url}, {'tag.name': 1, 'tag.url': 1});
+        return site_and_tags;
+      }
+    }
+  });
+
   // Maps to: /api/sites/:id
   Api.addRoute('sites/:id', {authRequired: false}, {
     get: function () {
