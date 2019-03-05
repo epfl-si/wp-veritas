@@ -46,20 +46,16 @@ if (Meteor.isServer) {
   });
 
   // Maps to: /api/sites
+  // and to: /api/sites?site_url=...
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
-      return Sites.find({}).fetch();
-    }
-  });
-
-  // Maps to: /api/sites/tags?site_url=https%3A%2F%2Fjahia2wp-httpd%2Flabs%2Fmy-lab
-  Api.addRoute('sites/tags', {authRequired: false}, {
-    get: function () {
+      // is that a id request from an url ?
       var query = this.queryParams;
-
-      if (query) {
-        site_and_tags = Sites.findOne({'url': this.queryParams.site_url}, {'tag.name': 1, 'tag.url': 1});
-        return site_and_tags;
+      if (query && this.queryParams.site_url) {
+        return Sites.findOne({'url': this.queryParams.site_url});
+      } else {
+      // nope, we are here for all the sites data
+        return Sites.find({}).fetch();
       }
     }
   });
