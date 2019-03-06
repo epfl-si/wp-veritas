@@ -46,7 +46,7 @@ if (Meteor.isServer) {
   });
 
   // Maps to: /api/sites
-  // and to: /api/sites?site_url=...
+  // and to: /api/sites?site_url=... to get a specific site
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?
