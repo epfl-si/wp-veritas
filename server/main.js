@@ -41,24 +41,25 @@ if (Meteor.isServer) {
   // Global API configuration
   let Api = new Restivus({
     useDefaultAuth: true,
-    prettyJson: true
+    prettyJson: true,
+    version: 'v1'
   });
 
-  // Maps to: /api/sites
+  // Maps to: /api/v1/sites
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       return Sites.find({}).fetch();
     }
   });
 
-  // Maps to: /api/sites/:id
+  // Maps to: /api/v1/sites/:id
   Api.addRoute('sites/:id', {authRequired: false}, {
     get: function () {
       return Sites.findOne(this.urlParams.id);
     }
   });
 
-  // Maps to: /api/sites/:id/tags
+  // Maps to: /api/v1/sites/:id/tags
   Api.addRoute('sites/:id/tags', {authRequired: false}, {
     get: function () {
       let site = Sites.findOne(this.urlParams.id);
@@ -66,7 +67,7 @@ if (Meteor.isServer) {
     }
   });
 
-  // Maps to: /api/sites-with-tags/:tag1/:tag2
+  // Maps to: /api/v1/sites-with-tags/:tag1/:tag2
   Api.addRoute('sites-with-tags/:tag1/:tag2', {authRequired: false}, {
     get: function () {
       let tag1 = this.urlParams.tag1.toUpperCase();
@@ -76,7 +77,7 @@ if (Meteor.isServer) {
     }
   });
 
-  // Maps to: /api/sites/wp-admin/:sciper
+  // Maps to: /api/v1/sites/wp-admin/:sciper
   Api.addRoute('sites/wp-admin/:sciper', {authRequired: false}, {
     get: function()  {
       
