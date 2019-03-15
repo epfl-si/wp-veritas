@@ -1,13 +1,26 @@
-app:
-  image: wp-veritas/app
-  ports:
-    - "80:3000"
-  links:
-    - mongo
-  environment:
-    - ROOT_URL=http://localhost
-    - MONGO_URL=mongodb://mongo:27017/meteor
+version: '3'
 
-mongo:
-  image: mongo:latest
-  command: mongod --storageEngine=wiredTiger
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    #image: epflidevelop/wp-veritas:latest
+    ports:
+      - '80:3000'
+    links:
+      - mongo
+    environment:
+      ROOT_URL: ${APP_ROOT_URL:-http://localhost}
+      MONGO_URL: mongodb://mongo:27017/meteor
+      PORT: 3000
+
+  mongo:
+    image: mongo:latest
+    command:
+      - --storageEngine=wiredTiger
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
