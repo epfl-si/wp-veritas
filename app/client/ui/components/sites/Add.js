@@ -126,7 +126,8 @@ class Add extends React.Component {
           snowNumber: '',
           status:'requested',
           comment: '',
-          plannedClosingDate: ''
+          plannedClosingDate: '',
+          tags: []
         }
       }
 
