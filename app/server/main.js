@@ -9,31 +9,10 @@ import importVeritas from './import-data';
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 let activeTequila = true;
-/*
-Meteor.users.upsert(
-  { _id: '188', },
-  { 
-    $set: { 
-      username: 'charmier',
-      emails: ['gregory.charmier@epfl.ch'],
-     
-    }
-  }
-);
-
-// Add epfl-member by default
-if (!Roles.userIsInRole('188', ['admin', 'tags-editor', 'epfl-member'], Roles.GLOBAL_GROUP)) {
-  Roles.addUsersToRoles('188', 'admin', Roles.GLOBAL_GROUP);  
-}*/
   
 if (Meteor.isServer) {
   
-  let nb = Sites.find({}).count();
-
-  console.log(process.env);
-  console.log(`INIT nb sites ${nb}`);
-  
-  if (nb == 0) {
+  if (Sites.find({}).count() == 0) {
     console.log("Import data");
     importVeritas();
   } else {
@@ -133,7 +112,4 @@ if (Meteor.isServer) {
       return admins;
     }
   });
-
-
-
 }

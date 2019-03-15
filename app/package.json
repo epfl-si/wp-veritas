@@ -20,8 +20,7 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^2.4.0",
     "simpl-schema": "^1.5.3",
-    "yup": "^0.26.10",
-    "p-wait-for": "*"
+    "yup": "^0.26.10"
   },
   "meteor": {
     "mainModule": {
