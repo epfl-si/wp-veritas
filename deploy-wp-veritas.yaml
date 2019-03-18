@@ -29,8 +29,7 @@ spec:
         app: wp-veritas
         author: gcharmier
         team: idev-fsd
-        release: wp-veritas-mongo
-        jaime: lefromage
+        deployment: wp-veritas
     spec:
       containers:
         - env:
@@ -43,6 +42,8 @@ spec:
               value: '3000'
             - name: ROOT_URL
               value: 'https://wp-veritas.128.178.222.83.nip.io/'
+            # - name: ROOT_URL
+            #   value: 'https://wp-veritas.epfl.ch/'
           image: 'epflidevelop/wp-veritas:0.1.10'
           imagePullPolicy: IfNotPresent
           name: pod-wp-veritas
@@ -63,7 +64,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-wp-veritas
+  name: wp-veritas
   namespace: wwp-test
   labels:
     app: wp-veritas
@@ -80,7 +81,7 @@ spec:
     targetPort: 3000
   selector:
     app: wp-veritas
-    jaime: lefromage
+    deployment: wp-veritas
   type: ClusterIP
 
 
@@ -108,6 +109,30 @@ spec:
     termination: edge
   to:
     kind: Service
-    name: service-wp-veritas
+    name: wp-veritas
+    weight: 100
+  wildcardPolicy: None
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: epfl-wp-veritas
+  namespace: wwp-test
+  labels:
+    app: wp-veritas
+    author: gcharmier
+    team: idev-fsd
+  annotations:
+    authors: idev-fsd
+    version: 0.0.5
+spec:
+  host: wp-veritas.epfl.ch
+  port:
+    targetPort: "80"
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: wp-veritas
     weight: 100
   wildcardPolicy: None
