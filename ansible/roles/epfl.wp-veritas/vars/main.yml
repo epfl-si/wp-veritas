@@ -3,6 +3,7 @@
 wp_veritas_app_name: wp-veritas
 wp_veritas_svc_name: wp-veritas
 wp_veritas_route_name: wp-veritas
+wp_veritas_secret_name: wp-veritas
 wp_veritas_cname: "{{ wp_veritas_app_name + '.epfl.ch' if openshift_namespace == 'wwp' else 'wp-veritas.128.178.222.83.nip.io' }}"
 wp_veritas_deploy_name: wp-veritas
 wp_veritas_image_version: '0.1.10'

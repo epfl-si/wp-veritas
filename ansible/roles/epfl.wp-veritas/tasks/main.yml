@@ -109,5 +109,6 @@
           name: "{{ wp_veritas_svc_name }}"
           weight: 100
         wildcardPolicy: None
-
+- name: wp-veritas secrets
+  include_tasks: '{{ "secrets.yml" }}' 
 
