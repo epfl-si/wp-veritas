@@ -1,3 +1,57 @@
+- name: wp-veritas deploy
+  openshift:
+    state: latest
+    resource: Deployment
+    name: "{{ wp_veritas_deploy_name }}"
+    namespace: "{{ openshift_namespace }}"
+    content: |
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        annotations:
+          version: "{{ wp_veritas_image_version }}"
+        labels:
+          app: "{{ wp_veritas_app_name }}"
+          author: gcharmier
+          team: idev-fsd
+          version: "{{ wp_veritas_image_version }}"
+        name: "{{ wp_veritas_deploy_name }}"
+        namespace: "{{ openshift_namespace }}"
+      spec:
+        replicas: 2
+        selector:
+          matchLabels:
+            app: "{{ wp_veritas_app_name }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ wp_veritas_app_name }}"
+              author: gcharmier
+              team: idev-fsd
+              deployment: "{{ wp_veritas_deploy_name }}"
+          spec:
+            containers:
+              - env:
+                  - name: MONGO_URL
+                    valueFrom:
+                      secretKeyRef:
+                        key: mongo-url
+                        name: wp-veritas
+                  - name: PORT
+                    value: '3000'
+                  - name: ROOT_URL
+                    value: 'https://{{ wp_veritas_cname }}'
+                image: "{{ wp_veritas_image_tag }}"
+                imagePullPolicy: IfNotPresent
+                name: pod-wp-veritas
+                ports:
+                  - containerPort: 3000
+                    protocol: TCP
+            dnsPolicy: ClusterFirst
+            restartPolicy: Always
+            schedulerName: default-scheduler
+            securityContext: {}
+            terminationGracePeriodSeconds: 30
 - name: wp-veritas service
   openshift:
     state: latest
@@ -16,7 +70,6 @@
           team: idev-fsd
         annotations:
           authors: idev-fsd
-          version: 0.0.5
       spec:
         ports:
         - name: "80"
@@ -45,7 +98,6 @@
           team: idev-fsd
         annotations:
           authors: idev-fsd
-          version: 0.0.5
       spec:
         host: "{{ wp_veritas_cname }}"
         port:
