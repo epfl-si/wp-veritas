@@ -25,7 +25,7 @@ class Apps extends React.Component {
           <Header  />      
           <Route path="/search" component={ Search } />
 
-          { isAdmin || isTagsEditor ? 
+          { isAdmin || isTagsEditor ?
             (<React.Fragment>
               <Route exact path="/" component={ List } />
               <Route path="/tags" component={ Tag }/>
@@ -52,8 +52,12 @@ class Apps extends React.Component {
 
 export default withTracker(() => {
   
-  return {
-    currentUser: Meteor.users.findOne({'_id': Meteor.userId()}),
+  let user = Meteor.users.findOne({'_id': Meteor.userId()});
+
+  console.log(user);
+
+  return {  
+    currentUser: user,
   };
   
 })(Apps);

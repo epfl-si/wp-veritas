@@ -1,9 +1,10 @@
-# Docker
+# wp-veritas
 
-`docker build -t wp-veritas/app .`
+This is a wonderful project.
 
-`docker-compose up -d`
+# Push with Ansible
 
-then go to http://localhost
-
-Source : https://hub.docker.com/r/jshimko/meteor-launchpad/
+<pre>
+cd ansible
+ansible-playbook playbook.yml -i hosts-test
+</pre>

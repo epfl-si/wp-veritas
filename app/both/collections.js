@@ -49,6 +49,12 @@ function isRequired() {
     }
 }
 
+function isRequiredUnderCondition() {    
+    if (this.obj.type != 'field-of-research' && this.value === '') {
+        return "required";
+    }
+}
+
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
@@ -202,15 +208,10 @@ export const sitesSchema = new SimpleSchema({
     tags: {
         type: Array,
         label: "Tags",
-        optional: true,
-        custom: function () {
-            if (this.value && this.value.length === 0) {
-                return "required";
-            }
-        },
     },
     'tags.$': {
         type: String,
+        optional: true
     },
 }, { check });
 
@@ -228,9 +229,7 @@ export const tagSchema = new SimpleSchema({
     url: {
         type: String,
         label: "URL du tag",
-        min: 10,
-        custom: isRequired,
-        regEx: SimpleSchema.RegEx.Url,
+        custom: isRequiredUnderCondition,
     },
     type: {
         type: String,
