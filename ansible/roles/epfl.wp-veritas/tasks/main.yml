@@ -1,6 +1,32 @@
----
-# tasks file for epfl.wp-veritas
-
+- name: wp-veritas service
+  openshift:
+    state: latest
+    resource: Service
+    name: "{{ wp_veritas_svc_name }}"
+    namespace: "{{ openshift_namespace }}"
+    content: |
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ wp_veritas_svc_name }}"
+        namespace: "{{ openshift_namespace }}"
+        labels:
+          app: "{{ wp_veritas_app_name }}"
+          author: gcharmier
+          team: idev-fsd
+        annotations:
+          authors: idev-fsd
+          version: 0.0.5
+      spec:
+        ports:
+        - name: "80"
+          port: 80
+          protocol: TCP
+          targetPort: 3000
+        selector:
+          app: "{{ wp_veritas_app_name }}"
+          deployment: "{{ wp_veritas_deploy_name }}"
+        type: ClusterIP
 - name: wp-veritas route
   openshift:
     state: latest
