@@ -208,15 +208,10 @@ export const sitesSchema = new SimpleSchema({
     tags: {
         type: Array,
         label: "Tags",
-        optional: true,
-        custom: function () {
-            if (this.value && this.value.length === 0) {
-                return "required";
-            }
-        },
     },
     'tags.$': {
         type: String,
+        optional: true
     },
 }, { check });
 
