@@ -53,10 +53,18 @@ if (Meteor.isServer) {
     version: 'v1'
   });
 
-  // Maps to: /api/v1/sites
+  // Maps to: /api/sites
+  // and to: /api/sites?site_url=... to get a specific site
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
-      return Sites.find({}).fetch();
+      // is that a id request from an url ?
+      var query = this.queryParams;
+      if (query && this.queryParams.site_url) {
+        return Sites.findOne({'url': this.queryParams.site_url});
+      } else {
+      // nope, we are here for all the sites data
+        return Sites.find({}).fetch();
+      }
     }
   });
 
