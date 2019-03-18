@@ -1,0 +1,35 @@
+---
+# tasks file for epfl.wp-veritas
+
+- name: wp-veritas route
+  openshift:
+    state: latest
+    resource: Route
+    name: "{{ wp_veritas_route_name }}"
+    namespace: "{{ openshift_namespace }}"
+    content: |
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: "{{ wp_veritas_route_name }}"
+        namespace: "{{ openshift_namespace }}"
+        labels:
+          app: "{{ wp_veritas_app_name }}"
+          author: gcharmier
+          team: idev-fsd
+        annotations:
+          authors: idev-fsd
+          version: 0.0.5
+      spec:
+        host: "{{ wp_veritas_cname }}"
+        port:
+          targetPort: "80"
+        tls:
+          termination: edge
+        to:
+          kind: Service
+          name: "{{ wp_veritas_svc_name }}"
+          weight: 100
+        wildcardPolicy: None
+
+
