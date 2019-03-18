@@ -36,7 +36,7 @@
                     valueFrom:
                       secretKeyRef:
                         key: mongo-url
-                        name: wp-veritas
+                        name: "{{ wp_veritas_secret_name }}"
                   - name: PORT
                     value: '3000'
                   - name: ROOT_URL

@@ -62,7 +62,7 @@ if (Meteor.isServer) {
       if (query && this.queryParams.site_url) {
         return Sites.findOne({'url': this.queryParams.site_url});
       } else {
-      // nope, we are here for all the sites data
+        // nope, we are here for all the sites data
         return Sites.find({}).fetch();
       }
     }
