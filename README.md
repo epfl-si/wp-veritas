@@ -6,5 +6,5 @@ This is a wonderful project.
 
 <pre>
 cd ansible
-ansible-playbook playbook.yml -i hosts
+ansible-playbook playbook.yml -i hosts-test
 </pre>

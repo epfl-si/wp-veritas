@@ -1,0 +1,3 @@
+[wwp-test-group]
+wwp-test              ansible_connection=local   openshift_namespace=wwp-test
+
