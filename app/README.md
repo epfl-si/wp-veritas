@@ -36,35 +36,19 @@ On pousse l'image dans dockerhub
 
 `docker push epflidevelop/wp-veritas:latest`
 
-Ensuite on doit modifier la référence à cette image dans le déploiment openshift en éditant le fichier deploy-wp-veritas.yaml.
+Ensuite on doit modifier la référence à cette image dans le déploiment openshift en éditant le fichier ansible/main.yml.
 
 `
-image: epflidevelop/wp-veritas:0.1.10
+wp_veritas_image_version: '0.1.10'
 `
 
-Maintenant on se connecte à openshift :
+`cd ansible/`
 
-`oc login`
-
-On vérifie que l'on est dans le bon projet :
-
-`oc project`
-
-On supprime tous les "éléments" openshift créé via le déploiement (déploiement, service, route) mais cela ne supprime pas les secrets
-
-`oc delete -f deploy-wp-veritas.yaml`
-
-On re-crée les éléments
-
-`oc create -f deploy-wp-veritas.yaml`
-
-
-> Il est important de noter que l'URL de MongoDB est enregistrer dans le Secret wp-veritas. A compléter
-
+`ansible-playbook playbook.yml -i hosts-test`
 
 ## Déployer une nouvelle version sur l'environnement de prod d'openshift
 
-à compléter
+`ansible-playbook playbook.yml -i hosts-prod`
 
 ## Importer les information de la source de vérité
 

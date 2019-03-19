@@ -85,7 +85,7 @@ if (Meteor.isServer) {
     }
   });
 
-  // Maps to: /api/sites/:id/tags
+  // Maps to: /api/v1/sites/:id/tags
   Api.addRoute('sites/:id/tags', {authRequired: false}, {
     get: function () {
       let site = Sites.findOne(this.urlParams.id);

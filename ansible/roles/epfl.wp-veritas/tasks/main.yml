@@ -41,6 +41,8 @@
                     value: '3000'
                   - name: ROOT_URL
                     value: 'https://{{ wp_veritas_cname }}'
+                  - name: METEOR_SETTINGS
+                    value: "{{ meteor_settings_env }}"
                 image: "{{ wp_veritas_image_tag }}"
                 imagePullPolicy: IfNotPresent
                 name: pod-wp-veritas
