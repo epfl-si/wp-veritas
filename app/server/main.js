@@ -39,7 +39,7 @@ if (Meteor.isServer) {
       
       // Add epfl-member by default
       if (!Roles.userIsInRole(tequilaResponse.uniqueid, ['admin', 'tags-editor', 'epfl-member'], Roles.GLOBAL_GROUP)) {
-        Roles.addUsersToRoles(tequilaResponse.uniqueid, 'admin', Roles.GLOBAL_GROUP);  
+        Roles.addUsersToRoles(tequilaResponse.uniqueid, 'epfl-member', Roles.GLOBAL_GROUP);  
       }
 
       return tequilaResponse.uniqueid;
