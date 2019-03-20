@@ -1,4 +1,4 @@
 **/node_modules
 **/.meteor/local
-app/settings.json
+app/meteor-settings.json
 ansible/*.retry

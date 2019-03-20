@@ -65,3 +65,4 @@ Vous devez être positionné dans le répertoire app/ et avoir lancé l'applicat
 `meteor mongo`
 
 `db.sites.deleteMany({})`
+docker push epflidevelop/wp-veritas:latest

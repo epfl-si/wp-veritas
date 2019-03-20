@@ -38,4 +38,5 @@ RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh \
 
 WORKDIR $APP_BUNDLE_FOLDER/bundle
 
-ENTRYPOINT ["node", "main.js"]
+COPY docker/entrypoint.sh /docker
+ENTRYPOINT ["/docker/entrypoint.sh"]
