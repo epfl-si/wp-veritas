@@ -1,6 +1,3 @@
-- debug: 
-    msg: "{{ meteor_settings_env }}"
-#- meta: end_play
 - name: wp-veritas deploy
   openshift:
     state: latest
