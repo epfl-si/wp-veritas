@@ -1,3 +1,6 @@
+- debug: 
+    msg: "{{ meteor_settings_env }}"
+#- meta: end_play
 - name: wp-veritas deploy
   openshift:
     state: latest
@@ -35,16 +38,19 @@
                   - name: MONGO_URL
                     valueFrom:
                       secretKeyRef:
-                        key: mongo-url
                         name: "{{ wp_veritas_secret_name }}"
+                        key: mongo-url
                   - name: PORT
                     value: '3000'
                   - name: ROOT_URL
                     value: 'https://{{ wp_veritas_cname }}'
                   - name: METEOR_SETTINGS
-                    value: "{{ meteor_settings_env }}"
+                    valueFrom:
+                       secretKeyRef:
+                        name: '{{ wp_veritas_secret_name }}'
+                        key: meteor-settings
                 image: "{{ wp_veritas_image_tag }}"
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
                 name: pod-wp-veritas
                 ports:
                   - containerPort: 3000
@@ -52,7 +58,6 @@
             dnsPolicy: ClusterFirst
             restartPolicy: Always
             schedulerName: default-scheduler
-            securityContext: {}
             terminationGracePeriodSeconds: 30
 - name: wp-veritas service
   openshift:
