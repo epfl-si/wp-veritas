@@ -24,15 +24,15 @@ export default class SiteTags extends React.Component {
             let site = Sites.findOne({_id: this.props.match.params._id});
             let facultyTags = Tags.find(
                 {type: 'faculty'}, 
-                {sort: {name: this.state.orderName}
+                {sort: {name_fr: this.state.orderName}
             }).fetch();
             let instituteTags = Tags.find(
                 {type: 'institute'}, 
-                {sort: {name: this.state.orderName}
+                {sort: {name_fr: this.state.orderName}
             }).fetch();
             let fieldOfResearchTags = Tags.find(
                 {type: 'field-of-research'}, 
-                {sort: {name: this.state.orderName}
+                {sort: {name_fr: this.state.orderName}
             }).fetch();
 
             this.setState({
@@ -102,7 +102,7 @@ export default class SiteTags extends React.Component {
                 
                     <form onSubmit={ handleSubmit } className="bg-white border p-4">
                         <div className="form-group clearfix">
-                                <MySelect
+                            <MySelect
                                 id="facultyTags"
                                 value={values.facultyTags}
                                 onChange={setFieldValue}
@@ -171,7 +171,7 @@ render() {
           onBlur={this.handleBlur}
           value={this.props.value}
           options={this.props.options}
-          getOptionLabel ={(option)=>option.name}
+          getOptionLabel ={(option)=>option.name_fr}
           getOptionValue ={(option)=>option._id}
           placeholder={this.props.placeholder}
           

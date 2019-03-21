@@ -18,7 +18,7 @@ export default class Tag extends React.Component {
         
         this.state = {
             action: action,
-            orderName: 1,
+            orderNameFr: 1,
             orderUrl: 0,
             orderType: 0,
             tags: [],
@@ -29,17 +29,19 @@ export default class Tag extends React.Component {
     componentWillMount() {
 
         Meteor.subscribe('tag.list');
+
         Tracker.autorun(() => {
-            let tags = Tags.find({}, {sort: {name: this.state.orderName}}).fetch();
+            let tags = Tags.find({}, {sort: {name_fr: this.state.orderNameFr}}).fetch();
             let tag = '';
             if (this.state.action === 'edit') {
                 tag = Tags.findOne({_id: this.props.match.params._id});
             }
-            this.setState({tags: tags, tag:tag});
-        })
+            this.setState({tags: tags, tag:tag});  
+        })      
     }
 
     submit = (values, actions) => {
+        console.log(values);
 
         let meteorMethodName;
         if (this.state.action === 'add') {
@@ -56,7 +58,7 @@ export default class Tag extends React.Component {
                     console.log(errors);
                     let formErrors = {};
                     errors.details.forEach(function(error) {
-                        formErrors[error.name] = error.message;                        
+                        formErrors[error.name_fr] = error.message;                        
                     });
                     actions.setErrors(formErrors);
                     actions.setSubmitting(false);
@@ -83,16 +85,28 @@ export default class Tag extends React.Component {
         );
     }
 
-    sortName() {
+    sortNameFr() {
         let sort;
-        if (this.state.orderName == 0 || this.state.orderName == 1) {
+        if (this.state.orderNameFr == 0 || this.state.orderNameFr == 1) {
             sort = -1;
-        } else if (this.state.orderName == 0 || this.state.orderName == -1) {
+        } else if (this.state.orderNameFr == 0 || this.state.orderNameFr == -1) {
             sort = 1;
         }
-        let tags = Tags.find({}, {sort: {name: sort}}).fetch();
-        this.setState({orderName: sort, orderType: 0, orderUrl:0, tags: tags});
+        let tags = Tags.find({}, {sort: {name_fr: sort}}).fetch();
+        this.setState({orderNameFr: sort, orderNameEn:0, orderType: 0, orderUrl:0, tags: tags});
     }
+
+    sortNameEn() {
+        let sort;
+        if (this.state.orderNameEn == 0 || this.state.orderNameEn == 1) {
+            sort = -1;
+        } else if (this.state.orderNameEn == 0 || this.state.orderNameEn == -1) {
+            sort = 1;
+        }
+        let tags = Tags.find({}, {sort: {name_en: sort}}).fetch();
+        this.setState({orderNameFr:0, orderNameEn: sort, orderType: 0, orderUrl:0, tags: tags});
+    }
+
     sortUrl() {
         let sort;
         if (this.state.orderUrl == 0 || this.state.orderUrl == 1) {
@@ -101,7 +115,7 @@ export default class Tag extends React.Component {
             sort = 1;
         }
         let tags = Tags.find({}, {sort: {url: sort}}).fetch();
-        this.setState({orderName: 0, orderType: 0, orderUrl:sort, tags: tags});
+        this.setState({orderNameFr: 0, orderNameEn:0, orderType: 0, orderUrl:sort, tags: tags});
     }
     sortType() {
         let sort;
@@ -111,7 +125,7 @@ export default class Tag extends React.Component {
             sort = 1;
         }
         let tags = Tags.find({}, {sort: {type: sort}}).fetch();
-        this.setState({orderName: 0, orderType: sort, orderUrl:0, tags: tags});
+        this.setState({orderNameFr: 0, orderNameEn:0, orderType: sort, orderUrl:0, tags: tags});
     }
 
     render() {
@@ -125,25 +139,34 @@ export default class Tag extends React.Component {
             let initialValues;
             let title;
             let edit;
-            let orderNameClassName;
+            let orderNameFrClassName;
+            let orderNameEnClassName;
             let orderUrlClassName;
             let orderTypeClassName;
 
             if (this.state.action === 'edit') {
-                title = `Editer le tag ${this.state.tag.name}`;
+                title = `Editer le tag ${this.state.tag.name_fr}`;
                 initialValues = this.state.tag;
                 edit = true;
             } else {
                 title = 'Ajouter un tag';
-                initialValues = {name:'', url: '', type: 'faculty'};
+                initialValues = {name_fr:'', name_en:'', url: '', type: 'faculty'};
                 edit = false;
 
-                if (this.state.orderName == 0) {
-                    orderNameClassName = "fa fa-fw fa-sort";
-                } else if (this.state.orderName == 1) {
-                    orderNameClassName = "fa fa-fw fa-sort-asc";
-                } else if (this.state.orderName == -1) {
-                    orderNameClassName = "fa fa-fw fa-sort-desc";
+                if (this.state.orderNameFr == 0) {
+                    orderNameFrClassName = "fa fa-fw fa-sort";
+                } else if (this.state.orderNameFr == 1) {
+                    orderNameFrClassName = "fa fa-fw fa-sort-asc";
+                } else if (this.state.orderNameFr == -1) {
+                    orderNameFrClassName = "fa fa-fw fa-sort-desc";
+                }
+
+                if (this.state.orderNameEn == 0) {
+                    orderNameEnClassName = "fa fa-fw fa-sort";
+                } else if (this.state.orderNameEn == 1) {
+                    orderNameEnClassName = "fa fa-fw fa-sort-asc";
+                } else if (this.state.orderNameEn == -1) {
+                    orderNameEnClassName = "fa fa-fw fa-sort-desc";
                 }
                 
                 if (this.state.orderUrl == 0) {
@@ -179,21 +202,27 @@ export default class Tag extends React.Component {
                             values,
                         }) => (              
                             <form onSubmit={ handleSubmit } className="bg-white border p-4">   
-                                <Field placeholder="Nom du tag" label="Nom" name="name" type="text" component={ CustomInput } />
-                                <ErrorMessage name="name" component={ CustomError } />
-    
+                                
                                 <Field placeholder="URL du tag" label="URL" name="url" type="text" component={ CustomInput } />
                                 <ErrorMessage name="url" component={ CustomError } />
-    
+                                
+                                <Field placeholder="Nom du tag en français" label="Nom [FR]" name="name_fr" type="text" component={ CustomInput } />
+                                <ErrorMessage name="name_fr" component={ CustomError } />
+                                
+                                <Field placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" type="text" component={ CustomInput } />
+                                <ErrorMessage name="name_en" component={ CustomError } />
+
                                 <Field label="Type" name="type" component={ CustomSelect }>                        
                                 <option value="faculty">Faculté</option>
                                 <option value="institute">Institut</option>
                                 <option value="field-of-research">Domaine de recherche</option>                        
                                 </Field>
                                 <ErrorMessage name="type" component={ CustomError } />
-                                    <div className="my-1 text-right">
+                                
+                                <div className="my-1 text-right">
                                     <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                                 </div>
+                                
                             </form>
                         )}
                     </Formik>
@@ -205,7 +234,8 @@ export default class Tag extends React.Component {
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Nom <i className={orderNameClassName} onClick={() => this.sortName() }></i></th>
+                                <th scope="col">Nom FR <i className={orderNameFrClassName} onClick={() => this.sortNameFr() }></i></th>
+                                <th scope="col">Nom EN <i className={orderNameEnClassName} onClick={() => this.sortNameEn() }></i></th>
                                 <th scope="col">URL <i className={orderUrlClassName} onClick={() => this.sortUrl() }></i></th>
                                 <th scope="col">Type <i className={orderTypeClassName} onClick={() => this.sortType() }></i></th>
                                 <th>Actions</th>
@@ -215,7 +245,8 @@ export default class Tag extends React.Component {
                         {this.state.tags.map( (tag, index) => (
                             <tr key={tag._id}>
                                 <td>{index+1}</td>
-                                <td>{tag.name}</td>
+                                <td>{tag.name_fr}</td>
+                                <td>{tag.name_en}</td>
                                 <td><a href={tag.url} target="_blank">{tag.url}</a></td>
                                 <td>{tag.type}</td>
                                 <td>

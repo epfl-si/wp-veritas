@@ -54,8 +54,6 @@ export default withTracker(() => {
   
   let user = Meteor.users.findOne({'_id': Meteor.userId()});
 
-  console.log(user);
-
   return {  
     currentUser: user,
   };

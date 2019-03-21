@@ -13,7 +13,6 @@ import {
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from './error';
 
-
 function prepareUpdateInsert(site, action) {
 
     // Delete "/" at the end of URL 
@@ -107,12 +106,16 @@ Meteor.methods({
 
         // Check if name is unique
         // TODO: Move this code to SimpleSchema custom validation function
-        if (Tags.find({name: tag.name}).count()>0) {
-            throwMeteorError('name', 'Nom du type existe déjà !');
+        if (Tags.find({name: tag.name_fr}).count()>0) {
+            throwMeteorError('name_fr', 'Nom [FR] du type existe déjà !');
         }
-        
+        if (Tags.find({name: tag.name_en}).count()>0) {
+            throwMeteorError('name_en', 'Nom [EN] du type existe déjà !');
+        }
+
         let tagDocument = {
-            name: tag.name,
+            name_fr: tag.name_fr,
+            name_en: tag.name_en,
             url: tag.url,
             type: tag.type
         }
@@ -140,7 +143,8 @@ Meteor.methods({
         tagSchema.validate(tag);
 
         let tagDocument = {
-            name: tag.name,
+            name_fr: tag.name_fr,
+            name_en: tag.name_en,
             url: tag.url,
             type: tag.type
         }
@@ -148,6 +152,27 @@ Meteor.methods({
         Tags.update(
             {_id: tag._id}, 
             { $set: tagDocument
+        });
+        
+        let sites = Sites.find();
+        sites.forEach(function(site) {
+            new_tags = [];
+            site.tags.forEach(function(current_tag) {
+                if (current_tag._id === tag._id) {
+                    console.log(`TAG A mettre àjour ${current_tag._id} ${current_tag.name_fr}`);
+                    new_tags.push(tag);
+                } else {
+                    new_tags.push(current_tag);
+                }
+            });
+            Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': new_tags,
+                    }
+                }
+            );
         });
 
     },
@@ -172,6 +197,36 @@ Meteor.methods({
         check(tagId, String);
 
         Tags.remove({_id: tagId});
+        
+        /* FIXME: Improve it with a 'complexe' mongo query like :
+        Sites.update(
+            {}, 
+            { $pull: {
+                    tags: tagId
+                }
+            },
+            { multi: true}
+        );
+        */
+        let sites = Sites.find();
+        sites.forEach(function(site) {
+            new_tags = [];
+            site.tags.forEach(function(tag) {
+                if (tag._id === tagId) {
+                    console.log(`TAG A supprimer ${tag._id} ${tag.name_fr}`);
+                } else {
+                    new_tags.push(tag);
+                }
+            });
+            Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': new_tags,
+                    }
+                }
+            );
+        });
     },
 
     insertSite(site){
@@ -215,7 +270,6 @@ Meteor.methods({
             trashedDate: site.trashedDate,
             tags: site.tags,
         }
-        console.log("insertSite log 4");
         return Sites.insert(siteDocument);
     },
 
