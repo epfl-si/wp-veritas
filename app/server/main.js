@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites } from '../both';
+import { Sites, Tags } from '../both';
 import './publications';
 import getUnits from './units';
-import importVeritas from './import-data';
+import { importTags, importVeritas } from './import-data';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -17,6 +17,13 @@ if (Meteor.isServer) {
     importVeritas();
   } else {
     console.log("Data already exist");
+  }
+
+  if (Tags.find({}).count() == 0) {
+    console.log("Import tags");
+    importTags();
+  } else {
+    console.log("Tags already exist");
   }
   
   if (activeTequila) {

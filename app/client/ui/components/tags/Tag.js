@@ -58,7 +58,7 @@ export default class Tag extends React.Component {
                     console.log(errors);
                     let formErrors = {};
                     errors.details.forEach(function(error) {
-                        formErrors[error.name_fr] = error.message;                        
+                        formErrors[error.name] = error.message;                        
                     });
                     actions.setErrors(formErrors);
                     actions.setSubmitting(false);
