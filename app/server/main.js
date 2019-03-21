@@ -31,8 +31,7 @@ if (Meteor.isServer) {
         { 
           $set: { 
             username: tequilaResponse.user,
-            emails: [tequilaResponse.email],
-           
+            emails: [tequilaResponse.email], 
           }
         }
       );
@@ -53,8 +52,8 @@ if (Meteor.isServer) {
     version: 'v1'
   });
 
-  // Maps to: /api/sites
-  // and to: /api/sites?site_url=... to get a specific site
+  // Maps to: /api/v1/sites
+  // and to: /api/v1/sites?site_url=... to get a specific site
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?
@@ -75,15 +74,15 @@ if (Meteor.isServer) {
     }
   });
 
+  /*
   // Maps to: /api/v1/sites/:title/tags
-  // TODO: à checker avec Luc car aujourd'hui title pas unique
   Api.addRoute('sites-by-title/:title/tags', {authRequired: false}, {
     get: function () {
-      
       let site = Sites.findOne({title: this.urlParams.title});
       return site.tags;
     }
   });
+  */
 
   // Maps to: /api/v1/sites/:id/tags
   Api.addRoute('sites/:id/tags', {authRequired: false}, {

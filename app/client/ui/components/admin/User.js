@@ -7,7 +7,6 @@ import { Formik, Field } from 'formik';
 class User extends React.Component {
 
     submit = (values, actions) => {
-        console.log(values);
         let userId = values.userId;
         Meteor.call(
             'updateRole',

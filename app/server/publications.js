@@ -51,7 +51,7 @@ Meteor.publish('type.list', function() {
 
 Meteor.publish('tag.list', function() {
     
-    let tagCursor = Tags.find({}, {sort: {name:1}});
+    let tagCursor = Tags.find({}, {sort: {name_fr:1}});
     return [
         tagCursor,
     ]
