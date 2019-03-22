@@ -272,7 +272,7 @@ export const Sites = new Mongo.Collection('sites', {
     transform: (doc) => new Site(doc)
 });
 
-export const OpenshiftEnvs = new Mongo.Collection('openshift-envs');
+export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');
 export const Themes = new Mongo.Collection('themes');
 export const Tags = new Mongo.Collection('tags');

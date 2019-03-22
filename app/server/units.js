@@ -2,9 +2,10 @@ import { HTTP } from 'meteor/http';
 import { Meteor } from 'meteor/meteor'
 
 export default getUnits = (sciper) => {
-
   const url = `https://websrv.epfl.ch/cgi-bin/rwsaccred/getRights?app=wp-veritas&caller=000000&password=${Meteor.settings.accred_password}&persid=${sciper}`;
-
+  
+  console.log(`URL vaut ${url}`);
+  
   // Note: si on ne précise pas de fonction de callback en 3ème paramètre
   // HTTP GET est synchrone
   let response = HTTP.get(url, {});

@@ -1,9 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites, Tags } from '../both';
+import { Sites, Tags, OpenshiftEnvs, Themes, Types } from '../both';
 import './publications';
 import getUnits from './units';
-import { importTags, importVeritas } from './import-data';
+import { importTags, importVeritas, importOpenshiftenvs, importThemes, importTypes } from './import-data';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -13,10 +13,10 @@ let activeTequila = true;
 if (Meteor.isServer) {
   
   if (Sites.find({}).count() == 0) {
-    console.log("Import data");
+    console.log("Import sites");
     importVeritas();
   } else {
-    console.log("Data already exist");
+    console.log("Sites already exist");
   }
 
   if (Tags.find({}).count() == 0) {
@@ -24,6 +24,27 @@ if (Meteor.isServer) {
     importTags();
   } else {
     console.log("Tags already exist");
+  }
+
+  if (OpenshiftEnvs.find({}).count() == 0) {
+    console.log("Import openshiftenvs");
+    importOpenshiftenvs();
+  } else {
+    console.log("openshiftenvs already exist");
+  }
+
+  if (Themes.find({}).count() == 0) {
+    console.log("Import themes");
+    importThemes();
+  } else {
+    console.log("Themes already exist");
+  }
+
+  if (Types.find({}).count() == 0) {
+    console.log("Import types");
+    importTypes();
+  } else {
+    console.log("Types already exist");
   }
   
   if (activeTequila) {
@@ -99,12 +120,22 @@ if (Meteor.isServer) {
     }
   });
 
-  // Maps to: /api/v1/sites-with-tags/:tag1/:tag2
-  Api.addRoute('sites-with-tags/:tag1/:tag2', {authRequired: false}, {
+  // Maps to: /api/v1/sites-with-tags-en/:tag1/:tag2
+  Api.addRoute('sites-with-tags-en/:tag1/:tag2', {authRequired: false}, {
     get: function () {
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
-      let sites = Sites.find({'tags.name': tag1, 'tags.name': tag2}).fetch();
+      let sites = Sites.find({'tags.name_en': tag1, 'tags.name_en': tag2}).fetch();
+      return sites;
+    }
+  });
+
+  // Maps to: /api/v1/sites-with-tags-fr/:tag1/:tag2
+  Api.addRoute('sites-with-tags-fr/:tag1/:tag2', {authRequired: false}, {
+    get: function () {
+      let tag1 = this.urlParams.tag1.toUpperCase();
+      let tag2 = this.urlParams.tag2.toUpperCase();
+      let sites = Sites.find({'tags.name_fr': tag1, 'tags.name_fr': tag2}).fetch();
       return sites;
     }
   });
@@ -115,6 +146,7 @@ if (Meteor.isServer) {
       
       // Get units of sciper 
       let units = getUnits(this.urlParams.sciper);
+      console.log(units);
       
       // Get all sites whose unit is present in 'units' 
       let sites = Sites.find({unitId: { $in: units }}).fetch();
