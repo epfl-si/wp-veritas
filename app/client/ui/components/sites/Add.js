@@ -215,7 +215,7 @@ class Add extends React.Component {
                 <div className="my-1 text-right">
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                 </div>
-                <pre>{JSON.stringify(values, null, 2)}</pre>
+                {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
                 </form>
                 
             )}

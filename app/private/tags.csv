@@ -1,0 +1,20 @@
+name_fr,name_en,url,type
+ENAC,ENAC,https://www.epfl.ch/schools/enac,faculty
+IC,IC,https://www.epfl.ch/schools/ic,faculty
+SB,SB,https://www.epfl.ch/schools/sb,faculty
+STI,STI,https://sti.epfl.ch/,faculty
+SV,SV,https://www.epfl.ch/schools/sv,faculty
+CDH,CDH,https://www.epfl.ch/schools/cdh,faculty
+CDM,CDM,https://www.epfl.ch/schools/cdm,faculty
+DHI,DHI,https://www.epfl.ch/schools/cdh/research-2/dhi,institute
+IAGS,IAGS,https://www.epfl.ch/schools/cdh/fr/recherche/iags,institute
+Systèmes et design bio-inspirés,Bio-nspired designs and systems,,field-of-research
+Neurotechnologie,Neurotechnology,,field-of-research
+Fabrication avancée,Advanced Manufacturing,,field-of-research
+Sciences des réseaux et des données,Data and network sciences,,field-of-research
+Systèmes énergétiques,Energy systems,,field-of-research
+Dispositifs électroniques flexibles,,Flexible electronics,field-of-research
+Informatique du futur,Future of computing,,field-of-research
+Imagerie et vision,Imaging and vision,,field-of-research
+Internet des objets,Internet of Things,,field-of-research
+Systèmes d'apprentissage et de décision,Learning and Decision systems,,field-of-research
