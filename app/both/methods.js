@@ -86,9 +86,7 @@ Meteor.methods({
     },
 
     insertTag(tag){
-
-        console.log(tag);
-
+        
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
