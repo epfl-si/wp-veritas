@@ -75,6 +75,16 @@ export const typesSchema = new SimpleSchema({
 
 typesSchema.messageBox = messageBox;
 
+export const categoriesSchema = new SimpleSchema({
+    name: {
+        type: String,
+        label: "Nom de la catégorie",
+        custom: isRequired,
+    }
+}, { check });
+
+categoriesSchema.messageBox = messageBox;
+
 export const themesSchema = new SimpleSchema({
     name: {
         type: String,
@@ -131,7 +141,7 @@ export const sitesSchema = new SimpleSchema({
     category: {
         type: String,
         label: "Catégorie",
-        optional: true,
+        optional: false,
         max: 100,
         min: 3,
     }, 
@@ -279,5 +289,6 @@ export const Sites = new Mongo.Collection('sites', {
 
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');
+export const Categories = new Mongo.Collection('categories');
 export const Themes = new Mongo.Collection('themes');
 export const Tags = new Mongo.Collection('tags');

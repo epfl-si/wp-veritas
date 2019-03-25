@@ -1,7 +1,8 @@
 import { 
     Sites, 
     OpenshiftEnvs, 
-    Types, 
+    Types,
+    Categories,
     Themes, 
     sitesSchema, 
     openshiftEnvsSchema, 
@@ -349,7 +350,7 @@ Meteor.methods({
     
     removeSite(siteId){
 
-        if (!this.userId) {
+        if (!this.userId) {Categories
             throw new Meteor.Error('not connected');
         }
 
@@ -456,6 +457,39 @@ Meteor.methods({
 
     },
 
+    insertCategory(category) {
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+
+        const canInsert = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canInsert) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can insert category.');
+        }
+
+        // Check if name is unique
+        // TODO: Move this code to SimpleSchema custom validation function
+        if (Categories.find({name: category.name}).count()>0) {
+            throwMeteorError('name', 'Nom de la catégorie existe déjà !');
+        }
+
+        typesSchema.validate(category);
+
+        let categoryDocument = {
+            name: category.name,
+        };
+
+        return Categories.insert(categoryDocument);
+
+    },
+
     removeType(typeId){
 
         if (!this.userId) {
@@ -476,6 +510,28 @@ Meteor.methods({
         check(typeId, String);
 
         Types.remove({_id: typeId});
+    },
+
+    removeCategory(categoryId){
+
+        if (!this.userId) {
+            throw new Meteor.Error('not connected');
+        }
+
+        const canRemove = Roles.userIsInRole(
+            this.userId,
+            ['admin'], 
+            Roles.GLOBAL_GROUP
+        );
+
+        if (! canRemove) {
+            throw new Meteor.Error('unauthorized',
+              'Only admins can remove Category.');
+        }
+
+        check(categoryId, String);
+
+        Categories.remove({_id: categoryId});
     },
 
     insertTheme(theme) {
