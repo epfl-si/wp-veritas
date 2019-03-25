@@ -1,50 +1,20 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites, Tags, OpenshiftEnvs, Themes, Types } from '../both';
+import { Sites } from '../both';
 import './publications';
 import getUnits from './units';
-import { importTags, importVeritas, importOpenshiftenvs, importThemes, importTypes } from './import-data';
+import { importData } from './import-data';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let activeTequila = true;
+let activeTequila = false;
+let importDatas = true;
   
 if (Meteor.isServer) {
   
-  if (Sites.find({}).count() == 0) {
-    console.log("Import sites");
-    importVeritas();
-  } else {
-    console.log("Sites already exist");
-  }
-
-  if (Tags.find({}).count() == 0) {
-    console.log("Import tags");
-    importTags();
-  } else {
-    console.log("Tags already exist");
-  }
-
-  if (OpenshiftEnvs.find({}).count() == 0) {
-    console.log("Import openshiftenvs");
-    importOpenshiftenvs();
-  } else {
-    console.log("openshiftenvs already exist");
-  }
-
-  if (Themes.find({}).count() == 0) {
-    console.log("Import themes");
-    importThemes();
-  } else {
-    console.log("Themes already exist");
-  }
-
-  if (Types.find({}).count() == 0) {
-    console.log("Import types");
-    importTypes();
-  } else {
-    console.log("Types already exist");
+  if (importDatas) {
+    importData();
   }
   
   if (activeTequila) {
