@@ -9,10 +9,6 @@ class Admin extends React.Component {
 
     submit = (collection, values, actions) => {
         
-        console.log(collection);
-        console.log(values);
-        console.log(actions);
-
         let meteorMethodName;
 
         if (collection._name === 'openshift-envs') {
