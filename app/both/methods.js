@@ -350,7 +350,7 @@ Meteor.methods({
     
     removeSite(siteId){
 
-        if (!this.userId) {Categories
+        if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
 
