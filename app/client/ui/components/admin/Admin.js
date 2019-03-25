@@ -2,7 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
-import { Types, OpenshiftEnvs, Themes } from '../../../../both/collections';
+import { Categories, Types, OpenshiftEnvs, Themes } from '../../../../both/collections';
 import { CustomError, CustomInput } from '../CustomFields';
 
 class Admin extends React.Component {
@@ -17,6 +17,8 @@ class Admin extends React.Component {
             meteorMethodName = 'insertType';
         } else if (collection._name === 'themes') {
             meteorMethodName = 'insertTheme';
+        } else if (collection._name === 'categories') {
+            meteorMethodName = 'insertCategory';
         }
 
         Meteor.call(
@@ -50,6 +52,10 @@ class Admin extends React.Component {
         this.submit(Themes, values, actions);
     }
 
+    submitCategory = (values, actions) => {
+        this.submit(Categories, values, actions);
+    }
+
     delete = (collection, elementID) => {
 
         let meteorMethodName;
@@ -60,6 +66,8 @@ class Admin extends React.Component {
             meteorMethodName = 'removeType';
         } else if (collection._name === 'themes') {
             meteorMethodName = 'removeTheme';
+        } else if (collection._name === 'categories') {
+            meteorMethodName = 'removeCategory';
         }
 
         Meteor.call(
@@ -83,6 +91,10 @@ class Admin extends React.Component {
 
     deleteTheme = (themeID) => {
         this.delete(Themes, themeID);
+    }
+
+    deleteTheme = (categoryID) => {
+        this.delete(Categories, categoryID);
     }
 
     render() {
@@ -166,6 +178,46 @@ class Admin extends React.Component {
                 </div>
                 
             </div>
+
+            <div className="card my-2">
+
+                <h5 className="card-header">Liste des catégories des sites WordPress</h5>
+    
+                <ul className="list-group">
+                    {this.props.categories.map( (category, index) => (
+                        <li key={category._id} value={category.name} className="list-group-item">
+                            {category.name}
+                            <button type="button" className="close" aria-label="Close">
+                                <span  onClick={() => this.deleteCategory(category._id)} aria-hidden="true">&times;</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+
+                <div className="card-body">
+                    <Formik
+                            onSubmit={ this.submitCategory }
+                            initialValues={ { name: ''} }
+                            validationSchema={ this.nameSchema }
+                            validateOnBlur={ false }
+                            validateOnChange={ false }
+                        >
+                        {({
+                            handleSubmit,
+                            isSubmitting,
+                        }) => (    
+                            <form onSubmit={ handleSubmit } className="">
+                                <Field placeholder="Nom de la catégorie à ajouter" name="name" type="text" component={ CustomInput } />
+                                <ErrorMessage name="name" component={ CustomError } />
+                                <div className="my-1 text-right">
+                                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                                </div>
+                            </form>
+                        )}
+                    </Formik>
+                </div>
+                
+            </div>
             
             <div className="card my-2">
                 <h5 className="card-header">Liste des thèmes des sites WordPress</h5>
@@ -214,11 +266,13 @@ export default withTracker(() => {
     Meteor.subscribe('openshiftEnv.list');
     Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
+    Meteor.subscribe('category.list');
 
     return {
         openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
         types: Types.find({}, {sort: {name:1 }}).fetch(),
         themes: Themes.find({}, {sort: {name:1 }}).fetch(),
+        categories: Categories.find({}, {sort: {name:1 }}).fetch(),
     };
     
 })(Admin);

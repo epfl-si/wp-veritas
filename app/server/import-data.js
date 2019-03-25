@@ -1,4 +1,4 @@
-import { Sites, Tags, OpenshiftEnvs, Themes, Types } from '../both';
+import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../both';
 
 importData = () => {
   if (Sites.find({}).count() == 0) {
@@ -35,6 +35,34 @@ importData = () => {
   } else {
     console.log("Types already exist");
   }
+
+  if (Categories.find({}).count() == 0) {
+    console.log("Import categories");
+    importCategories();
+  } else {
+    console.log("Categories already exist");
+  }
+}
+
+importCategories = () => {
+  const path = 'categories.csv';
+  const file = Assets.getText(path);
+  Papa.parse(file, {
+    delimiter: ",",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(category => {
+        let categoryDocument = {
+          name: category.name,
+        }
+        if (!Categories.findOne({name: categoryDocument.name})) {
+          Categories.insert(categoryDocument);
+        }
+      });
+      console.log("Importation categories finished");
+    }    
+  });
 }
 
 importTypes = () => {
@@ -155,7 +183,7 @@ importVeritas = () => {
             title: site.wp_site_title,
             openshiftEnv: site.openshift_env,
             type: 'public',
-            category: null,
+            category: site.category,
             theme: site.theme,
             faculty: site.theme_faculty,
             languages: langs,

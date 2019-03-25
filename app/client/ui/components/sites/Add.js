@@ -1,7 +1,7 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
-import { Sites, OpenshiftEnvs, Types, Themes } from '../../../../both/collections';
+import { Sites, OpenshiftEnvs, Types, Themes, Categories } from '../../../../both/collections';
 import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
 
 class Add extends React.Component {
@@ -120,6 +120,7 @@ class Add extends React.Component {
           openshiftEnv: 'www', 
           type: 'public', 
           theme:'2018',
+          category:'GeneralPublic',
           faculty: '',
           languages: [], 
           unitId: '', 
@@ -176,7 +177,11 @@ class Add extends React.Component {
                 </Field>
                 <ErrorMessage name="type" component={ CustomError } />
                 
-                <Field placeholder="Catégorie du site à ajouter" label="Catégorie" name="category" type="text" component={ CustomInput } />
+                <Field label="Catégorie" name="category" component={ CustomSelect } >
+                {this.props.categories.map( (category, index) => (
+                  <option key={category._id} value={category.name}>{category.name}</option>
+                  ))}
+                </Field>
                 <ErrorMessage name="category" component={ CustomError } />
 
                 <Field label="Thème" name="theme" component={ CustomSelect } >
@@ -233,11 +238,12 @@ export default withTracker(() => {
     Meteor.subscribe('openshiftEnv.list');
     Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
+    Meteor.subscribe('category.list');
 
     return {
         openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
         types: Types.find({}, {sort: {name:1 }}).fetch(),
         themes: Themes.find({}, {sort: {name:1 }}).fetch(),
-        
+        categories: Categories.find({}, {sort: {name:1 }}).fetch(),
     };  
 })(Add);
