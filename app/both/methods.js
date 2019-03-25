@@ -4,6 +4,7 @@ import {
     Types,
     Categories,
     Themes, 
+    categoriesSchema,
     sitesSchema, 
     openshiftEnvsSchema, 
     typesSchema, 
@@ -480,7 +481,7 @@ Meteor.methods({
             throwMeteorError('name', 'Nom de la catégorie existe déjà !');
         }
 
-        typesSchema.validate(category);
+        categoriesSchema.validate(category);
 
         let categoryDocument = {
             name: category.name,
