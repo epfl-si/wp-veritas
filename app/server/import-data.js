@@ -1,5 +1,42 @@
 import { Sites, Tags, OpenshiftEnvs, Themes, Types } from '../both';
 
+importData = () => {
+  if (Sites.find({}).count() == 0) {
+    console.log("Import sites");
+    importVeritas();
+  } else {
+    console.log("Sites already exist");
+  }
+
+  if (Tags.find({}).count() == 0) {
+    console.log("Import tags");
+    importTags();
+  } else {
+    console.log("Tags already exist");
+  }
+
+  if (OpenshiftEnvs.find({}).count() == 0) {
+    console.log("Import openshiftenvs");
+    importOpenshiftenvs();
+  } else {
+    console.log("openshiftenvs already exist");
+  }
+
+  if (Themes.find({}).count() == 0) {
+    console.log("Import themes");
+    importThemes();
+  } else {
+    console.log("Themes already exist");
+  }
+
+  if (Types.find({}).count() == 0) {
+    console.log("Import types");
+    importTypes();
+  } else {
+    console.log("Types already exist");
+  }
+}
+
 importTypes = () => {
   const path = 'types.csv';
   const file = Assets.getText(path);
@@ -73,15 +110,23 @@ importTags = () => {
       let data = JSON.parse(JSON.stringify(results.data));
       data.forEach(tag => {
         let tagDocument = {
-          url: tag.url,
+          url_fr: tag.url_fr,
+          url_en: tag.url_en,
           name_fr: tag.name_fr,
           name_en: tag.name_en,
           type: tag.type
         }
-        if (tagDocument.url=== '' || !Tags.findOne({url: tagDocument.url}) && 
-          !Tags.findOne({name_fr: tagDocument.name_fr}) && 
-          !Tags.findOne({name_en: tagDocument.name_en})) {
-          Tags.insert(tagDocument);
+        
+        let url_fr_exist = Tags.findOne({url: tagDocument.url_fr});
+        let url_en_exist = Tags.findOne({url: tagDocument.url_en});
+        let name_fr_exist = Tags.findOne({name_fr: tagDocument.name_fr});
+        let name_en_exist = Tags.findOne({name_en: tagDocument.name_en});
+
+        if (!name_fr_exist && !name_en_exist) {
+          if ((tagDocument.url_fr === '' || !url_fr_exist) && 
+          (tagDocument.url_en === '' || !url_en_exist)) {
+            Tags.insert(tagDocument);
+          }
         }
       });
       console.log("Importation tags finished");
@@ -134,4 +179,4 @@ importVeritas = () => {
     });
   }
   
-  export { importVeritas, importTags, importOpenshiftenvs, importThemes, importTypes }
+  export { importData }

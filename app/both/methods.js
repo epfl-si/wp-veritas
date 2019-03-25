@@ -86,7 +86,7 @@ Meteor.methods({
     },
 
     insertTag(tag){
-
+        
         if (!this.userId) {
             throw new Meteor.Error('not connected');
         }
@@ -116,7 +116,8 @@ Meteor.methods({
         let tagDocument = {
             name_fr: tag.name_fr,
             name_en: tag.name_en,
-            url: tag.url,
+            url_fr: tag.url_fr,
+            url_en: tag.url_en,
             type: tag.type
         }
         
@@ -145,7 +146,8 @@ Meteor.methods({
         let tagDocument = {
             name_fr: tag.name_fr,
             name_en: tag.name_en,
-            url: tag.url,
+            url_fr: tag.url_fr,
+            url_en: tag.url_en,
             type: tag.type
         }
         

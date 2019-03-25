@@ -231,9 +231,14 @@ export const tagSchema = new SimpleSchema({
         label: "Nom du tag en",
         custom: isRequired,
     },
-    url: {
+    url_fr: {
         type: String,
-        label: "URL du tag",
+        label: "URL du tag en français",
+        custom: isRequiredUnderCondition,
+    },
+    url_en: {
+        type: String,
+        label: "URL du tag en anglais",
         custom: isRequiredUnderCondition,
     },
     type: {
