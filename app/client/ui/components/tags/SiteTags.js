@@ -8,6 +8,7 @@ export default class SiteTags extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            add_success: false,
             facultyTags: [],
             instituteTags: [],
             fieldOfResearchTags: [],
@@ -64,6 +65,7 @@ export default class SiteTags extends React.Component {
                     actions.setSubmitting(false);
                 } else {
                     actions.setSubmitting(false);
+                    this.setState({add_success: true});
                 }
             }
         );
@@ -71,6 +73,11 @@ export default class SiteTags extends React.Component {
 
     render() {
         let content;
+        let msg_site_tags_success = (
+            <div className="alert alert-success" role="alert">
+              Les tags ont été enregistrés avec succès ! 
+            </div> 
+          )
         const isLoading = (this.state.site === undefined || this.state.site === '');
     
         if (isLoading) {
@@ -80,6 +87,8 @@ export default class SiteTags extends React.Component {
                 <div className="my-4">
                     <h4>Associer des tags à un site WordPress</h4>
                     <p>Pour le site <a href={this.state.site.url} target="_blank">{this.state.site.url}</a>, veuillez sélectionner ci-dessous les tags à associer: </p>
+
+                    { this.state.add_success && msg_site_tags_success }
                     <Formik
                         onSubmit={ this.submit }
                         initialValues={ {facultyTags: this.state.site.tags.filter(tag => tag.type === 'faculty'), instituteTags:this.state.site.tags.filter(tag => tag.type === 'institute'), fieldOfResearchTags: this.state.site.tags.filter(tag => tag.type === 'field-of-research')} }
@@ -159,12 +168,13 @@ class MySelect extends React.Component {
     };
 
 render() {
+
     let content;
 
     content = 
     (
       <div style={{ margin: '1rem 0' }}>
-       
+
         <Select
           isMulti
           onChange={this.handleChange}

@@ -46,18 +46,67 @@ class List extends React.Component {
     }
 
     export = () => {
-       const csv = Papa.unparse({
+        
+        let data = Sites.find({}).fetch();
+        
+        // Modify the keys of the Site object so that the resulting csv file 
+        // has column names expected by j2wp
+        data.forEach(site => {
+            
+            // url => wp_site_url
+            delete Object.assign(site, { wp_site_url: site.url }).url
+            
+            // tagline => wp_tagline
+            delete Object.assign(site, { wp_tagline: site.tagline }).tagline
+            
+            // title => wp_site_title
+            delete Object.assign(site, { wp_site_title: site.title }).title
+            
+            // DELETE site_type
+
+            // openshiftEnv => openshift_env
+            delete Object.assign(site, { openshift_env: site.openshiftEnv }).openshiftEnv
+            
+            // category => category
+            
+            // theme => theme
+            
+            // faculty => theme_faculty
+            delete Object.assign(site, { theme_faculty: site.faculty }).faculty
+            
+            // DELETE => status 
+            // On a un champ status mais plus avec les valeurs yes, no mais created, etc
+            
+            // DELETE => installs_locked 
+            
+            // DELETE => updates_automatic
+            
+            // languages => langs
+            delete Object.assign(site, { langs: site.languages }).languages
+            
+            // DELETE unit_name
+            
+            // unitId => unit_id
+            delete Object.assign(site, { unit_id: site.unitId }).unitId
+            
+            // comment => comment
+        
+        });
+
+        console.log(data);
+
+        const csv = Papa.unparse({
            // Define fields to export
            fields: [
-               "url",
-               "title",
-               "tagline",
-               "openshiftEnv",
+               "wp_site_url",
+               "wp_site_title",
+               "wp_tagline",
+               "openshift_env",
                "type",
                "theme",
                "faculty",
-               "languages",
-               "unitId",
+               "langs",
+               "unit_id",
                "snowNumber",
                "status",
                "comment",
@@ -67,7 +116,8 @@ class List extends React.Component {
                "archivedDate",
                "trashedDate"
             ],
-            data: Sites.find({}).fetch()
+            data: data,
+            
         });
   
         const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
