@@ -1,4 +1,5 @@
 import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../both';
+import URL from 'url-parse';
 
 importData = () => {
   if (Sites.find({}).count() == 0) {
@@ -42,6 +43,59 @@ importData = () => {
   } else {
     console.log("Categories already exist");
   }
+
+  importTagsBySite();
+}
+
+importTagsBySite = () => {
+  const path = 'site-tags.csv';
+  const file = Assets.getText(path);
+  let ok = 0;
+  let ko = 0;
+  Papa.parse(file, {
+    delimiter: ",",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(line => {
+        
+        // Checker si l'URL du site existe
+        let url_object = new URL(line.site_url);
+    
+        let url = 'https://' + url_object.hostname + url_object.pathname;
+        url = url.replace(/\/$/, "");
+        
+        let key = url_object.hostname.replace(".epfl.ch", "");
+        let url_2018 = "https://www.epfl.ch/labs/" + key;
+        let exist_2010 = false;
+        let exist_2018 = false;
+
+        if (Sites.find({url: url}).count() > 0){  
+          exist_2010 = true;
+          ok = ok + 1;
+          //console.log(`URL ${ url } existe`);
+        }
+        if (Sites.find({url: url_2018}).count() > 0) {
+          exist_2018 = true;
+          ok = ok + 1;
+          //console.log(`URL ${ url_2018 } existe`);
+        }
+
+        if (!exist_2010 && !exist_2018) {
+          ko = ko + 1;
+          console.log(`URLs ${ url } ou ${ url_2018 } n'existent pas `);
+        }
+
+        // est ce que ce site a déjà un tag fac ?
+        // si non ajouter le tag fac
+
+        // est ce que ce site a déjà un tag insitut ?
+        // si non ajouter le tag institut
+
+      });
+      console.log(`Importation TagsBySite finished: ok: ${ok} ko:${ko}`);
+    }    
+  });
 }
 
 importCategories = () => {
@@ -177,8 +231,11 @@ importVeritas = () => {
           } else {
             langs = site.langs.split(',')
           }
+
+          let url = site.wp_site_url;
+          url = url.replace(/\/$/, "");
           let siteDocument = {
-            url: site.wp_site_url,
+            url: url,
             tagline: site.wp_tagline,
             title: site.wp_site_title,
             openshiftEnv: site.openshift_env,
@@ -191,7 +248,7 @@ importVeritas = () => {
             snowNumber: '',
             status: 'created',
             comment: '',
-            plannedCimportVeritaslosingDate: null,
+            plannedClosingDate: null,
             requestedDate: null,
             createdDate: null,
             archivedDate: null,

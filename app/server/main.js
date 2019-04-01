@@ -131,3 +131,7 @@ if (Meteor.isServer) {
     }
   });
 }
+
+importTagsBySite = () => {
+  console.log("toto");
+}

@@ -20,6 +20,7 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^2.4.0",
     "simpl-schema": "^1.5.3",
+    "url-parse": "^1.4.4",
     "yup": "^0.26.10"
   },
   "meteor": {
