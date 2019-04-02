@@ -52,6 +52,8 @@ importTagsBySite = () => {
   const file = Assets.getText(path);
   let ok = 0;
   let ko = 0;
+  let nb_tags = 0;
+
   Papa.parse(file, {
     delimiter: ",",
     header: true,
@@ -70,30 +72,106 @@ importTagsBySite = () => {
         let exist_2010 = false;
         let exist_2018 = false;
 
-        if (Sites.find({url: url}).count() > 0){  
+        let site;
+
+        if (Sites.find({url: url}).count() == 1){  
           exist_2010 = true;
           ok = ok + 1;
-          //console.log(`URL ${ url } existe`);
-        }
-        if (Sites.find({url: url_2018}).count() > 0) {
+          site = Sites.findOne({url: url});
+          console.log(`URL ${ url } existe`);
+        } else if (Sites.find({url: url_2018}).count() == 1) {
           exist_2018 = true;
           ok = ok + 1;
-          //console.log(`URL ${ url_2018 } existe`);
+          site = Sites.findOne({url: url_2018});
+          console.log(`URL ${ url_2018 } existe`);
+        } else {
+          ko = ko + 1;
         }
 
         if (!exist_2010 && !exist_2018) {
-          ko = ko + 1;
+          
           console.log(`URLs ${ url } ou ${ url_2018 } n'existent pas `);
+        } else {
+
+          // est ce que le tag fac existe ?
+          if (Tags.find({name_fr: line.fac}).count() == 1) {
+
+            let tag = Tags.findOne({name_fr: line.fac});
+            console.log(`Tag fac ${tag.name_fr} existe`);
+
+            // est ce que ce site a déjà ce tag fac ?
+            let tag_exist = false;
+            site.tags.forEach(function(tag) {
+              if (tag.name_fr == line.fac) {
+                tag_exist = true;
+              }
+            });
+            
+            if (!tag_exist) {
+
+              console.log(`Site ${site.url} n'a pas deja le Tag fac ${tag.name_fr}`);
+
+              // ajouter le tag
+              site.tags.push(tag);
+              
+              Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': site.tags,
+                    }
+                }
+              );
+
+              nb_tags += 1;
+
+              console.log(`Ajout du tag ${tag.name_fr} au site ${site.url}`);
+            } else {
+              console.log(`Site a deja le Tag fac`)
+            }
+          }
+
+          // est ce que le tag institut existe ?
+          if (Tags.find({name_fr: line.institut}).count() == 1) {
+
+            let tag = Tags.findOne({name_fr: line.institut});
+            console.log(`Tag institut ${tag.name_fr} existe`);
+            
+            // est ce que ce site a déjà ce tag institut ?
+            let tag_exist = false;
+            site.tags.forEach(function(tag) {
+              if (tag.name_fr == line.institut) {
+                tag_exist = true;
+              }
+            });
+
+            if (!tag_exist) {
+              console.log(`Site ${site.url} n'a pas deja le Tag institut ${tag.name_fr}`);
+
+              // ajouter le tag
+              site.tags.push(tag);
+              
+              Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': site.tags,
+                    }
+                }
+              );
+              nb_tags += 1;
+              console.log(`Ajout du tag ${tag.name_fr} au site ${site.url}`);
+            } else {
+              console.log(`Site a deja le Tag institut`);
+            }
+            
+          } 
         }
 
-        // est ce que ce site a déjà un tag fac ?
-        // si non ajouter le tag fac
-
-        // est ce que ce site a déjà un tag insitut ?
-        // si non ajouter le tag institut
+        console.log(`Nb tags ${nb_tags}`);
 
       });
-      console.log(`Importation TagsBySite finished: ok: ${ok} ko:${ko}`);
+      console.log(`Importation TagsBySite finished: ok: ${ok} ko:${ko} nb tags: ${nb_tags}`);
     }    
   });
 }

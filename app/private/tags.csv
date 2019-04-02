@@ -6,47 +6,21 @@ STI,STI,https://sti.epfl.ch/,https://sti.epfl.ch/fr/,faculty
 SV,SV,https://www.epfl.ch/schools/sv/,https://www.epfl.ch/schools/sv/fr/science-de-la-vie/,faculty
 CDH,CDH,https://www.epfl.ch/schools/cdh/,https://www.epfl.ch/schools/cdh/fr/index-fr-html/,faculty
 CDM,CDM,https://www.epfl.ch/schools/cdm/,https://www.epfl.ch/schools/cdm/fr/college-du-management-de-la-technologie/,faculty
-IINFCOM,IINFCOM,https://www.epfl.ch/,https://www.epfl.ch/,institute
-MATHICSE,MATHICSE,https://www.epfl.ch/,https://www.epfl.ch/,institute
-GHI,GHI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-BMI,BMI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IPHYS,IPHYS,https://www.epfl.ch/,https://www.epfl.ch/,institute
-PSI,PSI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-ISIC,ISIC,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IIC,IIC,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IBI,IBI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IMX,IMX,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IA,IA,https://www.epfl.ch/,https://www.epfl.ch/,institute
-MATH,MATH,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IEL,IEL,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IGM,IGM,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IMT,IMT,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IIE,IIE,https://www.epfl.ch/,https://www.epfl.ch/,institute
-CERN,CERN,https://www.epfl.ch/,https://www.epfl.ch/,institute
-EMPA,EMPA,https://www.epfl.ch/,https://www.epfl.ch/,institute
-ISREC,ISREC,https://www.epfl.ch/,https://www.epfl.ch/,institute
-SFI,SFI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-MATHAA,MATHAA,https://www.epfl.ch/,https://www.epfl.ch/,institute
-MTEI,MTEI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-SPC,SPC,https://www.epfl.ch/,https://www.epfl.ch/,institute
-ITPP,ITPP,https://www.epfl.ch/,https://www.epfl.ch/,institute
-CEN,CEN,https://www.epfl.ch/,https://www.epfl.ch/,institute
-CTS,CTS,https://www.epfl.ch/,https://www.epfl.ch/,institute
-MATHGEOM,MATHGEOM,https://www.epfl.ch/,https://www.epfl.ch/,institute
-EAWAG,EAWAG,https://www.epfl.ch/,https://www.epfl.ch/,institute
-CBS,CBS,https://www.epfl.ch/,https://www.epfl.ch/,institute
-DHI,DHI,https://www.epfl.ch/,https://www.epfl.ch/,institute
-IIC ,IIC ,https://www.epfl.ch/,https://www.epfl.ch/,institute
-SWL,SWL,https://www.epfl.ch/,https://www.epfl.ch/,institute
-GR-SCI-IC,GR-SCI-IC,https://www.epfl.ch/,https://www.epfl.ch/,institute
-PTECH,PTECH,https://www.epfl.ch/,https://www.epfl.ch/,institute
-Systèmes et design bio-inspirés,Bio-inspired designs and systems,,,field-of-research
-Neurotechnologie,Neurotechnology,,,field-of-research
-Fabrication avancée,Advanced Manufacturing,,,field-of-research
-Sciences des réseaux et des données,Data and network sciences,,,field-of-research
-Systèmes énergétiques,Energy systems,,,field-of-research
-Dispositifs électroniques flexibles,Flexible electronics,,,field-of-research
-Informatique du futur,Future of computing,,,field-of-research
-Imagerie et vision,Imaging and vision,,,field-of-research
-Internet des objets,Internet of Things,,,field-of-research
-Systèmes d'apprentissage et de décision,Learning and Decision systems,,,field-of-research
+IA,IA,https://www.epfl.ch/schools/enac/fr/recherche/institut-darchitecture-et-de-la-ville-ia/,https://www.epfl.ch/schools/enac/research/institute-of-architecture-ia/,institute
+IEL,IEL,https://sti.epfl.ch/fr/recherche/instituts/iel/,https://sti.epfl.ch/research/institutes/iel/,institute
+IGM,IGM,https://sti.epfl.ch/fr/recherche/instituts/igm/,https://sti.epfl.ch/research/institutes/igm/,institute
+MTEI,MTEI,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/management-of-technology-institute/,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/management-of-technology-institute/,institute
+MATH,MATH,https://math.epfl.ch/fr/institut-de-mathematiques/,https://math.epfl.ch/,institute
+IMT,IMT,https://sti.epfl.ch/fr/recherche/instituts/imt/,https://sti.epfl.ch/research/institutes/imt/,institute
+IPHYS,IPHYS,https://www.epfl.ch/schools/sb/research/iphys/fr/index/,https://www.epfl.ch/schools/sb/research/iphys/,institute
+GHI,GHI,https://www.epfl.ch/schools/sv/ghi/fr/institut-dinfectiologie/,https://www.epfl.ch/schools/sv/ghi/,institute
+DHI,DHI,https://www.epfl.ch/schools/cdh/research-2/dhi/,https://www.epfl.ch/schools/cdh/research-2/dhi/,institute
+IMX,IMX,https://sti.epfl.ch/fr/recherche/instituts/imx/,https://sti.epfl.ch/research/institutes/imx/,institute
+BMI,BMI,https://www.epfl.ch/schools/sv/bmi/fr/neurosciences-brain-mind-institute/,https://www.epfl.ch/schools/sv/bmi/,institute
+ISIC,ISIC,https://www.epfl.ch/schools/sb/research/isic/fr/,https://www.epfl.ch/schools/sb/research/isic/,institute
+IIC,IIC,https://www.epfl.ch/schools/enac/fr/recherche/institut-dingenierie-civile-iic/,https://www.epfl.ch/schools/enac/research/research-iic/,institute
+IIE,IIE,https://www.epfl.ch/schools/enac/fr/recherche/institut-dingenierie-de-lenvironnement-iie/,https://www.epfl.ch/schools/enac/research/environmental-engineering-institute-iie/,institute
+IBI,IBI,https://www.epfl.ch/research/domains/bioengineering/,https://www.epfl.ch/research/domains/bioengineering/,institute
+SFI,SFI,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/swiss-finance-institute/,https://www.epfl.ch/schools/cdm/college-of-management-of-technology/swiss-finance-institute/,institute
+ISREC,ISREC,https://www.epfl.ch/schools/sv/isrec/fr/institut-suisse-de-recherche-experimentale-sur-le-cancer/,https://www.epfl.ch/schools/sv/isrec/,institute
+IAGS,IAGS,https://www.epfl.ch/schools/cdh/fr/recherche/iags/,https://www.epfl.ch/schools/cdh/research-2/area-and-global-studies/,institute
