@@ -52,12 +52,35 @@ if (Meteor.isServer) {
 
   // Maps to: /api/v1/sites
   // and to: /api/v1/sites?site_url=... to get a specific site
+  // and to: /api/v1/sites?text=... to get a list of site from a text
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?
       var query = this.queryParams;
+
       if (query && this.queryParams.site_url) {
         return Sites.findOne({'url': this.queryParams.site_url});
+      } else if (query && this.queryParams.text) {
+        return Sites.find(
+          {
+            $text: {
+              $search: this.queryParams.text
+            }
+          },
+          {
+            fields: {
+              score : {
+                $meta: "textScore"
+              }
+            },
+            sort: {
+              score: {
+                $meta: "textScore"
+              }
+            },
+            limit: 100
+          }
+        ).fetch();
       } else {
         // nope, we are here for all the sites data
         return Sites.find({}).fetch();
