@@ -1,4 +1,5 @@
 import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../both';
+import URL from 'url-parse';
 
 importData = () => {
   if (Sites.find({}).count() == 0) {
@@ -42,6 +43,137 @@ importData = () => {
   } else {
     console.log("Categories already exist");
   }
+
+  importTagsBySite();
+}
+
+importTagsBySite = () => {
+  const path = 'site-tags.csv';
+  const file = Assets.getText(path);
+  let ok = 0;
+  let ko = 0;
+  let nb_tags = 0;
+
+  Papa.parse(file, {
+    delimiter: ",",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(line => {
+        
+        // Checker si l'URL du site existe
+        let url_object = new URL(line.site_url);
+    
+        let url = 'https://' + url_object.hostname + url_object.pathname;
+        url = url.replace(/\/$/, "");
+        
+        let key = url_object.hostname.replace(".epfl.ch", "");
+        let url_2018 = "https://www.epfl.ch/labs/" + key;
+        let exist_2010 = false;
+        let exist_2018 = false;
+
+        let site;
+
+        if (Sites.find({url: url}).count() == 1){  
+          exist_2010 = true;
+          ok = ok + 1;
+          site = Sites.findOne({url: url});
+          console.log(`URL ${ url } existe`);
+        } else if (Sites.find({url: url_2018}).count() == 1) {
+          exist_2018 = true;
+          ok = ok + 1;
+          site = Sites.findOne({url: url_2018});
+          console.log(`URL ${ url_2018 } existe`);
+        } else {
+          ko = ko + 1;
+        }
+
+        if (!exist_2010 && !exist_2018) {
+          
+          console.log(`URLs ${ url } ou ${ url_2018 } n'existent pas `);
+        } else {
+
+          // est ce que le tag fac existe ?
+          if (Tags.find({name_fr: line.fac}).count() == 1) {
+
+            let tag = Tags.findOne({name_fr: line.fac});
+            console.log(`Tag fac ${tag.name_fr} existe`);
+
+            // est ce que ce site a déjà ce tag fac ?
+            let tag_exist = false;
+            site.tags.forEach(function(tag) {
+              if (tag.name_fr == line.fac) {
+                tag_exist = true;
+              }
+            });
+            
+            if (!tag_exist) {
+
+              console.log(`Site ${site.url} n'a pas deja le Tag fac ${tag.name_fr}`);
+
+              // ajouter le tag
+              site.tags.push(tag);
+              
+              Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': site.tags,
+                    }
+                }
+              );
+
+              nb_tags += 1;
+
+              console.log(`Ajout du tag ${tag.name_fr} au site ${site.url}`);
+            } else {
+              console.log(`Site a deja le Tag fac`)
+            }
+          }
+
+          // est ce que le tag institut existe ?
+          if (Tags.find({name_fr: line.institut}).count() == 1) {
+
+            let tag = Tags.findOne({name_fr: line.institut});
+            console.log(`Tag institut ${tag.name_fr} existe`);
+            
+            // est ce que ce site a déjà ce tag institut ?
+            let tag_exist = false;
+            site.tags.forEach(function(tag) {
+              if (tag.name_fr == line.institut) {
+                tag_exist = true;
+              }
+            });
+
+            if (!tag_exist) {
+              console.log(`Site ${site.url} n'a pas deja le Tag institut ${tag.name_fr}`);
+
+              // ajouter le tag
+              site.tags.push(tag);
+              
+              Sites.update(
+                {"_id": site._id},
+                {
+                    $set: {
+                        'tags': site.tags,
+                    }
+                }
+              );
+              nb_tags += 1;
+              console.log(`Ajout du tag ${tag.name_fr} au site ${site.url}`);
+            } else {
+              console.log(`Site a deja le Tag institut`);
+            }
+            
+          } 
+        }
+
+        console.log(`Nb tags ${nb_tags}`);
+
+      });
+      console.log(`Importation TagsBySite finished: ok: ${ok} ko:${ko} nb tags: ${nb_tags}`);
+    }    
+  });
 }
 
 importCategories = () => {
@@ -177,8 +309,11 @@ importVeritas = () => {
           } else {
             langs = site.langs.split(',')
           }
+
+          let url = site.wp_site_url;
+          url = url.replace(/\/$/, "");
           let siteDocument = {
-            url: site.wp_site_url,
+            url: url,
             tagline: site.wp_tagline,
             title: site.wp_site_title,
             openshiftEnv: site.openshift_env,
@@ -191,7 +326,7 @@ importVeritas = () => {
             snowNumber: '',
             status: 'created',
             comment: '',
-            plannedCimportVeritaslosingDate: null,
+            plannedClosingDate: null,
             requestedDate: null,
             createdDate: null,
             archivedDate: null,
