@@ -325,7 +325,7 @@ importVeritas = () => {
             unitId: site.unit_id,
             snowNumber: '',
             status: 'created',
-            comment: '',
+            comment: site.comment,
             plannedClosingDate: null,
             requestedDate: null,
             createdDate: null,
