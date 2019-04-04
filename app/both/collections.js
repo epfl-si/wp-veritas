@@ -220,6 +220,30 @@ export const sitesSchema = new SimpleSchema({
         label: "Tags",
     },
     'tags.$': {
+        type: Object,
+        optional: true
+    },
+    'tags.$._id': {
+        type: String,
+        optional: true
+    },
+    'tags.$.url_fr': {
+        type: String,
+        optional: true
+    },
+    'tags.$.url_en': {
+        type: String,
+        optional: true
+    },
+    'tags.$.name_fr': {
+        type: String,
+        optional: true
+    },
+    'tags.$.name_en': {
+        type: String,
+        optional: true
+    },
+    'tags.$.type': {
         type: String,
         optional: true
     },
