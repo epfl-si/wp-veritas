@@ -4,6 +4,7 @@ import { Sites } from '../both';
 import './publications';
 import getUnits from './units';
 import { importData } from './import-data';
+import './indexes';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
