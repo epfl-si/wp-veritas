@@ -287,6 +287,48 @@ export const Sites = new Mongo.Collection('sites', {
     transform: (doc) => new Site(doc)
 });
 
+Sites.search = function (text) {
+    return Sites.find({
+        $and: [
+        {
+            $text: {
+            $search: text
+            }
+        },{
+          $or: [
+              {
+                "title": { $regex: text, $options: "i"}
+              },
+              {
+                "tagline": { $regex: text, $options: "i"}
+              },
+              {
+                "url": { $regex: text, $options: "i"}
+              },
+              {
+                "tags.name_en": { $regex: text, $options: "i"}
+              },
+              {
+                "tags.name_fr": { $regex: text, $options: "i"}
+              },
+          ]}
+        ]},
+        {
+        fields: {
+            score : {
+            $meta: "textScore"
+            }
+        },
+        sort: {
+            score: {
+            $meta: "textScore"
+            }
+        },
+        limit: 100
+        }
+    ).fetch();
+}
+
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');
 export const Categories = new Mongo.Collection('categories');
