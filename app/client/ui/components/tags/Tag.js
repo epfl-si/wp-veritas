@@ -262,8 +262,8 @@ export default class Tag extends React.Component {
                                 <th scope="col">#</th>
                                 <th scope="col">Nom FR <i className={orderNameFrClassName} onClick={() => this.sortNameFr() }></i></th>
                                 <th scope="col">Nom EN <i className={orderNameEnClassName} onClick={() => this.sortNameEn() }></i></th>
-                                <th scope="col">URL FR <i className={orderUrlFrClassName} onClick={() => this.sortUrlFr() }></i></th>
-                                <th scope="col">URL EN <i className={orderUrlEnClassName} onClick={() => this.sortUrlEn() }></i></th>
+                                <th scope="col" className="special">URL FR <i className={orderUrlFrClassName} onClick={() => this.sortUrlFr() }></i></th>
+                                <th scope="col" className="special">URL EN <i className={orderUrlEnClassName} onClick={() => this.sortUrlEn() }></i></th>
                                 <th scope="col">Type <i className={orderTypeClassName} onClick={() => this.sortType() }></i></th>
                                 <th>Actions</th>
                             </tr>
@@ -274,8 +274,8 @@ export default class Tag extends React.Component {
                                 <td>{index+1}</td>
                                 <td>{tag.name_fr}</td>
                                 <td>{tag.name_en}</td>
-                                <td><a href={tag.url_fr} target="_blank">{tag.url_fr}</a></td>
-                                <td><a href={tag.url_en} target="_blank">{tag.url_en}</a></td>
+                                <td className="special"><a href={tag.url_fr} target="_blank">{tag.url_fr}</a></td>
+                                <td className="special"><a href={tag.url_en} target="_blank">{tag.url_en}</a></td>
                                 <td>{tag.type}</td>
                                 <td>
                                     <Link className="mr-2" to={`/tag/${tag._id}`}>

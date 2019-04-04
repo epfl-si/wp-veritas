@@ -17,3 +17,9 @@ code {
 .faculty-tags-select, .institute-tags-select, .fieldOfResearchTags-tags-select {
   width: 33%;
 }
+
+th.special, td.special {
+  overflow: hidden;
+  max-width: 300px;
+  width: 100%;
+}
