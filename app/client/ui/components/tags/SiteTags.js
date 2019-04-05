@@ -8,11 +8,16 @@ export default class SiteTags extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            saveSuccess: false,
             facultyTags: [],
             instituteTags: [],
             fieldOfResearchTags: [],
             site: '',
         }
+    }
+
+    updateSaveSuccess = (newValue) => {
+        this.setState({ saveSuccess: newValue });
     }
     
     componentWillMount() {
@@ -64,6 +69,7 @@ export default class SiteTags extends React.Component {
                     actions.setSubmitting(false);
                 } else {
                     actions.setSubmitting(false);
+                    this.setState({saveSuccess: true});
                 }
             }
         );
@@ -76,9 +82,17 @@ export default class SiteTags extends React.Component {
         if (isLoading) {
             content = <h1>Loading....</h1>
         } else {
+            
+            let msgSaveSuccess = (
+                <div className="alert alert-success" role="alert">
+                  La modification a été enregistrée avec succès ! 
+                </div> 
+            )
+
             content = (
                 <div className="my-4">
                     <h4>Associer des tags à un site WordPress</h4>
+                    { this.state.saveSuccess && msgSaveSuccess }
                     <p>Pour le site <a href={this.state.site.url} target="_blank">{this.state.site.url}</a>, veuillez sélectionner ci-dessous les tags à associer: </p>
                     <Formik
                         onSubmit={ this.submit }
@@ -110,6 +124,7 @@ export default class SiteTags extends React.Component {
                                 error={errors.facultyTags}
                                 touched={touched.facultyTags}
                                 options={this.state.facultyTags}
+                                saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag faculté"
                                 name="facultyTags"
                             />
@@ -120,6 +135,7 @@ export default class SiteTags extends React.Component {
                                 error={errors.instituteTags}
                                 touched={touched.instituteTags}
                                 options={this.state.instituteTags}
+                                saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag institut"
                                 name="instituteTags"
                             />
@@ -130,6 +146,7 @@ export default class SiteTags extends React.Component {
                                 error={errors.fieldOfResearchTags}
                                 touched={touched.fieldOfResearchTags}
                                 options={this.state.fieldOfResearchTags}
+                                saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag domaine de recherche"
                                 name="fieldOfResearchTags"
                             />    
@@ -151,14 +168,16 @@ class MySelect extends React.Component {
     handleChange = value => {
         // this is going to call setFieldValue and manually update values.topcis
         this.props.onChange(this.props.name, value);
+        this.props.saveSuccess(!this.props.saveSuccess);
     };
 
     handleBlur = () => {
         // this is going to call setFieldTouched and manually update touched.topcis
         this.props.onBlur(this.props.name, true);
+        this.props.saveSuccess(!this.props.saveSuccess);
     };
 
-render() {
+    render() {
     let content;
 
     content = 
@@ -174,7 +193,7 @@ render() {
           getOptionLabel ={(option)=>option.name_fr}
           getOptionValue ={(option)=>option._id}
           placeholder={this.props.placeholder}
-          
+
         />
         {!!this.props.error &&
           this.props.touched && (

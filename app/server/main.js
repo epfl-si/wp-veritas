@@ -9,7 +9,7 @@ import { importData } from './import-data';
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 let activeTequila = true;
-let importDatas = true;
+let importDatas = false;
   
 if (Meteor.isServer) {
   

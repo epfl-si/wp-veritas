@@ -17,6 +17,7 @@ export default class Tag extends React.Component {
         }
         
         this.state = {
+            saveSuccess: false,
             action: action,
             orderNameFr: 1,
             orderNameEn: 0,
@@ -43,7 +44,6 @@ export default class Tag extends React.Component {
     }
 
     submit = (values, actions) => {
-        console.log(values);
 
         let meteorMethodName;
         if (this.state.action === 'add') {
@@ -70,6 +70,7 @@ export default class Tag extends React.Component {
                     if (meteorMethodName == 'updateTag') {
                         this.props.history.push('/tags');
                     }
+                    this.setState({saveSuccess: true});
                 }
             }
         );
@@ -142,6 +143,10 @@ export default class Tag extends React.Component {
         this.setState({orderNameFr: 0, orderNameEn:0, orderType: sort, orderUrl:0, tags: tags});
     }
 
+    updateSaveSuccess = () => {
+        this.setState({saveSuccess: false});
+    }
+
     render() {
         
         let content;
@@ -158,6 +163,12 @@ export default class Tag extends React.Component {
             let orderUrlFrClassName;
             let orderUrlEnClassName;
             let orderTypeClassName;
+
+            let msgSaveSuccess = (
+                <div className="alert alert-success" role="alert">
+                  La modification a été enregistrée avec succès ! 
+                </div> 
+            )
 
             if (this.state.action === 'edit') {
                 title = `Editer le tag ${this.state.tag.name_fr}`;
@@ -213,6 +224,7 @@ export default class Tag extends React.Component {
                 <div>
                 <div className="card my-2">
                     <h5 className="card-header">{title}</h5>
+                    { this.state.saveSuccess && msgSaveSuccess }
                     <Formik
                             onSubmit={ this.submit }
                             initialValues={ initialValues }
@@ -222,23 +234,22 @@ export default class Tag extends React.Component {
                         { ({
                             handleSubmit,
                             isSubmitting,
-                            values,
                         }) => (              
                             <form onSubmit={ handleSubmit } className="bg-white border p-4">   
                                 
-                                <Field placeholder="Nom du tag en français" label="Nom [FR]" name="name_fr" type="text" component={ CustomInput } />
+                                <Field onBlur={this.updateSaveSuccess} placeholder="Nom du tag en français" label="Nom [FR]" name="name_fr" type="text" component={ CustomInput } />
                                 <ErrorMessage name="name_fr" component={ CustomError } />
                                 
-                                <Field placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" type="text" component={ CustomInput } />
+                                <Field  onBlur={this.updateSaveSuccess} placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" type="text" component={ CustomInput } />
                                 <ErrorMessage name="name_en" component={ CustomError } />
 
-                                <Field placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
+                                <Field onBlur={this.updateSaveSuccess} placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
                                 <ErrorMessage name="url_fr" component={ CustomError } />
 
-                                <Field placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
+                                <Field onBlur={this.updateSaveSuccess} placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
                                 <ErrorMessage name="url_en" component={ CustomError } />
 
-                                <Field label="Type" name="type" component={ CustomSelect }>                        
+                                <Field onBlur={this.updateSaveSuccess} label="Type" name="type" component={ CustomSelect }>                        
                                 <option value="faculty">Faculté</option>
                                 <option value="institute">Institut</option>
                                 <option value="field-of-research">Domaine de recherche</option>                        
@@ -262,8 +273,8 @@ export default class Tag extends React.Component {
                                 <th scope="col">#</th>
                                 <th scope="col">Nom FR <i className={orderNameFrClassName} onClick={() => this.sortNameFr() }></i></th>
                                 <th scope="col">Nom EN <i className={orderNameEnClassName} onClick={() => this.sortNameEn() }></i></th>
-                                <th scope="col">URL FR <i className={orderUrlFrClassName} onClick={() => this.sortUrlFr() }></i></th>
-                                <th scope="col">URL EN <i className={orderUrlEnClassName} onClick={() => this.sortUrlEn() }></i></th>
+                                <th scope="col" className="special">URL FR <i className={orderUrlFrClassName} onClick={() => this.sortUrlFr() }></i></th>
+                                <th scope="col" className="special">URL EN <i className={orderUrlEnClassName} onClick={() => this.sortUrlEn() }></i></th>
                                 <th scope="col">Type <i className={orderTypeClassName} onClick={() => this.sortType() }></i></th>
                                 <th>Actions</th>
                             </tr>
@@ -274,8 +285,8 @@ export default class Tag extends React.Component {
                                 <td>{index+1}</td>
                                 <td>{tag.name_fr}</td>
                                 <td>{tag.name_en}</td>
-                                <td><a href={tag.url_fr} target="_blank">{tag.url_fr}</a></td>
-                                <td><a href={tag.url_en} target="_blank">{tag.url_en}</a></td>
+                                <td className="special"><a href={tag.url_fr} target="_blank">{tag.url_fr}</a></td>
+                                <td className="special"><a href={tag.url_en} target="_blank">{tag.url_en}</a></td>
                                 <td>{tag.type}</td>
                                 <td>
                                     <Link className="mr-2" to={`/tag/${tag._id}`}>
