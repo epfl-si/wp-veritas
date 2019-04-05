@@ -169,7 +169,7 @@ export const sitesSchema = new SimpleSchema({
     },
     'languages.$': {
         type: String,
-        allowedValues: ['en', 'fr'],
+        allowedValues: ['en', 'fr', 'de', 'el', 'es', 'ro', 'it'],
     },
     unitId: {
         type: String,

@@ -195,8 +195,14 @@ class Add extends React.Component {
                 <ErrorMessage name="faculty" component={ CustomError } />
                 
                 <h6>Langues</h6>                  
-                <Field label="FR" name="languages" type="checkbox" value="fr" component={ CustomCheckbox } />
-                <Field label="EN" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
+                <Field label="Français" name="languages" type="checkbox" value="fr" component={ CustomCheckbox } />
+                <Field label="Anglais" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
+                <Field label="Allemand" name="languages" type="checkbox" value="de" component={ CustomCheckbox } />
+                <Field label="Italien" name="languages" type="checkbox" value="it" component={ CustomCheckbox } />
+                <Field label="Espagnol" name="languages" type="checkbox" value="es" component={ CustomCheckbox } />
+                <Field label="Grec" name="languages" type="checkbox" value="el" component={ CustomCheckbox } />
+                <Field label="Roumain" name="languages" type="checkbox" value="ro" component={ CustomCheckbox } />
+                
                 <ErrorMessage name="languages" component={ CustomError } />
 
                 <Field placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text" component={ CustomInput } />
