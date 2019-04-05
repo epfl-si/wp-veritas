@@ -20,6 +20,6 @@ code {
 
 th.special, td.special {
   overflow: hidden;
-  max-width: 300px;
+  max-width: 250px;
   width: 100%;
 }
