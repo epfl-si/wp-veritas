@@ -16,6 +16,7 @@ Sites.rawCollection().createIndex(
         "tags.name_en": "text",
         "tags.name_fr": "text",
         "url": "text",
+        "faculty": 1
     },
     {
         /*weights: {

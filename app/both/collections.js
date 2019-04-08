@@ -287,14 +287,27 @@ export const Sites = new Mongo.Collection('sites', {
     transform: (doc) => new Site(doc)
 });
 
-Sites.search = function (text) {
-    return Sites.find({
-        $and: [
+Sites.search = function (text, faculty_name) {
+    let finder = {};
+    finder['$and'] = [];
+
+    if (faculty_name != undefined && faculty_name !== '') {
+        finder['$and'].push({
+            "faculty" : faculty_name.toLowerCase()
+        });
+    }
+
+    finder['$and'].push(
         {
             $text: {
-            $search: text
-            }
-        },{
+                $search: text
+            },
+        }
+    );
+
+    // start a regex search, so we have precise results
+    // better at the end
+    finder['$and'].push({
           $or: [
               {
                 "title": { $regex: text, $options: "i"}
@@ -311,8 +324,9 @@ Sites.search = function (text) {
               {
                 "tags.name_fr": { $regex: text, $options: "i"}
               },
-          ]}
-        ]},
+          ]});
+
+    return Sites.find(finder,
         {
         fields: {
             score : {
