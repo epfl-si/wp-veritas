@@ -38,7 +38,6 @@ function prepareUpdateInsert(site, action) {
     }
 
     let currentSite = Sites.findOne({url:site.url});
-    console.log(currentSite);
 
     if (site.status == 'requested') {
         site.requestedDate = new Date();
