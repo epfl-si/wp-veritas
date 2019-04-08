@@ -233,23 +233,42 @@ export default class Tag extends React.Component {
                         >
                         { ({
                             handleSubmit,
+                            handleChange,
+                            handleBlur,
                             isSubmitting,
                         }) => (              
                             <form onSubmit={ handleSubmit } className="bg-white border p-4">   
                                 
-                                <Field onBlur={this.updateSaveSuccess} placeholder="Nom du tag en français" label="Nom [FR]" name="name_fr" type="text" component={ CustomInput } />
+                                <Field 
+                                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}} 
+                                    placeholder="Nom du tag en français" label="Nom [FR]" name="name_fr" 
+                                    type="text" component={ CustomInput } />
                                 <ErrorMessage name="name_fr" component={ CustomError } />
                                 
-                                <Field  onBlur={this.updateSaveSuccess} placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" type="text" component={ CustomInput } />
+                                <Field
+                                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
+                                    placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" 
+                                    type="text" component={ CustomInput } />
                                 <ErrorMessage name="name_en" component={ CustomError } />
 
-                                <Field onBlur={this.updateSaveSuccess} placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
+                                <Field 
+                                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
+                                    placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
                                 <ErrorMessage name="url_fr" component={ CustomError } />
 
-                                <Field onBlur={this.updateSaveSuccess} placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
+                                <Field 
+                                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
+                                    placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
                                 <ErrorMessage name="url_en" component={ CustomError } />
 
-                                <Field onBlur={this.updateSaveSuccess} label="Type" name="type" component={ CustomSelect }>                        
+                                <Field 
+                                    onChange={e => { handleChange(e); this.updateSaveSuccess(); }}
+                                    onBlur={e => { handleBlur(e); this.updateSaveSuccess(); }}
+                                    label="Type" name="type" component={ CustomSelect } >
                                 <option value="faculty">Faculté</option>
                                 <option value="institute">Institut</option>
                                 <option value="field-of-research">Domaine de recherche</option>                        
