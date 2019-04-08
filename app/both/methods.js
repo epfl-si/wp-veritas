@@ -37,31 +37,49 @@ function prepareUpdateInsert(site, action) {
         throwMeteorError('url', 'Cette URL existe déjà !');
     }
 
-    if (site.status === 'requested') {
+    let currentSite = Sites.findOne({url:site.url});
+
+    if (site.status == 'requested') {
         site.requestedDate = new Date();
     } else {
-        site.requestedDate = null;
+        if (currentSite == undefined) {
+            site.requestedDate = null;
+        } else {
+            site.requestedDate = currentSite.requestedDate;
+        }
     }
 
-    if (site.status === 'created') {
+    if (site.status == 'created') {
         site.createdDate = new Date();
     } else {
-        site.createdDate = null;
+        if (currentSite == undefined) {
+            site.createdDate = null;
+        } else {
+            site.createdDate = currentSite.createdDate;
+        }
     }
     
-    if (site.status === 'archived') {
+    if (site.status == 'archived') {
         site.archivedDate = new Date();
     } else {
-        site.archivedDate = null;
+        if (currentSite == undefined) {
+            site.archivedDate = null;
+        } else {
+            site.archivedDate = currentSite.archivedDate;
+        }
     }
 
-    if (site.status === 'trashed') {
+    if (site.status == 'trashed') {
         site.trashedDate = new Date();
     } else {
-        site.trashedDate = null;
+        if (currentSite == undefined) {
+            site.trashedDate = null;
+        } else {
+            site.trashedDate = currentSite.trashedDate;
+        }
     }
 
-    if (site.tags === 'undefined') {
+    if (site.tags == 'undefined') {
         site.tags = [];
     }
 
@@ -304,7 +322,7 @@ Meteor.methods({
         });
     },
     
-    updateSite(site){
+    updateSite(site) {
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
@@ -339,6 +357,10 @@ Meteor.methods({
             snowNumber: site.snowNumber,
             comment: site.comment,
             plannedClosingDate: site.plannedClosingDate,
+            requestedDate: site.requestedDate,
+            createdDate: site.createdDate,
+            archivedDate: site.archivedDate,
+            trashedDate: site.trashedDate,
             tags: site.tags,
         }
         
