@@ -37,31 +37,31 @@ function prepareUpdateInsert(site, action) {
         throwMeteorError('url', 'Cette URL existe déjà !');
     }
 
-    if (site.status === 'requested') {
+    if (site.status == 'requested') {
         site.requestedDate = new Date();
     } else {
-        site.requestedDate = null;
+        site.requestedDate = Sites.findOne({url:site.url}).requestedDate
     }
 
-    if (site.status === 'created') {
+    if (site.status == 'created') {
         site.createdDate = new Date();
     } else {
-        site.createdDate = null;
+        site.createdDate = Sites.findOne({url:site.url}).createdDate
     }
     
-    if (site.status === 'archived') {
+    if (site.status == 'archived') {
         site.archivedDate = new Date();
     } else {
-        site.archivedDate = null;
+        site.archivedDate = Sites.findOne({url:site.url}).archivedDate
     }
 
-    if (site.status === 'trashed') {
+    if (site.status == 'trashed') {
         site.trashedDate = new Date();
     } else {
-        site.trashedDate = null;
+        site.trashedDate = Sites.findOne({url:site.url}).trashedDate
     }
 
-    if (site.tags === 'undefined') {
+    if (site.tags == 'undefined') {
         site.tags = [];
     }
 
@@ -304,7 +304,7 @@ Meteor.methods({
         });
     },
     
-    updateSite(site){
+    updateSite(site) {
 
         if (!this.userId) {
             throw new Meteor.Error('not connected');
@@ -339,6 +339,10 @@ Meteor.methods({
             snowNumber: site.snowNumber,
             comment: site.comment,
             plannedClosingDate: site.plannedClosingDate,
+            requestedDate: site.requestedDate,
+            createdDate: site.createdDate,
+            archivedDate: site.archivedDate,
+            trashedDate: site.trashedDate,
             tags: site.tags,
         }
         
