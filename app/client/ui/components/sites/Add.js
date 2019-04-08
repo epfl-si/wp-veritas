@@ -151,7 +151,7 @@ class Add extends React.Component {
             { ({
                 handleSubmit,
                 handleChange,
-                
+                handleBlur,
                 isSubmitting,
                 values,
             }) => (
@@ -160,74 +160,135 @@ class Add extends React.Component {
                 <div className="my-1 text-right">
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                 </div>
-                <Field onBlur={this.updateUserMsg} placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
                 
-                <Field onBlur={this.updateUserMsg} placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
                 <ErrorMessage name="tagline" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
                 <ErrorMessage name="title" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} label="Openshift Environnement" name="openshiftEnv" component={ CustomSelect }>
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  label="Openshift Environnement" name="openshiftEnv" component={ CustomSelect }>
                   {this.props.openshiftenvs.map( (env, index) => (
                   <option key={env._id} value={env.name}>{env.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
                 
-                <Field onBlur={this.updateUserMsg} label="Type" name="type" component={ CustomSelect } >
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  label="Type" name="type" component={ CustomSelect } >
                 {this.props.types.map( (type, index) => (
                   <option key={type._id} value={type.name}>{type.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="type" component={ CustomError } />
                 
-                <Field onBlur={this.updateUserMsg} label="Catégorie" name="category" component={ CustomSelect } >
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  label="Catégorie" name="category" component={ CustomSelect } >
                 {this.props.categories.map( (category, index) => (
                   <option key={category._id} value={category.name}>{category.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="category" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} label="Thème" name="theme" component={ CustomSelect } >
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  label="Thème" name="theme" component={ CustomSelect } >
                 {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="theme" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} placeholder="Faculté du site à ajouter" label="Faculté" name="faculty" type="text" component={ CustomInput } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  placeholder="Faculté du site à ajouter" label="Faculté" name="faculty" type="text" component={ CustomInput } />
                 <ErrorMessage name="faculty" component={ CustomError } />
                 
                 <h6>Langues</h6>                  
-                <Field onBlur={this.updateUserMsg} label="Français" name="languages" type="checkbox" value="fr" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Anglais" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Allemand" name="languages" type="checkbox" value="de" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Italien" name="languages" type="checkbox" value="it" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Espagnol" name="languages" type="checkbox" value="es" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Grec" name="languages" type="checkbox" value="el" component={ CustomCheckbox } />
-                <Field onBlur={this.updateUserMsg} label="Roumain" name="languages" type="checkbox" value="ro" component={ CustomCheckbox } />
-                
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Français" name="languages" type="checkbox" value="fr" 
+                  component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Anglais" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Allemand" name="languages" type="checkbox" value="de" component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Italien" name="languages" type="checkbox" value="it" component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Espagnol" name="languages" type="checkbox" value="es" component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Grec" name="languages" type="checkbox" value="el" component={ CustomCheckbox } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Roumain" name="languages" type="checkbox" value="ro" component={ CustomCheckbox } />
                 <ErrorMessage name="languages" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text" component={ CustomInput } />
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text" component={ CustomInput } />
                 <ErrorMessage name="unitId" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text" component={ CustomInput } />
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
+                  onBlur={this.updateUserMsg} 
+                  placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text" component={ CustomInput } />
                 <ErrorMessage name="snowNumber" component={ CustomError } />
                 
-                <Field onBlur={this.updateUserMsg} label="Date de fermeture planifiée" name="plannedClosingDate" type="date" component={ CustomInput } />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Date de fermeture planifiée" name="plannedClosingDate" type="date" component={ CustomInput } />
                 <ErrorMessage name="plannedClosingDate" component={ CustomError } />
 
-                <Field onBlur={this.updateUserMsg} label="Statut" name="status" component={ CustomSelect } >
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Statut" name="status" component={ CustomSelect } >
                   <option value="requested">Demandé</option>
                   <option value="created">Créé</option>
                   <option value="archived">Archivé</option>
                   <option value="trashed">Mis en corbeille</option>
                 </Field>
                 
-                <Field onBlur={this.updateUserMsg} label="Commentaire" name="comment" component={CustomTextarea} />
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="Commentaire" name="comment" component={CustomTextarea} />
                 <ErrorMessage name="comment" component={ CustomError } />
                 <div className="my-1 text-right">
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
