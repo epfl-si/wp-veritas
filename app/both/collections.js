@@ -312,35 +312,20 @@ export const Sites = new Mongo.Collection('sites', {
 });
 
 /**
- * Search for a specific text, in two steps. Do a mongo search first,
- * then a regex to exclude to wide results.
- * If this method return nothing, do only the mongo search
+ * Search for a specific text, precisely
  * @param {string=} text to search
  * @param {string=} a name for a faculty filter
  * @param {number=} limit the number of result returned
  */
-Sites.search = function (text, faculty_name, limit=50) {
-    let finder = {};
-    finder['$and'] = [];
+Sites.search_precise = function (text, faculty_name, limit=50) {
     let precise_finder = {};
     precise_finder['$and'] = [];
 
     if (faculty_name != undefined && faculty_name !== '') {
-        finder['$and'].push({
-            "faculty" : faculty_name.toLowerCase()
-        });
         precise_finder['$and'].push({
             "faculty" : faculty_name.toLowerCase()
         });
     }
-
-    finder['$and'].push(
-        {
-            $text: {
-                $search: text
-            },
-        }
-    );
 
     precise_finder['$and'].push(
         {
@@ -350,29 +335,32 @@ Sites.search = function (text, faculty_name, limit=50) {
         }
     );
 
-    // start a regex search, so we have precise results
-    // better at the end
+    // start a regex search, so we have a better and 
+    // precise results at the end
+    regex_text = text;
+    regex_options = "i";
+    
     precise_finder['$and'].push({
           $or: [
               {
-                "title": { $regex: text, $options: "i"}
+                "title": { $regex: regex_text, $options: regex_options}
               },
               {
-                "tagline": { $regex: text, $options: "i"}
+                "tagline": { $regex: regex_text, $options: regex_options}
               },
               {
-                "url": { $regex: text, $options: "i"}
+                "url": { $regex: regex_text, $options: regex_options}
               },
               {
-                "tags.name_en": { $regex: text, $options: "i"}
+                "tags.name_en": { $regex: regex_text, $options: regex_options}
               },
               {
-                "tags.name_fr": { $regex: text, $options: "i"}
+                "tags.name_fr": { $regex: regex_text, $options: regex_options}
               },
           ]});
 
     // do the precise search
-    let first_finding = Sites.find(precise_finder,
+    return Sites.find(precise_finder,
         {
         fields: {
             score : {
@@ -387,26 +375,115 @@ Sites.search = function (text, faculty_name, limit=50) {
         limit: limit
         }
     ).fetch();
+}
 
-    if (first_finding.length > 0) {
-        return first_finding;
-    } else {
-        return Sites.find(finder,
-            {
-            fields: {
-                score : {
-                $meta: "textScore"
-                }
-            },
-            sort: {
-                score: {
-                $meta: "textScore"
-                }
-            },
-            limit: limit
-            }
-        ).fetch();
+/**
+ * Search for a text, in the mongo way, aka Snowball
+ * Stemming (http://snowballstem.org/demo.html)
+ * @param {string=} text to search
+ * @param {string=} a name for a faculty filter
+ * @param {number=} limit the number of result returned
+ */
+Sites.search_mongo = function (text, faculty_name, limit=50) {
+    let finder = {};
+    finder['$and'] = [];
+
+    if (faculty_name != undefined && faculty_name !== '') {
+        finder['$and'].push({
+            "faculty" : faculty_name.toLowerCase()
+        });
     }
+
+    finder['$and'].push(
+        {
+            $text: {
+                $search: text
+            },
+        }
+    );
+
+    return Sites.find(finder,
+        {
+        fields: {
+            score : {
+            $meta: "textScore"
+            }
+        },
+        sort: {
+            score: {
+            $meta: "textScore"
+            }
+        },
+        limit: limit
+        }
+    ).fetch();
+}
+
+/**
+ * Search global for a text
+ * @param {string=} text to search
+ * @param {string=} a name for a faculty filter
+ * @param {number=} limit the number of result returned
+ */
+Sites.search_global = function (text, faculty_name, limit=50) {
+    let finder = {};
+    finder['$and'] = [];
+
+    if (faculty_name != undefined && faculty_name !== '') {
+        finder['$and'].push({
+            "faculty" : faculty_name.toLowerCase()
+        });
+    }
+
+    // start a regex search, so we have a better and 
+    // precise results at the end
+    regex_text = text;
+    regex_options = "i";
+    
+    finder['$and'].push({
+          $or: [
+              {
+                "title": { $regex: regex_text, $options: regex_options}
+              },
+              {
+                "tagline": { $regex: regex_text, $options: regex_options}
+              },
+              {
+                "url": { $regex: regex_text, $options: regex_options}
+              },
+              {
+                "tags.name_en": { $regex: regex_text, $options: regex_options}
+              },
+              {
+                "tags.name_fr": { $regex: regex_text, $options: regex_options}
+              },
+          ]});
+
+    return Sites.find(finder,
+        {
+        fields: {
+            score : {
+            $meta: "textScore"
+            }
+        },
+        sort: {
+            score: {
+            $meta: "textScore"
+            }
+        },
+        limit: limit
+        }
+    ).fetch();
+}
+
+/**
+ * Search for a specific text, with the best method
+ * @param {string=} text to search
+ * @param {string=} a name for a faculty filter
+ * @param {number=} limit the number of result returned
+ */
+Sites.search = function (text, faculty_name='', limit=50) {
+    return Sites.search_global(text, faculty_name, limit);
 }
 
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
