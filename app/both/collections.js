@@ -311,12 +311,25 @@ export const Sites = new Mongo.Collection('sites', {
     transform: (doc) => new Site(doc)
 });
 
-Sites.search = function (text, faculty_name) {
+/**
+ * Search for a specific text, in two steps. Do a mongo search first,
+ * then a regex to exclude to wide results.
+ * If this method return nothing, do only the mongo search
+ * @param {string=} text to search
+ * @param {string=} a name for a faculty filter
+ * @param {number=} limit the number of result returned
+ */
+Sites.search = function (text, faculty_name, limit=50) {
     let finder = {};
     finder['$and'] = [];
+    let precise_finder = {};
+    precise_finder['$and'] = [];
 
     if (faculty_name != undefined && faculty_name !== '') {
         finder['$and'].push({
+            "faculty" : faculty_name.toLowerCase()
+        });
+        precise_finder['$and'].push({
             "faculty" : faculty_name.toLowerCase()
         });
     }
@@ -329,9 +342,17 @@ Sites.search = function (text, faculty_name) {
         }
     );
 
+    precise_finder['$and'].push(
+        {
+            $text: {
+                $search: text
+            },
+        }
+    );
+
     // start a regex search, so we have precise results
     // better at the end
-    finder['$and'].push({
+    precise_finder['$and'].push({
           $or: [
               {
                 "title": { $regex: text, $options: "i"}
@@ -350,7 +371,8 @@ Sites.search = function (text, faculty_name) {
               },
           ]});
 
-    return Sites.find(finder,
+    // do the precise search
+    let first_finding = Sites.find(precise_finder,
         {
         fields: {
             score : {
@@ -362,9 +384,29 @@ Sites.search = function (text, faculty_name) {
             $meta: "textScore"
             }
         },
-        limit: 100
+        limit: limit
         }
     ).fetch();
+
+    if (first_finding.length > 0) {
+        return first_finding;
+    } else {
+        return Sites.find(finder,
+            {
+            fields: {
+                score : {
+                $meta: "textScore"
+                }
+            },
+            sort: {
+                score: {
+                $meta: "textScore"
+                }
+            },
+            limit: limit
+            }
+        ).fetch();
+    }
 }
 
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
