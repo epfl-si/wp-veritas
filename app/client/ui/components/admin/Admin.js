@@ -11,7 +11,7 @@ class Admin extends React.Component {
         
         let meteorMethodName;
 
-        if (collection._name === 'openshift-envs') {
+        if (collection._name === 'openshiftenvs') {
             meteorMethodName = 'insertOpenshiftEnv';
         } else if (collection._name === 'types') {
             meteorMethodName = 'insertType';
