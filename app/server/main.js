@@ -55,6 +55,7 @@ if (Meteor.isServer) {
   // and to: /api/v1/sites?site_url=... to get a specific site
   // and to: /api/v1/sites?text=... to search a list of site from a text
   // and to: /api/v1/sites?tags=... to search a list of site from an array of tags
+  // and to: /api/v1/sites?tagged=true to retrieve the list of site with at least a tag
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?
@@ -66,8 +67,9 @@ if (Meteor.isServer) {
         if (this.queryParams.tags && !(Array.isArray(this.queryParams.tags))) {
           this.queryParams.tags = [this.queryParams.tags];
         }
-
         return Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
+      } else if (query && (this.queryParams.tagged)) {
+        return Sites.tagged_search();
       } else {
         // nope, we are here for all the sites data
         return Sites.find({}).fetch();
