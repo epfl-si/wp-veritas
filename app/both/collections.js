@@ -311,6 +311,77 @@ export const Sites = new Mongo.Collection('sites', {
     transform: (doc) => new Site(doc)
 });
 
+/**
+ * Search for a specific text, or a list of tags, for element with at least a tag. Sort by title
+ * @param {string=} text to search, approximatively (regex wide search, insensitive)
+ * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
+ * @param {number=} limit the number of result returned
+ */
+Sites.tagged_search = function (text="", tags=[], limit=500) {
+    // build the query
+    let finder = {
+        '$and': []
+    };
+
+    finder['$and'].push({
+        "tags": { $exists: true, $ne: [] }
+    });
+
+    if (tags !== undefined && tags.length != 0) {
+        let regex_search = [];
+        tags.forEach(function(tag){
+            regex_search.push(  new RegExp("^" + tag + "$", "i") );
+        });
+
+        finder['$and'].push({
+            $or: [
+                {
+                    "tags.name_en": { $all: regex_search}
+                },
+                {
+                    "tags.name_fr": { $all: regex_search}
+                }
+            ]
+        });
+    }
+
+    if (text !== undefined && text != "") {
+        // start a regex search, so we have a better and
+        // precise results at the end
+        regex_text = text;
+        regex_options = "i";
+
+        finder['$and'].push({
+            $or: [
+                {
+                    "tags.name_en": { $regex: regex_text, $options: regex_options}
+                },
+                {
+                    "tags.name_fr": { $regex: regex_text, $options: regex_options}
+                },
+                {
+                    "url": { $regex: regex_text, $options: regex_options}
+                },
+                {
+                    "title": { $regex: regex_text, $options: regex_options}
+                },
+                {
+                    "tagline": { $regex: regex_text, $options: regex_options}
+                }
+            ]
+        });
+    }
+
+    return Sites.find(finder,
+        {
+            sort: {
+                title: 1
+            },
+            limit: limit
+        }
+    ).fetch();
+}
+
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');
 export const Categories = new Mongo.Collection('categories');

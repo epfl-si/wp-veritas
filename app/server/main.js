@@ -4,6 +4,7 @@ import { Sites } from '../both';
 import './publications';
 import getUnits from './units';
 import { importData } from './import-data';
+import './indexes';
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -52,12 +53,23 @@ if (Meteor.isServer) {
 
   // Maps to: /api/v1/sites
   // and to: /api/v1/sites?site_url=... to get a specific site
+  // and to: /api/v1/sites?text=... to search a list of sites from a text
+  // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags
+  // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?
       var query = this.queryParams;
+
       if (query && this.queryParams.site_url) {
         return Sites.findOne({'url': this.queryParams.site_url});
+      } else if (query && (this.queryParams.text || this.queryParams.tags)) {
+        if (this.queryParams.tags && !(Array.isArray(this.queryParams.tags))) {
+          this.queryParams.tags = [this.queryParams.tags];
+        }
+        return Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
+      } else if (query && (this.queryParams.tagged)) {
+        return Sites.tagged_search();
       } else {
         // nope, we are here for all the sites data
         return Sites.find({}).fetch();
