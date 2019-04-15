@@ -53,9 +53,9 @@ if (Meteor.isServer) {
 
   // Maps to: /api/v1/sites
   // and to: /api/v1/sites?site_url=... to get a specific site
-  // and to: /api/v1/sites?text=... to search a list of sites from a text
-  // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags
-  // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag
+  // and to: /api/v1/sites?text=... to search a list of sites from a text with status "created"
+  // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created"
+  // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created"
   Api.addRoute('sites', {authRequired: false}, {
     get: function () {
       // is that a id request from an url ?

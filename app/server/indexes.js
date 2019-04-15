@@ -11,18 +11,20 @@ Sites.rawCollection().createIndex(
 
 Sites.rawCollection().createIndex(
     {
+        "statut": 1,
         "tags.name_fr": 1
     },
     {
-        name: "SitesTagFRSearchIndex"
+        name: "SitesActiveTagFRSearchIndex"
     }
 );
 
 Sites.rawCollection().createIndex(
     {
+        "statut": 1,
         "tags.name_en": 1
     },
     {
-        name: "SitesTagENSearchIndex"
+        name: "SitesActiveTagENSearchIndex"
     }
 );

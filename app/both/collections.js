@@ -320,7 +320,7 @@ export const Sites = new Mongo.Collection('sites', {
 Sites.tagged_search = function (text="", tags=[], limit=500) {
     // build the query
     let finder = {
-        '$and': []
+        '$and': [{"status": "created"}]
     };
 
     finder['$and'].push({
