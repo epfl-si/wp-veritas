@@ -331,9 +331,8 @@ export const Sites = new Mongo.Collection('sites', {
  * Search for a specific text, or a list of tags, for element with at least a tag. Sort by title
  * @param {string=} text to search, approximatively (regex wide search, insensitive)
  * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
- * @param {number=} limit the number of result returned
  */
-Sites.tagged_search = function (text="", tags=[], limit=500) {
+Sites.tagged_search = function (text="", tags=[]) {
     // build the query
     let finder = {
         $and : [
@@ -394,8 +393,7 @@ Sites.tagged_search = function (text="", tags=[], limit=500) {
         {
             sort: {
                 title: 1
-            },
-            limit: limit
+            }
         }
     ).fetch();
 }
