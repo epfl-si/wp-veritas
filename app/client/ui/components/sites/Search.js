@@ -11,7 +11,7 @@ class Search extends React.Component {
         url: yup.
             string('Champ doit être un string').
             url('URL non valide').
-            min(19, 'URL la plus courte est https://www.epfl.ch').
+            min(17, 'URL la plus courte est du genre https://x.epfl.ch').
             test('startsWithHttps', 'URL doit commencer par https://', 
                 function(value) {
                     if (value && !value.startsWith('https://')) {

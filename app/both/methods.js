@@ -79,6 +79,26 @@ function prepareUpdateInsert(site, action) {
         }
     }
 
+    if (site.status == 'in-preparation') {
+        site.inPreparationDate = new Date();
+    } else {
+        if (currentSite == undefined) {
+            site.inPreparationDate = null;
+        } else {
+            site.inPreparationDate = currentSite.inPreparationDate;
+        }
+    }
+
+    if (site.status == 'no-wordpress') {
+        site.noWordPressDate = new Date();
+    } else {
+        if (currentSite == undefined) {
+            site.noWordPressDate = null;
+        } else {
+            site.noWordPressDate = currentSite.noWordPressDate;
+        }
+    }
+
     if (site.tags == 'undefined') {
         site.tags = [];
     }
@@ -290,6 +310,8 @@ Meteor.methods({
             createdDate: site.createdDate,
             archivedDate: site.archivedDate,
             trashedDate: site.trashedDate,
+            noWordPressDate: site.noWordPressDate,
+            inPreparationDate: site.inPreparationDate,
             tags: site.tags,
         }
         return Sites.insert(siteDocument);
@@ -355,12 +377,15 @@ Meteor.methods({
             languages: site.languages,
             unitId: site.unitId,
             snowNumber: site.snowNumber,
+            status: site.status,
             comment: site.comment,
             plannedClosingDate: site.plannedClosingDate,
             requestedDate: site.requestedDate,
             createdDate: site.createdDate,
             archivedDate: site.archivedDate,
             trashedDate: site.trashedDate,
+            noWordPressDate: site.noWordPressDate,
+            inPreparationDate: site.inPreparationDate,
             tags: site.tags,
         }
         

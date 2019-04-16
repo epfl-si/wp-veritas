@@ -281,6 +281,8 @@ class Add extends React.Component {
                   label="Statut" name="status" component={ CustomSelect } >
                   <option value="requested">Demandé</option>
                   <option value="created">Créé</option>
+                  <option value="in-preparation">En préparation</option>
+                  <option value="no-wordpress">Non WordPress</option>
                   <option value="archived">Archivé</option>
                   <option value="trashed">Mis en corbeille</option>
                 </Field>
