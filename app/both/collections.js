@@ -336,7 +336,9 @@ export const Sites = new Mongo.Collection('sites', {
 Sites.tagged_search = function (text="", tags=[], limit=500) {
     // build the query
     let finder = {
-        '$and': [{"status": "created"}]
+        $and : [
+            { $or : [ { status : "created" }, { status : "no-wordpress" } ] },
+        ]
     };
 
     finder['$and'].push({
