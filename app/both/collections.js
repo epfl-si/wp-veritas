@@ -106,7 +106,7 @@ export const sitesSchema = new SimpleSchema({
         label: "URL",
         optional: false,
         max: 100,
-        min: 19, // https://www.epfl.ch is the minimum
+        min: 17, // https://x.epfl.ch is the minimum
         custom: isRequired,
         regEx: SimpleSchema.RegEx.Url,
     }, 
@@ -187,6 +187,10 @@ export const sitesSchema = new SimpleSchema({
     status: {
         type: String,
         label: "Statut",
+        allowedValues: [
+            'requested', 'created', 'archived', 'trashed',
+            'no-wordpress', 'in-preparation'
+        ],
     },
     comment: {
         type: String,
@@ -212,6 +216,14 @@ export const sitesSchema = new SimpleSchema({
         optional: true,
     },
     trashedDate: {
+        type: Date,
+        optional: true,
+    },
+    inPreparationDate: {
+        type: Date,
+        optional: true,
+    },
+    noWordPressDate: {
         type: Date,
         optional: true,
     },
@@ -300,7 +312,11 @@ class Site {
             case 'archived':
                 return 'Archivé';
             case 'trashed':
-                return 'Supprimé';  
+                return 'Supprimé';
+            case 'no-wordpress':
+                return 'Non WordPress'
+            case 'in-preparation':
+                return 'En préparation'
             default:
               return this.status;
           }
