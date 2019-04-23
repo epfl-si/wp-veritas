@@ -2,6 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sites } from '../../../../both/collections';
+import { flatten } from 'flat';
 
 class Cells extends React.Component {
     render() {
@@ -46,7 +47,21 @@ class List extends React.Component {
     }
 
     export = () => {
-       const csv = Papa.unparse({
+
+        let sites = Sites.find({}).fetch();
+        sites.forEach(function(site) {
+            let tags = "";
+            site.tags.forEach(function (tag) {
+                if (tags === "") {
+                    tags = tag.name_fr;
+                } else {
+                    tags = tags + "," + tag.name_fr;
+                }
+            });
+            site.tags = tags;
+        });
+ 
+        const csv = Papa.unparse({
            // Define fields to export
            fields: [
                "url",
@@ -60,6 +75,7 @@ class List extends React.Component {
                "unitId",
                "snowNumber",
                "status",
+               "tags",
                "comment",
                "plannedClosingDate",
                "requestedDate",
@@ -67,7 +83,7 @@ class List extends React.Component {
                "archivedDate",
                "trashedDate"
             ],
-            data: Sites.find({}).fetch()
+            data: sites
         });
   
         const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
