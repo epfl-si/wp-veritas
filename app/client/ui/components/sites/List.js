@@ -2,7 +2,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Sites } from '../../../../both/collections';
-import { flatten } from 'flat';
 
 class Cells extends React.Component {
     render() {
