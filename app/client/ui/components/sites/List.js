@@ -52,9 +52,9 @@ class List extends React.Component {
             let tags = "";
             site.tags.forEach(function (tag) {
                 if (tags === "") {
-                    tags = tag.name_fr;
+                    tags = tag.name_en;
                 } else {
-                    tags = tags + "," + tag.name_fr;
+                    tags = tags + "," + tag.name_en;
                 }
             });
             site.tags = tags;
