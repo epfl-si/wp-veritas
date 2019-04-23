@@ -46,7 +46,21 @@ class List extends React.Component {
     }
 
     export = () => {
-       const csv = Papa.unparse({
+
+        let sites = Sites.find({}).fetch();
+        sites.forEach(function(site) {
+            let tags = "";
+            site.tags.forEach(function (tag) {
+                if (tags === "") {
+                    tags = tag.name_en;
+                } else {
+                    tags = tags + "," + tag.name_en;
+                }
+            });
+            site.tags = tags;
+        });
+ 
+        const csv = Papa.unparse({
            // Define fields to export
            fields: [
                "url",
@@ -60,6 +74,7 @@ class List extends React.Component {
                "unitId",
                "snowNumber",
                "status",
+               "tags",
                "comment",
                "plannedClosingDate",
                "requestedDate",
@@ -67,7 +82,7 @@ class List extends React.Component {
                "archivedDate",
                "trashedDate"
             ],
-            data: Sites.find({}).fetch()
+            data: sites
         });
   
         const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
