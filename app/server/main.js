@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites } from '../both';
+import { Sites, OpenshiftEnvs } from '../both';
 import './publications';
 import getUnits from './units';
 import { importData } from './import-data';
@@ -124,7 +124,7 @@ if (Meteor.isServer) {
 
   // Maps to: /api/v1/sites/wp-admin/:sciper
   Api.addRoute('sites/wp-admin/:sciper', {authRequired: false}, {
-    get: function()  {
+    get: function() {
       
       // Get units of sciper 
       let units = getUnits(this.urlParams.sciper);
@@ -140,6 +140,20 @@ if (Meteor.isServer) {
       };
 
       return admins;
+    }
+  });
+
+  // Maps to: /api/v1/openshiftenvs/
+  Api.addRoute('openshiftenvs', {authRequired: false}, {
+    get: function() {
+      return OpenshiftEnvs.find({}).fetch();
+    }
+  });
+
+  // Maps to: /api/v1/openshiftenvs/:id
+  Api.addRoute('openshiftenvs/:id', {authRequired: false}, {
+    get: function () {
+      return OpenshiftEnvs.findOne(this.urlParams.id);
     }
   });
 }
