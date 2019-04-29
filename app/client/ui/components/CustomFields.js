@@ -59,18 +59,6 @@ export const CustomSingleCheckbox = ({ field, form, ...props }) => {
         { ...field } 
         { ...props } 
         className="form-check-input"
-        /*
-        checked={form.values.userExperience && form.values.userExperience.includes(field.value)}
-        onChange={() => {
-          
-            const nextValue = field.value;
-            form.setFieldValue(field.name, nextValue);
-          
-        }}
-        
-
-        id={field.value} 
-        */
        />
       <label className="form-check-label" htmlFor={field.value}> { props.label }</label>
     </div>
