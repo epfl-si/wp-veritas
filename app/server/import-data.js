@@ -2,6 +2,16 @@ import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../both';
 import URL from 'url-parse';
 
 importData = () => {
+
+  if (Sites.find({ type: 'unmanaged' }).count() == 0) {
+    console.log("Import unmanaged sites");
+    importUnmanagedSites();
+  } else {
+    console.log("Sites unmanaged already exist");
+  }
+
+  /*
+
   if (Sites.find({}).count() == 0) {
     console.log("Import sites");
     importVeritas();
@@ -15,14 +25,14 @@ importData = () => {
   } else {
     console.log("Tags already exist");
   }
-
-  if (OpenshiftEnvs.find({}).count() == 0) {
+  */
+  if (OpenshiftEnvs.find({}).count() == 5) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
   } else {
     console.log("openshiftenvs already exist");
   }
-
+  /*
   if (Themes.find({}).count() == 0) {
     console.log("Import themes");
     importThemes();
@@ -45,6 +55,7 @@ importData = () => {
   }
 
   importTagsBySite();
+  */
 }
 
 importTagsBySite = () => {
@@ -240,7 +251,8 @@ importThemes = () => {
 }
 
 importOpenshiftenvs = () => {
-  const path = 'openshiftenvs.csv';
+  // const path = 'openshiftenvs.csv';
+  const path = 'openshiftenvs_update.csv';
   const file = Assets.getText(path);
   Papa.parse(file, {
     delimiter: ",",
@@ -294,6 +306,59 @@ importTags = () => {
   });
 }
 
+importUnmanagedSites = () => {
+  const path = 'unmanaged.csv';
+  const file = Assets.getText(path);
+  
+
+  Papa.parse(file, {
+    delimiter: ",",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      let number = 0;
+      data.forEach(site => {
+        let langs;
+        if (site.langs == 'fr' || site.langs == 'en') {
+          langs = [site.langs];
+        } else {
+          langs = site.langs.split(',')
+        }
+
+        let url = site.wp_site_url;
+        url = url.replace(/\/$/, "");
+        let siteDocument = {
+          url: url,
+          tagline: site.wp_tagline,
+          title: site.wp_site_title,
+          openshiftEnv: site.openshift_env,
+          type: 'public',
+          category: site.category,
+          theme: site.theme,
+          faculty: site.theme_faculty,
+          languages: langs,
+          unitId: site.unit_id,
+          snowNumber: '',
+          status: 'created',
+          comment: site.comment,
+          plannedClosingDate: null,
+          requestedDate: null,
+          createdDate: null,
+          archivedDate: null,
+          trashedDate: null,
+          tags: [],
+        }
+        if (!Sites.findOne({url: siteDocument.url})) {
+          Sites.insert(siteDocument);
+          number = number + 1;
+          console.log(`n°${number} Site ${url}`);
+        }
+      });
+      console.log("Importation unmanaged sites finished");
+    }    
+  });
+}
+
 importVeritas = () => {
     const path = 'source-veritas.csv';
     const file = Assets.getText(path);
@@ -317,7 +382,7 @@ importVeritas = () => {
             tagline: site.wp_tagline,
             title: site.wp_site_title,
             openshiftEnv: site.openshift_env,
-            type: 'public',
+            type: 'unmanaged',
             category: site.category,
             theme: site.theme,
             faculty: site.theme_faculty,
