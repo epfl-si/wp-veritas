@@ -10,7 +10,7 @@ import './indexes';
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
 let activeTequila = true;
-let importDatas = true;
+let importDatas = false;
   
 if (Meteor.isServer) {
   
