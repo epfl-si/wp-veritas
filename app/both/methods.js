@@ -103,6 +103,10 @@ function prepareUpdateInsert(site, action) {
         site.tags = [];
     }
 
+    if (site.userExperience == 'undefined') {
+        site.userExperience = false;
+    }
+
     return site;
 }
 
@@ -312,6 +316,7 @@ Meteor.methods({
             trashedDate: site.trashedDate,
             noWordPressDate: site.noWordPressDate,
             inPreparationDate: site.inPreparationDate,
+            userExperience: site.userExperience,
             tags: site.tags,
         }
         return Sites.insert(siteDocument);
@@ -386,6 +391,7 @@ Meteor.methods({
             trashedDate: site.trashedDate,
             noWordPressDate: site.noWordPressDate,
             inPreparationDate: site.inPreparationDate,
+            userExperience: site.userExperience,
             tags: site.tags,
         }
         

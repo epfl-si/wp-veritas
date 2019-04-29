@@ -3,14 +3,15 @@ import URL from 'url-parse';
 
 importData = () => {
 
+  addUserExperienceField();
+
+  /*
   if (Sites.find({ type: 'unmanaged' }).count() == 0) {
     console.log("Import unmanaged sites");
     importUnmanagedSites();
   } else {
     console.log("Sites unmanaged already exist");
   }
-
-  /*
 
   if (Sites.find({}).count() == 0) {
     console.log("Import sites");
@@ -25,14 +26,14 @@ importData = () => {
   } else {
     console.log("Tags already exist");
   }
-  */
+
   if (OpenshiftEnvs.find({}).count() == 5) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
   } else {
     console.log("openshiftenvs already exist");
   }
-  /*
+
   if (Themes.find({}).count() == 0) {
     console.log("Import themes");
     importThemes();
@@ -56,6 +57,14 @@ importData = () => {
 
   importTagsBySite();
   */
+}
+
+addUserExperienceField = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach(site => { 
+    Sites.update({'_id': site._id}, {$set: {'userExperience': false }});
+    console.log(`Add userExperience field to ${site.url}`);
+  });
 }
 
 importTagsBySite = () => {

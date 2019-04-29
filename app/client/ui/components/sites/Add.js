@@ -2,7 +2,7 @@ import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes, Categories } from '../../../../both/collections';
-import { CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
+import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
 
 class Add extends React.Component {
 
@@ -286,6 +286,12 @@ class Add extends React.Component {
                   <option value="archived">Archivé</option>
                   <option value="trashed">Mis en corbeille</option>
                 </Field>
+
+                <Field 
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  label="À observer avec ressenti" name="userExperience" type="checkbox" 
+                  component={ CustomSingleCheckbox } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
