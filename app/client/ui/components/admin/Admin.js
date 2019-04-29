@@ -93,7 +93,7 @@ class Admin extends React.Component {
         this.delete(Themes, themeID);
     }
 
-    deleteTheme = (categoryID) => {
+    deleteCategory = (categoryID) => {
         this.delete(Categories, categoryID);
     }
 
