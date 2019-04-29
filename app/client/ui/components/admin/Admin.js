@@ -60,7 +60,7 @@ class Admin extends React.Component {
 
         let meteorMethodName;
 
-        if (collection._name === 'openshift-envs') {
+        if (collection._name === 'openshiftenvs') {
             meteorMethodName = 'removeOpenshiftEnv';
         } else if (collection._name === 'types') {
             meteorMethodName = 'removeType';
@@ -93,7 +93,7 @@ class Admin extends React.Component {
         this.delete(Themes, themeID);
     }
 
-    deleteTheme = (categoryID) => {
+    deleteCategory = (categoryID) => {
         this.delete(Categories, categoryID);
     }
 

@@ -1,0 +1,24 @@
+wp_site_url,wp_tagline,wp_site_title,site_type,openshift_env,category,theme,theme_faculty,status,installs_locked,updates_automatic,langs,unit_name,unit_id,comment
+https://wordpress.epfl.ch,Wordpress,EPFL,wordpress,unm-wordpress,Unmanaged,epfl-master,,no,no,yes,"fr,en",MEC,10007,"site pour Nathalie, Magaly et Manu pour donner des infos"
+https://library-next.epfl.ch,EPFL LIBRARY,RLC,wordpress,unm-library,Unmanaged,epfl-master,,no,no,yes,"fr,en",SISB,10030,INC0222873
+https://icresearchday.epfl.ch,IC research Day,IC research day,wordpress,unm-icresearchday,Unmanaged,epfl-master,ic,no,no,yes,"fr,en",IC-DO,10389,
+https://icrp.epfl.ch,IC Research Projects,ICRP,wordpress,unm-icrp,Unmanaged,epfl-master,ic,no,no,yes,en,IC-DO,10389,
+https://futureup.epfl.ch,Future Up,FutureUp,wordpress,unm-futureup,Unmanaged,epfl-master,sv,no,no,yes,en,LMNN,11104,
+https://eee.epfl.ch,EPFL Excellence in Engineering,E3,wordpress,unm-eee,Unmanaged,epfl-master,sti,no,no,yes,en,STI-DO,10276,
+https://phdsummit.epfl.ch,EPFL Engineering PhD Summit,EPFL,wordpress,unm-phdsummit,Unmanaged,epfl-master,sti,no,no,yes,en,STI-DO,10276,INC0233560
+https://journeeindustrie.epfl.ch,Journée Industrie,EPFL,wordpress,unm-journeeindustrie,Unmanaged,epfl-master,sti,no,no,yes,"fr,en",STI-DO,10276,INC0236072
+https://cmis2020.epfl.ch,Contact Mechanics International Symposium,CMIS2020,wordpress,subdomains,Unmanaged,epfl-master,,yes,yes,yes,en,LSMS,10232,INC0234570
+https://ldmblogs.epfl.ch,Blog pour le laboratoir LDM entre IC et ENAC,ldmblogs,wordpress,unm-ldmblogs,Unmanaged,epfl-master,,yes,no,yes,en,LDM1,11268,INC0249920
+https://ml.epfl.ch,Machine Learning,ml,wordpress,unm-ml,Unmanaged,epfl-master,,yes,no,yes,"en,fr",LIONS,12179,INC0249214
+https://drosophoto.epfl.ch,Collection de photos de mouche (drosophila) dans le contexte d'une conférence internationale sur le sujet,drosophoto,wordpress,unm-drosophoto,Unmanaged,epfl-master,sv,yes,no,yes,"en,fr",UPLEM,11772,INC0251336
+https://lasur15.epfl.ch,15 ans de sociologie urbaine à l'EPFL,LASUR15,wordpress,unm-lasur15,Unmanaged,epfl-master,enac,yes,no,yes,fr,LASUR,10241,INC0252876 
+https://blockchainschool.epfl.ch,"Website for the upcoming blockchain winterschool jointly organised by EPFL, ETHZ, and IC3",Blockchain School,wordpress,unm-blockchain-school2019,Unmanaged,epfl-master,ic,yes,no,yes,en,DEDIS,13061,INC0253154
+https://nmc2019.epfl.ch,Engineering workshop - NMC2019,NMC2019,wordpress,unm-nmc2019,Unmanaged,epfl-master,sti,yes,no,yes,en,NEMS,12739,INC0254536
+https://cn-2019.epfl.ch,Chirality at the Nanoscale,CN-2019,wordpress,unm-cn-2019,Unmanaged,epfl-master,sb,yes,no,yes,en,SB-IT,10084,INC0256743
+https://network-science.epfl.ch,EPFL Engineering Workshop on Network Science,network-science,wordpress,unm-network-science,Unmanaged,epfl-blank,sti,yes,no,yes,en,MIPLAB,12143,INC0265729
+https://hobelblog.epfl.ch,Hobelblog - Blog du laboratoire HOBEL,hobelblog,wordpress,unm-hobelblog,Unmanaged,epfl-blank,enac,yes,no,yes,en,HOBEL,13578,INC0268645
+https://nss2019.epfl.ch,NeuroSymposiumSummer2019.epfl.ch,NSS2019,wordpress,unm-nss2019,Unmanaged,epfl-master,sti,yes,no,yes,en,BMI,10454,INC0270274 resp. site  : pierre.bouquet@epfl.ch
+https://Igluna.epfl.ch,IGLUNA ,IGLUNA ,wordpress,unm-igluna,Unmanaged,epfl-master,enac,yes,no,yes,en,ENAC-DO,10203,INC0272243
+https://nrg2019.epfl.ch,Challenges & Opportunities in Energy Research ,NRG2019,wordpress,unm-nrg2019,Unmanaged,epfl-master,,yes,no,yes,en,EDEY-GE,10899,INC0269499 resp.cecile.taverney@epfl.ch
+https://rapport-annuel.epfl.ch,Rapport annuel,Rapport-annuel,wordpress,unm-rapportannuel,Unmanaged,epfl-master,,yes,no,yes,en,MEDICAOM,12999,Frederic Rauss
+https://rapport-annuel.epfl.ch/rapport-annuel-test,Test Rapport annuel ,Test Rapport-annuel,wordpress,unm-rapportannuel,Unmanaged,epfl-master,,yes,no,yes,en,MEDICAOM,12999,Frederic Rauss
