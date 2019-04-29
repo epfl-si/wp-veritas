@@ -227,6 +227,10 @@ export const sitesSchema = new SimpleSchema({
         type: Date,
         optional: true,
     },
+    userExperience: {
+        type: Boolean,
+        optional: true,
+    },
     tags: {
         type: Array,
         label: "Tags",

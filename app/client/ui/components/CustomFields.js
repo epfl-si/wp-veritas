@@ -52,6 +52,31 @@ export const CustomSelect = ({ field, form, ...props }) => {
   )
 }
 
+export const CustomSingleCheckbox = ({ field, form, ...props }) => {
+  return (
+    <div className="form-group form-check form-check-inline">
+      <input 
+        { ...field } 
+        { ...props } 
+        className="form-check-input"
+        /*
+        checked={form.values.userExperience && form.values.userExperience.includes(field.value)}
+        onChange={() => {
+          
+            const nextValue = field.value;
+            form.setFieldValue(field.name, nextValue);
+          
+        }}
+        
+
+        id={field.value} 
+        */
+       />
+      <label className="form-check-label" htmlFor={field.value}> { props.label }</label>
+    </div>
+  )
+}
+
 export const CustomCheckbox = ({ field, form, ...props }) => {
   return (
     <div className="form-group form-check form-check-inline">
