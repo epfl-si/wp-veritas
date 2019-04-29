@@ -60,11 +60,10 @@ importData = () => {
 }
 
 addUserExperienceField = () => {
-  console.log("Add a field userExperience");
   let sites = Sites.find().fetch();
   sites.forEach(site => { 
     Sites.update({'_id': site._id}, {$set: {'userExperience': false }});
-    console.log(`Update de ${site.url}`);
+    console.log(`Add userExperience field to ${site.url}`);
   });
 }
 
