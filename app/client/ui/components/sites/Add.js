@@ -290,7 +290,7 @@ class Add extends React.Component {
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="À observer avec ressenti" name="userExperience" type="checkbox" value="fr" 
+                  label="À observer avec ressenti" name="userExperience" type="checkbox" 
                   component={ CustomSingleCheckbox } />
                 
                 <Field 

@@ -59,8 +59,9 @@ export const CustomSingleCheckbox = ({ field, form, ...props }) => {
         { ...field } 
         { ...props } 
         className="form-check-input"
+        id={ field.name }
        />
-      <label className="form-check-label" htmlFor={field.value}> { props.label }</label>
+      <label className="form-check-label" htmlFor={ field.name }> { props.label }</label>
     </div>
   )
 }
