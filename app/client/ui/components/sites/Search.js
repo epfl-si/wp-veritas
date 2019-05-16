@@ -3,7 +3,8 @@ import React from 'react';
 import { Sites } from '../../../../both/collections';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { CustomError, CustomInput } from '../CustomFields';
-import * as yup from 'yup'; 
+import * as yup from 'yup';
+import ReactHtmlParser from 'react-html-parser';
 
 class Search extends React.Component {
 
@@ -28,29 +29,49 @@ class Search extends React.Component {
 
         this.state = {
             result: '',
+            siteFound: false,
         }
     }
 
     submit = (values, actions) => {
-        //console.log(values);
-        //console.log(this.props.sites);
-        
         let res = "";
-        this.props.sites.forEach(site => {
+        let site;
+        this.props.sites.forEach(currentSite => {
 
-            if (values.url.startsWith(site.url)) {
+            if (values.url.startsWith(currentSite.url)) {
 
-                if (site.url.length > res.length) {
-                    res = site.url;
+                if (currentSite.url.length > res.length) {
+                    site = currentSite;
+                    res = currentSite.url;
                 }
             }
         });
-        this.setState({result: res + '/wp-admin'});
+
+        console.log(`Resultat: ${res}`);
+        console.log(`Site: ${site}`);
+
+        let siteFound = false;
+        if (res == "") {
+            res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas présent dans la source de vérité`;
+        } else {
+            if (site.status == 'no-wordpress') {
+                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site WordPress géré par la VPSI`;
+            } else if (site.status == 'created') {
+                siteFound = true;
+                res = res + '/wp-admin';
+                res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`
+            } else {
+                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas présent dans la source de vérité`;
+            }
+        }
+        this.setState({ result: res, siteFound: siteFound });
+
         actions.setSubmitting(false);
         actions.resetForm();
     }
 
     render() {
+        
         let content = (
             <div className="">
                 <h4 className="py-4">Quelle est l'instance WordPress de cette URL ?</h4>
@@ -75,7 +96,7 @@ class Search extends React.Component {
                     </form>
                 )}
                 </Formik>
-                <h4 className="py-4">L'instance WordPress est : <a href={ this.state.result } target="_blank">{ this.state.result }</a></h4>
+                <h4 className="py-4">{ ReactHtmlParser(this.state.result) }</h4>
             </div>
         )
         return content;
