@@ -55,7 +55,7 @@ class Search extends React.Component {
             res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas présent dans la source de vérité`;
         } else {
             if (site.status == 'no-wordpress') {
-                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site WordPress géré par la VPSI`;
+                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site WordPress`;
             } else if (site.status == 'created') {
                 siteFound = true;
                 res = res + '/wp-admin';
