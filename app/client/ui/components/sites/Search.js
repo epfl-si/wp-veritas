@@ -47,21 +47,16 @@ class Search extends React.Component {
             }
         });
 
-        console.log(`Resultat: ${res}`);
-        console.log(`Site: ${site}`);
-
         let siteFound = false;
         if (res == "") {
-            res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas présent dans la source de vérité`;
+            res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
         } else {
-            if (site.status == 'no-wordpress') {
-                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site WordPress`;
-            } else if (site.status == 'created') {
+            if (site.status == 'created') {
                 siteFound = true;
                 res = res + '/wp-admin';
                 res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`
             } else {
-                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas présent dans la source de vérité`;
+                res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
             }
         }
         this.setState({ result: res, siteFound: siteFound });
