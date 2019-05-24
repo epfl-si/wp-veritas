@@ -23,18 +23,36 @@ function prepareUpdateInsert(site, action) {
         site.url = url.slice(0, -1);
     }
     
-    // Check if url is unique
+    // Check if url is unique and if slug is unique
     // TODO: Move this code to SimpleSchema custom validation function
-    let sites_number_with_same_url;
-
     if (action === 'update') {
-        sites_number_with_same_url = 1;
+        let sites = Sites.find({url:site.url});
+        if (sites.count() > 1) {
+            throwMeteorError('url', 'Cette URL existe déjà !');
+        } else if (sites.count() == 1) {
+            if (sites.fetch()[0]._id != site._id) {
+                throwMeteorError('url', 'Cette URL existe déjà !');
+            }
+        }
+
+        if (site.slug != '') {
+            let sitesBySlug = Sites.find({slug:site.slug});
+            if (sitesBySlug.count() > 1) {
+                throwMeteorError('slug', 'Ce slug existe déjà !');
+            } else if (sitesBySlug.count() == 1) {
+                if (sitesBySlug.fetch()[0]._id != site._id) {
+                    throwMeteorError('slug', 'Ce slug existe déjà !');
+                }
+            }
+        }
     } else {
-        sites_number_with_same_url = 0;
-    }
-    
-    if (Sites.find({url:site.url}).count() > sites_number_with_same_url) {
-        throwMeteorError('url', 'Cette URL existe déjà !');
+        if (Sites.find({url:site.url}).count() > 0) {
+            throwMeteorError('url', 'Cette URL existe déjà !');
+        }
+
+        if (site.slug != '' && Sites.find({slug:site.slug}).count() > 0) {
+            throwMeteorError('slug', 'Ce slug existe déjà !');
+        }
     }
 
     let currentSite = Sites.findOne({url:site.url});
@@ -105,6 +123,10 @@ function prepareUpdateInsert(site, action) {
 
     if (site.userExperience == 'undefined') {
         site.userExperience = false;
+    }
+
+    if (site.slug == 'undefined') {
+        site.slug = '';
     }
 
     return site;
@@ -297,6 +319,7 @@ Meteor.methods({
 
         let siteDocument = {
             url: site.url,
+            slug: site.slug,
             tagline: site.tagline,
             title: site.title,
             openshiftEnv: site.openshiftEnv,
@@ -372,6 +395,7 @@ Meteor.methods({
 
         let siteDocument = {
             url: site.url,
+            slug: site.slug,
             tagline: site.tagline,
             title: site.title,
             openshiftEnv: site.openshiftEnv,

@@ -119,6 +119,7 @@ class Add extends React.Component {
         title = 'Ajouter un nouveau site';
         initialValues = { 
           url: '',
+          slug: '',
           tagline: '', 
           title: '', 
           openshiftEnv: 'www', 
@@ -292,6 +293,13 @@ class Add extends React.Component {
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
                   label="À observer avec ressenti" name="userExperience" type="checkbox" 
                   component={ CustomSingleCheckbox } />
+
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
+                  onBlur={this.updateUserMsg} 
+                  placeholder="" label="Slug pour le ressenti" name="slug" type="text" component={ CustomInput } />
+                <ErrorMessage name="slug" component={ CustomError } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
