@@ -109,7 +109,13 @@ export const sitesSchema = new SimpleSchema({
         min: 17, // https://x.epfl.ch is the minimum
         custom: isRequired,
         regEx: SimpleSchema.RegEx.Url,
-    }, 
+    },
+    slug: {
+        type: String,
+        label: "Slug",
+        optional: true,
+        max: 50,
+    },
     tagline: {
         type: String,
         label: "Tagline",
