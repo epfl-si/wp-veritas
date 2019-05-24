@@ -38,7 +38,6 @@ function prepareUpdateInsert(site, action) {
                 throwMeteorError('url', 'Cette URL existe déjà !');
             }
         }
-        console.log(`Slug: ${site.slug}`);
         if (site.slug != '') {
             let sitesBySlug = Sites.find({slug:site.slug});
             if (sitesBySlug.count() > 1) {
