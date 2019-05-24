@@ -17,6 +17,10 @@ import { throwMeteorError } from './error';
 
 function prepareUpdateInsert(site, action) {
 
+    if (site.slug == undefined) {
+        site.slug = '';
+    }
+
     // Delete "/" at the end of URL 
     let url = site.url;
     if (url.endsWith('/')) {
@@ -34,7 +38,7 @@ function prepareUpdateInsert(site, action) {
                 throwMeteorError('url', 'Cette URL existe déjà !');
             }
         }
-
+        console.log(`Slug: ${site.slug}`);
         if (site.slug != '') {
             let sitesBySlug = Sites.find({slug:site.slug});
             if (sitesBySlug.count() > 1) {
@@ -117,16 +121,12 @@ function prepareUpdateInsert(site, action) {
         }
     }
 
-    if (site.tags == 'undefined') {
+    if (site.tags == undefined) {
         site.tags = [];
     }
 
-    if (site.userExperience == 'undefined') {
+    if (site.userExperience == undefined) {
         site.userExperience = false;
-    }
-
-    if (site.slug == 'undefined') {
-        site.slug = '';
     }
 
     return site;
