@@ -181,7 +181,7 @@ export const sitesSchema = new SimpleSchema({
         type: String,
         label: 'ID de l unité',
         optional: false,
-        min: 2,
+        min: 1,
         max: 100,
     },
     snowNumber: {
