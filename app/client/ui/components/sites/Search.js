@@ -34,13 +34,10 @@ class Search extends React.Component {
     }
 
     submit = (values, actions) => {
-
         let res = "";
         let site;
         this.props.sites.forEach(currentSite => {
-            
             if (values.url.startsWith(currentSite.url)) {
-
                 if (currentSite.url.length > res.length) {
                     
                     // Example: 
