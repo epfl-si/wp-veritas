@@ -41,8 +41,20 @@ class Search extends React.Component {
             if (values.url.startsWith(currentSite.url)) {
 
                 if (currentSite.url.length > res.length) {
-                    site = currentSite;
-                    res = currentSite.url;
+                    
+                    // Example: 
+                    // Existing WordPress instance :
+                    // - https://www.epfl.ch/campus/services/ressources
+                    // - https://www.epfl.ch/campus/services
+                    // User URL: https://www.epfl.ch/campus/services/ressources-informatiques/support-informatique/linux
+                    // Expected result: https://www.epfl.ch/campus/services/wp-admin
+                    // And not https://www.epfl.ch/campus/services/ressources/wp-admin
+
+                    let check = currentSite.url + "/";
+                    if (values.url.startsWith(check) || values.url == currentSite.url) {
+                        site = currentSite;
+                        res = currentSite.url;    
+                    }                    
                 }
             }
         });
