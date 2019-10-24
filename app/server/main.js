@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites, OpenshiftEnvs } from '../both';
+import { Sites, OpenshiftEnvs } from '../imports/api/collections';
 import './publications';
 import getUnits from './units';
 import { importData } from './import-data';

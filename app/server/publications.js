@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories } from "../both";
+import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories } from "../imports/api/collections";
 import { check } from "meteor/check";
 
 Meteor.publish('sites.list', function() {

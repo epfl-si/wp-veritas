@@ -1,4 +1,4 @@
-import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../both';
+import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../imports/api/collections';
 import URL from 'url-parse';
 
 importData = () => {
