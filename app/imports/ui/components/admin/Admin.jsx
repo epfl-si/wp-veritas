@@ -4,6 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Categories, Types, OpenshiftEnvs, Themes } from '../../../api/collections';
 import { CustomError, CustomInput } from '../CustomFields';
+import { AlertSuccess } from '../Messages'
 
 const ThemesForm = (props) =>
   <div className="card-body">
@@ -16,9 +17,14 @@ const ThemesForm = (props) =>
     {({
       handleSubmit,
       isSubmitting,
+      handleChange,
+      handleBlur,
     }) => (    
       <form onSubmit={ handleSubmit } className="">
-        <Field placeholder="Nom du thème à ajouter" name="name" type="text" component={ CustomInput } className="" />
+        <Field 
+          onChange={e => { handleChange(e); props.updateUserMsg();}}
+          onBlur={e => { handleBlur(e); props.updateUserMsg();}}
+          placeholder="Nom du thème à ajouter" name="name" type="text" component={ CustomInput } className="" />
         <ErrorMessage name="name" component={ CustomError } />
         <div className="my-1 text-right">
           <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
@@ -39,9 +45,14 @@ const CategoriesForm = (props) =>
     {({
       handleSubmit,
       isSubmitting,
+      handleChange,
+      handleBlur,
     }) => (    
       <form onSubmit={ handleSubmit } className="">
-        <Field placeholder="Nom de la catégorie à ajouter" name="name" type="text" component={ CustomInput } />
+        <Field 
+          onChange={e => { handleChange(e); props.updateUserMsg();}}
+          onBlur={e => { handleBlur(e); props.updateUserMsg();}}
+          placeholder="Nom de la catégorie à ajouter" name="name" type="text" component={ CustomInput } />
         <ErrorMessage name="name" component={ CustomError } />
         <div className="my-1 text-right">
           <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
@@ -62,9 +73,14 @@ const TypesForm = (props) =>
       {({
         handleSubmit,
         isSubmitting,
+        handleChange,
+        handleBlur,
       }) => (    
         <form onSubmit={ handleSubmit } className="">
-          <Field placeholder="Nom du type à ajouter" name="name" type="text" component={ CustomInput } />
+          <Field 
+            onChange={e => { handleChange(e); props.updateUserMsg();}}
+            onBlur={e => { handleBlur(e); props.updateUserMsg();}}
+            placeholder="Nom du type à ajouter" name="name" type="text" component={ CustomInput } />
           <ErrorMessage name="name" component={ CustomError } />
           <div className="my-1 text-right">
             <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
@@ -85,9 +101,14 @@ const OpenShiftEnvsForm = (props) =>
     {({
         handleSubmit,
         isSubmitting,
+        handleChange,
+        handleBlur,
     }) => (    
       <form onSubmit={ handleSubmit } className="">
-          <Field placeholder="Nom de l'environnement openshift à ajouter" name="name" type="text" component={ CustomInput }/>
+          <Field 
+            onChange={e => { handleChange(e); props.updateUserMsg();}}
+            onBlur={e => { handleBlur(e); props.updateUserMsg();}}
+            placeholder="Nom de l'environnement openshift à ajouter" name="name" type="text" component={ CustomInput }/>
           <ErrorMessage name="name" component={ CustomError } />
           <div className="my-1 text-right">
               <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
@@ -167,38 +188,57 @@ const ThemesList = (props) =>
 
 class Admin extends Component {
 
-    submit = (collection, values, actions) => {
-        
-        let meteorMethodName;
-
-        if (collection._name === 'openshiftenvs') {
-            meteorMethodName = 'insertOpenshiftEnv';
-        } else if (collection._name === 'types') {
-            meteorMethodName = 'insertType';
-        } else if (collection._name === 'themes') {
-            meteorMethodName = 'insertTheme';
-        } else if (collection._name === 'categories') {
-            meteorMethodName = 'insertCategory';
-        }
-
-        Meteor.call(
-            meteorMethodName,
-            values, 
-            (errors, objectId) => {
-                if (errors) {
-                    let formErrors = {};
-                    errors.details.forEach(function(error) {
-                        formErrors[error.name] = error.message;                        
-                    });
-                    actions.setErrors(formErrors);
-                    actions.setSubmitting(false);
-                } else {
-                    actions.setSubmitting(false);
-                    actions.resetForm();
-                }
-            }
-        );
+  constructor(props) {
+    super(props);
+    this.state = {
+      addSuccess: false,
+      deleteSuccess: false,
+      target: '',
     }
+  }
+
+  updateUserMsg = () => {
+    this.setState({ addSuccess: false, deleteSuccess: false, target: '' });
+  }
+
+  submit = (collection, values, actions) => {
+      
+      let meteorMethodName;
+      let target;
+
+      if (collection._name === 'openshiftenvs') {
+          meteorMethodName = 'insertOpenshiftEnv';
+          target = 'environnement openshift';
+      } else if (collection._name === 'types') {
+          meteorMethodName = 'insertType';
+          target = 'type';
+      } else if (collection._name === 'themes') {
+          meteorMethodName = 'insertTheme';
+          target = 'thème';
+      } else if (collection._name === 'categories') {
+          meteorMethodName = 'insertCategory';
+          target = 'catégorie';
+      }
+
+      Meteor.call(
+          meteorMethodName,
+          values, 
+          (errors, objectId) => {
+              if (errors) {
+                  let formErrors = {};
+                  errors.details.forEach(function(error) {
+                      formErrors[error.name] = error.message;                        
+                  });
+                  actions.setErrors(formErrors);
+                  actions.setSubmitting(false);
+              } else {
+                  actions.setSubmitting(false);
+                  actions.resetForm();
+                  this.setState({addSuccess: true, target: target});
+              }
+          }
+      );
+  }
     
     submitOpenShiftEnv = (values, actions) => {
         this.submit(OpenshiftEnvs, values, actions);
@@ -218,27 +258,34 @@ class Admin extends Component {
 
     delete = (collection, elementID) => {
 
-        let meteorMethodName;
+      let meteorMethodName;
+      let target;
+      
+      if (collection._name === 'openshiftenvs') {
+        meteorMethodName = 'removeOpenshiftEnv';
+        target = 'environnement openshift';
+      } else if (collection._name === 'types') {
+        meteorMethodName = 'removeType';
+        target = 'type';
+      } else if (collection._name === 'themes') {
+        meteorMethodName = 'removeTheme';
+        target = 'thème';
+      } else if (collection._name === 'categories') {
+        meteorMethodName = 'removeCategory';
+        target = 'catégorie';
+      }
 
-        if (collection._name === 'openshiftenvs') {
-            meteorMethodName = 'removeOpenshiftEnv';
-        } else if (collection._name === 'types') {
-            meteorMethodName = 'removeType';
-        } else if (collection._name === 'themes') {
-            meteorMethodName = 'removeTheme';
-        } else if (collection._name === 'categories') {
-            meteorMethodName = 'removeCategory';
+      Meteor.call(
+        meteorMethodName,
+        elementID,
+        (error, objectId) => {
+          if (error) {
+            console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
+          } else {
+            this.setState({deleteSuccess: true, target: target});
+          }
         }
-
-        Meteor.call(
-            meteorMethodName,
-            elementID,
-            function(error, objectId) {
-                if (error) {
-                    console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
-                } 
-            }
-        );
+      );
     }
 
     deleteOpenshiftEnv = (openshiftEnvID) => {
@@ -274,6 +321,15 @@ class Admin extends Component {
       } else {
         content = (
           <Fragment>
+
+            { this.state.addSuccess ? ( 
+              <AlertSuccess message={  `L'élément "${this.state.target}" a été ajouté avec succès !` } />
+            ) : (null) }
+
+            { this.state.deleteSuccess ? ( 
+              <AlertSuccess message={ `L'élément "${this.state.target}" a été supprimé avec succès !` } />
+            ) : (null) }
+
             <div className="card my-2">
               <OpenshiftEnvsList 
                 openshiftenvs={ this.props.openshiftenvs } 
@@ -281,8 +337,10 @@ class Admin extends Component {
               />
               <OpenShiftEnvsForm 
                 submitOpenShiftEnv= { this.submitOpenShiftEnv }
+                updateUserMsg={ this.updateUserMsg }
               />
             </div>
+
             <div className="card my-2">
               <TypesList
                 types={ this.props.types } 
@@ -290,17 +348,21 @@ class Admin extends Component {
               />
               <TypesForm 
                 submitType= { this.submitType }
+                updateUserMsg={ this.updateUserMsg }
               />
             </div>
+
             <div className="card my-2">
               <CategoriesList
                 categories={ this.props.categories } 
                 deleteCategory={ this.deleteCategory }
               />
               <CategoriesForm 
-                submitCategory= { this.submitCategory }
+                submitCategory={ this.submitCategory }
+                updateUserMsg={ this.updateUserMsg }
               />
             </div>
+            
             <div className="card my-2">
               <ThemesList
                 themes={ this.props.themes } 
@@ -308,8 +370,18 @@ class Admin extends Component {
               />
               <ThemesForm 
                 submitTheme= { this.submitTheme }
+                updateUserMsg={ this.updateUserMsg }
               />
             </div>
+
+            { this.state.addSuccess ? ( 
+              <AlertSuccess message={  `L'élément "${this.state.target}" a été ajouté avec succès !` } />
+            ) : (null) }
+
+            { this.state.deleteSuccess ? ( 
+              <AlertSuccess message={ `L'élément "${this.state.target}" a été supprimé avec succès !` } />
+            ) : (null) }
+
         </Fragment>
         )
     }
