@@ -41,9 +41,8 @@ class Apps extends React.Component {
             <Route exact path="/admin/users" component={ User } />
             </React.Fragment>)
            : null}
-         
-
-          <Footer />
+        
+        <Footer />
         </div>
       </Router>
       )
