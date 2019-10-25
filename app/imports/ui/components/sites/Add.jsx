@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
+import { Loading } from '../Messages'
 
-class Add extends React.Component {
+class Add extends Component {
 
   constructor(props){
     super(props);
@@ -17,10 +18,9 @@ class Add extends React.Component {
     }
 
     this.state = {
-        site: '',
-        action: action,
-        addSuccess: false,
-        editSuccess: false,
+      action: action,
+      addSuccess: false,
+      editSuccess: false,
     }
   }
 
@@ -28,75 +28,102 @@ class Add extends React.Component {
     this.setState({addSuccess: false, editSuccess: false});
   }
 
-  getSite = async () => {
-    let site = await Sites.findOne({_id: this.props.match.params._id});
+  getSite = () => {
+    let site = Sites.findOne({_id: this.props.match.params._id});
     return site;
-  }
-
-  componentDidMount() {
-    
-    if (this.state.action === 'edit') {
-      let site = this.getSite().then((site) => {
-        this.setState({site: site});
-      });
-    }
   }
     
   submit = (values, actions) => {
-    if (this.state.action === 'add') {
-      Meteor.call(
-        'insertSite',
-        values, 
-        (errors, siteId) => {
-          if (errors) {
-            console.log(errors);
-            let formErrors = {};
-            errors.details.forEach(function(error) {
-              formErrors[error.name] = error.message;                        
-            });
-            actions.setErrors(formErrors);
-            actions.setSubmitting(false);
-          } else {
-              actions.setSubmitting(false);
-              actions.resetForm();
-              this.setState({addSuccess: true});
-          }
-        }
-      );
-    } else if (this.state.action === 'edit') {
 
-      Meteor.call(
-        'updateSite',
-        values, 
-        (errors, siteId) => {
-          if (errors) {
-            console.log(errors);
-            let formErrors = {};
-            errors.details.forEach(function(error) {
-              formErrors[error.name] = error.message;                        
-            });
-            actions.setErrors(formErrors);
-            actions.setSubmitting(false);
-          } else {
-            actions.setSubmitting(false);
-            this.setState({editSuccess: true});
-          }
-        }
-      );
+    let methodName;
+    let state;
+    if (this.state.action === 'add') {
+      methodName = 'insertSite';
+      state = {addSuccess: true};
+    } else if (this.state.action === 'edit') {
+      methodName = 'updateSite';
+      state = {editSuccess: true};
     }
+
+    Meteor.call(
+      methodName,
+      values, 
+      (errors, siteId) => {
+        if (errors) {
+          console.log(errors);
+          let formErrors = {};
+          errors.details.forEach(function(error) {
+            formErrors[error.name] = error.message;                        
+          });
+          actions.setErrors(formErrors);
+          actions.setSubmitting(false);
+        } else {
+          actions.setSubmitting(false);
+          if (this.state.action === 'add') {
+            actions.resetForm();
+          }
+          this.setState(state);
+        }
+      }
+    );
+  }
+
+  getInitialValues = () => {
+    let initialValues;
+    if (this.state.action == 'add') {
+      initialValues = { 
+        url: '',
+        slug: '',
+        tagline: '', 
+        title: '', 
+        openshiftEnv: 'www', 
+        type: 'public', 
+        theme:'2018',
+        category:'GeneralPublic',
+        faculty: '',
+        languages: [], 
+        unitId: '', 
+        snowNumber: '',
+        status:'requested',
+        comment: '',
+        plannedClosingDate: '',
+        tags: []
+      }
+    } else {
+      initialValues = this.getSite();
+    }
+    return initialValues;
+  }
+
+  isLoading = (initialValues) => {
+    const isLoading = (
+      this.props.openshiftenvs === undefined || 
+      this.props.types === undefined || 
+      this.props.themes === undefined ||
+      this.props.categories === undefined ||
+      initialValues === undefined
+    )
+    return isLoading;
+  }
+
+  getPageTitle = () => {
+    let title;
+    if (this.state.action === 'edit') {
+      title = 'Modifier le site ci-dessous';
+    } else { 
+      title = 'Ajouter un nouveau site';
+    }
+    return title;
   }
 
   render() {
     let content;
-    const isLoading = (this.state.site === undefined || this.state.site === '')  && this.state.action === 'edit';
-    
-    if (isLoading) {
-      content = <h1>Loading....</h1>
+    let initialValues = this.getInitialValues();
+
+    if (this.isLoading(initialValues)) {
+      content = <Loading />
     } else {
-
-      let initialValues;
-      let title;
-
+      
       let msgAddSuccess = (
         <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
@@ -108,39 +135,11 @@ class Add extends React.Component {
           Le site a été modifié avec succès ! 
         </div> 
       )
-      
-      if (this.state.action === 'edit') {
-      
-        title = 'Modifier le site ci-dessous'
-        initialValues = this.state.site;
-      
-      } else { 
-      
-        title = 'Ajouter un nouveau site';
-        initialValues = { 
-          url: '',
-          slug: '',
-          tagline: '', 
-          title: '', 
-          openshiftEnv: 'www', 
-          type: 'public', 
-          theme:'2018',
-          category:'GeneralPublic',
-          faculty: '',
-          languages: [], 
-          unitId: '', 
-          snowNumber: '',
-          status:'requested',
-          comment: '',
-          plannedClosingDate: '',
-          tags: []
-        }
-      }
 
       content = (
           
         <div className="card my-2">
-            <h5 className="card-header">{title}</h5> 
+            <h5 className="card-header">{ this.getPageTitle() }</h5> 
             { this.state.addSuccess && msgAddSuccess }
             { this.state.editSuccess && msgEditSuccess }
             <Formik
@@ -322,7 +321,6 @@ class Add extends React.Component {
     return content;
   }
 }
-
 export default withTracker(() => {
     Meteor.subscribe('openshiftEnv.list');
     Meteor.subscribe('type.list');
@@ -330,9 +328,9 @@ export default withTracker(() => {
     Meteor.subscribe('category.list');
 
     return {
-        openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
-        types: Types.find({}, {sort: {name:1 }}).fetch(),
-        themes: Themes.find({}, {sort: {name:1 }}).fetch(),
-        categories: Categories.find({}, {sort: {name:1 }}).fetch(),
+      openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
+      types: Types.find({}, {sort: {name:1 }}).fetch(),
+      themes: Themes.find({}, {sort: {name:1 }}).fetch(),
+      categories: Categories.find({}, {sort: {name:1 }}).fetch(),
     };  
 })(Add);
