@@ -4,7 +4,7 @@ import React, { Component, Fragment } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Categories, Types, OpenshiftEnvs, Themes } from '../../../api/collections';
 import { CustomError, CustomInput } from '../CustomFields';
-import { AlertSuccess } from '../Messages'
+import { AlertSuccess, Loading } from '../Messages'
 
 const ThemesForm = (props) =>
   <div className="card-body">
