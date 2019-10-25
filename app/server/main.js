@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
 import { Sites, OpenshiftEnvs } from '../imports/api/collections';
-import './publications';
+import '../imports/api/methods'; // Call meteor methods backend
+import './publications'; // Call meteor publications backend
 import getUnits from './units';
 import { importData } from './import-data';
 import './indexes';
@@ -9,7 +10,7 @@ import './indexes';
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let activeTequila = true;
+let activeTequila = false;
 let importDatas = false;
   
 if (Meteor.isServer) {

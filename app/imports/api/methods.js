@@ -10,10 +10,10 @@ import {
     typesSchema, 
     themesSchema, 
     Tags,
-    tagSchema} from './collections';
+    tagSchema } from '../api/collections';
 
 import { check } from 'meteor/check'; 
-import { throwMeteorError } from './error';
+import { throwMeteorError } from '../api/error';
 
 function prepareUpdateInsert(site, action) {
 

@@ -1,11 +1,164 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Categories, Types, OpenshiftEnvs, Themes } from '../../../api/collections';
 import { CustomError, CustomInput } from '../CustomFields';
 
-class Admin extends React.Component {
+const ThemesForm = (props) =>
+  <div className="card-body">
+    <Formik
+      onSubmit={ props.submitTheme }
+      initialValues={ { name: ''} }
+      validationSchema={ props.nameSchema }
+      validateOnBlur={ false }
+      validateOnChange={ false }
+    >
+    {({
+      handleSubmit,
+      isSubmitting,
+    }) => (    
+      <form onSubmit={ handleSubmit } className="">
+        <Field placeholder="Nom du thème à ajouter" name="name" type="text" component={ CustomInput } className="" />
+        <ErrorMessage name="name" component={ CustomError } />
+        <div className="my-1 text-right">
+          <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    )}
+    </Formik>
+  </div>
+
+const CategoriesForm = (props) =>
+  <div className="card-body">
+    <Formik
+      onSubmit={ props.submitCategory }
+      initialValues={ { name: ''} }
+      validateOnBlur={ false }
+      validateOnChange={ false }
+    >
+    {({
+      handleSubmit,
+      isSubmitting,
+    }) => (    
+      <form onSubmit={ handleSubmit } className="">
+        <Field placeholder="Nom de la catégorie à ajouter" name="name" type="text" component={ CustomInput } />
+        <ErrorMessage name="name" component={ CustomError } />
+        <div className="my-1 text-right">
+          <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+        </div>
+      </form>
+    )}
+    </Formik>
+  </div>
+
+const TypesForm = (props) =>
+  <div className="card-body">
+    <Formik
+      onSubmit={ props.submitType }
+      initialValues={ { name: ''} }
+      validateOnBlur={ false }
+      validateOnChange={ false }
+    >
+      {({
+        handleSubmit,
+        isSubmitting,
+      }) => (    
+        <form onSubmit={ handleSubmit } className="">
+          <Field placeholder="Nom du type à ajouter" name="name" type="text" component={ CustomInput } />
+          <ErrorMessage name="name" component={ CustomError } />
+          <div className="my-1 text-right">
+            <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      )}
+    </Formik>
+  </div>
+
+const OpenShiftEnvsForm = (props) => 
+  <div className="card-body">
+    <Formik
+      onSubmit={ props.submitOpenShiftEnv }
+      initialValues={ { name: ''} }
+      validateOnBlur={ false }
+      validateOnChange={ false }
+    >
+    {({
+        handleSubmit,
+        isSubmitting,
+    }) => (    
+      <form onSubmit={ handleSubmit } className="">
+          <Field placeholder="Nom de l'environnement openshift à ajouter" name="name" type="text" component={ CustomInput }/>
+          <ErrorMessage name="name" component={ CustomError } />
+          <div className="my-1 text-right">
+              <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+          </div>
+      </form>
+    )}
+    </Formik>
+  </div>
+
+const OpenshiftEnvsList = (props) => 
+  <Fragment>
+    <h5 className="card-header">Liste des environnements openshift</h5>              
+    <ul className="list-group">
+      {props.openshiftenvs.map( (env, index) => (
+        <li key={env._id} value={env.name} className="list-group-item">
+          {env.name}
+          <button type="button" className="close" aria-label="Close">
+            <span  onClick={() => props.deleteOpenshiftEnv(env._id)} aria-hidden="true">&times;</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
+
+const TypesList = (props) =>
+  <Fragment>
+    <h5 className="card-header">Liste des types des sites WordPress</h5>
+    <ul className="list-group">
+      {props.types.map( (type, index) => (
+        <li key={type._id} value={type.name} className="list-group-item">
+          {type.name}
+          <button type="button" className="close" aria-label="Close">
+            <span  onClick={() => props.deleteType(type._id)} aria-hidden="true">&times;</span>
+          </button>
+      </li>
+      ))}
+    </ul>
+  </Fragment>
+
+const CategoriesList = (props) =>
+  <Fragment>
+    <h5 className="card-header">Liste des catégories des sites WordPress</h5>  
+    <ul className="list-group">
+      { props.categories.map( (category, index) => (
+        <li key={category._id} value={category.name} className="list-group-item">
+          {category.name}
+          <button type="button" className="close" aria-label="Close">
+              <span  onClick={() => props.deleteCategory(category._id)} aria-hidden="true">&times;</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
+
+const ThemesList = (props) =>
+  <Fragment>
+    <h5 className="card-header">Liste des thèmes des sites WordPress</h5>    
+    <ul className="list-group">
+      { props.themes.map( (theme, index) => (
+        <li key={theme._id} value={theme.name} className="list-group-item">
+          {theme.name}
+          <button type="button" className="close" aria-label="Close">
+            <span  onClick={() => props.deleteTheme(theme._id)} aria-hidden="true">&times;</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
+
+class Admin extends Component {
 
     submit = (collection, values, actions) => {
         
@@ -97,168 +250,64 @@ class Admin extends React.Component {
         this.delete(Categories, categoryID);
     }
 
+    isLoading = () => {
+      const isLoading = (
+        this.props.openshiftenvs === undefined || 
+        this.props.types === undefined || 
+        this.props.themes === undefined ||
+        this.props.categories === undefined
+      );
+      return isLoading; 
+    }
+
     render() {
-        return (
-        <div>
+      let content;
+      if (this.isLoading()) {
+        content = <Loading />;
+      } else {
+        content = (
+          <Fragment>
             <div className="card my-2">
-                <h5 className="card-header">Liste des environnements openshift</h5>
-                    
-                <ul className="list-group">
-                    {this.props.openshiftenvs.map( (env, index) => (
-                        <li key={env._id} value={env.name} className="list-group-item">
-                            {env.name}
-                            <button type="button" className="close" aria-label="Close">
-                                <span  onClick={() => this.deleteOpenshiftEnv(env._id)} aria-hidden="true">&times;</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="card-body">
-                    <Formik
-                            onSubmit={ this.submitOpenShiftEnv }
-                            initialValues={ { name: ''} }
-                            
-                            validateOnBlur={ false }
-                            validateOnChange={ false }
-                        >
-                        {({
-                            handleSubmit,
-                            isSubmitting,
-                        }) => (    
-                            <form onSubmit={ handleSubmit } className="">
-                                <Field placeholder="Nom de l'environnement openshift à ajouter" name="name" type="text" component={ CustomInput }/>
-                                <ErrorMessage name="name" component={ CustomError } />
-                                <div className="my-1 text-right">
-                                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                                </div>
-                            </form>
-                            
-                        )}
-                    </Formik>
-                </div>
+              <OpenshiftEnvsList 
+                openshiftenvs={ this.props.openshiftenvs } 
+                deleteOpenshiftEnv={ this.deleteOpenshiftEnv }
+              />
+              <OpenShiftEnvsForm 
+                submitOpenShiftEnv= { this.submitOpenShiftEnv }
+              />
             </div>
-
             <div className="card my-2">
-
-                <h5 className="card-header">Liste des types des sites WordPress</h5>
-    
-                <ul className="list-group">
-                    {this.props.types.map( (type, index) => (
-                        <li key={type._id} value={type.name} className="list-group-item">
-                            {type.name}
-                            <button type="button" className="close" aria-label="Close">
-                                <span  onClick={() => this.deleteType(type._id)} aria-hidden="true">&times;</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="card-body">
-                    <Formik
-                            onSubmit={ this.submitType }
-                            initialValues={ { name: ''} }
-                            validationSchema={ this.nameSchema }
-                            validateOnBlur={ false }
-                            validateOnChange={ false }
-                        >
-                        {({
-                            handleSubmit,
-                            isSubmitting,
-                        }) => (    
-                            <form onSubmit={ handleSubmit } className="">
-                                <Field placeholder="Nom du type à ajouter" name="name" type="text" component={ CustomInput } />
-                                <ErrorMessage name="name" component={ CustomError } />
-                                <div className="my-1 text-right">
-                                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                                </div>
-                            </form>
-                        )}
-                    </Formik>
-                </div>
-                
+              <TypesList
+                types={ this.props.types } 
+                deleteType={ this.deleteType }
+              />
+              <TypesForm 
+                submitType= { this.submitType }
+              />
             </div>
-
             <div className="card my-2">
-
-                <h5 className="card-header">Liste des catégories des sites WordPress</h5>
-    
-                <ul className="list-group">
-                    {this.props.categories.map( (category, index) => (
-                        <li key={category._id} value={category.name} className="list-group-item">
-                            {category.name}
-                            <button type="button" className="close" aria-label="Close">
-                                <span  onClick={() => this.deleteCategory(category._id)} aria-hidden="true">&times;</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="card-body">
-                    <Formik
-                            onSubmit={ this.submitCategory }
-                            initialValues={ { name: ''} }
-                            validationSchema={ this.nameSchema }
-                            validateOnBlur={ false }
-                            validateOnChange={ false }
-                        >
-                        {({
-                            handleSubmit,
-                            isSubmitting,
-                        }) => (    
-                            <form onSubmit={ handleSubmit } className="">
-                                <Field placeholder="Nom de la catégorie à ajouter" name="name" type="text" component={ CustomInput } />
-                                <ErrorMessage name="name" component={ CustomError } />
-                                <div className="my-1 text-right">
-                                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                                </div>
-                            </form>
-                        )}
-                    </Formik>
-                </div>
-                
+              <CategoriesList
+                categories={ this.props.categories } 
+                deleteCategory={ this.deleteCategory }
+              />
+              <CategoriesForm 
+                submitCategory= { this.submitCategory }
+              />
             </div>
-            
             <div className="card my-2">
-                <h5 className="card-header">Liste des thèmes des sites WordPress</h5>
-        
-                <ul className="list-group">
-                    {this.props.themes.map( (theme, index) => (
-                        <li key={theme._id} value={theme.name} className="list-group-item">
-                            {theme.name}
-                            <button type="button" className="close" aria-label="Close">
-                                <span  onClick={() => this.deleteTheme(theme._id)} aria-hidden="true">&times;</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-
-                <div className="card-body">
-                    <Formik
-                            onSubmit={ this.submitTheme }
-                            initialValues={ { name: ''} }
-                            validationSchema={ this.nameSchema }
-                            validateOnBlur={ false }
-                            validateOnChange={ false }
-                        >
-                        {({
-                            handleSubmit,
-                            isSubmitting,
-                        }) => (    
-                            <form onSubmit={ handleSubmit } className="">
-                                <Field placeholder="Nom du thème à ajouter" name="name" type="text" component={ CustomInput } className="" />
-                                <ErrorMessage name="name" component={ CustomError } />
-                                <div className="my-1 text-right">
-                                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                                </div>
-                            </form>
-                        )}
-                    </Formik>
-                </div>
+              <ThemesList
+                themes={ this.props.themes } 
+                deleteTheme={ this.deleteTheme }
+              />
+              <ThemesForm 
+                submitTheme= { this.submitTheme }
+              />
             </div>
-        </div>
+        </Fragment>
         )
     }
+    return content;
+  }
 }
 
 export default withTracker(() => {

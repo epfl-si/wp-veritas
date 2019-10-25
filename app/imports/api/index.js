@@ -1,2 +1,2 @@
-export * from './collections';
-import './methods';
+export * from '../api/collections';
+import '../api/methods';
