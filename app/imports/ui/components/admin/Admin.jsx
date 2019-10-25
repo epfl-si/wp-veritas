@@ -10,7 +10,6 @@ const ThemesForm = (props) =>
     <Formik
       onSubmit={ props.submitTheme }
       initialValues={ { name: ''} }
-      validationSchema={ props.nameSchema }
       validateOnBlur={ false }
       validateOnChange={ false }
     >
@@ -106,7 +105,9 @@ const OpenshiftEnvsList = (props) =>
         <li key={env._id} value={env.name} className="list-group-item">
           {env.name}
           <button type="button" className="close" aria-label="Close">
-            <span  onClick={() => props.deleteOpenshiftEnv(env._id)} aria-hidden="true">&times;</span>
+            <span onClick={
+              () => { if (window.confirm('Are you sure you wish to delete this item?')) props.deleteOpenshiftEnv(env._id) }
+            } aria-hidden="true">&times;</span>
           </button>
         </li>
       ))}
@@ -121,7 +122,9 @@ const TypesList = (props) =>
         <li key={type._id} value={type.name} className="list-group-item">
           {type.name}
           <button type="button" className="close" aria-label="Close">
-            <span  onClick={() => props.deleteType(type._id)} aria-hidden="true">&times;</span>
+            <span  onClick={
+              () => { if (window.confirm('Are you sure you wish to delete this item?')) props.deleteType(type._id) }
+            } aria-hidden="true">&times;</span>
           </button>
       </li>
       ))}
@@ -136,7 +139,9 @@ const CategoriesList = (props) =>
         <li key={category._id} value={category.name} className="list-group-item">
           {category.name}
           <button type="button" className="close" aria-label="Close">
-              <span  onClick={() => props.deleteCategory(category._id)} aria-hidden="true">&times;</span>
+              <span  onClick={
+                () => { if (window.confirm('Are you sure you wish to delete this item?')) props.deleteCategory(category._id) }
+              } aria-hidden="true">&times;</span>
           </button>
         </li>
       ))}
@@ -151,7 +156,9 @@ const ThemesList = (props) =>
         <li key={theme._id} value={theme.name} className="list-group-item">
           {theme.name}
           <button type="button" className="close" aria-label="Close">
-            <span  onClick={() => props.deleteTheme(theme._id)} aria-hidden="true">&times;</span>
+            <span  onClick={
+              () => { if (window.confirm('Are you sure you wish to delete this item?')) props.deleteTheme(theme._id) }
+            } aria-hidden="true">&times;</span>
           </button>
         </li>
       ))}
