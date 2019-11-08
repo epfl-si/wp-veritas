@@ -25,11 +25,15 @@ class Add extends Component {
   }
 
   updateUserMsg = () => {
-    this.setState({addSuccess: false, editSuccess: false});
+    this.setState({action: 'edit', addSuccess: false, editSuccess: false});
   }
 
   getSite = () => {
+    
+    console.log(this.props.match.params._id);
+
     let site = Sites.findOne({_id: this.props.match.params._id});
+    console.log(site);
     return site;
   }
     
@@ -39,10 +43,10 @@ class Add extends Component {
     let state;
     if (this.state.action === 'add') {
       methodName = 'insertSite';
-      state = {addSuccess: true};
+      state = {addSuccess: true, editSuccess: false, action: 'add'};
     } else if (this.state.action === 'edit') {
       methodName = 'updateSite';
-      state = {editSuccess: true};
+      state = {addSuccess: false, editSuccess: true, action: 'edit'};
     }
 
     Meteor.call(
@@ -70,6 +74,7 @@ class Add extends Component {
 
   getInitialValues = () => {
     let initialValues;
+    
     if (this.state.action == 'add') {
       initialValues = { 
         url: '',
@@ -89,13 +94,18 @@ class Add extends Component {
         plannedClosingDate: '',
         tags: []
       }
-    } else {
+    } else if (this.state.action == 'edit') {
       initialValues = this.getSite();
+      console.log(initialValues);
     }
     return initialValues;
   }
 
   isLoading = (initialValues) => {
+
+    console.log(this.props);
+    console.log(initialValues);
+
     const isLoading = (
       this.props.openshiftenvs === undefined || 
       this.props.types === undefined || 
@@ -326,11 +336,14 @@ export default withTracker(() => {
     Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
     Meteor.subscribe('category.list');
-
+    // TODO : call site.single 
+    Meteor.subscribe('site.list');
+      
     return {
       openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
       types: Types.find({}, {sort: {name:1 }}).fetch(),
       themes: Themes.find({}, {sort: {name:1 }}).fetch(),
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
+      sites: Sites.find({}),
     };  
 })(Add);

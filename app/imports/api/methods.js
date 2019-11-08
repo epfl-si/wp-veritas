@@ -14,6 +14,7 @@ import {
 
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from '../api/error';
+import { AppLogger } from '../../server/logger';
 
 function prepareUpdateInsert(site, action) {
 
@@ -417,7 +418,10 @@ Meteor.methods({
             userExperience: site.userExperience,
             tags: site.tags,
         }
-        
+
+        let appLogger = new AppLogger();
+        appLogger.getLog().info(`Update site ID ${site._id}`, siteDocument, Meteor.userId());
+
         Sites.update(
             {_id: site._id}, 
             { $set: siteDocument

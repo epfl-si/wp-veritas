@@ -6,15 +6,21 @@ import './publications'; // Call meteor publications backend
 import getUnits from './units';
 import { importData } from './import-data';
 import './indexes';
+import { AppLogger } from './logger';
+import { throwMeteorError } from '../imports/api/error';
+
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let activeTequila = false;
+let activeTequila = true;
 let importDatas = false;
   
 if (Meteor.isServer) {
-  
+
+  let appLogger = new AppLogger();
+  appLogger.getLog().info("toto5", { 1: "toto", 2: "tata" }, '188475');
+
   if (importDatas) {
     importData();
   }
@@ -53,8 +59,8 @@ if (Meteor.isServer) {
   });
 
   // Maps to: /api/v1/sites
-  // and to: /api/v1/sites?site_url=... to get a specific site
-  // and to: /api/v1/sites?text=... to search a list of sites from a text with status "created" or "no-wordpress"
+  // and to: /api/v1/sites?site_url=... to get a speciappLogger = new AppLogger();ic site
+  // and to: /api/v1/sites?text=... to search a list oappLogger = new AppLogger(); sites from a text with status "created" or "no-wordpress"
   // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
   // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
   Api.addRoute('sites', {authRequired: false}, {
