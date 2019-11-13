@@ -413,3 +413,4 @@ export const Types = new Mongo.Collection('types');
 export const Categories = new Mongo.Collection('categories');
 export const Themes = new Mongo.Collection('themes');
 export const Tags = new Mongo.Collection('tags');
+export const AppLogs = new Mongo.Collection('AppLogs');

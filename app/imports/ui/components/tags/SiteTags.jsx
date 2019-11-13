@@ -1,7 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 import { Formik } from 'formik';
-import { Tags, Sites } from '../../../../both/collections';
+import { Tags, Sites } from '../../../api/collections';
 
 export default class SiteTags extends React.Component {
 

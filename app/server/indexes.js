@@ -1,4 +1,4 @@
-import { Sites } from '../both';
+import { Sites } from '../imports/api/collections';
 
 Sites.rawCollection().createIndex(
     {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tags } from '../../../../both/collections';
+import { Tags } from '../../../api/collections';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { CustomError, CustomInput, CustomSelect } from '../CustomFields';
 import { Link } from "react-router-dom";

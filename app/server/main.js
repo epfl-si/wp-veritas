@@ -1,10 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
-import { Sites, OpenshiftEnvs } from '../both';
-import './publications';
+import { Sites, OpenshiftEnvs } from '../imports/api/collections';
+import '../imports/api/methods'; // Call meteor methods backend
+import './publications'; // Call meteor publications backend
 import getUnits from './units';
 import { importData } from './import-data';
 import './indexes';
+import { AppLogger } from './logger';
+
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -13,7 +16,9 @@ let activeTequila = true;
 let importDatas = false;
   
 if (Meteor.isServer) {
-  
+
+  new AppLogger();
+
   if (importDatas) {
     importData();
   }
@@ -128,7 +133,6 @@ if (Meteor.isServer) {
       
       // Get units of sciper 
       let units = getUnits(this.urlParams.sciper);
-      console.log(units);
       
       // Get all sites whose unit is present in 'units' 
       let sites = Sites.find({unitId: { $in: units }}).fetch();
