@@ -149,11 +149,13 @@ Meteor.methods({
         'Only admins can update roles.');
     }
     
+    let roleBeforeUpdate = Roles.getRolesForUser(userId);
+
     Roles.setUserRoles(userId, [role], Roles.GLOBAL_GROUP);
 
     AppLogger.getLog().info(
       `Update role ID ${ userId }`, 
-      { before: Roles.getRolesForUser(userId), after: [role] },
+      { before: roleBeforeUpdate, after: [role] },
       userId
     );
   },
