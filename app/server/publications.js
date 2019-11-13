@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories } from "../imports/api/collections";
+import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories, AppLogs } from "../imports/api/collections";
 import { check } from "meteor/check";
 
 Meteor.publish('sites.list', function() {
@@ -14,8 +14,6 @@ Meteor.publish('sites.list', function() {
 });
 
 Meteor.publish('site.single', function(siteId) {
-
-    console.log(siteId);
 
     check(siteId, String);
     
@@ -72,3 +70,7 @@ Meteor.publish('user.list', function (){
 Meteor.publish('user.roles', function (){
     return Meteor.roles.find({});
 })
+
+Meteor.publish('log.list', function() {    
+  return AppLogs.find({});
+});

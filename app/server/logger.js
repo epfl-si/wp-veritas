@@ -1,40 +1,29 @@
-import { Logger }     from 'meteor/ostrio:logger';
-import { LoggerFile } from 'meteor/ostrio:loggerfile';
+import { Logger }      from 'meteor/ostrio:logger';
+import { LoggerMongo } from 'meteor/ostrio:loggermongo';
+import { AppLogs } from '../imports/api/collections';
 
 class AppLogger {
 
+  static log = new Logger();
+  
   constructor() {
-
-    console.log("CONSTRUCTOR");
-    
-    this.log = new Logger();
     this.loggerConfig();
   }
 
-  getLog() {
-    return this.log;
+  static getLog() {
+    return AppLogger.log;
   }
 
   loggerConfig() {
 
-    // Initialize LoggerFile:
-    const LogFile = new LoggerFile(this.log, {
-      fileNameFormat(time) {
-        // Create log-files daily
-        return (time.getDate()) + '-' + (time.getMonth() + 1) + '-' + (time.getFullYear()) + '.log';
-      },
-      format(time, level, message, data, userId) {
-        // Omit Date and hours from messages
-        return '[' + level + '] | ' + time.getDate() + '-' + (time.getMonth() + 1) + '-' + (time.getFullYear()) + ' ' + (time.getHours()) + ':' + (time.getMinutes()) + ':' + (time.getSeconds()) + ' | \'' + message + '\' | User: ' + userId + '\r\n';
-      },
-      path: '/home/greg/workspace-idevfsd/wp-veritas/app/logs' // Use absolute storage path
+    // Initialize LoggerMongo with collection instance:
+    const LogMongo = new LoggerMongo(AppLogger.log, {
+      collection: AppLogs
     });
 
-    // Enable LoggerFile with default settings
-    LogFile.enable();
+    // Enable LoggerMongo with default settings:
+    LogMongo.enable();
   }
 }
-
-
 
 export { AppLogger };

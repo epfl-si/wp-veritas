@@ -25,22 +25,23 @@ class Add extends Component {
   }
 
   updateUserMsg = () => {
-    this.setState({action: 'edit', addSuccess: false, editSuccess: false});
+    this.setState({addSuccess: false, editSuccess: false});
   }
 
   getSite = () => {
-    
-    console.log(this.props.match.params._id);
-
-    let site = Sites.findOne({_id: this.props.match.params._id});
-    console.log(site);
-    return site;
+    for (let site of this.props.sites) {
+      if (site._id == this.props.match.params._id) {
+        return site
+      }
+    }
+    return null;
   }
     
   submit = (values, actions) => {
-
+    
     let methodName;
     let state;
+
     if (this.state.action === 'add') {
       methodName = 'insertSite';
       state = {addSuccess: true, editSuccess: false, action: 'add'};
@@ -54,7 +55,6 @@ class Add extends Component {
       values, 
       (errors, siteId) => {
         if (errors) {
-          console.log(errors);
           let formErrors = {};
           errors.details.forEach(function(error) {
             formErrors[error.name] = error.message;                        
@@ -96,15 +96,11 @@ class Add extends Component {
       }
     } else if (this.state.action == 'edit') {
       initialValues = this.getSite();
-      console.log(initialValues);
     }
     return initialValues;
   }
 
   isLoading = (initialValues) => {
-
-    console.log(this.props);
-    console.log(initialValues);
 
     const isLoading = (
       this.props.openshiftenvs === undefined || 

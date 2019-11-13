@@ -57,8 +57,9 @@ class Header extends Component {
                   Admin
                 </a>
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                <NavLink className="nav-link" to="/admin">Admin</NavLink>
-                <NavLink className="nav-link" to="/admin/users">Gestion des rôles</NavLink>
+                  <NavLink className="nav-link" to="/admin">Admin</NavLink>
+                  <NavLink className="nav-link" to="/admin/log/list">Voir les logs</NavLink>
+                  <NavLink className="nav-link" to="/admin/users">Gestion des rôles</NavLink>
                 </div>
               </li>
               : null}
