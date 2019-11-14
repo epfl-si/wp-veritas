@@ -312,7 +312,7 @@ export default class Tag extends React.Component {
                                         <button type="button" className="btn btn-outline-primary">Éditer</button>
                                     </Link>
                                     <button type="button" className="close" aria-label="Close">
-                                        <span  onClick={() => this.deleteTag(tag._id)} aria-hidden="true">&times;</span>
+                                        <span  onClick={() => { if (window.confirm('Are you sure you wish to delete this item?')) this.deleteTag(tag._id) }} aria-hidden="true">&times;</span>
                                     </button>
                                 </td>
                             </tr>

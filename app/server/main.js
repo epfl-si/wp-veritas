@@ -1,3 +1,4 @@
+import Tequila from "meteor/epfl:accounts-tequila";
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
 import { Sites, OpenshiftEnvs } from '../imports/api/collections';
@@ -7,7 +8,6 @@ import getUnits from './units';
 import { importData } from './import-data';
 import './indexes';
 import { AppLogger } from './logger';
-
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
@@ -24,29 +24,29 @@ if (Meteor.isServer) {
   }
   
   if (activeTequila) {
-
-    Tequila.options.request = ['uniqueid', 'email'];
-
-    // In Meteor.users documents, the _id is the user's SCIPER:
-    Tequila.options.getUserId = function getUserId(tequilaResponse) {
-
-      Meteor.users.upsert(
-        { _id: tequilaResponse.uniqueid, },
-        { 
-          $set: { 
-            username: tequilaResponse.user,
-            emails: [tequilaResponse.email], 
-          }
+    Tequila.start({
+      service: 'wp-veritas',
+      request: ['uniqueid', 'email'],
+      bypass: ['/api'],
+      getUserId(tequila) {
+        if (tequila.uniqueid == "188475") {
+          Roles.setUserRoles(tequila.uniqueid, ['editor'], Roles.GLOBAL_GROUP); 
+          Roles.setUserRoles(tequila.uniqueid, ['admin'], Roles.GLOBAL_GROUP); 
         }
-      );
-      
-      // Add epfl-member by default
-      if (!Roles.userIsInRole(tequilaResponse.uniqueid, ['admin', 'tags-editor', 'epfl-member'], Roles.GLOBAL_GROUP)) {
-        Roles.addUsersToRoles(tequilaResponse.uniqueid, 'epfl-member', Roles.GLOBAL_GROUP);  
-      }
-
-      return tequilaResponse.uniqueid;
-    }; 
+        // Add epfl-member by default
+        if (!Roles.userIsInRole(tequila.uniqueid, ['admin', 'tags-editor', 'epfl-member'], Roles.GLOBAL_GROUP)) {
+          Roles.addUsersToRoles(tequila.uniqueid, 'epfl-member', Roles.GLOBAL_GROUP);  
+        }
+        return tequila.uniqueid;
+      },
+      upsert: (tequila) => ({ $set: {
+        profile: {
+          sciper: tequila.uniqueid
+        },
+        username: tequila.user,
+        emails: [ tequila.email ],
+      }}),
+    }); 
   }
 
   // Global API configuration
