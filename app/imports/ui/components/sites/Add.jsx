@@ -29,12 +29,10 @@ class Add extends Component {
   }
 
   getSite = () => {
-    for (let site of this.props.sites) {
-      if (site._id == this.props.match.params._id) {
-        return site
-      }
-    }
-    return null;
+    // Get the URL parameter
+    let siteId = this.props.match.params._id;
+    let site = Sites.findOne({_id: siteId});
+    return site;
   }
     
   submit = (values, actions) => {
@@ -332,9 +330,7 @@ export default withTracker(() => {
     Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
     Meteor.subscribe('category.list');
-    // TODO : call site.single 
-    Meteor.subscribe('site.list');
-      
+    Meteor.subscribe('sites.list');
     return {
       openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
       types: Types.find({}, {sort: {name:1 }}).fetch(),

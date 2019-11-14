@@ -271,6 +271,19 @@ export const sitesSchema = new SimpleSchema({
     },
 }, { check });
 
+export const professorSchema = new SimpleSchema({
+  // _id use to update a tag
+  _id: {
+    type: String,
+    optional: true,
+  },
+  sciper: {
+    type: String,
+    label: "Sciper",
+    custom: isRequired,
+  }
+}, { tracker: Tracker } )
+
 export const tagSchema = new SimpleSchema({
     // _id use to update a tag
     _id: {
@@ -306,6 +319,7 @@ export const tagSchema = new SimpleSchema({
 
 sitesSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
+professorSchema.messageBox = messageBox;
 
 class Site {
     constructor(doc) {
@@ -413,4 +427,5 @@ export const Types = new Mongo.Collection('types');
 export const Categories = new Mongo.Collection('categories');
 export const Themes = new Mongo.Collection('themes');
 export const Tags = new Mongo.Collection('tags');
+export const Professors = new Mongo.Collection('professors');
 export const AppLogs = new Mongo.Collection('AppLogs');

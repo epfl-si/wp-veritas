@@ -10,7 +10,10 @@ import {
     typesSchema, 
     themesSchema, 
     Tags,
-    tagSchema } from '../api/collections';
+    tagSchema, 
+    Professors,
+    professorSchema
+  } from '../api/collections';
 
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from '../api/error';
@@ -787,6 +790,119 @@ Meteor.methods({
     AppLogger.getLog().info(
       `Delete theme ID ${ themeId }`, 
       { before: theme, after: "" }, 
+      this.userId
+    );
+  },
+
+  insertProfessor(professor) {
+    console.log("INSERT1");
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+    console.log("INSERT1");
+    const canInsert = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+    console.log("INSERT1");
+    if (! canInsert) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editors can insert professor.');
+    }
+    console.log("INSERT1");
+    professorSchema.validate(professor);
+    console.log("INSERT1");
+    // Check if name is unique
+    // TODO: Move this code to SimpleSchema custom validation function
+    if (Professors.find({sciper: professor.sciper}).count()>0) {
+        throwMeteorError('name', 'Un professeur avec le même sciper existe déjà !');
+    }
+    console.log("INSERT1");
+
+    let professorDocument = {
+        sciper: professor.sciper,
+    };
+    console.log("INSERT1");
+    let newProfessorId = Professors.insert(professorDocument);
+    console.log("INSERT1");
+    let newProfessor = Professors.findOne({_id: newProfessorId});
+    console.log("INSERT1");
+
+    AppLogger.getLog().info(
+      `Insert professor ID ${ newProfessorId }`, 
+      { before: "", after: newProfessor }, 
+      this.userId
+    );
+    console.log("INSERT1");
+    return newProfessor;
+  },
+
+  updateProfessor(professor) {
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+
+    const canUpdate = Roles.userIsInRole(
+      this.userId,
+      ['admin, tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+
+    if (! canUpdate) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editors can update professors.');
+    }
+
+    professorSchema.validate(professor);
+
+    let professorDocument = {
+      sciper: professor.sciper,
+    }
+
+    let professorBeforeUpdate = Professors.findOne({ _id: professor._id});
+
+    Professors.update(
+      { _id: professor._id }, 
+      { $set: professorDocument }
+    );
+    
+    let updatedProfessor = Professors.findOne({ _id: professor._id});
+
+    AppLogger.getLog().info(
+      `Update professor ID ${ professor._id }`, 
+      { before: professorBeforeUpdate , after: updatedProfessor }, 
+      this.userId
+    );
+  },
+
+  removeProfessor(professorId){
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+
+    const removeProfessor = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+
+    if (! removeProfessor) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editor can remove professor.');
+    }
+
+    check(professorId, String);
+
+    let professor = Professors.findOne({_id: professorId});
+
+    Professors.remove({_id: professorId});
+
+    AppLogger.getLog().info(
+      `Delete professor ID ${ professorId }`, 
+      { before: professor, after: "" }, 
       this.userId
     );
   },

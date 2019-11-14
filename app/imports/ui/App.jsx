@@ -1,6 +1,6 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Header, Footer, Add, List, Admin, User, Search, Tag, SiteTags, Log } from './components'; 
+import { Header, Footer, Add, List, Admin, User, Search, Tag, SiteTags, Log, Professor } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 class Apps extends React.Component {
@@ -31,6 +31,8 @@ class Apps extends React.Component {
               <Route path="/tags" component={ Tag }/>
               <Route path="/tag/:_id" component={ Tag }/>
               <Route path="/site-tags/:_id" component={ SiteTags }/>
+              <Route path="/professors" component={ Professor }/>
+              <Route path="/professor/:_id/edit" component={ Professor }/>
             </React.Fragment>): null}
               
           { isAdmin ?   
