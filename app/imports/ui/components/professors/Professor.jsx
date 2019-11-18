@@ -15,11 +15,11 @@ class ProfessorsList extends Component {
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
             <li key={ professor._id } className="list-group-item">
-              { professor.sciper } 
+              { professor.sciper }
               <button type="button" className="close" aria-label="Close">
                 <span  onClick={() => this.props.callBackDeleteProfessor(professor._id)} aria-hidden="true">&times;</span>
               </button>
-              <Link className="edit" to={ `/professors/${professor._id}/edit` }>
+              <Link className="edit" to={ `/professor/${professor._id}/edit` }>
                 <button type="button" className="btn btn-outline-primary">Éditer</button>
               </Link>
             </li>
@@ -35,8 +35,11 @@ class Professor extends Component {
   constructor(props) {
     super(props);
 
+    this.getProfessorInformation();
+
     let action;
-    if (this.props.match.path.startsWith('/professor/:_id/edit')) {
+    console.log(this.props)
+    if (this.props.match.path == '/professor/:_id/edit') {
       action = 'edit';
     } else {
       action = 'add';
@@ -68,7 +71,23 @@ class Professor extends Component {
     this.setState({addSuccess: false, editSuccess: false, deleteSuccess: false,});
   }
 
+  getProfessorInformation = () => {
+
+    Meteor.call(
+      'getprofInfos',
+      (error, result) => {
+        if (error) {
+            console.log(`ERROR Professor removeProfessor ${error}`);
+        } else {
+          console.log(result);
+        }
+      }
+    )
+  }
+
   submitProfessor = (values, actions) => {
+
+
     let methodName;
     let state;
     let resetForm;
@@ -121,10 +140,13 @@ class Professor extends Component {
     } else {
       initialValues = this.getProfessor();
     }
+    console.log(this.state.action);
     return initialValues;
   }
   
   render() {
+
+    
 
     let content;
     let initialValues = this.getInitialValues();

@@ -18,6 +18,7 @@ import {
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from '../api/error';
 import { AppLogger } from '../../server/logger';
+import SimpleLDAP from 'simple-ldap-search';
 
 function prepareUpdateInsert(site, action) {
 
@@ -136,6 +137,69 @@ function prepareUpdateInsert(site, action) {
 }
 
 Meteor.methods({
+
+  async getprofInfos() {
+
+    
+ 
+    const config = {
+      url: 'ldap://ldap.epfl.ch',
+      base: 'o=epfl,c=ch',
+      dn: '',
+      password: '',
+    };
+    
+    // create a new client
+    const ldap = new SimpleLDAP(config);
+    
+    // setup a filter and attributes for your LDAP query
+    //const filter = '(uid=artvandelay)';
+    //const attributes = ['idNumber', 'uid', 'givenName', 'sn', 'telephoneNumber'];
+
+    const filter = '(uid=charmier)';
+    const attributes = ['uniqueIdentifier']
+    
+    // using async/await
+    const users = await ldap.search(filter, attributes);
+    console.log(users);
+    /*
+    console.log("0");
+    let client = await ldap.createClient({
+      url: 'ldap://ldap.epfl.ch'
+    });
+    console.log(client);
+    console.log("1");
+    let opts = {
+      filter: '(uid=charmier)',
+      attributes: ['uniqueIdentifier']
+    };
+    console.log(opts);
+    console.log("2");
+
+    const result = await client.search('o=epfl,c=ch', opts, (err, res) => {
+      console.log("GREG");
+      console.log(err);
+      console.log(res);
+      res.on('searchEntry', function(entry) {
+        console.log('entry: ' + JSON.stringify(entry.object));
+      });
+      res.on('searchReference', function(referral) {
+        console.log('referral: ' + referral.uris.join());
+      });
+      res.on('error', function(err) {
+        console.error('error: ' + err.message);
+      });
+      res.on('end', function(result) {
+        console.log('status: ' + result.status);
+      });
+    });
+    console.log(result);
+    */
+
+
+
+
+  },
 
   updateRole(userId, role) {
       
@@ -839,37 +903,39 @@ Meteor.methods({
   },
 
   updateProfessor(professor) {
-
+    console.log("UPDATE1");
     if (!this.userId) {
       throw new Meteor.Error('not connected');
     }
-
+    console.log("UPDATE2");
     const canUpdate = Roles.userIsInRole(
       this.userId,
-      ['admin, tags-editor'], 
+      ['admin', 'tags-editor'], 
       Roles.GLOBAL_GROUP
     );
-
+    console.log("UPDATE3");
+    console.log(this.userId);
+    console.log(canUpdate);
     if (! canUpdate) {
       throw new Meteor.Error('unauthorized',
         'Only admins and tags-editors can update professors.');
     }
-
+    console.log("UPDATE4");
     professorSchema.validate(professor);
-
+    console.log("UPDATE5");
     let professorDocument = {
       sciper: professor.sciper,
     }
-
+    console.log("UPDATE6");
     let professorBeforeUpdate = Professors.findOne({ _id: professor._id});
-
+    console.log("UPDATE7");
     Professors.update(
       { _id: professor._id }, 
       { $set: professorDocument }
     );
-    
+    console.log("UPDATE8");
     let updatedProfessor = Professors.findOne({ _id: professor._id});
-
+    
     AppLogger.getLog().info(
       `Update professor ID ${ professor._id }`, 
       { before: professorBeforeUpdate , after: updatedProfessor }, 

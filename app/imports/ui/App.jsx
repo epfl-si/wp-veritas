@@ -31,7 +31,7 @@ class Apps extends React.Component {
               <Route path="/tags" component={ Tag }/>
               <Route path="/tag/:_id" component={ Tag }/>
               <Route path="/site-tags/:_id" component={ SiteTags }/>
-              <Route path="/professors" component={ Professor }/>
+              <Route exact path="/professors" component={ Professor }/>
               <Route path="/professor/:_id/edit" component={ Professor }/>
             </React.Fragment>): null}
               

@@ -9,6 +9,7 @@ import { importData } from './import-data';
 import './indexes';
 import { AppLogger } from './logger';
 
+
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
@@ -16,6 +17,8 @@ let activeTequila = true;
 let importDatas = false;
   
 if (Meteor.isServer) {
+
+    
 
   new AppLogger();
 

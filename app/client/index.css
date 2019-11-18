@@ -23,3 +23,8 @@ th.special, td.special {
   max-width: 250px;
   width: 100%;
 }
+
+.edit {
+  float: right;
+  padding-right: 20px;
+}
