@@ -52,7 +52,7 @@ class Apps extends Component {
 
 export default withTracker(() => {
   
-  let user = Meteor.user();
+  let user = Meteor.users.findOne({'_id': Meteor.userId()});
 
   return {  
     currentUser: user,

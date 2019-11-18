@@ -57,6 +57,6 @@ class Log extends Component {
 export default withTracker(() => {
   Meteor.subscribe('log.list');
   return {
-    logs: AppLogs.find({}).fetch(),
+    logs: AppLogs.find({}, {sort: {date: -1}}).fetch(),
   };
 })(Log);
