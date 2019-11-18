@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Header, Footer, Add, List, Admin, User, Search, Tag, SiteTags, Log } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-class Apps extends React.Component {
+class Apps extends Component {
 
   render() {
     
@@ -52,7 +52,7 @@ class Apps extends React.Component {
 
 export default withTracker(() => {
   
-  let user = Meteor.users.findOne({'_id': Meteor.userId()});
+  let user = Meteor.user();
 
   return {  
     currentUser: user,
