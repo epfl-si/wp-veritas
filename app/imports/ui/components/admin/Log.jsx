@@ -35,7 +35,7 @@ class Log extends Component {
     let content;
     content = (
       <Fragment>
-        <h4>Liste des logs</h4>
+        <h4 className="py-4">Liste des logs</h4>
         <table className="table table-striped">
             <thead>
               <tr>

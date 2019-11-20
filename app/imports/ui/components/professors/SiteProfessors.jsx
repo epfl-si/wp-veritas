@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Component } from 'react';
 import Select from 'react-select';
 import { Formik } from 'formik';
 import { Professors, Sites } from '../../../api/collections';
 import { Loading } from '../Messages';
 
-export default class SiteProfessors extends React.Component {
+export default class SiteProfessors extends Component {
 
   constructor(props) {
     super(props);
@@ -125,13 +125,13 @@ export default class SiteProfessors extends React.Component {
 class MySelect extends React.Component {
 
   handleChange = value => {
-    // this is going to call setFieldValue and manually update values.topcis
+    // this is going to call setFieldValue and manually update values
     this.props.onChange(this.props.name, value);
     this.props.saveSuccess(!this.props.saveSuccess);
   };
 
   handleBlur = () => {
-    // this is going to call setFieldTouched and manually update touched.topcis
+    // this is going to call setFieldTouched and manually update touched
     this.props.onBlur(this.props.name, true);
     this.props.saveSuccess(!this.props.saveSuccess);
   };

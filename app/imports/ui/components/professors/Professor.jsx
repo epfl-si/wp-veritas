@@ -11,7 +11,7 @@ class ProfessorsList extends Component {
 
   render() { 
     return (
-      <Fragment>
+      <div className="card my-2">
         <h5 className="card-header">Liste des professeurs</h5>
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
@@ -25,7 +25,7 @@ class ProfessorsList extends Component {
             </li>
           ))}
         </ul>
-      </Fragment>
+      </div>
     )
   }
 }
@@ -127,8 +127,6 @@ class Professor extends Component {
   
   render() {
 
-    
-
     let content;
     let initialValues = this.getInitialValues();
     let isLoading = (this.props.professors == undefined || initialValues == undefined);
@@ -136,29 +134,22 @@ class Professor extends Component {
     if (isLoading) {
       content = <Loading />;
     } else {
-
-      const isDisplayProfessorsList = (this.state.action == 'add');
-
       content = (
         <Fragment>
           { this.state.deleteSuccess ? ( 
             <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />
           ) : (null) }
 
-          { isDisplayProfessorsList ? (
+          
             <ProfessorsList 
               professors={this.props.professors} 
               callBackDeleteProfessor={this.deleteProfessor} 
             />
-          ):(<h5 className="card-header">Édition du professeur suivant: </h5>)}
+          
           <div className="card-body">
 
             { this.state.addSuccess ? ( 
               <AlertSuccess message={ 'Le nouveau professeur a été ajouté avec succès !' } />
-            ) : (null) }
-
-            { this.state.editSuccess ? ( 
-              <AlertSuccess message={ 'Le professeur a été modifié avec succès !' } />
             ) : (null) }
 
             { this.state.deleteSuccess ? ( 
@@ -199,8 +190,7 @@ class Professor extends Component {
 }
 export default withTracker(() => {
   Meteor.subscribe('professor.list');
-  professors = Professors.find({}, {sort: {sciper: 1}}).fetch();
   return {
-    professors: professors,
+    professors: Professors.find({}, {sort: {sciper: 1}}).fetch(),
   };
 })(Professor);
