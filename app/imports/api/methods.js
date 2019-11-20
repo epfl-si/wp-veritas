@@ -845,6 +845,7 @@ Meteor.methods({
   },
 
   insertProfessor(professor) {
+    console.log(professor);
     console.log("INSERT1");
     if (!this.userId) {
       throw new Meteor.Error('not connected');
@@ -872,6 +873,7 @@ Meteor.methods({
 
     let professorDocument = {
         sciper: professor.sciper,
+        displayName: professor.displayName,
     };
     console.log("INSERT1");
     let newProfessorId = Professors.insert(professorDocument);

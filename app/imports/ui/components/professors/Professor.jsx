@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { AlertSuccess, Loading } from '../Messages';
 
 class ProfessorsList extends Component {
+
   render() { 
     return (
       <Fragment>
@@ -15,13 +16,12 @@ class ProfessorsList extends Component {
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
             <li key={ professor._id } className="list-group-item">
-              { professor.sciper }
+              { professor.sciper }&nbsp;
+              { professor.displayName }
               <button type="button" className="close" aria-label="Close">
                 <span  onClick={() => this.props.callBackDeleteProfessor(professor._id)} aria-hidden="true">&times;</span>
               </button>
-              <Link className="edit" to={ `/professor/${professor._id}/edit` }>
-                <button type="button" className="btn btn-outline-primary">Éditer</button>
-              </Link>
+
             </li>
           ))}
         </ul>
@@ -36,7 +36,6 @@ class Professor extends Component {
     super(props);
 
     let action;
-    console.log(this.props)
     if (this.props.match.path == '/professor/:_id/edit') {
       action = 'edit';
     } else {
@@ -71,10 +70,8 @@ class Professor extends Component {
 
   submitProfessor = (values, actions) => {
 
-    let methodName;
     let state;
-    let resetForm;
-        
+
     Meteor.call(
       'getLDAPInformations',
       values.sciper,
@@ -82,44 +79,34 @@ class Professor extends Component {
         if (error) {
           console.log(`ERROR ${error}`);
         } else {
-          console.log(professorInformation);
-          console.log(professorInformation.displayName);
+
+          let values = { 
+            'sciper': professorInformation.sciper, 
+            'displayName': professorInformation.displayName
+          }
+
+          Meteor.call(
+            'insertProfessor',
+            values, 
+            (errors, ProfessorId) => {
+              if (errors) {
+                console.log(errors);
+                let formErrors = {};
+                errors.details.forEach(function(error) {
+                  formErrors[error.name] = error.message;                        
+                });
+                actions.setErrors(formErrors);
+                actions.setSubmitting(false);
+              } else {
+                actions.setSubmitting(false);
+                actions.resetForm();
+                this.setState(state);
+              }
+            }
+          );
         }
       }
     )
-
-    if (this.state.action === 'add') {
-      methodName = 'insertProfessor';
-      state = {addSuccess: true};
-      resetForm = true;
-    } else if (this.state.action === 'edit') {
-      methodName = 'updateProfessor';
-      state = {editSuccess: true};
-      resetForm = false;
-    }
-    console.log(methodName);
-    console.log(values);
-    Meteor.call(
-      methodName,
-      values, 
-      (errors, ProfessorId) => {
-        if (errors) {
-          console.log(errors);
-          let formErrors = {};
-          errors.details.forEach(function(error) {
-            formErrors[error.name] = error.message;                        
-          });
-          actions.setErrors(formErrors);
-          actions.setSubmitting(false);
-        } else {
-          actions.setSubmitting(false);
-          if (resetForm) {
-            actions.resetForm();
-          }
-          this.setState(state);
-        }
-      }
-    );
   }
 
   getProfessor = () => {
@@ -136,7 +123,7 @@ class Professor extends Component {
     } else {
       initialValues = this.getProfessor();
     }
-    console.log(this.state.action);
+    //console.log(this.state.action);
     return initialValues;
   }
   
@@ -214,7 +201,8 @@ class Professor extends Component {
 }
 export default withTracker(() => {
   Meteor.subscribe('professor.list');
+  professors = Professors.find({}, {sort: {sciper: 1}}).fetch();
   return {
-    professors: Professors.find({}, {sort: {sciper: 1}}).fetch(),
+    professors: professors,
   };
 })(Professor);

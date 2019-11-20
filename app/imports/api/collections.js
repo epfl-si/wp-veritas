@@ -297,6 +297,11 @@ export const professorSchema = new SimpleSchema({
     type: String,
     label: "Sciper",
     custom: isRequired,
+  },
+  displayName: {
+    type: String,
+    label: "DisplayName",
+    optional: false,
   }
 }, { tracker: Tracker } )
 
