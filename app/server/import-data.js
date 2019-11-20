@@ -3,9 +3,9 @@ import URL from 'url-parse';
 
 importData = () => {
 
-  addUserExperienceField();
+  //addUserExperienceField();
 
-  /*
+  
   if (Sites.find({ type: 'unmanaged' }).count() == 0) {
     console.log("Import unmanaged sites");
     importUnmanagedSites();
@@ -27,7 +27,7 @@ importData = () => {
     console.log("Tags already exist");
   }
 
-  if (OpenshiftEnvs.find({}).count() == 5) {
+  if (OpenshiftEnvs.find({}).count() == 0) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
   } else {
@@ -56,7 +56,7 @@ importData = () => {
   }
 
   importTagsBySite();
-  */
+  
 }
 
 addUserExperienceField = () => {

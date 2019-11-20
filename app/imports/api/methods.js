@@ -18,7 +18,6 @@ import {
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from '../api/error';
 import { AppLogger } from '../../server/logger';
-import SimpleLDAP from 'simple-ldap-search';
 
 function prepareUpdateInsert(site, action) {
 
@@ -136,69 +135,18 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
+
 Meteor.methods({
 
-  async getprofInfos() {
-
-    
- 
-    const config = {
-      url: 'ldap://ldap.epfl.ch',
-      base: 'o=epfl,c=ch',
-      dn: '',
-      password: '',
-    };
-    
-    // create a new client
-    const ldap = new SimpleLDAP(config);
-    
-    // setup a filter and attributes for your LDAP query
-    //const filter = '(uid=artvandelay)';
-    //const attributes = ['idNumber', 'uid', 'givenName', 'sn', 'telephoneNumber'];
-
-    const filter = '(uid=charmier)';
-    const attributes = ['uniqueIdentifier']
-    
-    // using async/await
-    const users = await ldap.search(filter, attributes);
-    console.log(users);
-    /*
-    console.log("0");
-    let client = await ldap.createClient({
-      url: 'ldap://ldap.epfl.ch'
-    });
-    console.log(client);
-    console.log("1");
-    let opts = {
-      filter: '(uid=charmier)',
-      attributes: ['uniqueIdentifier']
-    };
-    console.log(opts);
-    console.log("2");
-
-    const result = await client.search('o=epfl,c=ch', opts, (err, res) => {
-      console.log("GREG");
-      console.log(err);
-      console.log(res);
-      res.on('searchEntry', function(entry) {
-        console.log('entry: ' + JSON.stringify(entry.object));
-      });
-      res.on('searchReference', function(referral) {
-        console.log('referral: ' + referral.uris.join());
-      });
-      res.on('error', function(err) {
-        console.error('error: ' + err.message);
-      });
-      res.on('end', function(result) {
-        console.log('status: ' + result.status);
+  async getLDAPInformations(sciper) {
+    let result;
+    const publicLdapContext = require('epfl-ldap')();
+    result = await new Promise(function (resolve, reject) {
+      publicLdapContext.users.getUserBySciper(sciper, function(err, data) {
+        resolve(data);
       });
     });
-    console.log(result);
-    */
-
-
-
-
+    return result;
   },
 
   updateRole(userId, role) {
@@ -443,6 +391,44 @@ Meteor.methods({
     );
 
     return newSiteId;
+  },
+
+  associateProfessorsToSite(site, professors) {
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+
+    const canAssociate = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+
+    if (! canAssociate) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and editors can associate tags to a site.');
+    }
+
+    let siteDocument = {
+      professors: professors,
+    }
+
+    let siteBeforeUpdate = Sites.findOne({ _id: site._id});
+    
+    Sites.update(
+      {_id: site._id}, 
+      { $set: siteDocument
+    });
+
+    let updatedSite = Sites.findOne({ _id: site._id});
+
+    AppLogger.getLog().info(
+      `Associate professors to site with ID ${ site._id }`, 
+      { before: siteBeforeUpdate , after: updatedSite }, 
+      this.userId
+    );
+
   },
 
   associateTagsToSite(site, tags) {
@@ -781,7 +767,7 @@ Meteor.methods({
     Categories.remove({_id: categoryId});
 
     AppLogger.getLog().info(
-      `Delete category ID ${ categoryId }`, 
+      `Delete category ID associateProfessorsToSite${ categoryId }`, 
       { before: category, after: "" }, 
       this.userId
     );

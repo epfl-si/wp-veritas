@@ -1,6 +1,7 @@
 import { Sites, OpenshiftEnvs, Tags } from '../imports/api/collections';
 import getUnits from './units';
 
+
 // Global API configuration
 let Api = new Restivus({
   useDefaultAuth: true,

@@ -35,8 +35,6 @@ class Professor extends Component {
   constructor(props) {
     super(props);
 
-    this.getProfessorInformation();
-
     let action;
     console.log(this.props)
     if (this.props.match.path == '/professor/:_id/edit') {
@@ -71,26 +69,24 @@ class Professor extends Component {
     this.setState({addSuccess: false, editSuccess: false, deleteSuccess: false,});
   }
 
-  getProfessorInformation = () => {
-
-    Meteor.call(
-      'getprofInfos',
-      (error, result) => {
-        if (error) {
-            console.log(`ERROR Professor removeProfessor ${error}`);
-        } else {
-          console.log(result);
-        }
-      }
-    )
-  }
-
   submitProfessor = (values, actions) => {
-
 
     let methodName;
     let state;
     let resetForm;
+        
+    Meteor.call(
+      'getLDAPInformations',
+      values.sciper,
+      (error, professorInformation) => {
+        if (error) {
+          console.log(`ERROR ${error}`);
+        } else {
+          console.log(professorInformation);
+          console.log(professorInformation.displayName);
+        }
+      }
+    )
 
     if (this.state.action === 'add') {
       methodName = 'insertProfessor';

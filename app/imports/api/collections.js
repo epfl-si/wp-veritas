@@ -237,37 +237,53 @@ export const sitesSchema = new SimpleSchema({
         type: Boolean,
         optional: true,
     },
+    professors: {
+      type: Array,
+      label: "Professors",
+    },
+    'professors.$': {
+      type: Object,
+      optional: true
+    },
+    'professors.$._id': {
+      type: String,
+      optional: true
+    },
+    'professors.$.sciper': {
+      type: String,
+      optional: true
+    },
     tags: {
-        type: Array,
-        label: "Tags",
+      type: Array,
+      label: "Tags",
     },
     'tags.$': {
-        type: Object,
-        optional: true
+      type: Object,
+      optional: true
     },
     'tags.$._id': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
     'tags.$.url_fr': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
     'tags.$.url_en': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
     'tags.$.name_fr': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
     'tags.$.name_en': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
     'tags.$.type': {
-        type: String,
-        optional: true
+      type: String,
+      optional: true
     },
 }, { check });
 

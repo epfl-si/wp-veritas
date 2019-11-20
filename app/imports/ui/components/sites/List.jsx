@@ -20,6 +20,9 @@ const Cells = (props) => (
           <Link className="mr-2" to={ `/site-tags/${ site._id }` }>
             <button type="button" className="btn btn-outline-primary">Associer des tags</button>
           </Link>
+          <Link className="mr-2" to={ `/site-professors/${ site._id }` }>
+            <button type="button" className="btn btn-outline-primary">Associer des professeurs</button>
+          </Link>
           <button 
             type="button" 
             className="btn btn-outline-primary" 

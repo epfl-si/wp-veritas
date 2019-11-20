@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Header, Footer, Add, List, Admin, User, Search, Tag, SiteTags, Log, Professor } from './components'; 
+import { Header, Footer, Add, List, Admin, User, Search, Tag, SiteTags, Log, Professor, SiteProfessors } from './components'; 
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
 class Apps extends Component {
@@ -28,11 +28,12 @@ class Apps extends Component {
           { isAdmin || isTagsEditor ?
             (<React.Fragment>
               <Route exact path="/" component={ List } />
-              <Route path="/tags" component={ Tag }/>
-              <Route path="/tag/:_id" component={ Tag }/>
-              <Route path="/site-tags/:_id" component={ SiteTags }/>
-              <Route exact path="/professors" component={ Professor }/>
-              <Route path="/professor/:_id/edit" component={ Professor }/>
+              <Route path="/tags" component={ Tag } />
+              <Route path="/tag/:_id" component={ Tag } />
+              <Route path="/site-tags/:_id" component={ SiteTags } />
+              <Route exact path="/professors" component={ Professor } />
+              <Route path="/professor/:_id/edit" component={ Professor } />
+              <Route path="/site-professors/:_id" component={ SiteProfessors } />
             </React.Fragment>): null}
               
           { isAdmin ?   
