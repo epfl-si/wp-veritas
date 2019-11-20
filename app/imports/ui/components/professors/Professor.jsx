@@ -68,45 +68,44 @@ class Professor extends Component {
     this.setState({addSuccess: false, editSuccess: false, deleteSuccess: false,});
   }
 
-  submitProfessor = (values, actions) => {
-
+  submitProfessor = async (values, actions) => {
     let state;
-
-    Meteor.call(
-      'getLDAPInformations',
-      values.sciper,
-      (error, professorInformation) => {
-        if (error) {
-          console.log(`ERROR ${error}`);
-        } else {
-
-          let values = { 
-            'sciper': professorInformation.sciper, 
-            'displayName': professorInformation.displayName
+    const getLDAPInformationsPromise = (method, values) => {
+      return new Promise((resolve, reject) => {
+        Meteor.call(method, values, (error, result) => {
+          if (error) {
+            console.log(`ERROR ${error}`);
+          } else {
+            resolve(result);
           }
-
-          Meteor.call(
-            'insertProfessor',
-            values, 
-            (errors, ProfessorId) => {
-              if (errors) {
-                console.log(errors);
-                let formErrors = {};
-                errors.details.forEach(function(error) {
-                  formErrors[error.name] = error.message;                        
-                });
-                actions.setErrors(formErrors);
-                actions.setSubmitting(false);
-              } else {
-                actions.setSubmitting(false);
-                actions.resetForm();
-                this.setState(state);
-              }
-            }
-          );
-        }
-      }
-    )
+        });
+      });
+    }
+    const insertProfessorPromise = (method, values) => {
+      return new Promise ((resolve, reject) => {
+        Meteor.call(method, values, (errors, result) => {
+          if (errors) {
+            console.log(errors);
+            let formErrors = {};
+            errors.details.forEach(function(error) {
+              formErrors[error.name] = error.message;                        
+            });
+            actions.setErrors(formErrors);
+            actions.setSubmitting(false);
+          } else {
+            actions.setSubmitting(false);
+            actions.resetForm();
+            this.setState(state);
+          }
+        });
+      });
+    }
+    const ldapInfo = await getLDAPInformationsPromise('getLDAPInformations', values.sciper);
+    let infos = { 
+      'sciper': ldapInfo.sciper, 
+      'displayName': ldapInfo.displayName
+    }
+    const insert = await insertProfessorPromise('insertProfessor', infos);    
   }
 
   getProfessor = () => {
@@ -123,7 +122,6 @@ class Professor extends Component {
     } else {
       initialValues = this.getProfessor();
     }
-    //console.log(this.state.action);
     return initialValues;
   }
   
