@@ -135,6 +135,16 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
+getLDAPInfos = async (sciper) => {
+  let result;
+  const publicLdapContext = require('epfl-ldap')();
+  result = await new Promise(function (resolve, reject) {
+    publicLdapContext.users.getUserBySciper(sciper, function(err, data) {
+      resolve(data);
+    });
+  });
+  return result;
+}
 
 Meteor.methods({
 
@@ -147,6 +157,39 @@ Meteor.methods({
       });
     });
     return result;
+  },
+
+  async updateLDAPInformations() {
+    let professors = Professors.find({});
+    professors.forEach(prof => {
+
+      Meteor.call('getLDAPInformations', prof.sciper, (error, LDAPinformations) => {
+        if (error) {
+          console.log(`ERROR ${error}`);
+        } else {
+          let professorDocument = {
+            displayName: LDAPinformations.displayName,
+          }
+          Professors.update(
+            { _id: prof._id }, 
+            { $set: professorDocument }
+          );
+        }
+      });
+
+      /*
+      getLDAPInfos(prof.sciper).then(
+        function (info) {
+          let professorDocument = {
+            displayName: info.displayName,
+          }
+          Professors.update(
+            { _id: prof._id }, 
+            { $set: professorDocument }
+          );
+        }
+      )*/
+    });
   },
 
   updateRole(userId, role) {

@@ -21,7 +21,6 @@ class ProfessorsList extends Component {
               <button type="button" className="close" aria-label="Close">
                 <span  onClick={() => this.props.callBackDeleteProfessor(professor._id)} aria-hidden="true">&times;</span>
               </button>
-
             </li>
           ))}
         </ul>
@@ -66,6 +65,17 @@ class Professor extends Component {
 
   updateUserMsg = () => {
     this.setState({addSuccess: false, editSuccess: false, deleteSuccess: false,});
+  }
+
+  updateLDAPInformations = () => {
+
+    let method = 'updateLDAPInformations';
+
+    Meteor.call(method, (error, result) => {
+      if (error) {
+        console.log(`ERROR ${error}`);
+      } 
+    });
   }
 
   submitProfessor = async (values, actions) => {
@@ -136,11 +146,15 @@ class Professor extends Component {
     } else {
       content = (
         <Fragment>
+
+          <div className="my-2 text-right">
+            <button onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
+          </div>
+
           { this.state.deleteSuccess ? ( 
             <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />
           ) : (null) }
 
-          
             <ProfessorsList 
               professors={this.props.professors} 
               callBackDeleteProfessor={this.deleteProfessor} 
