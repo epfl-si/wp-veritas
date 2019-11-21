@@ -9,7 +9,7 @@ import './indexes';
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let importDatas = false;
+let importDatas = true;
   
 if (Meteor.isServer) {
 

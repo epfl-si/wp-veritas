@@ -3,8 +3,27 @@ import URL from 'url-parse';
 
 importData = () => {
 
+  let sites = Sites.find();
+  sites.forEach(site => {
+    if (!site.hasOwnProperty('professors')) {
+      let professors = [];
+      
+      console.log("yes");
+
+      Sites.update(
+        {"_id": site._id},
+        {
+          $set: {
+            'professors': professors,
+          }
+        }
+      );
+    }
+  })
+
   //addUserExperienceField();
 
+  /*
   
   if (Sites.find({ type: 'unmanaged' }).count() == 0) {
     console.log("Import unmanaged sites");
@@ -56,6 +75,7 @@ importData = () => {
   }
 
   importTagsBySite();
+  */
   
 }
 

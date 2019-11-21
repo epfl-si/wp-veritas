@@ -282,11 +282,13 @@ Meteor.methods({
       this.userId
     );
     
+    // we need update all sites that have this updated tag
     let sites = Sites.find();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(current_tag) {
         if (current_tag._id === tag._id) {
+          // we want update this tag of current site
           new_tags.push(tag);
         } else {
           new_tags.push(current_tag);
@@ -332,11 +334,13 @@ Meteor.methods({
       this.userId
     );
 
+    // we need update all sites that have this deleted tag
     let sites = Sites.find();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(tag) {
         if (tag._id === tagId) {
+          // we want delete this tag of current site
         } else {
           new_tags.push(tag);
         }
@@ -863,83 +867,77 @@ Meteor.methods({
   },
 
   insertProfessor(professor) {
-    console.log(professor);
-    console.log("INSERT1");
+    
     if (!this.userId) {
       throw new Meteor.Error('not connected');
     }
-    console.log("INSERT1");
+    
     const canInsert = Roles.userIsInRole(
       this.userId,
       ['admin', 'tags-editor'], 
       Roles.GLOBAL_GROUP
     );
-    console.log("INSERT1");
+    
     if (! canInsert) {
       throw new Meteor.Error('unauthorized',
         'Only admins and tags-editors can insert professor.');
     }
-    console.log("INSERT1");
+    
     professorSchema.validate(professor);
-    console.log("INSERT1");
+    
     // Check if name is unique
     // TODO: Move this code to SimpleSchema custom validation function
     if (Professors.find({sciper: professor.sciper}).count()>0) {
-        throwMeteorError('name', 'Un professeur avec le même sciper existe déjà !');
+      throwMeteorError('name', 'Un professeur avec le même sciper existe déjà !');
     }
-    console.log("INSERT1");
-
+    
     let professorDocument = {
-        sciper: professor.sciper,
-        displayName: professor.displayName,
+      sciper: professor.sciper,
+      displayName: professor.displayName,
     };
-    console.log("INSERT1");
+    
     let newProfessorId = Professors.insert(professorDocument);
-    console.log("INSERT1");
     let newProfessor = Professors.findOne({_id: newProfessorId});
-    console.log("INSERT1");
 
     AppLogger.getLog().info(
       `Insert professor ID ${ newProfessorId }`, 
       { before: "", after: newProfessor }, 
       this.userId
     );
-    console.log("INSERT1");
+
     return newProfessor;
   },
 
   updateProfessor(professor) {
-    console.log("UPDATE1");
+
     if (!this.userId) {
       throw new Meteor.Error('not connected');
     }
-    console.log("UPDATE2");
+    
     const canUpdate = Roles.userIsInRole(
       this.userId,
       ['admin', 'tags-editor'], 
       Roles.GLOBAL_GROUP
     );
-    console.log("UPDATE3");
-    console.log(this.userId);
-    console.log(canUpdate);
+    
     if (! canUpdate) {
       throw new Meteor.Error('unauthorized',
         'Only admins and tags-editors can update professors.');
     }
-    console.log("UPDATE4");
+
     professorSchema.validate(professor);
-    console.log("UPDATE5");
+
     let professorDocument = {
       sciper: professor.sciper,
     }
-    console.log("UPDATE6");
+
     let professorBeforeUpdate = Professors.findOne({ _id: professor._id});
-    console.log("UPDATE7");
+
     Professors.update(
       { _id: professor._id }, 
       { $set: professorDocument }
     );
-    console.log("UPDATE8");
+
     let updatedProfessor = Professors.findOne({ _id: professor._id});
     
     AppLogger.getLog().info(
@@ -977,5 +975,26 @@ Meteor.methods({
       { before: professor, after: "" }, 
       this.userId
     );
+    
+    // we need update all sites that have this deleted professor
+    let sites = Sites.find();
+    sites.forEach(function(site) {
+      new_professors = [];
+      site.professors.forEach(function(professor) {
+        if (professor._id === professorId) {
+          // we want delete this tag of current professor
+        } else {
+          new_professors.push(professor);
+        }
+      });
+      Sites.update(
+        {"_id": site._id},
+        {
+          $set: {
+            'professors': new_professors,
+          }
+        }
+      );
+    });
   },
 });
