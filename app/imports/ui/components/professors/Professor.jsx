@@ -162,6 +162,8 @@ class Professor extends Component {
           
           <div className="card-body">
 
+            <h5>Ajouter un professeur</h5>
+
             { this.state.addSuccess ? ( 
               <AlertSuccess message={ 'Le nouveau professeur a été ajouté avec succès !' } />
             ) : (null) }

@@ -1,17 +1,16 @@
+import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import Select from 'react-select';
 import { Formik } from 'formik';
 import { Professors, Sites } from '../../../api/collections';
 import { Loading } from '../Messages';
 
-export default class SiteProfessors extends Component {
+class SiteProfessors extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
       saveSuccess: false,
-      professors: [],
-      site: '',
     }
   }
 
@@ -19,26 +18,13 @@ export default class SiteProfessors extends Component {
     this.setState({ saveSuccess: newValue });
   }
     
-  componentWillMount() {
-    let siteId = this.props.match.params._id;
-    Meteor.subscribe('site.single', siteId);
-    Meteor.subscribe('professor.list');
-
-    Tracker.autorun(() => {
-      let site = Sites.findOne({_id: this.props.match.params._id});
-      let professors = Professors.find({}).fetch();
-      this.setState({
-        professors: professors, 
-        site: site,
-      });
-    })
-  }
-
   submit = (values, actions) => {    
     let professors = values.professors;
+    let site = this.getSite();
+
     Meteor.call(
       'associateProfessorsToSite',
-      this.state.site,
+      site,
       professors, 
       (errors, siteId) => {
         if (errors) {
@@ -56,14 +42,31 @@ export default class SiteProfessors extends Component {
     );
   }
 
+  isLoading(site) {
+    return (
+      this.props.sites === undefined || 
+      this.props.professors === undefined ||
+      site == undefined
+
+    );
+  }
+
+  getSite = () => {
+    // Get the URL parameter
+    let siteId = this.props.match.params._id;
+    let site = Sites.findOne({_id: siteId});
+    return site;
+  }
+
   render() {
     let content;
-    const isLoading = (this.state.site === undefined || this.state.site === '');
-  
+    let site = this.getSite();
+    const isLoading = this.isLoading(site);
+
     if (isLoading) {
       content = <Loading />
     } else {
-          
+      
       let msgSaveSuccess = (
         <div className="alert alert-success" role="alert">
           La modification a été enregistrée avec succès ! 
@@ -74,10 +77,10 @@ export default class SiteProfessors extends Component {
         <div className="my-4">
           <h4>Associer des professeurs à un site WordPress</h4>
           { this.state.saveSuccess && msgSaveSuccess }
-          <p>Pour le site <a href={this.state.site.url} target="_blank">{this.state.site.url}</a>, veuillez sélectionner ci-dessous les professeurs à associer: </p>
+          <p>Pour le site <a href={ site.url } target="_blank">{ site.url }</a>, veuillez sélectionner ci-dessous les professeurs à associer: </p>
           <Formik
             onSubmit={ this.submit }
-            initialValues={ { professors: this.state.site.professors } }
+            initialValues={ { professors: site.professors } }
             validateOnBlur={ false }
             validateOnChange={ false }
           >
@@ -103,7 +106,7 @@ export default class SiteProfessors extends Component {
                   onBlur={setFieldTouched}
                   error={errors.professors}
                   touched={touched.professors}
-                  options={this.state.professors}
+                  options={this.props.professors}
                   saveSuccess={this.updateSaveSuccess}
                   placeholder="Sélectionner un professeur"
                   name="professors"
@@ -121,6 +124,15 @@ export default class SiteProfessors extends Component {
     return content;
   }
 }
+export default withTracker(() => {
+  Meteor.subscribe('professor.list');
+  Meteor.subscribe('sites.list');
+
+  return {
+    professors: Professors.find({}, {sort: {sciper: 1}}).fetch(),
+    sites: Sites.find({}).fetch(),
+  };
+})(SiteProfessors);
 
 class MySelect extends React.Component {
 
