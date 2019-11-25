@@ -17,6 +17,7 @@ export default class Tag extends Component {
     }
     
     this.state = {
+      hideUrlsField: false,
       saveSuccess: false,
       action: action,
       orderNameFr: 1,
@@ -50,6 +51,14 @@ export default class Tag extends Component {
       meteorMethodName = 'insertTag';
     } else if (this.state.action === 'edit') {
       meteorMethodName = 'updateTag';
+    }
+
+    if (values.type == 'field-of-research') {
+      let firstPartUrl = 'https://www.epfl.ch/research/domains/cluster?field-of-research=';
+      let nameFr = escape(values.name_fr);
+      let nameEn = escape(values.name_en);
+      values.url_fr = `${firstPartUrl}${nameFr}`;
+      values.url_en = `${firstPartUrl}${nameEn}`;
     }
 
     Meteor.call(
@@ -146,6 +155,14 @@ export default class Tag extends Component {
   updateSaveSuccess = () => {
     this.setState({saveSuccess: false});
   }
+  
+  hideUrls = (e) => {
+    if (e.target.value == 'field-of-research') {
+      this.setState({hideUrlsField: true});
+    } else {
+      this.setState({hideUrlsField: false});
+    }
+  }
 
   render() {
       
@@ -236,6 +253,7 @@ export default class Tag extends Component {
                 handleChange,
                 handleBlur,
                 isSubmitting,
+                values,
               }) => (              
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
                   <Field 
@@ -251,21 +269,9 @@ export default class Tag extends Component {
                     placeholder="Nom du tag en anglais" label="Nom [EN]" name="name_en" 
                     type="text" component={ CustomInput } />
                   <ErrorMessage name="name_en" component={ CustomError } />
-
+                  
                   <Field 
-                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
-                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
-                    placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
-                  <ErrorMessage name="url_fr" component={ CustomError } />
-
-                  <Field 
-                    onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
-                    onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
-                    placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
-                  <ErrorMessage name="url_en" component={ CustomError } />
-
-                  <Field 
-                    onChange={e => { handleChange(e); this.updateSaveSuccess(); }}
+                    onChange={e => { handleChange(e); this.hideUrls(e); this.updateSaveSuccess(); }}
                     onBlur={e => { handleBlur(e); this.updateSaveSuccess(); }}
                     label="Type" name="type" component={ CustomSelect } >
                     <option value="faculty">Faculté</option>
@@ -274,6 +280,22 @@ export default class Tag extends Component {
                   </Field>
                   <ErrorMessage name="type" component={ CustomError } />
                   
+                  { this.state.hideUrlsField ? '' : (
+                  <Fragment>
+                    <Field 
+                      onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                      onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
+                      placeholder="URL du tag en français" label="URL [FR]" name="url_fr" type="text" component={ CustomInput } />
+                    <ErrorMessage name="url_fr" component={ CustomError } />
+                    
+                    <Field 
+                      onChange={e => { handleChange(e); this.updateSaveSuccess();}} 
+                      onBlur={e => { handleBlur(e); this.updateSaveSuccess();}}
+                      placeholder="URL du tag en anglais" label="URL [EN]" name="url_en" type="text" component={ CustomInput } />
+                    <ErrorMessage name="url_en" component={ CustomError } />
+                  </Fragment>
+                  )}
+
                   <div className="my-1 text-right">
                     <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                   </div>

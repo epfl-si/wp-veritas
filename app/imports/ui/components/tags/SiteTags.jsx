@@ -1,52 +1,20 @@
+import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import Select from 'react-select';
 import { Formik } from 'formik';
 import { Tags, Sites } from '../../../api/collections';
 
-export default class SiteTags extends React.Component {
+class SiteTags extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
             saveSuccess: false,
-            facultyTags: [],
-            instituteTags: [],
-            fieldOfResearchTags: [],
-            site: '',
         }
     }
 
     updateSaveSuccess = (newValue) => {
         this.setState({ saveSuccess: newValue });
-    }
-    
-    componentWillMount() {
-        let siteId = this.props.match.params._id;
-        Meteor.subscribe('site.single', siteId);
-        Meteor.subscribe('tag.list');
-
-        Tracker.autorun(() => {
-            let site = Sites.findOne({_id: this.props.match.params._id});
-            let facultyTags = Tags.find(
-                {type: 'faculty'}, 
-                {sort: {name_fr: this.state.orderName}
-            }).fetch();
-            let instituteTags = Tags.find(
-                {type: 'institute'}, 
-                {sort: {name_fr: this.state.orderName}
-            }).fetch();
-            let fieldOfResearchTags = Tags.find(
-                {type: 'field-of-research'}, 
-                {sort: {name_fr: this.state.orderName}
-            }).fetch();
-
-            this.setState({
-                facultyTags: facultyTags, 
-                instituteTags: instituteTags, 
-                fieldOfResearchTags: fieldOfResearchTags,
-                site: site,
-            });
-        })
     }
 
     submit = (values, actions) => {    
@@ -55,9 +23,10 @@ export default class SiteTags extends React.Component {
             ...values.instituteTags, 
             ...values.fieldOfResearchTags
         ];
+        let site = this.getSite();
         Meteor.call(
             'associateTagsToSite',
-            this.state.site,
+            site,
             tags, 
             (errors, siteId) => {
                 if (errors) {
@@ -75,9 +44,27 @@ export default class SiteTags extends React.Component {
         );
     }
 
+    isLoading(site) {
+      return (
+        this.props.sites === undefined || 
+        this.props.facultyTags === undefined ||
+        this.props.instituteTags === undefined ||
+        this.props.fieldOfResearchTags === undefined ||
+        site == undefined
+      );
+    }
+  
+    getSite = () => {
+      // Get the URL parameter
+      let siteId = this.props.match.params._id;
+      let site = Sites.findOne({_id: siteId});
+      return site;
+    }
+
     render() {
-        let content;
-        const isLoading = (this.state.site === undefined || this.state.site === '');
+      let content;
+      let site = this.getSite();
+      const isLoading = this.isLoading(site);
     
         if (isLoading) {
             content = <h1>Loading....</h1>
@@ -93,10 +80,10 @@ export default class SiteTags extends React.Component {
                 <div className="my-4">
                     <h4>Associer des tags à un site WordPress</h4>
                     { this.state.saveSuccess && msgSaveSuccess }
-                    <p>Pour le site <a href={this.state.site.url} target="_blank">{this.state.site.url}</a>, veuillez sélectionner ci-dessous les tags à associer: </p>
+                    <p>Pour le site <a href={ site.url } target="_blank">{ site.url }</a>, veuillez sélectionner ci-dessous les tags à associer: </p>
                     <Formik
                         onSubmit={ this.submit }
-                        initialValues={ {facultyTags: this.state.site.tags.filter(tag => tag.type === 'faculty'), instituteTags:this.state.site.tags.filter(tag => tag.type === 'institute'), fieldOfResearchTags: this.state.site.tags.filter(tag => tag.type === 'field-of-research')} }
+                        initialValues={ {facultyTags: site.tags.filter(tag => tag.type === 'faculty'), instituteTags: site.tags.filter(tag => tag.type === 'institute'), fieldOfResearchTags: site.tags.filter(tag => tag.type === 'field-of-research')} }
                         validateOnBlur={ false }
                         validateOnChange={ false }
                     >
@@ -123,7 +110,7 @@ export default class SiteTags extends React.Component {
                                 onBlur={setFieldTouched}
                                 error={errors.facultyTags}
                                 touched={touched.facultyTags}
-                                options={this.state.facultyTags}
+                                options={this.props.facultyTags}
                                 saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag faculté"
                                 name="facultyTags"
@@ -134,7 +121,7 @@ export default class SiteTags extends React.Component {
                                 onBlur={setFieldTouched}
                                 error={errors.instituteTags}
                                 touched={touched.instituteTags}
-                                options={this.state.instituteTags}
+                                options={this.props.instituteTags}
                                 saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag institut"
                                 name="instituteTags"
@@ -145,7 +132,7 @@ export default class SiteTags extends React.Component {
                                 onBlur={setFieldTouched}
                                 error={errors.fieldOfResearchTags}
                                 touched={touched.fieldOfResearchTags}
-                                options={this.state.fieldOfResearchTags}
+                                options={this.props.fieldOfResearchTags}
                                 saveSuccess={this.updateSaveSuccess}
                                 placeholder="Sélectionner un tag domaine de recherche"
                                 name="fieldOfResearchTags"
@@ -163,6 +150,32 @@ export default class SiteTags extends React.Component {
         return content;
     }
 }
+export default withTracker(() => {
+  Meteor.subscribe('tag.list');
+  Meteor.subscribe('sites.list');
+
+  let facultyTags = Tags.find(
+    {type: 'faculty'}, 
+    {sort: {name_fr: 1}
+  }).fetch();
+
+  let instituteTags = Tags.find(
+      {type: 'institute'}, 
+      {sort: {name_fr: 1}
+  }).fetch();
+  
+  let fieldOfResearchTags = Tags.find(
+      {type: 'field-of-research'}, 
+      {sort: {name_fr: 1}
+  }).fetch();
+
+  return {
+    facultyTags: facultyTags,
+    instituteTags: instituteTags,
+    fieldOfResearchTags: fieldOfResearchTags,
+    sites: Sites.find({}).fetch(),
+  };
+})(SiteTags);
 
 class MySelect extends React.Component {
     handleChange = value => {
