@@ -84,10 +84,10 @@ class User extends Component {
         <table className="table table-striped">
           <thead>
             <tr>
-              <th scope="col">#</th>
-              <th scope="col">Sciper</th>
-              <th scope="col">Username gaspar</th>
-              <th scope="col">Emails</th>
+              <th className="w-5" scope="col">#</th>
+              <th className="w-10" scope="col">Sciper</th>
+              <th className="w-25" scope="col">Username gaspar</th>
+              <th className="w-25" scope="col">Emails</th>
               <th scope="col">Role</th>
             </tr>
           </thead>

@@ -212,19 +212,19 @@ class Tag extends Component {
             <table className="table">
               <thead>
                 <tr>
-                  <th scope="col">#</th>
+                  <th className="w-5" scope="col">#</th>
                   <th scope="col">Nom FR</th>
                   <th scope="col">Nom EN</th>
                   <th scope="col">URL FR</th>
                   <th scope="col">URL EN</th>
-                  <th scope="col">Type</th>
-                  <th>Actions</th>
+                  <th  scope="col">Type</th>
+                  <th className="w-12">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {this.props.tags.map( (tag, index) => (
                   <tr key={tag._id}>
-                    <td>{index+1}</td>
+                    <td scope="row">{index+1}</td>
                     <td>{tag.name_fr}</td>
                     <td>{tag.name_en}</td>
                     <td className="special"><a href={tag.url_fr} target="_blank">{tag.url_fr}</a></td>

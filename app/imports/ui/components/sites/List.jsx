@@ -10,10 +10,10 @@ const Cells = (props) => (
       <tr key={ site._id }>
         <th scope="row">{ index+1 }</th>
         <td><a href={ site.url } target="_blank">{ site.url }</a></td>
-        <td>{ site.type }</td>
-        <td>{ site.getStatus() }</td>
-        <td>{ site.openshiftEnv }</td>
-        <td>
+        <td >{ site.type }</td>
+        <td >{ site.getStatus() }</td>
+        <td >{ site.openshiftEnv }</td>
+        <td >
           <Link className="mr-2" to={ `/edit/${ site._id }` }>
             <button type="button" className="btn btn-outline-primary">Éditer</button>
           </Link>
@@ -110,12 +110,12 @@ class List extends Component {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">URL</th>
-                <th scope="col">Type</th>
-                <th scope="col">Statut</th>
-                <th scope="col">Env. Openshift</th>
-                <th className="w-50">Actions</th>
+                <th className="w-5" scope="col">#</th>
+                <th className="w-25" scope="col">URL</th>
+                <th className="w-10" scope="col">Type</th>
+                <th className="w-10" scope="col">Statut</th>
+                <th className="w-10" scope="col">Env. Openshift</th>
+                <th className="w-25" >Actions</th>
               </tr>
             </thead>
             <Cells sites={this.props.sites} deleteSite={ this.deleteSite }/>
