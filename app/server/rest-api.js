@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Tags } from '../imports/api/collections';
+import { Sites, OpenshiftEnvs, Tags, Professors } from '../imports/api/collections';
 import getUnits from './units';
 
 
@@ -130,6 +130,59 @@ Api.addRoute('tags', {authRequired: false}, {
 Api.addRoute('tags/:id', {authRequired: false}, {
   get: function () {
     return Tags.findOne(this.urlParams.id);
+  }
+});
+
+// Maps to: /api/v1/tags/:id/field-of-research
+// Example: Return all tags of 'field-of-research' type of tag STI
+Api.addRoute('tags/:id/clusters-and-professors', {authRequired: false}, {
+  get: function () {
+    // Récupère le tag passé en paramètre. Par exemple: STI
+    let tagId = this.urlParams.id;
+
+    // Récupère tous les sites qui ont le tag STI
+    let sites = Sites.find({ 'tags._id': tagId }).fetch();
+    
+    let tags = [];
+    let scipers = [];
+    // Je parcours ces sites 
+    sites.forEach(site => {
+      // et je créée la liste des tags de type 'field-of-research' de ces sites.
+      site.tags.forEach(tag => {
+        if (tag.type == 'field-of-research') {
+          tags.push(tag);
+        }
+      });
+      // et je créée la liste des scipers ces sites.
+      site.professors.forEach(professor => {
+        scipers.push(professor.sciper);  
+      });
+      
+    });
+
+    let result = {
+      tags: tags,
+      professors: scipers,
+    }
+    return result;
+  }
+});
+
+
+// Maps to: /api/v1/professors/:sciper/tags
+// Example: Return all tags of this sciper :sciper
+Api.addRoute('professors/:sciper/tags', {authRequired: false}, {
+  get: function () {
+    let sciper = this.urlParams.id;
+    let sites = Sites.find({ 'professors.sciper': sciper }).fetch();
+    let tags = [];
+    sites.forEach(site => {
+      if (site.tags.length > 0) {
+        // array merge
+        tags = [...new Set([...tags ,...site.tags])];
+      }
+    });
+    return tags;
   }
 });
 

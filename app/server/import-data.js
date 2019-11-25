@@ -3,6 +3,13 @@ import URL from 'url-parse';
 
 importData = () => {
 
+  if (Tags.find({ type: 'field-of-research' }).count() == 0) {
+    importClustersTags();
+  } else {
+    console.log("Clusters tags already exist");
+  }
+
+  /*
   let sites = Sites.find();
   sites.forEach(site => {
     if (!site.hasOwnProperty('professors')) {
@@ -19,18 +26,9 @@ importData = () => {
         }
       );
     }
-  })
+  })*/
 
   //addUserExperienceField();
-
-  /*
-  
-  if (Sites.find({ type: 'unmanaged' }).count() == 0) {
-    console.log("Import unmanaged sites");
-    importUnmanagedSites();
-  } else {
-    console.log("Sites unmanaged already exist");
-  }
 
   if (Sites.find({}).count() == 0) {
     console.log("Import sites");
@@ -39,11 +37,24 @@ importData = () => {
     console.log("Sites already exist");
   }
 
+  if (Sites.find({ type: 'unmanaged' }).count() == 0) {
+    console.log("Import unmanaged sites");
+    importUnmanagedSites();
+  } else {
+    console.log("Sites unmanaged already exist");
+  }
+
   if (Tags.find({}).count() == 0) {
     console.log("Import tags");
     importTags();
   } else {
     console.log("Tags already exist");
+  }
+
+  if (Tags.find({ type: 'field-of-research' }).count() == 0) {
+    importClustersTags();
+  } else {
+    console.log("Clusters tags already exist");
   }
 
   if (OpenshiftEnvs.find({}).count() == 0) {
@@ -74,9 +85,61 @@ importData = () => {
     console.log("Categories already exist");
   }
 
-  importTagsBySite();
-  */
+  //importTagsBySite();
+
+  //importSciperAndClustersBySite();
   
+  
+}
+
+importSciperAndClustersBySite = () => {
+  const path = '';
+  const file = Assets.getText(path);
+
+  Papa.parse(file, {
+    delimiter: ";",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(line => {
+        // ATTENTION A creer un professors vide dans sites si pas de prof
+        console.log(line);
+      });
+    }
+  });
+}
+
+importClustersTags = () => {
+  const path = 'clusters-tags.csv';
+  const file = Assets.getText(path);
+
+  Papa.parse(file, {
+    delimiter: ";",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(line => {
+        let firstPartUrl = 'https://www.epfl.ch/research/domains/cluster?field-of-research=';
+        let nameEn = escape(line.name_en);
+        let url_fr = `${firstPartUrl}${nameEn}`;
+        let url_en = `${firstPartUrl}${nameEn}`;
+        let tagDocument = {
+          name_fr: line.name_en,
+          name_en: line.name_en,
+          url_fr: url_fr,
+          url_en: url_en,
+          type: line.type
+        }
+        if (!Tags.findOne({name_en: line.name_en})) {
+          Tags.insert(tagDocument);
+          console.log(`Import cluster tag ${line.name_en}`);
+        } else {
+          console.log(`ERROR Cluster tag already exist ${line.name_en}`);
+        }
+        
+      });
+    }
+  });
 }
 
 addUserExperienceField = () => {
