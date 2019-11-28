@@ -50,7 +50,8 @@ Artificial Intelligence (AI) and Machine Learning (ML);field-of-research
 Computational biology;field-of-research
 Computer architecture and integrated systems;field-of-research
 Data management & information retrieval;field-of-research
-Graphics & vision;field-of-research
+Computer vision;field-of-research
+Computer graphics;field-of-research
 Human-computer interaction (HCI);field-of-research
 Information & communication theory;field-of-research
 Networking;field-of-research
@@ -71,7 +72,7 @@ Organic chemistry;field-of-research
 Physical chemistry;field-of-research
 Renewable energy;field-of-research
 Algebra and number theory;field-of-research
-Analysis;field-of-research
+Mathematical analysis;field-of-research
 Applied and computational mathematics;field-of-research
 Discrete mathematics;field-of-research
 Geometry and topology;field-of-research
@@ -142,3 +143,5 @@ Rodents;field-of-research
 Structural biology;field-of-research
 Translational research;field-of-research
 Worms;field-of-research
+Education technology & research;field-of-research
+Computational modelling and creativity;field-of-research

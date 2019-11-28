@@ -1,35 +1,11 @@
-import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../imports/api/collections';
+import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories, Professors } from '../imports/api/collections';
 import URL from 'url-parse';
 
+import { importSciperAndClustersBySite } from './import-data/import-sciper-clusters-by-site';
+
 importData = () => {
-
-  if (Tags.find({ type: 'field-of-research' }).count() == 0) {
-    importClustersTags();
-  } else {
-    console.log("Clusters tags already exist");
-  }
-
+  
   /*
-  let sites = Sites.find();
-  sites.forEach(site => {
-    if (!site.hasOwnProperty('professors')) {
-      let professors = [];
-      
-      console.log("yes");
-
-      Sites.update(
-        {"_id": site._id},
-        {
-          $set: {
-            'professors': professors,
-          }
-        }
-      );
-    }
-  })*/
-
-  //addUserExperienceField();
-
   if (Sites.find({}).count() == 0) {
     console.log("Import sites");
     importVeritas();
@@ -49,14 +25,14 @@ importData = () => {
     importTags();
   } else {
     console.log("Tags already exist");
-  }
+  }*/
 
   if (Tags.find({ type: 'field-of-research' }).count() == 0) {
     importClustersTags();
   } else {
     console.log("Clusters tags already exist");
   }
-
+  /*
   if (OpenshiftEnvs.find({}).count() == 0) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
@@ -83,31 +59,15 @@ importData = () => {
     importCategories();
   } else {
     console.log("Categories already exist");
-  }
+  }*/
 
   //importTagsBySite();
 
-  //importSciperAndClustersBySite();
-  
-  
+  importSciperAndClustersBySite();
+
 }
 
-importSciperAndClustersBySite = () => {
-  const path = '';
-  const file = Assets.getText(path);
 
-  Papa.parse(file, {
-    delimiter: ";",
-    header: true,
-    complete: function(results) {
-      let data = JSON.parse(JSON.stringify(results.data));
-      data.forEach(line => {
-        // ATTENTION A creer un professors vide dans sites si pas de prof
-        console.log(line);
-      });
-    }
-  });
-}
 
 importClustersTags = () => {
   const path = 'clusters-tags.csv';
@@ -181,7 +141,7 @@ importTagsBySite = () => {
           exist_2010 = true;
           ok = ok + 1;
           site = Sites.findOne({url: url});
-          console.log(`URL ${ url } existe`);
+          console.log(`URL ${ url } enullxiste`);
         } else if (Sites.find({url: url_2018}).count() == 1) {
           exist_2018 = true;
           ok = ok + 1;
@@ -296,7 +256,7 @@ importCategories = () => {
         }
       });
       console.log("Importation categories finished");
-    }    
+    }
   });
 }
 
@@ -458,8 +418,11 @@ importVeritas = () => {
       delimiter: ",",
       header: true,
       complete: function(results) {
+        
         let data = JSON.parse(JSON.stringify(results.data));
+
         data.forEach(site => {
+        
           let langs;
           if (site.langs == 'fr' || site.langs == 'en') {
             langs = [site.langs];

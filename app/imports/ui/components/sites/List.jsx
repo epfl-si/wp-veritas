@@ -15,10 +15,10 @@ const Cells = (props) => (
         <td >{ site.openshiftEnv }</td>
         <td >
           <Link className="mr-2" to={ `/edit/${ site._id }` }>
-            <button type="button" className="btn btn-outline-primary">Éditer</button>
+            <button type="button" style={ {marginBottom: "3px"} } className="btn btn-outline-primary">Éditer</button>
           </Link>
           <Link className="mr-2" to={ `/site-tags/${ site._id }` }>
-            <button type="button" className="btn btn-outline-primary">Associer des tags</button>
+            <button type="button" style={ {marginBottom: "3px"} } className="btn btn-outline-primary">Associer des tags</button>
           </Link>
           <Link className="mr-2" to={ `/site-professors/${ site._id }` }>
             <button type="button" className="btn btn-outline-primary">Associer des professeurs</button>
@@ -115,7 +115,7 @@ class List extends Component {
                 <th className="w-10" scope="col">Type</th>
                 <th className="w-10" scope="col">Statut</th>
                 <th className="w-10" scope="col">Env. Openshift</th>
-                <th className="w-25" >Actions</th>
+                <th className="w-30" >Actions</th>
               </tr>
             </thead>
             <Cells sites={this.props.sites} deleteSite={ this.deleteSite }/>

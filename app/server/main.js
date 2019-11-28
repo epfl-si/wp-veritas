@@ -3,6 +3,7 @@ import { WebApp } from 'meteor/webapp';
 import '../imports/api/methods'; // Call meteor methods backend
 import './publications'; // Call meteor publications backend
 import { importData } from './import-data';
+import { removeAllCollections } from './removeAllCollections';
 import { AppLogger } from './logger';
 import './indexes';
 
@@ -20,6 +21,7 @@ if (Meteor.isServer) {
   new AppLogger();
 
   if (importDatas) {
+    // removeAllCollections();
     importData();
   }
 }
