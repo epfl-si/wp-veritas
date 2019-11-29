@@ -2,3 +2,5 @@
 **/.meteor/local
 app/meteor-settings.json
 ansible/*.retry
+scripts/config.js
+scripts/dump
