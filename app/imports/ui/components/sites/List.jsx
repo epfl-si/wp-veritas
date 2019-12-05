@@ -63,6 +63,7 @@ class List extends Component {
     const csv = Papa.unparse({
         // Define fields to export
         fields: [
+            "_id",
             "url",
             "title",
             "tagline",
