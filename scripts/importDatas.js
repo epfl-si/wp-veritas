@@ -59,7 +59,12 @@ var step0 = async function () {
  */
 var step1 = async function () {
   let mainMsg = "Step 1: Deleting all documents";
-  console.log(mainMsg); 
+  console.log(mainMsg);   
+
+  // We remove documents only of localhost DB
+  if (!config.HOST.includes('localhost')) {
+    throw "STOP don't TOUCH !";
+  }
 
   var connectionString = `mongodb://${ config.HOST }:${ config.PORT }/`;
   let msg = await deleteAllDocuments(connectionString);
@@ -68,7 +73,7 @@ var step1 = async function () {
 }
 
 var step2 = async function () {
-  let msg = "Dump production database";
+  let msg = "Step 2: Dump production database";
   await new Promise(
     function(resolve, reject) { 
       let connectionString = `mongodb://wp-veritas-test:${ config.TEST_DB_PWD }@mongodb-svc-1.epfl.ch/wp-veritas-test`;
@@ -80,7 +85,7 @@ var step2 = async function () {
 }
 
 var step3 = async function () {
-  let msg = "Renommer le repertoire de dump";  
+  let msg = "Step 1: Renommer le repertoire de dump";  
   await new Promise(
     function(resolve, reject) { 
       let command = 'mv dump/wp-veritas-test/ dump/meteor/';
@@ -89,7 +94,6 @@ var step3 = async function () {
   )
   return msg;
 }
-
 
 var step4 = async function() {
   let msg = "Restaurer la DB en local";
@@ -103,6 +107,7 @@ var step4 = async function() {
 }
 
 var main = async function () {
+
   let msgStep0 = await step0();
   console.log(msgStep0);
 
@@ -125,6 +130,7 @@ var main = async function () {
 }  
 
 try {
+  console.log(process.argv);
   main();
 } catch(e) {
   console.error("ERROR !!!!");

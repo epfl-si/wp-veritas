@@ -34,7 +34,7 @@ function prepareUpdateInsert(site, action) {
   // Check if url is unique and if slug is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === 'update') {
-    let sites = Sites.find({url:site.url});
+    let sites = Sites.find({url:site.url}).fetch();
     if (sites.count() > 1) {
       throwMeteorError('url', 'Cette URL existe déjà !');
     } else if (sites.count() == 1) {
@@ -43,7 +43,7 @@ function prepareUpdateInsert(site, action) {
       }
     }
     if (site.slug != '') {
-      let sitesBySlug = Sites.find({slug:site.slug});
+      let sitesBySlug = Sites.find({slug:site.slug}).fetch();
       if (sitesBySlug.count() > 1) {
         throwMeteorError('slug', 'Ce slug existe déjà !');
       } else if (sitesBySlug.count() == 1) {
@@ -149,7 +149,7 @@ Meteor.methods({
   },
 
   async updateLDAPInformations() {
-    let professors = Professors.find({});
+    let professors = Professors.find({}).fetch();
     professors.forEach(prof => {
       Meteor.call('getLDAPInformations', prof.sciper, (error, LDAPinformations) => {
         if (error) {
@@ -283,7 +283,7 @@ Meteor.methods({
     );
     
     // we need update all sites that have this updated tag
-    let sites = Sites.find();
+    let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(current_tag) {
@@ -335,7 +335,7 @@ Meteor.methods({
     );
 
     // we need update all sites that have this deleted tag
-    let sites = Sites.find();
+    let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(tag) {
@@ -357,7 +357,6 @@ Meteor.methods({
   },
 
   insertSite(site){
-
     if (!this.userId) {
       throw new Meteor.Error('not connected');
     }
@@ -376,7 +375,7 @@ Meteor.methods({
     sitesSchema.validate(site);
 
     site = prepareUpdateInsert(site, 'insert');
-    
+
     let siteDocument = {
       url: site.url,
       slug: site.slug,
@@ -401,9 +400,11 @@ Meteor.methods({
       inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
+      professors: site.professors,
     }
 
     let newSiteId = Sites.insert(siteDocument);
+
     let newSite = Sites.findOne({_id: newSiteId});
 
     AppLogger.getLog().info(
@@ -536,6 +537,7 @@ Meteor.methods({
       inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
+      professors: site.professors,
     }
 
     let siteBeforeUpdate = Sites.findOne({ _id: site._id});
@@ -977,7 +979,7 @@ Meteor.methods({
     );
     
     // we need update all sites that have this deleted professor
-    let sites = Sites.find();
+    let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_professors = [];
       site.professors.forEach(function(professor) {

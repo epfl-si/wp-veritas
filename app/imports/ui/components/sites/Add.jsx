@@ -90,7 +90,8 @@ class Add extends Component {
         status:'requested',
         comment: '',
         plannedClosingDate: '',
-        tags: []
+        tags: [],
+        professors: [],
       }
     } else if (this.state.action == 'edit') {
       initialValues = this.getSite();

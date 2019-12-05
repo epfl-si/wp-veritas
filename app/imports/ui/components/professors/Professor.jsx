@@ -9,10 +9,45 @@ import { AlertSuccess, Loading } from '../Messages';
 
 class ProfessorsList extends Component {
 
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      updateLDAPSuccess: false,
+    }
+  }
+
+  updateLDAPInformations = () => {
+
+    let method = 'updateLDAPInformations';
+
+    Meteor.call(method, (error, result) => {
+      if (error) {
+        console.log(`ERROR ${error}`);
+      } else {
+        console.log("Success");
+        let state = { updateLDAPSuccess: true };
+        this.setState(state);
+      }
+    });
+  }
+
   render() { 
+    
+    let msgUpdateLDAPSuccess = (
+      <div className="alert alert-success" role="alert">
+        Les informations des professeurs ont été mise à jour avec succès ! 
+      </div> 
+    )
+
     return (
+      <Fragment>
+      { this.state.updateLDAPSuccess && msgUpdateLDAPSuccess }
       <div className="card my-2">
         <h5 className="card-header">Liste des professeurs</h5>
+        <div className="my-2 text-right">
+            <button onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
+          </div>
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
             <li key={ professor._id } className="list-group-item">
@@ -25,6 +60,7 @@ class ProfessorsList extends Component {
           ))}
         </ul>
       </div>
+      </Fragment>
     )
   }
 }
@@ -65,17 +101,6 @@ class Professor extends Component {
 
   updateUserMsg = () => {
     this.setState({addSuccess: false, editSuccess: false, deleteSuccess: false,});
-  }
-
-  updateLDAPInformations = () => {
-
-    let method = 'updateLDAPInformations';
-
-    Meteor.call(method, (error, result) => {
-      if (error) {
-        console.log(`ERROR ${error}`);
-      } 
-    });
   }
 
   submitProfessor = async (values, actions) => {
@@ -146,32 +171,14 @@ class Professor extends Component {
     } else {
       content = (
         <Fragment>
-
-          <div className="my-2 text-right">
-            <button onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
-          </div>
-
-          { this.state.deleteSuccess ? ( 
-            <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />
-          ) : (null) }
-
-            <ProfessorsList 
-              professors={this.props.professors} 
-              callBackDeleteProfessor={this.deleteProfessor} 
-            />
-          
-          <div className="card-body">
-
-            <h5>Ajouter un professeur</h5>
-
+          <div className="card">
+            <h5 className="card-header">Ajouter un professeur</h5>
             { this.state.addSuccess ? ( 
               <AlertSuccess message={ 'Le nouveau professeur a été ajouté avec succès !' } />
             ) : (null) }
-
             { this.state.deleteSuccess ? ( 
               <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />
             ) : (null) }
-            
             <Formik
               onSubmit={ this.submitProfessor }
               initialValues={ initialValues }
@@ -198,6 +205,16 @@ class Professor extends Component {
                 )}
             </Formik>
           </div>
+          
+
+          { this.state.deleteSuccess ? ( 
+            <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />
+          ) : (null) }
+
+            <ProfessorsList 
+              professors={this.props.professors} 
+              callBackDeleteProfessor={this.deleteProfessor} 
+            />
         </Fragment>
       )
     }
@@ -207,6 +224,6 @@ class Professor extends Component {
 export default withTracker(() => {
   Meteor.subscribe('professor.list');
   return {
-    professors: Professors.find({}, {sort: {sciper: 1}}).fetch(),
+    professors: Professors.find({}, {sort: {displayName: 1}}).fetch(),
   };
 })(Professor);
