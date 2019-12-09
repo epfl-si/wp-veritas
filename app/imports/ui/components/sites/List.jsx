@@ -48,16 +48,40 @@ class List extends Component {
   export = () => {
 
     let sites = Sites.find({}).fetch();
+
     sites.forEach(function(site) {
-      let tags = "";
+
+      let facutyTags = "";
+      let instituteTags = "";
+      let clusterTags = "";
+
       site.tags.forEach(function (tag) {
-        if (tags === "") {
-          tags = tag.name_en;
-        } else {
-          tags = tags + "," + tag.name_en;
+
+        if (tag.type === 'faculty') {
+          if (facutyTags === "") {
+            facutyTags += tag.name_en;
+          } else {
+            facutyTags += "," + tag.name_en;
+          }
+        } else if (tag.type === 'institute') {
+          if (instituteTags === "") {
+            instituteTags += tag.name_en;
+          } else {
+            instituteTags += "," + tag.name_en;
+          }
+        } else if (tag.type === 'field-of-research') { 
+          if (clusterTags === "") {
+            clusterTags += tag.name_en;
+          } else {
+            clusterTags += "," + tag.name_en;
+          }
         }
+
       });
-      site.tags = tags;
+
+      site.facutyTags = facutyTags;
+      site.instituteTags = instituteTags;
+      site.clusterTags = clusterTags;
     });
  
     const csv = Papa.unparse({
@@ -75,7 +99,9 @@ class List extends Component {
             "unitId",
             "snowNumber",
             "status",
-            "tags",
+            "facutyTags",
+            "instituteTags",
+            "clusterTags",
             "comment",
             "plannedClosingDate",
             "requestedDate",
