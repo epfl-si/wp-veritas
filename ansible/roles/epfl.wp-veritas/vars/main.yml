@@ -6,7 +6,7 @@ wp_veritas_route_name: wp-veritas
 wp_veritas_secret_name: "{{ 'wp-veritas' if openshift_namespace == 'wwp' else 'wp-veritas-test' }}"
 wp_veritas_cname: "{{ wp_veritas_app_name + '.epfl.ch' if openshift_namespace == 'wwp' else 'wp-veritas.128.178.222.83.nip.io' }}"
 wp_veritas_deploy_name: wp-veritas
-wp_veritas_image_version: '0.2.5'
+wp_veritas_image_version: '0.3.5'
 wp_veritas_image_tag: 'epflidevelop/wp-veritas:{{ wp_veritas_image_version }}'
 wp_veritas_db_name: "{{ 'wp-veritas' if openshift_namespace == 'wwp' else 'wp-veritas-test' }}"
 wp_veritas_db_user: "{{ 'wp-veritas' if openshift_namespace == 'wwp' else 'wp-veritas-test' }}"
