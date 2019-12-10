@@ -104,7 +104,6 @@ class List extends Component {
             "instituteTags",
             "clusterTags",
             "professors",
-            "comment",
             "plannedClosingDate",
             "requestedDate",
             "createdDate",

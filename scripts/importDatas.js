@@ -1,6 +1,8 @@
 var MongoClient = require('mongodb').MongoClient;
 var config = require("./config.js");
 const { exec } = require('child_process');
+const PROD = "prod";
+const TEST = "test";
 
 /**
  * Delete all documents of collection
@@ -13,7 +15,7 @@ var deleteAllDocuments = async function (connectionString) {
     throw "STOP don't TOUCH !";
   }
   const client = await MongoClient.connect(connectionString, {useUnifiedTopology: true});
-  const db = client.db(config.DB_NAME);
+  const db = client.db("meteor");
 
   collectionsList = [
     "sites", 
@@ -59,24 +61,26 @@ var step0 = async function () {
  */
 var step1 = async function () {
   let mainMsg = "Step 1: Deleting all documents";
-  console.log(mainMsg);   
-
-  // We remove documents only of localhost DB
-  if (!config.HOST.includes('localhost')) {
-    throw "STOP don't TOUCH !";
-  }
-
-  var connectionString = `mongodb://${ config.HOST }:${ config.PORT }/`;
+  console.log(mainMsg);
+  var connectionString = `mongodb://localhost:3001/`;
   let msg = await deleteAllDocuments(connectionString);
-
   return msg;
 }
 
-var step2 = async function () {
-  let msg = "Step 2: Dump production database";
+var step2 = async function (source) {
+  let msg = `Step 2: Dump ${source} database`;
   await new Promise(
-    function(resolve, reject) { 
-      let connectionString = `mongodb://wp-veritas-test:${ config.TEST_DB_PWD }@mongodb-svc-1.epfl.ch/wp-veritas-test`;
+    function(resolve, reject) {
+      let HOST;
+      let DB_PWD;
+      if (source == PROD) {
+        HOST = config.PROD_HOST;
+        DB_PWD = config.PROD_DB_PWD;
+      } else if (source == TEST) {
+        HOST = config.TEST_HOST;
+        DB_PWD = config.TEST_DB_PWD;
+      }
+      let connectionString = `mongodb://${ HOST }:${ DB_PWD }@mongodb-svc-1.epfl.ch/${ HOST }`;
       let command = `mongodump --forceTableScan  --uri ${ connectionString }`;
       resolve(exec(command));
     }
@@ -84,11 +88,17 @@ var step2 = async function () {
   return msg;
 }
 
-var step3 = async function () {
-  let msg = "Step 1: Renommer le repertoire de dump";  
+var step3 = async function (source) {
+  let msg = "Step 3: Renommer le repertoire de dump";  
   await new Promise(
     function(resolve, reject) { 
-      let command = 'mv dump/wp-veritas-test/ dump/meteor/';
+      let folder_name;
+      if (source == PROD) {
+        folder_name = "wp-veritas";
+      } else if (source == TEST) {
+        folder_name = "wp-veritas-test";
+      }
+      let command = `mv dump/${folder_name}/ dump/meteor/`;
       resolve(exec(command));
     }
   )
@@ -96,7 +106,7 @@ var step3 = async function () {
 }
 
 var step4 = async function() {
-  let msg = "Restaurer la DB en local";
+  let msg = "Step 4: Restaurer la DB en local";
   await new Promise(
     function(resolve, reject) { 
       let command = "mongorestore dump/ --host=localhost:3001";
@@ -106,7 +116,7 @@ var step4 = async function() {
   return msg;
 }
 
-var main = async function () {
+var main = async function (source) {
 
   let msgStep0 = await step0();
   console.log(msgStep0);
@@ -114,13 +124,15 @@ var main = async function () {
   let msgStep1 = await step1();
   console.log(msgStep1);
 
-  let msgStep2 = await step2();
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
+  let msgStep2 = await step2(source);
   console.log(msgStep2);
 
   // wait few secondes
   await new Promise(resolve => setTimeout(resolve, 5000));
 
-  let msgStep3 = await step3();
+  let msgStep3 = await step3(source);
   console.log(msgStep3);
 
   let msgStep4 = await step4();
@@ -131,7 +143,19 @@ var main = async function () {
 
 try {
   console.log(process.argv);
-  main();
+  
+  let source;
+
+  if (process.argv[2] === "--source=prod") {
+    source = PROD;
+  } else if (process.argv[2] === "--source=test") {
+    source = TEST;
+  } else {
+    throw "--source argument";
+  }
+
+  main(source);
+
 } catch(e) {
   console.error("ERROR !!!!");
   console.error(e);

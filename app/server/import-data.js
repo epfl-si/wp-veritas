@@ -25,9 +25,9 @@ importData = () => {
     importTags();
   } else {
     console.log("Tags already exist");
-  }*/
-
-  if (Tags.find({ type: 'field-of-research' }).count() == 0) {
+  }
+  */
+  if (Tags.find({ type: 'field-of-research' }).count() == 2) {
     importClustersTags();
   } else {
     console.log("Clusters tags already exist");

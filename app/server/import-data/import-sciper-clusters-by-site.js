@@ -80,11 +80,11 @@ associateTagsToSite = (line, tags) => {
   console.log("-- Association des tags au site --");
 
 
-  let nbSites = Sites.find({url: line.siteUrl}).count();
+  let nbSites = Sites.find({_id: line.idSite}).count();
   if (nbSites == 1) {
 
     // Récupère le site en fonction de l'URL
-    let site = Sites.findOne({url: line.siteUrl});
+    let site = Sites.findOne({_id: line.idSite});
     console.log(site);
 
     let tagsToInsert = [];
@@ -137,19 +137,19 @@ associateProfToSite = (line, professor) => {
   console.log("-- Association du prof au site --");
 
   // Associer les profs au site
-  let nbSites = Sites.find({url: line.siteUrl}).count();
+  let nbSites = Sites.find({_id: line.idSite}).count();
   console.log(nbSites);
 
   if (nbSites > 1) {
-    console.log("ERROR: cette URL correspond a plusieurs sites");
+    console.log("ERROR: cet id de site correspond a plusieurs sites");
   
   } else if (nbSites == 0) {
-    console.log(`ERROR: cette URL ${ line.siteUrl } n'existe pas`);
+    console.log(`ERROR: cet id de site ${ line.idSite } n'existe pas`);
   
   } else if (nbSites == 1) {
 
   // Récupère le site en fonction de l'URL
-  let site = Sites.findOne({url: line.siteUrl});
+  let site = Sites.findOne({_id: line.idSite});
   console.log("Site avant l'association prof to site");
   console.log(site);
 
@@ -205,7 +205,7 @@ associateProfToSite = (line, professor) => {
 
 manageLine = (line, index) => {
   
-  let currentSite = Sites.findOne({url: line.siteUrl});
+  let currentSite = Sites.findOne({_id: line.idSite});
   
   if (index == 0 && currentSite != undefined && 'professors' in currentSite) {
     // on va pas faire une 2ème exécution
@@ -223,6 +223,32 @@ manageLine = (line, index) => {
 }
 
 importSciperAndClustersBySite = () => {
+/*
+  const path = 'sites-prof-clusters.csv';
+  const file = Assets.getText(path);
+
+  Papa.parse(file, {
+    delimiter: ";",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+
+      data.forEach(
+        (line, index) => {
+          let tags = line.clusters.split("|");
+          tags.forEach(tag => {
+            if (tag !== "") {
+              find = clusters.includes(tag);
+              if (!find) {
+                clusters.push(tag);
+              }
+            }
+          })
+        }
+      )
+    }
+  }); 
+*/
 
   const path = 'site-prof-clusters.csv';
   const file = Assets.getText(path);
@@ -236,12 +262,10 @@ importSciperAndClustersBySite = () => {
       try {
         data.forEach(
           (line, index) => {
-            if (line.doublon !== "1") {
-              manageLine(line, index);
-            }
-/*            if (index == 4) {
-              throw BreakException;
-            }*/
+            
+            manageLine(line, index);
+            
+
           }
         )
         console.log(unknowedClusters);
