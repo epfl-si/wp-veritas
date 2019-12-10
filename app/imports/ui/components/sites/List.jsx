@@ -57,7 +57,7 @@ class List extends Component {
       let facutyTags = "";
       let instituteTags = "";
       let clusterTags = "";
-      
+
       site.tags.forEach(function (tag) {
         if (tag.type === 'faculty') {
           if (facutyTags === "") {
@@ -78,8 +78,9 @@ class List extends Component {
             clusterTags += "," + tag.name_en;
           }
         }
+
       });
-      
+
       site.facutyTags = facutyTags;
       site.instituteTags = instituteTags;
       site.clusterTags = clusterTags;
