@@ -337,6 +337,6 @@ export default withTracker(() => {
       types: Types.find({}, {sort: {name:1 }}).fetch(),
       themes: Themes.find({}, {sort: {name:1 }}).fetch(),
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
-      sites: Sites.find({}),
+      sites: Sites.find({}).fetch(),
     };  
 })(Add);

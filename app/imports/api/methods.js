@@ -34,7 +34,7 @@ function prepareUpdateInsert(site, action) {
   // Check if url is unique and if slug is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === 'update') {
-    let sites = Sites.find({url:site.url}).fetch();
+    let sites = Sites.find({url:site.url});
     if (sites.count() > 1) {
       throwMeteorError('url', 'Cette URL existe déjà !');
     } else if (sites.count() == 1) {
@@ -43,7 +43,7 @@ function prepareUpdateInsert(site, action) {
       }
     }
     if (site.slug != '') {
-      let sitesBySlug = Sites.find({slug:site.slug}).fetch();
+      let sitesBySlug = Sites.find({slug:site.slug});
       if (sitesBySlug.count() > 1) {
         throwMeteorError('slug', 'Ce slug existe déjà !');
       } else if (sitesBySlug.count() == 1) {
