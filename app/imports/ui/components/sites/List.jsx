@@ -85,33 +85,43 @@ class List extends Component {
       site.instituteTags = instituteTags;
       site.clusterTags = clusterTags;
     });
- 
+
+    sites.forEach(function(site) { 
+      let scipers = [];
+      if ("professors" in site) {
+        site.professors.forEach(function (professor) {
+          scipers.push(professor.sciper);
+        });
+      }
+      site.scipers = scipers;
+    });
+
     const csv = Papa.unparse({
         // Define fields to export
         fields: [
-            "_id",
-            "url",
-            "title",
-            "tagline",
-            "openshiftEnv",
-            "type",
-            "theme",
-            "faculty",
-            "languages",
-            "unitId",
-            "snowNumber",
-            "status",
-            "facutyTags",
-            "instituteTags",
-            "clusterTags",
-            "professors",
-            "plannedClosingDate",
-            "requestedDate",
-            "createdDate",
-            "archivedDate",
-            "trashedDate"
+          "_id",
+          "url",
+          "title",
+          "tagline",
+          "openshiftEnv",
+          "type",
+          "theme",
+          "faculty",
+          "languages",
+          "unitId",
+          "snowNumber",
+          "status",
+          "facutyTags",
+          "instituteTags",
+          "clusterTags",
+          "scipers",
+          "plannedClosingDate",
+          "requestedDate",
+          "createdDate",
+          "archivedDate",
+          "trashedDate"
         ],
-            data: sites
+        data: sites
     });
   
     const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });

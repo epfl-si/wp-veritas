@@ -208,8 +208,11 @@ manageLine = (line, index) => {
   let currentSite = Sites.findOne({_id: line.idSite});
   
   if (index == 0 && currentSite != undefined && 'professors' in currentSite) {
+    
+    console.log("Import already done !");
     // on va pas faire une 2ème exécution
     throw BreakException;
+
   } else {
     
     displayLine(line);
