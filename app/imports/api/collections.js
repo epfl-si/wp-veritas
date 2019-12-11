@@ -253,6 +253,10 @@ export const sitesSchema = new SimpleSchema({
       type: String,
       optional: true
     },
+    'professors.$.displayName': {
+      type: String,
+      optional: true
+    },
     tags: {
       type: Array,
       label: "Tags",

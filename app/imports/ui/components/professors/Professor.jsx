@@ -54,7 +54,7 @@ class ProfessorsList extends Component {
               { professor.sciper }&nbsp;
               { professor.displayName }
               <button type="button" className="close" aria-label="Close">
-                <span  onClick={() => this.props.callBackDeleteProfessor(professor._id)} aria-hidden="true">&times;</span>
+                <span  onClick={() => { if (window.confirm('Are you sure you wish to delete this item?')) this.props.callBackDeleteProfessor(professor._id) } } aria-hidden="true">&times;</span>
               </button>
             </li>
           ))}
