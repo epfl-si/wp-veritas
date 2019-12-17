@@ -14,6 +14,7 @@ const config = async() => {
 const goHome = async(page) => {
   const url = 'http://wp-veritas.128.178.222.83.nip.io/';
   await page.goto(url);
+  console.log("Go Home OK");
 } 
 
 /**
@@ -28,9 +29,9 @@ const login = async (page) => {
   await page.waitFor(5000);
 }
 
-const doScreenshot = async (page) => {
+const doScreenshot = async (page, fileName) => {
   // Screen shot
-  await page.screenshot({path:'example.png'});
+  await page.screenshot({path:`images/${fileName}.png`});
   console.log("Screenshot OK");
 }
 

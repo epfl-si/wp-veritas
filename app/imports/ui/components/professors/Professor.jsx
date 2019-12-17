@@ -46,11 +46,11 @@ class ProfessorsList extends Component {
       <div className="card my-2">
         <h5 className="card-header">Liste des professeurs</h5>
         <div className="my-2 text-right">
-            <button onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
+            <button id="updateLDAPButton" onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
           </div>
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
-            <li key={ professor._id } className="list-group-item">
+            <li id={ professor.sciper } key={ professor._id } className="list-group-item">
               { professor.sciper }&nbsp;
               { professor.displayName }
               <button type="button" className="close" aria-label="Close">

@@ -13,15 +13,18 @@ const addSite = async (page) => {
   // Submit Form
   const submitButton = await page.$('button[type="submit"]');
   await submitButton.click('#search-button'); 
+
+  // Click on / to go on homepage
+  await page.$eval('a[href="/"]', e => e.click());
   console.log("Add new site OK")
-  await page.waitFor(1000);
+  await page.waitFor(2000);
 }
 
 const editSite = async (page) => {
 
   // Edit 
-  let xpathDeleteButton = '//a[contains(@href,"https://www.epfl.ch/site-test")]/parent::td/parent::tr/descendant::button[text()="Éditer"]'
-  let editButton = await page.$x(xpathDeleteButton);
+  let xpathEditButton = '//a[contains(@href,"https://www.epfl.ch/site-test")]/parent::td/parent::tr/descendant::button[text()="Éditer"]'
+  let editButton = await page.$x(xpathEditButton);
   if (editButton.length > 0) {
     editButton[0].click();
   } else {
@@ -42,8 +45,6 @@ const editSite = async (page) => {
   const submitButton = await page.$('button[type="submit"]');
   await submitButton.click('#search-button');
 
-  await page.waitFor(1000);
-  
   // Check the title value
   const titleValue = await page.$eval(titleSelector, el => el.value);
   let msg = "Edit site";
@@ -52,6 +53,8 @@ const editSite = async (page) => {
   } else {
     msg += " KO";
   }
+
+  await page.waitFor(1000);
   console.log(msg);
 }
 
