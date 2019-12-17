@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories, AppLogs } from "../imports/api/collections";
+import { Sites, OpenshiftEnvs, Types, Themes, Tags, Categories, AppLogs, Professors } from "../imports/api/collections";
 import { check } from "meteor/check";
 
 Meteor.publish('sites.list', function() {
@@ -61,6 +61,14 @@ Meteor.publish('tag.list', function() {
     return [
         tagCursor,
     ]
+});
+
+Meteor.publish('professor.list', function() {
+    
+  let professorCursor = Professors.find({}, {sort: {sciper:1}});
+  return [
+    professorCursor,
+  ]
 });
 
 Meteor.publish('user.list', function (){ 

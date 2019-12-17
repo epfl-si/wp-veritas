@@ -10,15 +10,18 @@ const Cells = (props) => (
       <tr key={ site._id }>
         <th scope="row">{ index+1 }</th>
         <td><a href={ site.url } target="_blank">{ site.url }</a></td>
-        <td>{ site.type }</td>
-        <td>{ site.getStatus() }</td>
-        <td>{ site.openshiftEnv }</td>
-        <td>
+        <td >{ site.type }</td>
+        <td >{ site.getStatus() }</td>
+        <td >{ site.openshiftEnv }</td>
+        <td >
           <Link className="mr-2" to={ `/edit/${ site._id }` }>
-            <button type="button" className="btn btn-outline-primary">Éditer</button>
+            <button type="button" style={ {marginBottom: "3px"} } className="btn btn-outline-primary">Éditer</button>
           </Link>
           <Link className="mr-2" to={ `/site-tags/${ site._id }` }>
-            <button type="button" className="btn btn-outline-primary">Associer des tags</button>
+            <button type="button" style={ {marginBottom: "3px"} } className="btn btn-outline-primary">Associer des tags</button>
+          </Link>
+          <Link className="mr-2" to={ `/site-professors/${ site._id }` }>
+            <button type="button" className="btn btn-outline-primary">Associer des professeurs</button>
           </Link>
           <button 
             type="button" 
@@ -56,7 +59,6 @@ class List extends Component {
       let clusterTags = "";
 
       site.tags.forEach(function (tag) {
-
         if (tag.type === 'faculty') {
           if (facutyTags === "") {
             facutyTags += tag.name_en;
@@ -83,38 +85,48 @@ class List extends Component {
       site.instituteTags = instituteTags;
       site.clusterTags = clusterTags;
     });
- 
+
+    sites.forEach(function(site) { 
+      let scipers = [];
+      if ("professors" in site) {
+        site.professors.forEach(function (professor) {
+          scipers.push(professor.sciper);
+        });
+      }
+      site.scipers = scipers;
+    });
+
     const csv = Papa.unparse({
         // Define fields to export
         fields: [
-            "_id",
-            "url",
-            "title",
-            "tagline",
-            "openshiftEnv",
-            "type",
-            "theme",
-            "faculty",
-            "languages",
-            "unitId",
-            "snowNumber",
-            "status",
-            "facutyTags",
-            "instituteTags",
-            "clusterTags",
-            "comment",
-            "plannedClosingDate",
-            "requestedDate",
-            "createdDate",
-            "archivedDate",
-            "trashedDate"
+          "_id",
+          "url",
+          "title",
+          "tagline",
+          "openshiftEnv",
+          "type",
+          "theme",
+          "faculty",
+          "languages",
+          "unitId",
+          "snowNumber",
+          "status",
+          "facutyTags",
+          "instituteTags",
+          "clusterTags",
+          "scipers",
+          "plannedClosingDate",
+          "requestedDate",
+          "createdDate",
+          "archivedDate",
+          "trashedDate"
         ],
-            data: sites
-        });
+        data: sites
+    });
   
-        const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
-        saveAs(blob, "wp-veritas.csv");
-    }
+    const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
+    saveAs(blob, "wp-veritas.csv");
+  }
 
   isLoading = () => {
     return this.props.sites === undefined;
@@ -134,12 +146,12 @@ class List extends Component {
           <table className="table table-striped">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">URL</th>
-                <th scope="col">Type</th>
-                <th scope="col">Statut</th>
-                <th scope="col">Env. Openshift</th>
-                <th className="w-50">Actions</th>
+                <th className="w-5" scope="col">#</th>
+                <th className="w-25" scope="col">URL</th>
+                <th className="w-10" scope="col">Type</th>
+                <th className="w-10" scope="col">Statut</th>
+                <th className="w-10" scope="col">Env. Openshift</th>
+                <th className="w-30" >Actions</th>
               </tr>
             </thead>
             <Cells sites={this.props.sites} deleteSite={ this.deleteSite }/>

@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Types, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
-import { Loading } from '../Messages'
+import { Loading } from '../Messages';
 
 class Add extends Component {
 
@@ -29,12 +29,10 @@ class Add extends Component {
   }
 
   getSite = () => {
-    for (let site of this.props.sites) {
-      if (site._id == this.props.match.params._id) {
-        return site
-      }
-    }
-    return null;
+    // Get the URL parameter
+    let siteId = this.props.match.params._id;
+    let site = Sites.findOne({_id: siteId});
+    return site;
   }
     
   submit = (values, actions) => {
@@ -92,7 +90,8 @@ class Add extends Component {
         status:'requested',
         comment: '',
         plannedClosingDate: '',
-        tags: []
+        tags: [],
+        professors: [],
       }
     } else if (this.state.action == 'edit') {
       initialValues = this.getSite();
@@ -332,14 +331,12 @@ export default withTracker(() => {
     Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
     Meteor.subscribe('category.list');
-    // TODO : call site.single 
-    Meteor.subscribe('site.list');
-      
+    Meteor.subscribe('sites.list');
     return {
       openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
       types: Types.find({}, {sort: {name:1 }}).fetch(),
       themes: Themes.find({}, {sort: {name:1 }}).fetch(),
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
-      sites: Sites.find({}),
+      sites: Sites.find({}).fetch(),
     };  
 })(Add);

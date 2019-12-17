@@ -10,7 +10,10 @@ import {
     typesSchema, 
     themesSchema, 
     Tags,
-    tagSchema } from '../api/collections';
+    tagSchema, 
+    Professors,
+    professorSchema
+  } from '../api/collections';
 
 import { check } from 'meteor/check'; 
 import { throwMeteorError } from '../api/error';
@@ -134,6 +137,36 @@ function prepareUpdateInsert(site, action) {
 
 Meteor.methods({
 
+  async getLDAPInformations(sciper) {
+    let result;
+    const publicLdapContext = require('epfl-ldap')();
+    result = await new Promise(function (resolve, reject) {
+      publicLdapContext.users.getUserBySciper(sciper, function(err, data) {
+        resolve(data);
+      });
+    });
+    return result;
+  },
+
+  async updateLDAPInformations() {
+    let professors = Professors.find({}).fetch();
+    professors.forEach(prof => {
+      Meteor.call('getLDAPInformations', prof.sciper, (error, LDAPinformations) => {
+        if (error) {
+          console.log(`ERROR ${error}`);
+        } else {
+          let professorDocument = {
+            displayName: LDAPinformations.displayName,
+          }
+          Professors.update(
+            { _id: prof._id }, 
+            { $set: professorDocument }
+          );
+        }
+      });
+    });
+  },
+
   updateRole(userId, role) {
       
     if (!this.userId) {
@@ -249,11 +282,13 @@ Meteor.methods({
       this.userId
     );
     
-    let sites = Sites.find();
+    // we need update all sites that have this updated tag
+    let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(current_tag) {
         if (current_tag._id === tag._id) {
+          // we want update this tag of current site
           new_tags.push(tag);
         } else {
           new_tags.push(current_tag);
@@ -299,11 +334,13 @@ Meteor.methods({
       this.userId
     );
 
-    let sites = Sites.find();
+    // we need update all sites that have this deleted tag
+    let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_tags = [];
       site.tags.forEach(function(tag) {
         if (tag._id === tagId) {
+          // we want delete this tag of current site
         } else {
           new_tags.push(tag);
         }
@@ -320,7 +357,6 @@ Meteor.methods({
   },
 
   insertSite(site){
-
     if (!this.userId) {
       throw new Meteor.Error('not connected');
     }
@@ -339,7 +375,7 @@ Meteor.methods({
     sitesSchema.validate(site);
 
     site = prepareUpdateInsert(site, 'insert');
-    
+
     let siteDocument = {
       url: site.url,
       slug: site.slug,
@@ -364,9 +400,11 @@ Meteor.methods({
       inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
+      professors: site.professors,
     }
 
     let newSiteId = Sites.insert(siteDocument);
+
     let newSite = Sites.findOne({_id: newSiteId});
 
     AppLogger.getLog().info(
@@ -376,6 +414,44 @@ Meteor.methods({
     );
 
     return newSiteId;
+  },
+
+  associateProfessorsToSite(site, professors) {
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+
+    const canAssociate = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+
+    if (! canAssociate) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and editors can associate tags to a site.');
+    }
+
+    let siteDocument = {
+      professors: professors,
+    }
+
+    let siteBeforeUpdate = Sites.findOne({ _id: site._id});
+    
+    Sites.update(
+      {_id: site._id}, 
+      { $set: siteDocument
+    });
+
+    let updatedSite = Sites.findOne({ _id: site._id});
+
+    AppLogger.getLog().info(
+      `Associate professors to site with ID ${ site._id }`, 
+      { before: siteBeforeUpdate , after: updatedSite }, 
+      this.userId
+    );
+
   },
 
   associateTagsToSite(site, tags) {
@@ -461,6 +537,7 @@ Meteor.methods({
       inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
+      professors: site.professors,
     }
 
     let siteBeforeUpdate = Sites.findOne({ _id: site._id});
@@ -714,7 +791,7 @@ Meteor.methods({
     Categories.remove({_id: categoryId});
 
     AppLogger.getLog().info(
-      `Delete category ID ${ categoryId }`, 
+      `Delete category ID associateProfessorsToSite${ categoryId }`, 
       { before: category, after: "" }, 
       this.userId
     );
@@ -789,5 +866,137 @@ Meteor.methods({
       { before: theme, after: "" }, 
       this.userId
     );
+  },
+
+  insertProfessor(professor) {
+    
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+    
+    const canInsert = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+    
+    if (! canInsert) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editors can insert professor.');
+    }
+    
+    professorSchema.validate(professor);
+    
+    // Check if name is unique
+    // TODO: Move this code to SimpleSchema custom validation function
+    if (Professors.find({sciper: professor.sciper}).count()>0) {
+      throwMeteorError('name', 'Un professeur avec le même sciper existe déjà !');
+    }
+    
+    let professorDocument = {
+      sciper: professor.sciper,
+      displayName: professor.displayName,
+    };
+    
+    let newProfessorId = Professors.insert(professorDocument);
+    let newProfessor = Professors.findOne({_id: newProfessorId});
+
+    AppLogger.getLog().info(
+      `Insert professor ID ${ newProfessorId }`, 
+      { before: "", after: newProfessor }, 
+      this.userId
+    );
+
+    return newProfessor;
+  },
+
+  updateProfessor(professor) {
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+    
+    const canUpdate = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+    
+    if (! canUpdate) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editors can update professors.');
+    }
+
+    professorSchema.validate(professor);
+
+    let professorDocument = {
+      sciper: professor.sciper,
+    }
+
+    let professorBeforeUpdate = Professors.findOne({ _id: professor._id});
+
+    Professors.update(
+      { _id: professor._id }, 
+      { $set: professorDocument }
+    );
+
+    let updatedProfessor = Professors.findOne({ _id: professor._id});
+    
+    AppLogger.getLog().info(
+      `Update professor ID ${ professor._id }`, 
+      { before: professorBeforeUpdate , after: updatedProfessor }, 
+      this.userId
+    );
+  },
+
+  removeProfessor(professorId){
+
+    if (!this.userId) {
+      throw new Meteor.Error('not connected');
+    }
+
+    const removeProfessor = Roles.userIsInRole(
+      this.userId,
+      ['admin', 'tags-editor'], 
+      Roles.GLOBAL_GROUP
+    );
+
+    if (! removeProfessor) {
+      throw new Meteor.Error('unauthorized',
+        'Only admins and tags-editor can remove professor.');
+    }
+
+    check(professorId, String);
+
+    let professor = Professors.findOne({_id: professorId});
+
+    Professors.remove({_id: professorId});
+
+    AppLogger.getLog().info(
+      `Delete professor ID ${ professorId }`, 
+      { before: professor, after: "" }, 
+      this.userId
+    );
+    
+    // we need update all sites that have this deleted professor
+    let sites = Sites.find({}).fetch();
+    sites.forEach(function(site) {
+      new_professors = [];
+      site.professors.forEach(function(professor) {
+        if (professor._id === professorId) {
+          // we want delete this tag of current professor
+        } else {
+          new_professors.push(professor);
+        }
+      });
+      Sites.update(
+        {"_id": site._id},
+        {
+          $set: {
+            'professors': new_professors,
+          }
+        }
+      );
+    });
   },
 });

@@ -23,3 +23,25 @@ th.special, td.special {
   max-width: 250px;
   width: 100%;
 }
+
+.edit {
+  float: right;
+  padding-right: 20px;
+}
+
+th.log-status, td.log-status {
+  overflow: hidden;
+  max-width: 400px;
+  width: 100%;
+}
+
+table {
+  table-layout: fixed;
+  word-wrap: break-word;
+}
+
+.w-5 { width: 5% !important; }
+.w-10 { width: 10% !important; }
+.w-12 { width: 12% !important; }
+.w-15 { width: 15% !important; }
+.w-30 { width: 30% !important; }

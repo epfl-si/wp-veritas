@@ -1,23 +1,23 @@
-import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories } from '../imports/api/collections';
+import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories, Professors } from '../imports/api/collections';
 import URL from 'url-parse';
 
+import { importSciperAndClustersBySite } from './import-data/import-sciper-clusters-by-site';
+
 importData = () => {
-
-  addUserExperienceField();
-
+  
   /*
-  if (Sites.find({ type: 'unmanaged' }).count() == 0) {
-    console.log("Import unmanaged sites");
-    importUnmanagedSites();
-  } else {
-    console.log("Sites unmanaged already exist");
-  }
-
   if (Sites.find({}).count() == 0) {
     console.log("Import sites");
     importVeritas();
   } else {
     console.log("Sites already exist");
+  }
+
+  if (Sites.find({ type: 'unmanaged' }).count() == 0) {
+    console.log("Import unmanaged sites");
+    importUnmanagedSites();
+  } else {
+    console.log("Sites unmanaged already exist");
   }
 
   if (Tags.find({}).count() == 0) {
@@ -26,8 +26,14 @@ importData = () => {
   } else {
     console.log("Tags already exist");
   }
-
-  if (OpenshiftEnvs.find({}).count() == 5) {
+  */
+  if (Tags.find({ type: 'field-of-research' }).count() == 2) {
+    importClustersTags();
+  } else {
+    console.log("Clusters tags already exist");
+  }
+  /*
+  if (OpenshiftEnvs.find({}).count() == 0) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
   } else {
@@ -53,10 +59,47 @@ importData = () => {
     importCategories();
   } else {
     console.log("Categories already exist");
-  }
+  }*/
 
-  importTagsBySite();
-  */
+  //importTagsBySite();
+
+  importSciperAndClustersBySite();
+
+}
+
+
+
+importClustersTags = () => {
+  const path = 'clusters-tags.csv';
+  const file = Assets.getText(path);
+
+  Papa.parse(file, {
+    delimiter: ";",
+    header: true,
+    complete: function(results) {
+      let data = JSON.parse(JSON.stringify(results.data));
+      data.forEach(line => {
+        let firstPartUrl = 'https://www.epfl.ch/research/domains/cluster?field-of-research=';
+        let nameEn = escape(line.name_en);
+        let url_fr = `${firstPartUrl}${nameEn}`;
+        let url_en = `${firstPartUrl}${nameEn}`;
+        let tagDocument = {
+          name_fr: line.name_en,
+          name_en: line.name_en,
+          url_fr: url_fr,
+          url_en: url_en,
+          type: line.type
+        }
+        if (!Tags.findOne({name_en: line.name_en})) {
+          Tags.insert(tagDocument);
+          console.log(`Import cluster tag ${line.name_en}`);
+        } else {
+          console.log(`ERROR Cluster tag already exist ${line.name_en}`);
+        }
+        
+      });
+    }
+  });
 }
 
 addUserExperienceField = () => {
@@ -98,7 +141,7 @@ importTagsBySite = () => {
           exist_2010 = true;
           ok = ok + 1;
           site = Sites.findOne({url: url});
-          console.log(`URL ${ url } existe`);
+          console.log(`URL ${ url } enullxiste`);
         } else if (Sites.find({url: url_2018}).count() == 1) {
           exist_2018 = true;
           ok = ok + 1;
@@ -213,7 +256,7 @@ importCategories = () => {
         }
       });
       console.log("Importation categories finished");
-    }    
+    }
   });
 }
 
@@ -375,8 +418,11 @@ importVeritas = () => {
       delimiter: ",",
       header: true,
       complete: function(results) {
+        
         let data = JSON.parse(JSON.stringify(results.data));
+
         data.forEach(site => {
+        
           let langs;
           if (site.langs == 'fr' || site.langs == 'en') {
             langs = [site.langs];

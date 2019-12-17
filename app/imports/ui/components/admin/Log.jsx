@@ -20,8 +20,8 @@ class LogCells extends Component {
           <td>{ this.getDate(log.date) }</td>
           <td>{ log.userId }</td>
           <td>{ log.message }</td>
-          <td>{ JSON.stringify(log.additional.before, Object.keys(log.additional.before).sort(), 2) }</td>
-          <td>{ JSON.stringify(log.additional.after, Object.keys(log.additional.after).sort(), 2) }</td>
+          <td className="log-status">{ JSON.stringify(log.additional.before, Object.keys(log.additional.before).sort(), 2) }</td>
+          <td className="log-status">{ JSON.stringify(log.additional.after, Object.keys(log.additional.after).sort(), 2) }</td>
         </tr>
       ))}
       </tbody>
@@ -35,16 +35,16 @@ class Log extends Component {
     let content;
     content = (
       <Fragment>
-        <h4>Liste des logs</h4>
+        <h4 className="py-4">Liste des logs</h4>
         <table className="table table-striped">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col" style={ { width: "15%" } }>Date</th>
-                <th scope="col">Sciper</th>
-                <th scope="col">Message</th>
-                <th scope="col" style={ { width: "40%" } }>Avant</th>
-                <th scope="col" style={ { width: "40%" } }>Après</th>
+                <th className="w-5" scope="col">#</th>
+                <th className="w-15" scope="col">Date</th>
+                <th className="w-10" scope="col">Sciper</th>
+                <th className="w-15" scope="col">Message</th>
+                <th scope="col">Avant</th>
+                <th scope="col">Après</th>
               </tr>
             </thead>
             <LogCells logs={ this.props.logs } />

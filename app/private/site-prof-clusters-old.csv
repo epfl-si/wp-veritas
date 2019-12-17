@@ -1,0 +1,466 @@
+sciper;labAcronyme;siteUrl;doublon;clusters;idSite
+103925;LCA3;http://lca.epfl.ch;;Information & communication theory|Networking|Data science
+115227;LIB;http://bigwww.epfl.ch;;Data and network sciences|Imaging and vision|Learning and decision systems|Optics and photonics
+265228;INE;http://ine.epfl.ch;;Energy systems|Imaging and vision|Micro and nanosystems
+182445;LBNC;http://lbnc.epfl.ch;;Bio-inspired designs and systems|Micro and nanosystems|Personalized health
+156849;ALGO;https://algo.epfl.ch;1;Algorithms & theoretical computer science|Information & communication theory|Security, privacy & cryptography
+156849;ALGO;https://algo.epfl.ch;1;Algebra and number theory|Discrete mathematics
+213191;ANCHP;https://anchp.epfl.ch;;Applied and computational mathematics
+283344;ASL;https://asl.epfl.ch;;Data and network sciences|Learning and decision systems
+115955;BIOROB;https://biorob.epfl.ch;;Bio-inspired designs and systems|Neurotechnology|Learning and decision systems|Neural engineering and prosthetics|Robotics and autonomous systems
+257875;DEDIS;https://blockchainschool.epfl.ch;;Networking|Security, privacy & cryptography|Systems
+104417;LMH;https://bubbles.epfl.ch;;Energy systems
+168579;UPCDA;https://centerforcancerscience.epfl.ch;;Cancer|Development|Molecular and celluar biology|Rodents
+178549;LSMS;https://cmis2020.epfl.ch;1;Structure and materials
+178549;LSMS;https://cmis2020.epfl.ch;1;Future of computing
+205917;DATA;https://data.epfl.ch;;Algorithms & theoretical computer science|Data management & information retrieval|Programming languages & formal methods|Systems
+173997;ALICE;https://datathink.epfl.ch;;Project and design
+105326;DCL;https://dcl.epfl.ch;;Algorithms & theoretical computer science|Programming languages & formal methods|Systems
+278359;DCML;https://dcml.epfl.ch;;Digital humanities|Advanced computer and communication sciences|Expanded perception and interaction|Digital musicology, music cognition and language|Digital media and aesthetics
+182376;UPDEPLA;https://deplanckelab.epfl.ch/;;Drosophila|Genetics|Genomics|Metabolism|Molecular and celluar biology|Rodents
+104759;DESL;https://desl-pwrs.epfl.ch;;Energy systems
+156731;DESL;https://desl-pwrs.epfl.ch;;Energy systems
+278364;DLAB;https://dlab.epfl.ch;;Artificial Intelligence (AI) and Machine Learning (ML)|Data management & information retrieval|Human-computer interaction (HCI)|Data science
+178546;UPLEM;https://drosophoto.epfl.ch;;Development|Drosophila|Genetics|Immunity|Infection|Molecular and celluar biology
+105148;LPMC;https://dubrovnik.epfl.ch;1;Microscopy spectromicroscopy and imaging|Nanosciences|Strongly correlated electron systems
+109056;LPMC;https://dubrovnik.epfl.ch;1;Condensed matter theory|Microscopy spectromicroscopy and imaging|Crystal structure and properties
+106001;LPMC;https://dubrovnik.epfl.ch;1;Microscopy spectromicroscopy and imaging|Nanosciences|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+162370;CSI;https://executive.epfl.ch;;Entrepreneurial strategies|Management of innovation|Technology commercialization|Innovation policy|Information society and digitalization policies and regulation|Technology and public policy
+111184;STAT;https://extremes.epfl.ch;;Probability and stochastics|Statistics
+231890;FIMAP;https://fimap.epfl.ch;;Optics and photonics
+111729;LIS;https://flyjacket.epfl.ch;;Bio-inspired designs and systems|Robotics and autonomous systems|Soft matter and flexible structures
+167337;LMNN;https://futureup.epfl.ch;;Molecular and celluar biology|Neuroscience|Structural biology|Translational research
+109297;GALATEA;https://galatea.epfl.ch;;Advanced manufacturing|Optics and photonics
+168676;UPGON;https://gonczy-lab.epfl.ch;;Bioimaging|Biophysics|Development|Structural biology|Worms
+303470;HEXHIVE;https://hexhive.epfl.ch;;Programming languages & formal methods|Security, privacy & cryptography|Systems
+253136;HOBEL;https://hobelblog.epfl.ch;;Civil engineering and ENAC
+106738;LEM;https://hsca.epfl.ch;;Optimization|Entrepreneurial strategies|Operations & Supply chain management
+192826;CMSO;https://hummel-lab.epfl.ch;;Cancer|Immunity|Molecular and celluar biology|Rodents|Translational research
+276450;UPHUMMEL;https://hummel-lab.epfl.ch/;;Bioimaging|Humans|Neuroscience|Neurotechnology|Translational research
+133346;IBETON;https://ibeton.epfl.ch;;Structure and materials
+146991;AQUA;https://icequbes.epfl.ch;;Imaging and vision|Quantum technology
+105059;ICLAB;https://icnf2019.epfl.ch;;Future of computing|Imaging and vision|Internet of things
+104570;LCPM;https://imampc20.epfl.ch;1;Analytical chemistry|Physical chemistry
+106239;LCPM;https://imampc20.epfl.ch;1;Analytical chemistry|Physical chemistry|Atomic and molecular physics|Ultrafast spectroscopy and optics
+152655;LCA4;https://indy.epfl.ch;;Artificial Intelligence (AI) and Machine Learning (ML)|Data management & information retrieval|Information & communication theory|Data science
+167659;CRYOS;https://www.epfl.ch/labs/cryos;;Atmosphere and climate|Sustainable energy systems|Alpine and polar environment
+171550;EML;https://www.epfl.ch/labs/eml/;;Atmosphere and climate|Ecology and biogeochemical cycles|Human-environment interactions|Water and waste engineering
+283343;FLEXLAB;https://www.epfl.ch/labs/flexlab/;;Bio-inspired designs and systems|Flexible electronics|Imaging and vision|Robotics and autonomous systems|Soft matter and flexible structures
+276451;UPOATES;https://www.epfl.ch/research/domains/bioengineering/;;Bioimaging|Biophysics|Computational biology|Development|Fish
+161833;IPHYS-GE;https://www.epfl.ch/schools/sb/research/iphys/;;Inorganic chemistry|Physical chemistry|Nanosciences|Crystal structure and properties
+101954;LAP;https://lap.epfl.ch/;;Computer architecture and integrated systems
+150117;LCBC;https://www.epfl.ch/labs/lcbc/;;Computational chemistry
+101010;PL-LCH;https://www.epfl.ch/labs/lch/;;Structure and materials|Civil engineering and ENAC
+165806;LNCO;https://www.epfl.ch/labs/lnco/;;Behavior and cognition|Humans|Neuroscience|Neurotechnology|Translational research
+101475;LTS4;https://www.epfl.ch/labs/lts4/;;Data and network sciences|Imaging and vision|Learning and decision systems|Personalized health|Sports technology
+136108;GR-QUA;https://www.epfl.ch/labs/q-lab/;;Future of computing|Micro and nanosystems|Optics and photonics|Quantum technology|Space technology
+253102;SBER;https://www.epfl.ch/labs/sber/;;Ecology and biogeochemical cycles|Alpine and polar environment
+168244;WIRE;https://www.epfl.ch/labs/wire/;;Atmosphere and climate|Environmental modeling and monitoring|Sustainable energy systems
+125681;IVRL;https://ivrl.epfl.ch;;Computer vision|Computer graphics|Signal & image processing
+155705;LABOS;https://labos.epfl.ch;;Systems
+211624;LAMMM;https://lammm.epfl.ch;;Advanced manufacturing
+177241;LARA;https://lara.epfl.ch;;Programming languages & formal methods|Security, privacy & cryptography|Systems
+131602;LASEC;https://lasec.epfl.ch;;Security, privacy & cryptography
+104576;LASUR;https://lasur15.epfl.ch;;Territory and society|Civil engineering and ENAC
+102121;LASUR;https://lasur15.epfl.ch;;Territory and society|Civil engineering and ENAC
+182443;UPDALPE;https://lbm.epfl.ch;;Bioimaging|Biophysics|Computational biology|Molecular and celluar biology|Structural biology
+199129;LBNI;https://lbni.epfl.ch;1;Bio-inspired designs and systems|Advanced manufacturing|Flexible electronics|Imaging and vision|Micro and nanosystems|Optics and photonics|Personalized health|Robotics and autonomous systems|Soft matter and flexible structures
+123870;LBNI;https://lbni.epfl.ch;1;Bio-inspired designs and systems|Energy systems|Imaging and vision|Optics and photonics|Soft matter and flexible structures
+209207;LBP;https://lbp.epfl.ch;;Optics and photonics|Soft matter and flexible structures
+105427;LCA1;https://lca1.epfl.ch;;Networking|Security, privacy & cryptography
+172233;LCBB;https://lcbb.epfl.ch;;
+111732;LCN1;https://lcn.epfl.ch;1;Computational biology|Neurocomputation
+111732;LCN1 / LCN2;https://lcn.epfl.ch;1;Artificial Intelligence (AI) and Machine Learning (ML)|Computational biology
+166540;LDM1;https://ldmblogs.epfl.ch;1;Art and expression
+166540;LDM1;https://ldmblogs.epfl.ch;1;Human-computer interaction (HCI)
+104359;LEN;https://len.epfl.ch;;Neuroscience|Neurotechnology|Translational research
+196500;LGG;https://lgg.epfl.ch;;Artificial Intelligence (AI) and Machine Learning (ML)|Computer graphics|Human-computer interaction (HCI)
+106482;LHTC;https://lhtc.epfl.ch/;;Personalized health
+105074;LIA;https://lia.epfl.ch;;Artificial Intelligence (AI) and Machine Learning (ML)
+168670;UPLIN;https://lingner-lab.epfl.ch;;Genomics|Molecular and celluar biology
+122796;LINX;https://linx.epfl.ch;;Computational biology|Information & communication theory|Signal & image processing
+199128;LIONS;https://lions.epfl.ch;;Data and network sciences|Learning and decision systems
+169253;LPMAT;https://lpmat.epfl.ch;1;Optics and photonics
+113150;LPMAT;https://lpmat.epfl.ch;1;Advanced manufacturing|Micro and nanosystems|Optics and photonics
+164642;LPSY;https://lpsy.epfl.ch/;;Computational biology|Neurocomputation|Neuroscience
+102717;LSRO;https://lsro.epfl.ch;;Bio-inspired designs and systems|Robotics and autonomous systems
+120906;LTS2;https://lts2.epfl.ch;;Data and network sciences|Imaging and vision
+263769;UPMCCABE;https://mccabelab.epfl.ch;;Drosophila|Genetics|Molecular and celluar biology|Neuroscience
+105043;GR-EB;https://mmspg.epfl.ch;;Imaging and vision
+203973;GR-NAVEIRAS;https://naveiras-lab.epfl.ch;;Cancer|Humans|Metabolism|Molecular and celluar biology|Translational research
+152027;MIPLAB;https://network-science.epfl.ch;;Neurotechnology|Data and network sciences|Imaging and vision|Learning and decision systems|Neural engineering and prosthetics|Personalized health
+212341;LMGN;https://ntcm2018.epfl.ch;;Micro and nanosystems|Optics and photonics
+155721;OPT;https://opt.epfl.ch;1;
+190091;OPT;https://opt.epfl.ch;1;Micro and nanosystems|Optics and photonics
+177958;PARSA;https://parsa.epfl.ch;;Computer architecture and integrated systems|Systems
+270858;PBL;https://pbl.epfl.ch;;Bio-inspired designs and systems|Personalized health|Soft matter and flexible structures
+159310;NAM;https://photonics.epfl.ch;;Advanced manufacturing|Energy systems|Imaging and vision|Micro and nanosystems|Optics and photonics
+252123;POWERLAB;https://powerlab.epfl.ch;;Energy systems|Micro and nanosystems
+172749;UPRAD;https://radtke-lab.epfl.ch;;Cancer|Immunity|Molecular and celluar biology|Rodents|Translational research
+239987;RAO;https://rao.epfl.ch;;Optimization|Business analytics|Operations & Supply chain management
+265226;RGL;https://rgl.epfl.ch;;Computer graphics|Signal & image processing
+105841;GSCP;https://risk-protraining.epfl.ch;;Chemical engineering
+174228;UPSIM;https://simanis-lab.epfl.ch;;Genetics|Molecular and celluar biology
+105633;LCA2;https://smartgrid.epfl.ch;;Networking|Systems
+196838;UPRAMDYA;https://stanford-epfl-neuro.epfl.ch;;Bioimaging|Biophysics|Computational biology|Drosophila|Neuroscience|Neurotechnology
+196998;SUNMIL;https://sunmil.epfl.ch;;Bio-inspired designs and systems|Soft matter and flexible structures
+194090;TCL;https://tcl.epfl.ch;;Internet of things
+105869;SCI-STI-SM;https://tic.epfl.ch;;Micro and nanosystems|Personalized health
+292067;QMAT;https://winter-2020-aspen-conf.epfl.ch;;Quantum technology
+178483;UPHCE;https://www.eawag.ch;;Atmosphere and climate
+246669;UPABLASSER;https://www.epfl.ch/labs/ablasserlab;;Humans|Immunity|Infection|Molecular and celluar biology|Rodents|Translational research
+263770;ACHT;https://www.epfl.ch/labs/acht;;Theory and history
+290660;AMCV;https://www.epfl.ch/labs/amcv;;Mathematical analysis
+189915;ANMC;https://www.epfl.ch/labs/anmc;;Applied and computational mathematics
+149162;APHYS;https://www.epfl.ch/labs/aphys;;Atmosphere and climate|Ecology and biogeochemical cycles|Sustainable energy systems
+105035;SCI-IC-BD;https://www.epfl.ch/labs/appliedsc;;Computer architecture and integrated systems
+221094;APRL;https://www.epfl.ch/labs/aprl;;Atmosphere and climate|Environmental modeling and monitoring
+106643;JMV;https://www.epfl.ch/labs/aspg;;Data and network sciences|Personalized health|Sports technology
+185233;LISP;https://www.epfl.ch/labs/auwerx-lab;;Genetics|Genomics|Metabolism|Molecular and celluar biology|Rodents|Translational research
+287093;UPBARTH;https://www.epfl.ch/labs/barth-lab;;Biophysics|Cancer|Computational biology|Molecular and celluar biology|Structural biology
+231181;BIOS;https://www.epfl.ch/labs/bios;;Bio-inspired designs and systems|Advanced manufacturing|Imaging and vision|Micro and nanosystems|Optics and photonics|Personalized health
+192269;UPBLO;https://www.epfl.ch/labs/blokesch-lab;;Genetics|Infection|Microbiology|Molecular and celluar biology
+112194;LSM;https://www.epfl.ch/labs/bnms;1;Internet of things
+108571;LSM;https://www.epfl.ch/labs/bnms;1;Bio-inspired designs and systems|Future of computing|Imaging and vision|Internet of things|Neural engineering and prosthetics|Personalized health
+105271;GR-GN;https://www.epfl.ch/labs/bpe;;Geosystems and natural resources
+169115;UPBRI;https://www.epfl.ch/labs/brisken-lab;;Cancer|Humans|Molecular and celluar biology|Rodents|Translational research
+270833;CAG;https://www.epfl.ch/labs/cag;;Algebra and number theory|Geometry and topology
+235589;CAMA;https://www.epfl.ch/labs/cama;;Mathematical analysis
+121845;CCLAB;https://www.epfl.ch/labs/cclab;;Structure and materials
+100810;CEAT;https://www.epfl.ch/labs/ceat;;Territory and society
+141288;CEMI;https://www.epfl.ch/labs/cemi;;Management of innovation|Innovation policy|Intellectual property rights policy and regulation|Information society and digitalization policies and regulation|Technology and public policy
+174686;SFI-LL;https://www.epfl.ch/labs/cfi;;Asset Pricing and Financial Markets|Financial Institutions and Regulation
+105611;LMS;https://www.epfl.ch/labs/chaire-gaz-naturel;;Geosystems and natural resources
+106690;LMS;https://www.epfl.ch/labs/chaire-gaz-naturel;;Geosystems and natural resources
+155704;CHILI;https://www.epfl.ch/labs/chili;;Human-computer interaction (HCI)|Education technology & research|Robotics
+190693;CLSE;https://www.epfl.ch/labs/clse;;Micro and nanosystems|Personalized health
+184705;CNPA;https://www.epfl.ch/labs/cnpa;;Art and expression|Project and design
+235586;COSMO;https://www.epfl.ch/labs/cosmo;;Advanced manufacturing|Data and network sciences
+220184;UPCOURTINE;https://www.epfl.ch/labs/courtine-lab;;Humans|Motor control|Neurotechnology|Primates|Translational research
+109250;CSEA;https://www.epfl.ch/labs/csea;;Computational chemistry|Physical chemistry|Renewable energy|Atomic and molecular physics|Computational physics|Condensed matter theory|Nanosciences|Surface physics and low-dimensional systems|Theoretical Physics
+213189;SFI-PCD;https://www.epfl.ch/labs/csf;;Asset Pricing and Financial Markets|Financial Technology|Financial Institutions and Regulation
+196224;CSF;https://www.epfl.ch/labs/csf;;Asset Pricing and Financial Markets|Financial Technology|Financial Institutions and Regulation
+161312;CSFT;https://www.epfl.ch/labs/csft;;Mathematical analysis|Probability and stochastics|Statistical mechanics and quantum information|Surface physics and low-dimensional systems
+118353;CSQI;https://www.epfl.ch/labs/csqi;;Applied and computational mathematics
+159141;CTMC;https://www.epfl.ch/labs/ctmc;;Computational physics|Condensed matter theory|Magnetism|Statistical mechanics and quantum information|Strongly correlated electron systems|Surface physics and low-dimensional systems|Theoretical Physics
+112366;CVLAB;https://www.epfl.ch/labs/cvlab;;Artificial Intelligence (AI) and Machine Learning (ML)|Computer vision|Signal & image processing
+301146;UPDANGELO;https://www.epfl.ch/labs/dangelo-lab;;Bioimaging|Metabolism|Molecular and celluar biology|Neuroscience|Rodents
+183120;DCG;https://www.epfl.ch/labs/dcg;;Discrete mathematics|Geometry and topology
+213145;UPDEPALMA;https://www.epfl.ch/labs/depalma-lab;;Cancer|Humans|Molecular and celluar biology|Rodents|Translational research
+174121;DHLAB;https://www.epfl.ch/labs/dhlab;;Digital humanities|Big data and AI|Immersive visualization technologies, aesthetics and cultural (big) data|Tangible and intangible cultural heritage and archives|Advanced computer and communication sciences|Computational modelling and creativity|Digital media and aesthetics
+105782;DISAL;https://www.epfl.ch/labs/disal;;Environmental modeling and monitoring|Human-environment interactions
+183121;DISOPT;https://www.epfl.ch/labs/disopt;;Discrete mathematics
+141236;UPDUB;https://www.epfl.ch/labs/duboule-lab;;Computational biology|Development|Drosophila|Molecular and celluar biology|Rodents
+225189;EAST-CO;https://www.epfl.ch/labs/east;;Project and design
+225190;EAST-CO;https://www.epfl.ch/labs/east;;Project and design
+182281;ECHO;https://www.epfl.ch/labs/echo;;Ecology and biogeochemical cycles|Human-environment interactions
+169209;ECOL;https://www.epfl.ch/labs/ecol;;Atmosphere and climate|Ecology and biogeochemical cycles|Environmental modeling and monitoring|Water and waste engineering
+133834;ECOS;https://www.epfl.ch/labs/ecos;;Ecology and biogeochemical cycles|Human-environment interactions
+231182;ECPS;https://www.epfl.ch/labs/ecps;;Future of computing|Soft matter and flexible structures
+198189;EESD;https://www.epfl.ch/labs/eesd;;Structure and materials
+181579;EGG;https://www.epfl.ch/labs/egg;;Algebra and number theory|Mathematical analysis|Geometry and topology
+105540;LA;https://www.epfl.ch/labs/elab;;Energy systems|Micro and nanosystems
+106170;SCI-STI-FR (EMC);https://www.epfl.ch/labs/emc;;Energy systems|Space technology
+280038;EMPLUS;https://www.epfl.ch/labs/emplus;;Digital humanities|Big data and AI|Immersive visualization technologies, aesthetics and cultural (big) data|Tangible and intangible cultural heritage and archives|Advanced computer and communication sciences|Expanded perception and interaction|Advanced computer and communication sciences|Computational modelling and creativity|Digital media and aesthetics|Popular and digital culture and cultural policy and property
+278363;EMSI;https://www.epfl.ch/labs/emsi;;Advanced manufacturing|Imaging and vision|Optics and photonics|Soft matter and flexible structures
+171551;ENTC;https://www.epfl.ch/labs/entc;;Entrepreneurial strategies|Management of innovation|Technology commercialization
+199993;EPSL;https://www.epfl.ch/labs/epsl;;
+169199;ESL;https://www.epfl.ch/labs/esl;;Future of computing|Internet of things|Personalized health|Sports technology
+106542;LEURE;https://www.epfl.ch/labs/expertise;;Territory and society
+223776;FAR;https://www.epfl.ch/labs/far;;Construction and sustainable development
+213497;GR-FE;https://www.epfl.ch/labs/fellay-lab;;Computational biology|Genetics|Genomics|Humans|Immunity
+104860;LC;https://www.epfl.ch/labs/ffo;;Micro and nanosystems|Personalized health|Robotics and autonomous systems
+236660;FORM;https://www.epfl.ch/labs/form;;Project and design
+266889;FSL;https://www.epfl.ch/labs/fsl;;Astrophysics and gravitation|Fundamental interactions and cosmology|Theoretical Physics
+148571;SCI-SB-SG;https://www.epfl.ch/labs/gbf;;Chemical biology|Organic chemistry
+239988;GR-KRO;https://www.epfl.ch/labs/gcb;;Renewable energy
+149479;SCI-SB-MM;https://www.epfl.ch/labs/gcc;1;Inorganic chemistry|Renewable energy
+166619;SCI-SB-MM;https://www.epfl.ch/labs/gcc;1;Inorganic chemistry|Renewable energy|Magnetism
+149418;LCOM;https://www.epfl.ch/labs/gcee;;Chemical biology|Inorganic chemistry|Renewable energy
+105914;GR-MO (GDP);https://www.epfl.ch/labs/gdp;;Physical chemistry|Renewable energy|Ultrafast spectroscopy and optics
+258069;GEL;https://www.epfl.ch/labs/gel;;Geosystems and natural resources
+107971;GEM;https://www.epfl.ch/labs/gem;;Energy systems
+105275;LASIG;https://www.epfl.ch/labs/genomic-resources;;Environmental modeling and monitoring|Human-environment interactions
+106544;SCI-STI-LT (GFO);https://www.epfl.ch/labs/gfo;;Optics and photonics
+109138;LCPM>GGSD;https://www.epfl.ch/labs/ggsd;;Physical chemistry|Atomic and molecular physics
+105958;SCI-SB-MN (GMF);https://www.epfl.ch/labs/gmf;;Chemical engineering|Renewable energy
+106159;GR-PUL (GPAO);https://www.epfl.ch/labs/gpao;;Chemical engineering
+113954;GR-CEL;https://www.epfl.ch/labs/gr-cel;;Water and waste engineering
+116115;GR-OST;https://www.epfl.ch/labs/gr-ost;;Physical chemistry|Atomic and molecular physics
+133751;GR-TES;https://www.epfl.ch/labs/gr-tes;;Algebra and number theory
+240725;UPGRAEFF;https://www.epfl.ch/labs/graefflab;;Behavior and cognition|Molecular and celluar biology|Neuroscience|Rodents
+209845;UPHAN;https://www.epfl.ch/labs/hantschel-lab;;Cancer
+265222;HERUS;https://www.epfl.ch/labs/herus;;Human-environment interactions|Sustainable energy systems
+105396;UPHESS;https://www.epfl.ch/labs/hessbellwald-lab;1;Computational biology|Neurocomputation|Neuroscience
+105396;UPHESS;https://www.epfl.ch/labs/hessbellwald-lab;1;Applied and computational mathematics|Geometry and topology
+174685;LPTP;https://www.epfl.ch/labs/het;;Elementary particle physics|Fundamental interactions and cosmology|Theoretical Physics
+105668;SCI-STI-HL;https://www.epfl.ch/labs/hl;;Optics and photonics
+171552;UPHUELSKEN;https://www.epfl.ch/labs/huelsken-lab;;Cancer|Immunity|Molecular and celluar biology|Rodents|Translational research
+156151;IBOIS;https://www.epfl.ch/labs/ibois;;Civil engineering and ENAC
+105551;SCI-STI-DK;https://www.epfl.ch/labs/ict4sm;;Advanced manufacturing|Internet of things|Learning and decision systems
+117014;LIDIAP;https://www.epfl.ch/labs/idiap;1;Learning and decision systems
+171600;LIDIAP;https://www.epfl.ch/labs/idiap;1;Data and network sciences|Imaging and vision|Learning and decision systems|Personalized health
+171600;DHI-GE;https://www.epfl.ch/labs/idiap;1;Digital humanities|Big data and AI|Advanced computer and communication sciences|Computational modelling and creativity|Distributed computing, crowdsourcing and citzen science|Cultural and urban anthropology and space|Popular and digital culture and cultural policy and property
+251746;IIPP;https://www.epfl.ch/labs/iipp;;Management of innovation|Technology commercialization|Innovation policy|Intellectual property rights policy and regulation|Technology and public policy
+106443;IMAC;https://www.epfl.ch/labs/imac;;Structure and materials
+101874;INSTANT-LAB;https://www.epfl.ch/labs/instantlab;;Advanced manufacturing|Micro and nanosystems|Robotics and autonomous systems|Soft matter and flexible structures|Space technology|Sports technology
+140973;SCI-STI-FM;https://www.epfl.ch/labs/ipese;;Energy systems
+182444;LPQM2;https://www.epfl.ch/labs/k-lab;1;Optics and photonics|Quantum technology
+182444;LPQM2;https://www.epfl.ch/labs/k-lab;1;Nanosciences|Quantum photonics
+104596;LA1;https://www.epfl.ch/labs/la;1;
+207237;LA3;https://www.epfl.ch/labs/la;1;Advanced manufacturing|Energy systems|Internet of things|Learning and decision systems|Robotics and autonomous systems
+159253;LAB-U;https://www.epfl.ch/labs/lab-u;;Territory and society
+147009;LABA;https://www.epfl.ch/labs/laba;;Territory and society
+171548;LACAL;https://www.epfl.ch/labs/lacal;;Security, privacy & cryptography
+301145;LAFT;https://www.epfl.ch/labs/laft;;Advanced manufacturing
+106071;LAI;https://www.epfl.ch/labs/lai;;Advanced manufacturing|Energy systems|Robotics and autonomous systems
+103606;LAMD;https://www.epfl.ch/labs/lamd;;Energy systems
+126003;LAMP1;https://www.epfl.ch/labs/lamp;;Computer architecture and integrated systems|Programming languages & formal methods|Systems
+112464;LAMS;https://www.epfl.ch/labs/lams;;Systems|Software engineering
+133331;LANES;https://www.epfl.ch/labs/lanes;;Future of computing|Micro and nanosystems|Optics and photonics|Quantum technology
+199130;LAPD;https://www.epfl.ch/labs/lapd;;Advanced manufacturing|Imaging and vision|Micro and nanosystems|Optics and photonics
+296807;LAPI;https://www.epfl.ch/labs/lapi;;Atmosphere and climate|Environmental modeling and monitoring|Human-environment interactions
+180534;LAPIS;https://www.epfl.ch/labs/lapis;;Art and expression
+263766;LAS;https://www.epfl.ch/labs/las;;Chemical engineering|Renewable energy|Nanosciences
+115671;LASA;https://www.epfl.ch/labs/lasa;;Neurotechnology|Learning and decision systems|Robotics and autonomous systems
+161577;LASPE;https://www.epfl.ch/labs/laspe;1;Optics and photonics|Quantum technology
+165328;LASPE;https://www.epfl.ch/labs/laspe;1;Nanosciences|Quantum photonics|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+161577;LASPE;https://www.epfl.ch/labs/laspe;1;Microscopy spectromicroscopy and imaging|Nanosciences|Quantum photonics|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+105419;LASPE;https://www.epfl.ch/labs/laspe;1;Nanosciences|Quantum photonics|Ultrafast spectroscopy and optics
+131663;LASPE;https://www.epfl.ch/labs/laspe;1;Quantum photonics|Ultrafast spectroscopy and optics
+103324;LAST;https://www.epfl.ch/labs/last;;Construction and sustainable development
+166196;LASTRO;https://www.epfl.ch/labs/lastro;1;Astrophysics and gravitation
+178340;LASTRO;https://www.epfl.ch/labs/lastro;1;Astrophysics and gravitation
+222189;LASTRO;https://www.epfl.ch/labs/lastro;1;Astrophysics and gravitation
+106096;GR-PI;https://www.epfl.ch/labs/lasur;;Applied and computational mathematics
+121849;LBE;https://www.epfl.ch/labs/lbe;;Atmosphere and climate|Ecology and biogeochemical cycles|Water and waste engineering
+161458;LBEN;https://www.epfl.ch/labs/lben;;Bio-inspired designs and systems|Imaging and vision|Optics and photonics|Personalized health|Quantum technology|Soft matter and flexible structures
+103117;LBO;https://www.epfl.ch/labs/lbo;;Bio-inspired designs and systems|Personalized health|Soft matter and flexible structures
+144344;LBS;https://www.epfl.ch/labs/lbs;;Biophysics|Computational physics|Statistical mechanics and quantum information|Theoretical Physics
+107537;LCAV;https://www.epfl.ch/labs/lcav;;Information & communication theory|Signal & image processing
+217627;LCBIM;https://www.epfl.ch/labs/lcbim;;Chemical biology|Organic chemistry
+224007;LCBM;https://www.epfl.ch/labs/lcbm;;Chemical biology|Physical chemistry
+113297;LCC;https://www.epfl.ch/labs/lcc;;Territory and society
+173999;LCE;https://www.epfl.ch/labs/lce;;Atmosphere and climate|Human-environment interactions|Water and waste engineering
+178464;LCMD;https://www.epfl.ch/labs/lcmd;;Computational chemistry
+181577;LCPT;https://www.epfl.ch/labs/lcpt;;Computational chemistry|Applied and computational mathematics|Computational physics
+145138;LCS;https://www.epfl.ch/labs/lcs;;Inorganic chemistry
+206338;LCSA;https://www.epfl.ch/labs/lcsa;;Organic chemistry
+174688;LCSB;https://www.epfl.ch/labs/lcsb;;Chemical engineering|Computational chemistry|Renewable energy
+181574;LCSO;https://www.epfl.ch/labs/lcso;;Chemical biology|Organic chemistry
+113868;LCVMM;https://www.epfl.ch/labs/lcvmm;;Applied and computational mathematics
+301144;LEAGO;https://www.epfl.ch/labs/leago;;Chemical biology|Organic chemistry
+189937;LEB;https://www.epfl.ch/labs/leb;;Biophysics|Microscopy spectromicroscopy and imaging
+258084;LEMR;https://www.epfl.ch/labs/lemr;;Geosystems and natural resources
+105258;LEPA;https://www.epfl.ch/labs/lepa;;Analytical chemistry|Chemical engineering|Physical chemistry|Renewable energy
+106368;LESO-PB;https://www.epfl.ch/labs/leso;;Civil engineering and ENAC
+253110;LFIM;https://www.epfl.ch/labs/lfim;;Chemical engineering|Inorganic chemistry|Nanosciences
+189938;LFMI;https://www.epfl.ch/labs/lfmi;;Energy systems|Soft matter and flexible structures
+220185;LGB;https://www.epfl.ch/labs/lgb;;Atmosphere and climate|Ecology and biogeochemical cycles
+160090;LGC;https://www.epfl.ch/labs/lgc;;Behavior and cognition|Neuroscience
+148669;LHE;https://www.epfl.ch/labs/lhe;;Civil engineering and ENAC
+306842;LHST;https://www.epfl.ch/labs/lhst;;Digital humanities|Immersive visualization technologies, aesthetics and cultural (big) data|Tangible and intangible cultural heritage and archives|History of ideas, philosophy, political and economic thought|History of science, technology and the digital|History and dynamics of innovation and patents|Distributed computing, crowdsourcing and citzen science|Popular and digital culture and cultural policy and property
+161735;LIFMET;https://www.epfl.ch/labs/lifmet;1;Chemical biology|Biophysics|Microscopy spectromicroscopy and imaging
+106697;LIFMET;https://www.epfl.ch/labs/lifmet;1;Chemical biology|Physical chemistry|Biophysics|Microscopy spectromicroscopy and imaging
+178220;LIMNO;https://www.epfl.ch/labs/limno;;Chemical engineering|Renewable energy|Nanosciences
+123155;LIP;https://www.epfl.ch/labs/lip;;Chemical biology
+103938;LIPID;https://www.epfl.ch/labs/lipid;;Construction and sustainable development
+111182;LMAF;https://www.epfl.ch/labs/lmaf;1;Advanced manufacturing|Soft matter and flexible structures|Space technology|Sports technology
+105270;LMAF;https://www.epfl.ch/labs/lmaf;1;Micro and nanosystems
+104385;LMAM;https://www.epfl.ch/labs/lmam;;Internet of things|Micro and nanosystems|Neural engineering and prosthetics|Personalized health|Robotics and autonomous systems|Sports technology
+104626;LTP;https://www.epfl.ch/labs/lmc;1;Advanced manufacturing|Micro and nanosystems|Optics and photonics|Soft matter and flexible structures
+138857;LMC;https://www.epfl.ch/labs/lmc;1;
+251247;LMER;https://www.epfl.ch/labs/lmer;;Chemical engineering|Renewable energy
+110635;LMIS1;https://www.epfl.ch/labs/lmis1;1;Micro and nanosystems
+145781;LMIS1;https://www.epfl.ch/labs/lmis1;1;Advanced manufacturing|Energy systems|Flexible electronics|Micro and nanosystems|Optics and photonics|Soft matter and flexible structures
+113762;LMIS2;https://www.epfl.ch/labs/lmis2;;Advanced manufacturing|Micro and nanosystems|Optics and photonics|Personalized health|Soft matter and flexible structures
+107144;LMIS4;https://www.epfl.ch/labs/lmis4;;Neurotechnology|Personalized health
+112836;LMM;https://www.epfl.ch/labs/lmm;;Advanced manufacturing|Energy systems|Space technology
+190315;LMOM;https://www.epfl.ch/labs/lmom;;Bio-inspired designs and systems|Flexible electronics
+182447;LMSC;https://www.epfl.ch/labs/lmsc;1;Energy systems|Micro and nanosystems|Optics and photonics|Quantum technology
+182447;LMSC;https://www.epfl.ch/labs/lmsc;1;Renewable energy|Microscopy spectromicroscopy and imaging|Nanosciences|Crystal structure and properties
+243441;LMTM;https://www.epfl.ch/labs/lmtm;;Advanced manufacturing|Space technology
+188690;LMTS;https://www.epfl.ch/labs/lmts;1;Advanced manufacturing|Flexible electronics|Micro and nanosystems
+162368;LMTS;https://www.epfl.ch/labs/lmts;1;Flexible electronics|Robotics and autonomous systems|Soft matter and flexible structures
+240723;LNB;https://www.epfl.ch/labs/lnb;;Analytical chemistry|Chemical engineering|Renewable energy|Nanosciences
+263127;LNCE;https://www.epfl.ch/labs/lnce;;Chemical engineering|Inorganic chemistry|Renewable energy|Nanosciences
+121774;LND;https://www.epfl.ch/labs/lnd;1;Physical chemistry
+178777;UPLORENZ;https://www.epfl.ch/labs/lnd;1;Physical chemistry|Microscopy spectromicroscopy and imaging|Ultrafast spectroscopy and optics
+254787;LNE;https://www.epfl.ch/labs/lne;;Bio-inspired designs and systems|Neurotechnology|Flexible electronics|Micro and nanosystems|Neural engineering and prosthetics|Personalized health|Soft matter and flexible structures
+190188;LNET;https://www.epfl.ch/labs/lnet;;Energy systems
+104651;LNS;https://www.epfl.ch/labs/lns;1;Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Surface physics and low-dimensional systems
+105362;LNS;https://www.epfl.ch/labs/lns;1;Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Surface physics and low-dimensional systems
+132653;LNS;https://www.epfl.ch/labs/lns;1;Atomic and molecular physics|Condensed matter theory|Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Surface physics and low-dimensional systems
+174684;LO;https://www.epfl.ch/labs/lo;;Advanced manufacturing|Energy systems|Future of computing|Imaging and vision|Learning and decision systems|Neural engineering and prosthetics|Optics and photonics|Soft matter and flexible structures
+156848;LP;https://www.epfl.ch/labs/lp;1;Bio-inspired designs and systems|Energy systems|Personalized health|Robotics and autonomous systems|Soft matter and flexible structures
+156848;LP;https://www.epfl.ch/labs/lp;1;Chemical engineering|Organic chemistry
+104610;LPAC;https://www.epfl.ch/labs/lpac;1;Bio-inspired designs and systems|Advanced manufacturing|Learning and decision systems|Soft matter and flexible structures
+105657;LPAC;https://www.epfl.ch/labs/lpac;1;Bio-inspired designs and systems|Flexible electronics|Micro and nanosystems|Soft matter and flexible structures
+173996;LPAP;https://www.epfl.ch/labs/lpap;;Elementary particle physics|Plasma and beam physics
+290661;LPBS;https://www.epfl.ch/labs/lpbs;;Biophysics
+154408;LPDC;https://www.epfl.ch/labs/lpdc;;Chemical engineering|Renewable energy
+253103;LPDI;https://www.epfl.ch/labs/lpdi;;Personalized health
+122784;LPHE1;https://www.epfl.ch/labs/lphe;1;Elementary particle physics
+160566;LPHE3;https://www.epfl.ch/labs/lphe;1;Elementary particle physics|Particle detector
+162579;LPHE-OS;https://www.epfl.ch/labs/lphe;1;Elementary particle physics
+187230;LPHE-LS;https://www.epfl.ch/labs/lphe;1;Elementary particle physics
+105292;LPI;https://www.epfl.ch/labs/lpi;;Chemical engineering|Physical chemistry|Renewable energy
+104398;LPMN;https://www.epfl.ch/labs/lpmn;;Magnetism|Nanosciences|Surface physics and low-dimensional systems
+125942;LPMV;https://www.epfl.ch/labs/lpmv;;Biophysics|Microscopy spectromicroscopy and imaging
+129621;LPMV;https://www.epfl.ch/labs/lpmv;;Biophysics|Microscopy spectromicroscopy and imaging
+105021;LPN;https://www.epfl.ch/labs/lpn;1;Nanosciences|Quantum photonics|Statistical mechanics and quantum information|Surface physics and low-dimensional systems
+105530;LPN;https://www.epfl.ch/labs/lpn;1;Nanosciences|Quantum photonics|Surface physics and low-dimensional systems
+126010;LPPC;https://www.epfl.ch/labs/lppc;;Astrophysics and gravitation|Fundamental interactions and cosmology|Theoretical Physics
+163670;LPPT;https://www.epfl.ch/labs/lppt;;Chemical biology|Organic chemistry
+166542;LGQ;https://www.epfl.ch/labs/lqg;;Atomic and molecular physics|Quantum photonics
+176429;LQM;https://www.epfl.ch/labs/lqm;;Magnetism|Strongly correlated electron systems
+172230;GR-GA;https://www.epfl.ch/labs/lqno;;Microscopy spectromicroscopy and imaging|Nanosciences|Quantum photonics|Ultrafast spectroscopy and optics
+207354;LRESE;https://www.epfl.ch/labs/lrese;;Energy systems
+251248;LRM;https://www.epfl.ch/labs/lrm;;Analytical chemistry|Physical chemistry|Nanosciences
+228965;LRS;https://www.epfl.ch/labs/lrs;;Reactor physics
+229333;LRS;https://www.epfl.ch/labs/lrs;;Reactor physics
+106982;LRS;https://www.epfl.ch/labs/lrs;;Reactor physics
+208625;LSBI;https://www.epfl.ch/labs/lsbi;;Neurotechnology|Flexible electronics|Neural engineering and prosthetics|Personalized health|Soft matter and flexible structures
+181278;LSCI;https://www.epfl.ch/labs/lsci;;Inorganic chemistry|Organic chemistry|Renewable energy
+107920;LSE;https://www.epfl.ch/labs/lse;;Microscopy spectromicroscopy and imaging|Strongly correlated electron systems|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+105546;LSEN;https://www.epfl.ch/labs/lsen;;Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Surface physics and low-dimensional systems
+157467;LSENS;https://www.epfl.ch/labs/lsens;;Bioimaging|Biophysics|Molecular and celluar biology|Neuroscience|Rodents
+167918;LSI1;https://www.epfl.ch/labs/lsi;;Flexible electronics|Future of computing|Internet of things|Personalized health|Quantum technology
+178548;LSME;https://www.epfl.ch/labs/lsme;;Microscopy spectromicroscopy and imaging|Nanosciences
+242254;LSMO;https://www.epfl.ch/labs/lsmo;1;Energy systems|Future of computing
+242254;LSMO;https://www.epfl.ch/labs/lsmo;1;Chemical engineering|Computational chemistry|Renewable energy|Computational physics
+164385;LSPM;https://www.epfl.ch/labs/lspm;;Chemical engineering|Physical chemistry|Renewable energy
+206332;LSPN;https://www.epfl.ch/labs/lspn;;Organic chemistry
+122830;LSU;https://www.epfl.ch/labs/lsu;;Chemical biology|Physical chemistry
+169973;LSYM;https://www.epfl.ch/labs/lsym;;Bioimaging|Biophysics|Molecular and celluar biology|Neuroscience|Rodents
+176402;LTE;https://www.epfl.ch/labs/lte;;Atmosphere and climate|Environmental modeling and monitoring
+126097;LTH3;https://www.epfl.ch/labs/lth3;;Theory and history
+105747;LTH2;https://www.epfl.ch/labs/ltha;;Theory and history
+103561;LTPN;https://www.epfl.ch/labs/ltpn;;Condensed matter theory|Nanosciences|Quantum photonics|Statistical mechanics and quantum information|Theoretical Physics
+210253;LTQE;https://www.epfl.ch/labs/ltqe;;Atmosphere and climate|Water and waste engineering
+115534;LTS5;https://www.epfl.ch/labs/lts5;;Neurotechnology
+192951;LUMES;https://www.epfl.ch/labs/lumes;;Atomic and molecular physics|Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Quantum photonics|Strongly correlated electron systems|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+106911;UPLUT;https://www.epfl.ch/labs/lutolf-lab;1;Cancer|Development|Molecular and celluar biology|Rodents|Translational research
+106911;UPLUT (LSCB);https://www.epfl.ch/labs/lutolf-lab;1;Chemical biology|Chemical engineering
+196675;LUTS;https://www.epfl.ch/labs/luts;;Transportation and networks
+296806;LUXS;https://www.epfl.ch/labs/luxs;;Physical chemistry|Atomic and molecular physics|Microscopy spectromicroscopy and imaging|Ultrafast spectroscopy and optics
+201483;LWE;https://www.epfl.ch/labs/lwe;;Energy systems|Imaging and vision|Optics and photonics|Space technology
+105917;LEMA;https://www.epfl.ch/labs/mag;1;
+106441;LEMA;https://www.epfl.ch/labs/mag;1;Flexible electronics|Personalized health|Robotics and autonomous systems|Space technology
+115080;MANSLAB-CO;https://www.epfl.ch/labs/manslab;;Project and design
+143954;MANSLAB-CO;https://www.epfl.ch/labs/manslab;;Project and design
+150822;LNMC;https://www.epfl.ch/labs/markram-lab;;Computational biology|Neurocomputation|Neuroscience|Translational research
+177246;UPKIN;https://www.epfl.ch/labs/mckinney-lab;;Bioimaging|Biophysics|Infection|Microbiology
+104646;MCS;https://www.epfl.ch/labs/mcs;;Structure and materials
+232231;MCSS;https://www.epfl.ch/labs/mcss;;Applied and computational mathematics
+120091;MDS2;https://www.epfl.ch/labs/mds;;Discrete mathematics|Statistics
+212964;UPMEYLAN;https://www.epfl.ch/labs/meylan-lab;;Cancer|Development|Molecular and celluar biology|Rodents|Translational research
+265227;MICROBS;https://www.epfl.ch/labs/microbs;;Bio-inspired designs and systems|Advanced manufacturing|Micro and nanosystems|Robotics and autonomous systems|Soft matter and flexible structures
+141278;MIR;https://www.epfl.ch/labs/mir;;Entrepreneurial strategies|Management of innovation|Innovation policy|Intellectual property rights policy and regulation|Information society and digitalization policies and regulation|Technology and public policy
+276449;UPJAGGI;https://www.epfl.ch/labs/mlo;;Algorithms & theoretical computer science|Artificial Intelligence (AI) and Machine Learning (ML)
+110606;UPNAE;https://www.epfl.ch/labs/naef-lab;;Computational biology|Genetics|Genomics|Molecular and celluar biology
+122431;NANOLAB;https://www.epfl.ch/labs/nanolab;1;Internet of things|Micro and nanosystems|Personalized health
+112564;NANOLAB;https://www.epfl.ch/labs/nanolab;1;Internet of things|Micro and nanosystems
+176631;GR-LVT (NEMS);https://www.epfl.ch/labs/nems;;Internet of things|Personalized health
+216550;OES;https://www.epfl.ch/labs/oes;;Optimization|Entrepreneurial strategies|Technology commercialization|Operations & Supply chain management
+253104;UPORICCHIO;https://www.epfl.ch/labs/oricchiolab;;Cancer|Genomics|Molecular and celluar biology|Rodents|Translational research
+263767;PCSL;https://www.epfl.ch/labs/pcsl;;Biophysics|Condensed matter theory|Statistical mechanics and quantum information|Theoretical Physics
+120861;PDE;https://www.epfl.ch/labs/pde;;Mathematical analysis
+199126;PDE;https://www.epfl.ch/labs/pde;;Mathematical analysis
+243438;PEL;https://www.epfl.ch/labs/pel;;Energy systems
+270835;UPPERSAT;https://www.epfl.ch/labs/persat-lab;;Bioimaging|Biophysics|Computational biology|Microbiology|Molecular and celluar biology
+210231;PHOSL;https://www.epfl.ch/labs/phosl;;Optics and photonics
+104859;PROB;https://www.epfl.ch/labs/prob;;Probability and stochastics
+138859;PRST;https://www.epfl.ch/labs/prst;;Probability and stochastics
+100192;PV-LAB;https://www.epfl.ch/labs/pvlab;;Energy systems
+105245;REACT;https://www.epfl.ch/labs/react;;Data and network sciences|Learning and decision systems|Robotics and autonomous systems
+265223;RESSLAB;https://www.epfl.ch/labs/resslab;;Structure and materials
+113159;RESSLAB;https://www.epfl.ch/labs/resslab;;Structure and materials
+107331;SCI-STI-CD;https://www.epfl.ch/labs/rfic;;Internet of things|Micro and nanosystems|Neural engineering and prosthetics|Personalized health
+304533;RGM;https://www.epfl.ch/labs/rgm;;Probability and stochastics
+218367;RRL;https://www.epfl.ch/labs/rrl;;Robotics and autonomous systems
+263768;UPSALATHE1;https://www.epfl.ch/labs/salathelab;1;Computational biology|Epidemiology|Humans|Immunity|Metabolism
+263768;UPSALATHE1;https://www.epfl.ch/labs/salathelab;1;Computational biology|Distributed computing, crowdsourcing and citzen science|Data management & information retrieval|Networking
+183105;UPSCHOONJANS;https://www.epfl.ch/labs/schoonjans-lab;;Metabolism|Molecular and celluar biology|Rodents
+121157;SCI-SB-SD;https://www.epfl.ch/labs/sci-sb-sd;;Applied and computational mathematics
+306844;SDS;https://www.epfl.ch/labs/sds;;Statistics
+185422;SFI-EM;https://www.epfl.ch/labs/sfi-em;;Corporate Finance|Entrepreneurial Finance|Financial Institutions and Regulation
+192824;SFI-JH;https://www.epfl.ch/labs/sfi-jh;;Asset Pricing and Financial Markets|Financial Technology
+192818;SFI-RF;https://www.epfl.ch/labs/sfi-rf;;Corporate Finance|Financial Technology|Entrepreneurial Finance|Financial Institutions and Regulation
+192820;SFI-SM;https://www.epfl.ch/labs/sfi-sm;;Asset Pricing and Financial Markets|Financial Technology
+270291;SLAB;https://www.epfl.ch/labs/slab;;Environmental modeling and monitoring|Alpine and polar environment
+240724;SMAL;https://www.epfl.ch/labs/smal;;Bio-inspired designs and systems|Advanced manufacturing|Personalized health|Soft matter and flexible structures
+180565;SMAT;https://www.epfl.ch/labs/smat;;Probability and stochastics|Statistics
+240229;GR-DIL;https://www.epfl.ch/labs/sois;;Microscopy spectromicroscopy and imaging|Nanosciences|Strongly correlated electron systems|Surface physics and low-dimensional systems
+105911;STAP;https://www.epfl.ch/labs/stap;;Statistics
+235263;UPSUTER;https://www.epfl.ch/labs/suter-lab;;Computational biology|Genetics|Genomics|Molecular and celluar biology
+265224;SXL;https://www.epfl.ch/labs/sxl;;Construction and sustainable development|Civil engineering and ENAC
+178545;TAN;https://www.epfl.ch/labs/tan;;Algebra and number theory|Mathematical analysis
+270859;UPTANG;https://www.epfl.ch/labs/tang-lab;;Bio-inspired designs and systems|Personalized health
+283341;TEBEL;https://www.epfl.ch/labs/tebel;;Civil engineering and ENAC
+210230;THEOS;https://www.epfl.ch/labs/theos;;Advanced manufacturing|Data and network sciences
+263771;TIS;https://www.epfl.ch/labs/tis;;Business analytics|Entrepreneurial strategies|Information society and digitalization policies and regulation
+280037;TN;https://www.epfl.ch/labs/tn;;Algebra and number theory
+218366;TNE;https://www.epfl.ch/labs/tne;;Neurotechnology
+162367;TOM;https://www.epfl.ch/labs/tom;;Optimization|Entrepreneurial strategies|Operations & Supply chain management
+105831;TOPO;https://www.epfl.ch/labs/topo;;Environmental modeling and monitoring
+205918;TOX;https://www.epfl.ch/labs/tox;;Ecology and biogeochemical cycles|Water and waste engineering
+118332;TRANSP-OR;https://www.epfl.ch/labs/transp-or;;Transportation and networks
+167919;LVG;https://www.epfl.ch/labs/tronolab;;Computational biology|Genetics|Genomics|Molecular and celluar biology
+161950;TSAM;https://www.epfl.ch/labs/tsam;;Theory and history
+252550;UNFOLD;https://www.epfl.ch/labs/unfold;;
+171549;VDG;https://www.epfl.ch/labs/vdg;;Biophysics|Humans|Molecular and celluar biology|Rodents|Structural biology
+129343;VITA;https://www.epfl.ch/labs/vita;;Transportation and networks
+240726;VLSC;https://www.epfl.ch/labs/vlsc;;Computer architecture and integrated systems|Programming languages & formal methods|Systems
+217963;CTS-GE;https://www.epfl.ch/research/domains/spacecenter;;Bio-inspired designs and systems|Advanced manufacturing|Imaging and vision|Optics and photonics|Robotics and autonomous systems|Space technology
+104444;LC;https://www.epfl.ch/research/facilities/cime;;
+107423;LTHC;https://www.epfl.ch/schools/ic/ipg;;Information & communication theory
+124369;LTHC;https://www.epfl.ch/schools/ic/ipg;;Information & communication theory
+213225;THL2;https://www.epfl.ch/schools/ic/tcs;;Algorithms & theoretical computer science
+144178;NXMM;https://www.psi.ch;;Advanced manufacturing
+169977;GR-LUD;https://www.psi.ch/fr/cpm;;Atmosphere and climate|Ecology and biogeochemical cycles|Water and waste engineering|Sustainable energy systems
+228967;UPSSC;https://www.wsl.ch;;Atmosphere and climate|Alpine and polar environment
+196681;ACM;;;Theory and history
+275762;SCI-STI-GFT;;;Energy systems|Learning and decision systems|Robotics and autonomous systems
+105745;LTC;;;
+113157;LTC;;;Bio-inspired designs and systems|Advanced manufacturing|Soft matter and flexible structures|Space technology|Sports technology
+149175;CNBI;;;Neural engineering and prosthetics|Robotics and autonomous systems
+105945;LC;;;Energy systems|Internet of things|Micro and nanosystems
+115532;LPM;;;
+123556;ESPLAB;;;
+106416;LC;;;
+108776;LTCM;;;
+179025;THL4;;;Algorithms & theoretical computer science
+107931;LTHI;;;Information & communication theory
+106155;GR-PU;;;Artificial Intelligence (AI) and Machine Learning (ML)|Distributed computing, crowdsourcing and citzen science|Data management & information retrieval|Human-computer interaction (HCI)
+112354;SCI-IC-MR;;;Artificial Intelligence (AI) and Machine Learning (ML)
+113819;LCM;;;Information & communication theory|Networking
+131639;LTHI;;;Information & communication theory
+290659;UPTRONCOSO;;;Data management & information retrieval|Security, privacy & cryptography
+251383;LPHS;;;Biophysics|Magnetism|Microscopy spectromicroscopy and imaging|Nanosciences|Quantum photonics|Statistical mechanics and quantum information|Strongly correlated electron systems|Surface physics and low-dimensional systems|Ultrafast spectroscopy and optics
+104368;SPC-TCV;;;Plasma and beam physics
+179803;LPHE2;;;Elementary particle physics|Particle detector
+122795;LRMB;;;Physical chemistry
+100615;SPC-TH;;;Computational physics|Plasma and beam physics
+271675;MNS;;;Applied and computational mathematics
+112823;SPC-TCV;;;Plasma and beam physics
+105038;SPC-TCV;;;Plasma and beam physics
+105078;SPC-TCV;;;Plasma and beam physics
+111055;SPC-BPP;;;Plasma and beam physics
+148996;SPC-TH;;;Plasma and beam physics
+112367;SPC-II;;;Plasma and beam physics
+201226;GR-JET;;;Algebra and number theory|Geometry and topology
+105910;SPC-TCV;;;Plasma and beam physics
+112204;SPC-TCV;;;Plasma and beam physics
+176621;SPC-TH;;;Computational physics|Plasma and beam physics
+103561;SPC-TH;;;Plasma and beam physics
+125665;SCI-SB-JS;;;Mathematical analysis
+176719;SPC-PB;;;Plasma and beam physics
+106581;GR-TR;;;Mathematical analysis|Geometry and topology
+182384;GR-VICHI;;;Elementary particle physics|Fundamental interactions and cosmology|Theoretical Physics
+106653;SPC-TH;;;Computational physics|Plasma and beam physics
+106722;SPC-II;;;Plasma and beam physics
+161849;C3MP (GR-YAZ);;;Computational chemistry|Computational physics|Condensed matter theory|Magnetism|Nanosciences|Strongly correlated electron systems|Surface physics and low-dimensional systems|Theoretical Physics
+196358;IAGS-GE;;;Tangible and intangible cultural heritage and archives|Cultural and urban anthropology and space|Popular and digital culture and cultural policy and property
+251747;IAGS-GE;;;Cultural and urban anthropology and space|Geopolitical studies
+301338;UPKAPOSSY;;;Digital humanities|History of ideas, philosophy, political and economic thought|History of science, technology and the digital
