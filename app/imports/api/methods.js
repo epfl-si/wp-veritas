@@ -509,9 +509,15 @@ Meteor.methods({
         'Only admins can update sites.');
     }
 
+    if (!('professors' in site)) {
+      site.professors = [];
+    }
+
     sitesSchema.validate(site);
 
     site = prepareUpdateInsert(site, 'update');
+
+    
 
     let siteDocument = {
       url: site.url,
