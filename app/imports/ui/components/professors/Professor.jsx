@@ -50,7 +50,7 @@ class ProfessorsList extends Component {
           </div>
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
-            <li id={ professor.sciper } key={ professor._id } className="list-group-item">
+            <li id={ "sciper-" + professor.sciper } key={ professor._id } className="list-group-item">
               { professor.sciper }&nbsp;
               { professor.displayName }
               <button type="button" className="close" aria-label="Close">
