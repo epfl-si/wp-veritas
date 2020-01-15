@@ -385,7 +385,6 @@ Meteor.methods({
       type: site.type,
       category: site.category,
       theme: site.theme,
-      faculty: site.faculty,
       languages: site.languages,
       unitId: site.unitId,
       snowNumber: site.snowNumber,
@@ -517,8 +516,6 @@ Meteor.methods({
 
     site = prepareUpdateInsert(site, 'update');
 
-    
-
     let siteDocument = {
       url: site.url,
       slug: site.slug,
@@ -528,7 +525,6 @@ Meteor.methods({
       type: site.type,
       category: site.category,
       theme: site.theme,
-      faculty: site.faculty,
       languages: site.languages,
       unitId: site.unitId,
       snowNumber: site.snowNumber,
@@ -560,6 +556,8 @@ Meteor.methods({
       { before: siteBeforeUpdate , after: updatedSite }, 
       this.userId
     );
+
+    return site._id;
   },
     
   removeSite(siteId){

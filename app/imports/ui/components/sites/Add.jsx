@@ -81,9 +81,8 @@ class Add extends Component {
         title: '', 
         openshiftEnv: 'www', 
         type: 'public', 
-        theme:'2018',
+        theme:'epfl',
         category:'GeneralPublic',
-        faculty: '',
         languages: [], 
         unitId: '', 
         snowNumber: '',
@@ -222,12 +221,6 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="theme" component={ CustomError } />
-
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  placeholder="Faculté du site à ajouter" label="Faculté" name="faculty" type="text" component={ CustomInput } />
-                <ErrorMessage name="faculty" component={ CustomError } />
                 
                 <h6>Langues</h6>                  
                 <Field 
