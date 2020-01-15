@@ -158,12 +158,6 @@ export const sitesSchema = new SimpleSchema({
         max: 100,
         min: 3,
     },
-    faculty: {
-        type: String,
-        label: "Faculté",
-        optional: true,
-        max: 100,
-    },
     languages: {
         type: Array,
         label: "Langues",

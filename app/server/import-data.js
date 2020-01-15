@@ -4,6 +4,63 @@ import URL from 'url-parse';
 import { importSciperAndClustersBySite } from './import-data/import-sciper-clusters-by-site';
 
 importData = () => {
+
+  console.log("Update sites starting ...");
+
+  let sites = Sites.find({}).fetch();
+  sites.forEach(site => {
+
+    // Supprimer le champ "faculty"
+    Sites.update(
+      { _id: site._id }, 
+      { $unset: { faculty: "" } }
+    );
+
+    if ('faculty' in site) {
+      console.error("ERROR: Faculty exist !");
+    }
+
+    // Mettre à jour le theme 2018 => epfl
+    if (site.theme == "2018") {
+      site.theme = "epfl";
+    }
+
+    let siteDocument = {
+      url: site.url,
+      slug: site.slug,
+      tagline: site.tagline,
+      title: site.title,
+      openshiftEnv: site.openshiftEnv,
+      type: site.type,
+      category: site.category,
+      theme: site.theme,
+      languages: site.languages,
+      unitId: site.unitId,
+      snowNumber: site.snowNumber,
+      status: site.status,
+      comment: site.comment,
+      plannedClosingDate: site.plannedClosingDate,
+      requestedDate: site.requestedDate,
+      createdDate: site.createdDate,
+      archivedDate: site.archivedDate,
+      trashedDate: site.trashedDate,
+      noWordPressDate: site.noWordPressDate,
+      inPreparationDate: site.inPreparationDate,
+      userExperience: site.userExperience,
+      tags: site.tags,
+      professors: site.professors,
+    }
+
+    Sites.update(
+      { _id: site._id }, 
+      { $set: siteDocument },
+    );
+
+    console.log(`Site updated: ${ site._id }`);
+
+  });
+
+  console.log(`Nb sites avec theme == 2018: ${ Sites.find({theme : "2018" }).count() }`);
   
   /*
   if (Sites.find({}).count() == 0) {
@@ -26,13 +83,13 @@ importData = () => {
   } else {
     console.log("Tags already exist");
   }
-  */
+
   if (Tags.find({ type: 'field-of-research' }).count() == 2) {
     importClustersTags();
   } else {
     console.log("Clusters tags already exist");
   }
-  /*
+
   if (OpenshiftEnvs.find({}).count() == 0) {
     console.log("Import openshiftenvs");
     importOpenshiftenvs();
@@ -61,13 +118,11 @@ importData = () => {
     console.log("Categories already exist");
   }*/
 
-  //importTagsBySite();
+  // importTagsBySite();
 
-  importSciperAndClustersBySite();
+  // importSciperAndClustersBySite();
 
 }
-
-
 
 importClustersTags = () => {
   const path = 'clusters-tags.csv';
