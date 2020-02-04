@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import ReactHtmlParser from 'react-html-parser';
 import { Loading } from '../Messages';
 
+
 class Search extends React.Component {
 
   urlSchema = yup.object().shape({
@@ -36,6 +37,7 @@ class Search extends React.Component {
 
     submit = (values, actions) => {
       let res = "";
+      let unitName = "";
       let site;
       this.props.sites.forEach(currentSite => {
         if (values.url.startsWith(currentSite.url)) {
@@ -60,14 +62,21 @@ class Search extends React.Component {
 
       let siteFound = false;
       if (res == "") {
-        res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
+        res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
       } else {
         if (site.status == 'created') {
           siteFound = true;
           res = res + '/wp-admin';
           res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`
+          console.log(site.unitId);
+
+          // unitName = Meteor.call('getUnitName', site.unitId);
+          unitName = "IDEV-FSD";
+
+          res += ` et le nom de l'unité est ${ unitName }`;
+
         } else {
-          res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
+          res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
         }
       }
       this.setState({ result: res, siteFound: siteFound });

@@ -148,6 +148,17 @@ Meteor.methods({
     return result;
   },
 
+  async getUnitName(unitId) {
+    let result;
+    const publicLdapContext = require("epfl-ldap")();
+    result = await new Promise(function (resolve, reject) {
+      publicLdapContext.units.getUnitById(unitId, function(err, data) {
+        resolve(data);
+      });
+    });
+    return result;
+  },
+
   async updateLDAPInformations() {
     let professors = Professors.find({}).fetch();
     professors.forEach(prof => {
