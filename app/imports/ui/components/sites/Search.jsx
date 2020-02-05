@@ -70,8 +70,8 @@ class Search extends React.Component {
           res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`
           console.log(site.unitId);
 
-          // unitName = Meteor.call('getUnitName', site.unitId);
-          unitName = "IDEV-FSD";
+          unitName = Meteor.call('getUnitNameGreg', site.unitId);
+          //unitName = "IDEV-FSD";
 
           res += ` et le nom de l'unité est ${ unitName }`;
 
