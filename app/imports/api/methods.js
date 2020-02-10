@@ -137,7 +137,7 @@ function prepareUpdateInsert(site, action) {
 
 Meteor.methods({
 
-  async getLDAPInformations(sciper) {
+  async getUserFromLDAP(sciper) {
     let result;
     const publicLdapContext = require('epfl-ldap')();
     result = await new Promise(function (resolve, reject) {
@@ -148,10 +148,21 @@ Meteor.methods({
     return result;
   },
 
-  async updateLDAPInformations() {
+  async getUnitFromLDAP(sciper) {
+    let result;
+    const publicLdapContext = require('epfl-ldap')();
+    result = await new Promise(function (resolve, reject) {
+      publicLdapContext.units.getUnitByUniqueIdentifier(sciper, function(err, data) {
+        resolve(data);
+      });
+    });
+    return result;
+  },
+
+  updateLDAPInformations() {
     let professors = Professors.find({}).fetch();
     professors.forEach(prof => {
-      Meteor.call('getLDAPInformations', prof.sciper, (error, LDAPinformations) => {
+      Meteor.call('getUserFromLDAP', prof.sciper, (error, LDAPinformations) => {
         if (error) {
           console.log(`ERROR ${error}`);
         } else {

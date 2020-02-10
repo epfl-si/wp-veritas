@@ -13,7 +13,6 @@ WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 let importDatas = false;
   
 if (Meteor.isServer) {
-
   import './tequila-config';
   import './rest-api';
 

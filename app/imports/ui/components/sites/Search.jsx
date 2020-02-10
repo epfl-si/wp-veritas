@@ -7,6 +7,7 @@ import * as yup from 'yup';
 import ReactHtmlParser from 'react-html-parser';
 import { Loading } from '../Messages';
 
+
 class Search extends React.Component {
 
   urlSchema = yup.object().shape({
@@ -29,14 +30,28 @@ class Search extends React.Component {
       super(props);
 
       this.state = {
-        result: '',
-        siteFound: false,
+        unitName: '',
+        site: {},
+        urlSearched: '',
       }
     }
 
+    getUnitName = (unitId) => {
+      Meteor.call('getUnitFromLDAP', unitId, (error, unitLDAPinformations) => {
+        if (error) {
+          console.log(`ERROR ${error}`);
+        } else {
+          let unitName = unitLDAPinformations.cn + " (" + unitId + ")";
+          this.setState( 
+            { unitName: unitName } 
+          );
+        }
+      });
+    }
+
     submit = (values, actions) => {
+
       let res = "";
-      let site;
       this.props.sites.forEach(currentSite => {
         if (values.url.startsWith(currentSite.url)) {
           if (currentSite.url.length > res.length) {
@@ -51,27 +66,16 @@ class Search extends React.Component {
 
             let check = currentSite.url + "/";
             if (values.url.startsWith(check) || values.url == currentSite.url) {
-              site = currentSite;
-              res = currentSite.url;    
+              res = currentSite.url; 
+              this.getUnitName(currentSite.unitId);
+              this.setState({ site: currentSite , urlSearched: values.url });
             }                    
           }
         }
       });
-
-      let siteFound = false;
       if (res == "") {
-        res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
-      } else {
-        if (site.status == 'created') {
-          siteFound = true;
-          res = res + '/wp-admin';
-          res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`
-        } else {
-          res = `Le site <a href='${values.url}' target="_blank">${values.url}</a> n'est pas géré par la VPSI`;
-        }
+        this.setState({ site: {} , urlSearched: values.url });
       }
-      this.setState({ result: res, siteFound: siteFound });
-
       actions.setSubmitting(false);
       actions.resetForm();
     }
@@ -86,6 +90,27 @@ class Search extends React.Component {
       if (this.loading()) {
         content = <Loading />
       } else {
+
+        let res = "";
+        if (this.state.site == {}) {
+          res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
+        } else {
+          if (this.state.site.status == 'created') {
+            
+            res = this.state.site.url + '/wp-admin';
+            res = `L'instance WordPress est : <a href='${ res }' target="_blank">${ res }</a>`;
+            res += ` <br />Unité de rattachement <strong>${ this.state.unitName }</strong>`;
+  
+          } else {
+            res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
+          }
+        }
+
+        let displayResult;
+        if (this.state.urlSearched !== '') {
+          displayResult = ( <h4 className="py-4">{ ReactHtmlParser(res) }</h4> )
+        }
+
         content = (
           <div className="">
             <h4 className="py-4">Quelle est l'instance WordPress de cette URL ?</h4>
@@ -110,7 +135,8 @@ class Search extends React.Component {
                 </form>
             )}
             </Formik>
-            <h4 className="py-4">{ ReactHtmlParser(this.state.result) }</h4>
+
+            { displayResult }
           </div>
         )
       }
