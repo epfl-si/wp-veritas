@@ -41,8 +41,6 @@ class Search extends React.Component {
         if (error) {
             console.log(`ERROR ${error}`);
         } else {
-            console.log(unitLDAPinformations);
-
             this.setState({ unitName: unitLDAPinformations.cn });
         }
       });
@@ -86,7 +84,6 @@ class Search extends React.Component {
         content = <Loading />
       } else {
 
-        console.log(this.state);
         let res = "";
         if (this.state.site == {}) {
           res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
@@ -95,15 +92,17 @@ class Search extends React.Component {
             
             res = this.state.site.url + '/wp-admin';
             res = `L'instance WordPress est : <a href='${ res }' target="_blank">${ res }</a>`;
-            res += ` et le nom de l'unité est ${ this.state.unitName }`;
+            res += ` et son nom d'unité est <strong>${ this.state.unitName }</strong>`;
   
           } else {
             res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
           }
         }
 
-        console.log(`Resultat: ${res}`);
-
+        let displayResult;
+        if (this.state.urlSearched !== '') {
+          displayResult = ( <h4 className="py-4">{ ReactHtmlParser(res) }</h4> )
+        }
 
         content = (
           <div className="">
@@ -130,8 +129,7 @@ class Search extends React.Component {
             )}
             </Formik>
 
-            <h4 className="py-4">{ ReactHtmlParser(res) }</h4>
-            
+            { displayResult }
           </div>
         )
       }

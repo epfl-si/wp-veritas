@@ -13,29 +13,6 @@ WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 let importDatas = false;
   
 if (Meteor.isServer) {
-  /*
-  import context from 'epfl-ldap';
-  //console.log(context);
-
-  const c = context();
-  console.log(c.units.getUnitByUniqueIdentifier);
-
-  c.units.getUnitByUniqueIdentifier(10208, function(err, data) {
-    console.log(JSON.stringify(data, null, 2));
-  });*/
-
-  var fullLdapContext = require('epfl-ldap')();
-  fullLdapContext.options.modelsMapper = fullLdapContext.viewModelsMappers.full;
-  console.log(fullLdapContext.units.getUnitByName);
-
-  fullLdapContext.units.getUnitByName("SI - Full-Stack Development", function (err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(JSON.stringify(data, null, 2));
-    }
-  });
-
   import './tequila-config';
   import './rest-api';
 
