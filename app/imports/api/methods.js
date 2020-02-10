@@ -137,20 +137,7 @@ function prepareUpdateInsert(site, action) {
 
 Meteor.methods({
 
-  getUnitNameGreg(unitId) {
-    console.log(`Unit: ${ unitId }`);
-    import context from 'epfl-ldap';
-    context.units.getUnitByUniqueIdentifier(unitId, function(err, data) {
-      if (err) {
-        console.log(err);
-      } else {
-        console.log(`Data: ${data}`);
-        resolve(data);
-      }
-    });
-  },
-
-  async getLDAPInformations(sciper) {
+  async getUserFromLDAP(sciper) {
     let result;
     const publicLdapContext = require('epfl-ldap')();
     result = await new Promise(function (resolve, reject) {
@@ -161,39 +148,21 @@ Meteor.methods({
     return result;
   },
 
-  async getUnitName(unitId) {
+  async getUnitFromLDAP(sciper) {
     let result;
-    const publicLdapContext = require("epfl-ldap")();
+    const publicLdapContext = require('epfl-ldap')();
     result = await new Promise(function (resolve, reject) {
-      publicLdapContext.users.getUserBySciper(188475, function(err, data) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(`Data: ${data}`);
-          resolve(data);
-        }
+      publicLdapContext.units.getUnitByUniqueIdentifier(sciper, function(err, data) {
+        resolve(data);
       });
     });
-    console.log(result);
     return result;
   },
 
-  async getTheUnitName() {
-    console.log("toto");
-    Meteor.call('getLDAPInformations', '188475', (error, data) => {
-      if (error) {
-        console.log(`ERROR ${error}`);
-      } else {
-        console.log(data);
-      }
-    });
-  
-  },
-
-  async updateLDAPInformations() {
+  updateLDAPInformations() {
     let professors = Professors.find({}).fetch();
     professors.forEach(prof => {
-      Meteor.call('getLDAPInformations', prof.sciper, (error, LDAPinformations) => {
+      Meteor.call('getUserFromLDAP', prof.sciper, (error, LDAPinformations) => {
         if (error) {
           console.log(`ERROR ${error}`);
         } else {
