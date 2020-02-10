@@ -41,7 +41,7 @@ class Search extends React.Component {
         if (error) {
           console.log(`ERROR ${error}`);
         } else {
-          let unitName = unitLDAPinformations.name + ' ' + unitLDAPinformations.cn + " (" + unitId + ")";
+          let unitName = unitLDAPinformations.cn + " (" + unitId + ")";
           this.setState( 
             { unitName: unitName } 
           );
@@ -50,6 +50,7 @@ class Search extends React.Component {
     }
 
     submit = (values, actions) => {
+
       let res = "";
       this.props.sites.forEach(currentSite => {
         if (values.url.startsWith(currentSite.url)) {
@@ -72,6 +73,9 @@ class Search extends React.Component {
           }
         }
       });
+      if (res == "") {
+        this.setState({ site: {} , urlSearched: values.url });
+      }
       actions.setSubmitting(false);
       actions.resetForm();
     }
@@ -95,7 +99,7 @@ class Search extends React.Component {
             
             res = this.state.site.url + '/wp-admin';
             res = `L'instance WordPress est : <a href='${ res }' target="_blank">${ res }</a>`;
-            res += ` <br /> et son nom d'unité est <strong>${ this.state.unitName }</strong>`;
+            res += ` <br />Unité de rattachement <strong>${ this.state.unitName }</strong>`;
   
           } else {
             res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
