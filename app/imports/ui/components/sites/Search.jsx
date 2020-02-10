@@ -39,9 +39,12 @@ class Search extends React.Component {
     getUnitName = (unitId) => {
       Meteor.call('getUnitFromLDAP', unitId, (error, unitLDAPinformations) => {
         if (error) {
-            console.log(`ERROR ${error}`);
+          console.log(`ERROR ${error}`);
         } else {
-            this.setState({ unitName: unitLDAPinformations.cn });
+          let unitName = unitLDAPinformations.name + ' ' + unitLDAPinformations.cn + " (" + unitId + ")";
+          this.setState( 
+            { unitName: unitName } 
+          );
         }
       });
     }
@@ -92,7 +95,7 @@ class Search extends React.Component {
             
             res = this.state.site.url + '/wp-admin';
             res = `L'instance WordPress est : <a href='${ res }' target="_blank">${ res }</a>`;
-            res += ` et son nom d'unité est <strong>${ this.state.unitName }</strong>`;
+            res += ` <br /> et son nom d'unité est <strong>${ this.state.unitName }</strong>`;
   
           } else {
             res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
