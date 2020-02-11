@@ -14,12 +14,10 @@ class Header extends Component {
 
     if (this.isLoading()) {
       content = <Loading />;
-
     } else {
 
       let isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin', Roles.GLOBAL_GROUP);
       let isTagsEditor = Roles.userIsInRole(Meteor.userId(), 'tags-editor', Roles.GLOBAL_GROUP);
-      
 
       content =  (
         <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
@@ -70,7 +68,6 @@ class Header extends Component {
                 <div className="dropdown-menu" aria-labelledby="navbarDropdown">
                   <NavLink className="nav-link" to="/admin">Admin</NavLink>
                   <NavLink className="nav-link" to="/admin/log/list">Voir les logs</NavLink>
-                  <NavLink className="nav-link" to="/admin/users">Gestion des rôles</NavLink>
                 </div>
               </li>
               : null}

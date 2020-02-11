@@ -15,7 +15,7 @@ Tequila.start({
     }
     // Greg is admin forever and even after
     if (tequila.uniqueid == "188475") {
-      Roles.setUserRoles(tequila.uniqueid, ['admin'], Roles.GLOBAL_GROUP); 
+      // Roles.setUserRoles(tequila.uniqueid, ['admin'], Roles.GLOBAL_GROUP); 
     }
     return tequila.uniqueid;
   },
