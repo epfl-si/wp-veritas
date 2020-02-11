@@ -66,3 +66,9 @@ Vous devez être positionné dans le répertoire app/ et avoir lancé l'applicat
 
 `db.sites.deleteMany({})`
 docker push epflidevelop/wp-veritas:latest
+
+## Autentification Tequila et rôle
+
+- Pour se connecter à l'application, il se faut s'authentifier Tequila.
+- Pour obtenir le rôle 'admin' il faut appartenir au groupe 'wp-veritas-admins' de l'application groups.epfl.ch
+- Pour obtenir le rôle 'editor' il faut appartenir au groupe 'wp-veritas-editors' de l'application groups.epfl.ch
