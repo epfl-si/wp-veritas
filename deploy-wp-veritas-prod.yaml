@@ -42,7 +42,7 @@ spec:
               value: '3000'
             - name: ROOT_URL
               value: 'https://wp-veritas.128.178.222.83.nip.io/'
-          image: 'epflidevelop/wp-veritas:0.1.10'
+          image: 'epflsi/wp-veritas:0.1.10'
           imagePullPolicy: IfNotPresent
           name: pod-wp-veritas
           ports:

@@ -24,17 +24,17 @@ Ensuite aller à l'adresse https://localhost:3000
 
 On commence par builder l'image :
 
-`docker build -t epflidevelop/wp-veritas .`
+`docker build -t epflsi/wp-veritas .`
 
 On crée un tag pour cette image 
 
-`docker tag epflidevelop/wp-veritas:latest epflidevelop/wp-veritas:0.1.10`
+`docker tag epflsi/wp-veritas:latest epflsi/wp-veritas:0.1.10`
 
 On pousse l'image dans dockerhub
 
-`docker push epflidevelop/wp-veritas:0.1.10`
+`docker push epflsi/wp-veritas:0.1.10`
 
-`docker push epflidevelop/wp-veritas:latest`
+`docker push epflsi/wp-veritas:latest`
 
 Ensuite on doit modifier la référence à cette image dans le déploiment openshift en éditant le fichier ansible/main.yml.
 
@@ -65,7 +65,8 @@ Vous devez être positionné dans le répertoire app/ et avoir lancé l'applicat
 `meteor mongo`
 
 `db.sites.deleteMany({})`
-docker push epflidevelop/wp-veritas:latest
+
+docker push epflsi/wp-veritas:latest
 
 ## Autentification Tequila et rôle
 

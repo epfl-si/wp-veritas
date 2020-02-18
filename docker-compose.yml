@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: epflidevelop/wp-veritas:0.1.13
+    image: epflsi/wp-veritas:0.1.13
     ports:
       - '80:3000'
     links:
