@@ -73,3 +73,9 @@ docker push epflsi/wp-veritas:latest
 - Pour se connecter à l'application, il se faut s'authentifier Tequila.
 - Pour obtenir le rôle 'admin' il faut appartenir au groupe 'wp-veritas-admins' de l'application groups.epfl.ch
 - Pour obtenir le rôle 'editor' il faut appartenir au groupe 'wp-veritas-editors' de l'application groups.epfl.ch
+
+
+ATTENTION :
+Pour mettre à jour l'image avec FROM node:10.19-alpine 
+On a du utiliser node version 10 car avec la 12 on avait un prob avec Fiber 
+FROM node:10.19-alpine

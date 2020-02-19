@@ -1,5 +1,5 @@
 # The tag here should match the Meteor version of your app, per .meteor/release
-FROM geoffreybooth/meteor-base:1.7.0.3
+FROM geoffreybooth/meteor-base:1.9
 
 # Copy app package.json and package-lock.json into container
 COPY ./app/package*.json $APP_SOURCE_FOLDER/
@@ -11,8 +11,9 @@ COPY ./app $APP_SOURCE_FOLDER/
 
 RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
-# Rather than Node 8 latest (Alpine), you can also use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html
-FROM node:8-alpine
+
+# Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.9
+FROM node:10.19-alpine
 
 ENV APP_BUNDLE_FOLDER /opt/bundle
 ENV SCRIPTS_FOLDER /docker
@@ -33,10 +34,10 @@ COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
-RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh \
+RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh --build-from-source \
 	&& apk del .node-gyp-compilation-dependencies
 
-WORKDIR $APP_BUNDLE_FOLDER/bundle
-
-COPY docker/entrypoint.sh /docker
+# Start app
 ENTRYPOINT ["/docker/entrypoint.sh"]
+
+CMD ["node", "main.js"]
