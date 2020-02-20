@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "bcrypt": "^3.0.3",
+    "bcrypt": "^3.0.8",
     "epfl-ldap": "^0.9.0",
     "formik": "^1.4.2",
     "jquery": "^3.3.1",
