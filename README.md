@@ -57,6 +57,10 @@ wp_veritas_image_version: '0.1.10'
 
 `ansible-playbook playbook.yml -i hosts-prod`
 
+## Dockerhub
+
+https://hub.docker.com/repository/docker/epflsi/wp-veritas
+
 ## Importer les information de la source de vérité
 
 Vous devez être positionné dans le répertoire app/ et avoir lancé l'application.
