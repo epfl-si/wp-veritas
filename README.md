@@ -26,7 +26,7 @@ Pour commencer, on doit changer le numéro de version :
 - Fichier ansible/roles/epfl.wp-veritas/vars/main.yml
 - Dans le composant Header app/imports/ui/header/Header.jsx
 - On commit/push 
-- On crée le tag : `git tag -a 1.0 -m "wp-veritas version 1.0"`
+- On crée le tag : `git tag -a 1.0.0 -m "wp-veritas version 1.0.0"`
 - On push le tag : `git push --follow-tags`
 
 On commence par builder l'image :
