@@ -22,6 +22,13 @@ Ensuite aller à l'adresse https://localhost:3000
 
 ## Déployer une nouvelle version sur l'environnement de test d'openshift
 
+Pour commencer, on doit changer le numéro de version : 
+- Fichier ansible/roles/epfl.wp-veritas/vars/main.yml
+- Dans le composant Header app/imports/ui/header/Header.jsx
+- On commit/push 
+- On crée le tag : `git tag -a 1.0 -m "wp-veritas version 1.0"`
+- On push le tag : `git push --follow-tags`
+
 On commence par builder l'image :
 
 `docker build -t epflsi/wp-veritas .`
@@ -49,6 +56,10 @@ wp_veritas_image_version: '0.1.10'
 ## Déployer une nouvelle version sur l'environnement de prod d'openshift
 
 `ansible-playbook playbook.yml -i hosts-prod`
+
+## Dockerhub
+
+https://hub.docker.com/repository/docker/epflsi/wp-veritas
 
 ## Importer les information de la source de vérité
 
