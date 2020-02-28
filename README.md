@@ -20,6 +20,30 @@ Se positionner dans le répertoire racine et faire un : `docker-compose up`
 
 Ensuite aller à l'adresse https://localhost:3000
 
+## Utiliser le CLI
+
+Pour installer le CLI en local, il faut:
+- Se placer dans le répetoire `cli/`
+- Faire un `npm install`
+- Faire un `npm install -g ./`
+
+Lorsque le CLI est installé :
+- Se placer à la racine du projet wp-veritas
+- On peut maintenant faire un `veritas-cli --help`
+
+```
+greg@epfl:~/workspace-idevfsd/wp-veritas$ veritas-cli --help
+Usage: veritas-cli [options] [command]
+
+Options:
+  -h, --help           output usage information
+
+Commands:
+  clean-all-documents  Delete all documents from the local MongoDB
+  restore-test-db      Restore the test MongoDB on local MongoDB
+  restore-prod-db      Restore the production MongoDB on local MongoDB
+```
+
 ## Déployer une nouvelle version sur l'environnement de test d'openshift
 
 Pour commencer, on doit changer le numéro de version : 

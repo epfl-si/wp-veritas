@@ -1,66 +1,60 @@
 import { Sites, Tags, OpenshiftEnvs, Themes, Types, Categories, Professors } from '../imports/api/collections';
 import URL from 'url-parse';
-
 import { importSciperAndClustersBySite } from './import-data/import-sciper-clusters-by-site';
 
 importData = () => {
 
+  console.log("Update themes starting ...");
+
+  let themes = Themes.find({}).fetch();
+
+  themes.forEach(theme => {
+    let themeName;
+    if (theme == "epfl") {
+      themeName = "wp-theme-2018";
+    } else if (theme == "epfl-light") {
+      themeName = "wp-theme-light";
+    }
+    if (themeName !== undefined) {
+      Themes.update(
+        { _id: theme._id }, 
+        { $set: { 'name' : themeName } },
+      );
+    }
+  })
+
+  console.log(`All themes updated`);
+  /*
   console.log("Update sites starting ...");
 
   let sites = Sites.find({}).fetch();
+  
   sites.forEach(site => {
 
-    // Supprimer le champ "faculty"
-    Sites.update(
-      { _id: site._id }, 
-      { $unset: { faculty: "" } }
-    );
-
-    if ('faculty' in site) {
-      console.error("ERROR: Faculty exist !");
-    }
+    console.log(site.theme);
 
     // Mettre à jour le theme 2018 => epfl
-    if (site.theme == "2018") {
-      site.theme = "epfl";
+    if (site.theme == "epfl") {
+      site.theme = "wp-theme-2018";
+    } else if (site.theme == "epfl-light") {
+      site.theme = "wp-theme-light";
     }
 
-    let siteDocument = {
-      url: site.url,
-      slug: site.slug,
-      tagline: site.tagline,
-      title: site.title,
-      openshiftEnv: site.openshiftEnv,
-      type: site.type,
-      category: site.category,
-      theme: site.theme,
-      languages: site.languages,
-      unitId: site.unitId,
-      snowNumber: site.snowNumber,
-      status: site.status,
-      comment: site.comment,
-      plannedClosingDate: site.plannedClosingDate,
-      requestedDate: site.requestedDate,
-      createdDate: site.createdDate,
-      archivedDate: site.archivedDate,
-      trashedDate: site.trashedDate,
-      noWordPressDate: site.noWordPressDate,
-      inPreparationDate: site.inPreparationDate,
-      userExperience: site.userExperience,
-      tags: site.tags,
-      professors: site.professors,
-    }
+    console.log(site.theme);
 
     Sites.update(
       { _id: site._id }, 
-      { $set: siteDocument },
+      { $set: { 'theme' : site.theme } },
     );
 
     console.log(`Site updated: ${ site._id }`);
 
   });
 
-  console.log(`Nb sites avec theme == 2018: ${ Sites.find({theme : "2018" }).count() }`);
+  console.log(`Nb sites avec theme == epfl: ${ Sites.find({theme : "epfl" }).count() }`);
+  console.log(`Nb sites avec theme == epfl-light: ${ Sites.find({theme : "epfl-light" }).count() }`);
+
+  */
   
   /*
   if (Sites.find({}).count() == 0) {
