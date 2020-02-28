@@ -103,6 +103,10 @@ const _restoreDataToLocalMongoDB = async function() {
 }
 
 const _restore = async function (source) {
+  
+  const connectionString = `mongodb://localhost:3001/`;
+  await _deleteAllDocuments(connectionString);
+
   await _deleteDumpFolder();
   console.log("Delete dump folder");
 
@@ -121,6 +125,10 @@ const _restore = async function (source) {
   } else {
     dbName = 'wp-veritas';
   }
+
+  // wait few secondes
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
   console.log(`Move ${dbName}/ to meteor/`);
 
   await _restoreDataToLocalMongoDB();

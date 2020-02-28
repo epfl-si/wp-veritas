@@ -47,3 +47,5 @@ alanning:roles
 
 ostrio:logger
 ostrio:loggermongo
+
+littledata:synced-cron
