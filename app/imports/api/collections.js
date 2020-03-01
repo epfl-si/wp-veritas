@@ -178,6 +178,18 @@ export const sitesSchema = new SimpleSchema({
         min: 1,
         max: 100,
     },
+    unitName: {
+      type: String,
+      label: 'Nom de l unité',
+      optional: false,
+      min: 1,
+      max: 100,
+    },
+    unitNameLevel2: {
+      type: String,
+      label: 'Nom de l unité de niveau 2',
+      optional: true,
+    },
     snowNumber: {
         type: String,
         label: "Numéro de ticket SNOW",

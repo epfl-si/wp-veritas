@@ -33,7 +33,7 @@ if (Meteor.isServer) {
     name: 'Update unit names',
     schedule: function(parser) {
       // parser is a later.parse object
-      return parser.text('every 1 minutes');
+      return parser.text('every 30 minutes');
     },
     job: function(intendedAt) {
 
@@ -59,8 +59,6 @@ if (Meteor.isServer) {
           { _id: site._id },
           { $set: { 'unitName' : unitName, 'unitNameLevel2': unitNameLevel2} },
         );
-        let newSite = Sites.findOne(site._id);
-        console.log('Site after update:', newSite);
 
       });
       console.log('All sites updated:', intendedAt);

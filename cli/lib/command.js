@@ -85,7 +85,6 @@ const _moveDumpFolder =  async function (source) {
         folder_name = "wp-veritas-test";
       }
       let command = `mv ${ config.WORKSPACE_PATH }wp-veritas/dump/${folder_name}/ ${ config.WORKSPACE_PATH }wp-veritas/dump/meteor/`;
-      console.log(command);
       resolve(exec(command));
     }
   );
