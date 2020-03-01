@@ -1,7 +1,7 @@
 import { Themes, Sites } from '../imports/api/collections';
 
 updateThemes = () => {
-  console.log("Update themes starting ...");
+  console.log("1. Update themes starting ...");
   let themes = Themes.find({}).fetch();
 
   themes.forEach(theme => {
@@ -21,15 +21,15 @@ updateThemes = () => {
     let newTheme = Themes.findOne(theme._id);
     console.log(`Theme after update: ${newTheme.name}`);
   })
-  console.log(`All themes updated`);
+  console.log(`1. All themes updated`);
 }
 
 updateThemeInSites = () => {
-  console.log("Update sites starting ...");
+  console.log("2. Update theme of each site starting ...");
   let sites = Sites.find({}).fetch();
   
   sites.forEach(site => {
-    console.log(`Site before update: ${site.theme}`);
+    console.log(`Theme of site before update: ${site.theme}`);
 
     // Mettre à jour le theme 2018 => epfl
     if (site.theme == "epfl") {
@@ -44,19 +44,21 @@ updateThemeInSites = () => {
     );
 
     let newSite = Sites.findOne(site._id);
-    console.log(`Site after update: ${ newSite.theme }`);
+    console.log(`Theme of site after update: ${ newSite.theme }`);
   });
 
   console.log(`Nb sites avec theme == epfl: ${ Sites.find({theme : "epfl" }).count() }`);
   console.log(`Nb sites avec theme == epfl-light: ${ Sites.find({theme : "epfl-light" }).count() }`);
+  console.log("2. All sites (themes) updated");
 }
 
 addUnitNameInSites = () => {
+
+  console.log("3. Update unitName of each site starting ...");
   let sites = Sites.find({}).fetch();
   sites.forEach(site => {
-    console.log(site);
     if ('unitName' in site) {
-      console.log("Le site a déjà un unitName");
+      console.log("Le site a déjà un unitName: ", site.unitName);
     } else {
       let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
       console.log("unit:", unit);
@@ -68,14 +70,15 @@ addUnitNameInSites = () => {
       }
     }
     let newSite = Sites.findOne(site._id);
-    console.log('Site after update:', newSite);
+    console.log(`Site: ${newSite.url} => UnitName after update: ${newSite.unitName}`);
   });
+  console.log("3. All sites (unitName) updated");
 }
 
 addUnitNameN2InSites = () => {
+  console.log("4. Update unitNameLevel2 of each site starting ...");
   let sites = Sites.find({}).fetch();
   sites.forEach(site => {
-    console.log(site);
     if ('unitNameLevel2' in site) {
       console.log("Le site a déjà un unitNameLevel2");
     } else {
@@ -84,22 +87,25 @@ addUnitNameN2InSites = () => {
       if ('dn' in unit) {
         let dn = unit.dn.split(",");
         if (dn.length == 5) {
+          // example 'ou=associations'
+          let unitName = dn[2].split("=")[1];
           Sites.update(
             { _id: site._id }, 
-            { $set: { 'unitNameLevel2' : dn[2] } },
+            { $set: { 'unitNameLevel2' : unitName } },
           ); 
         }
       }
     }
     let newSite = Sites.findOne(site._id);
-    console.log('Site after update:', newSite);
+    console.log(`Site: ${newSite.url} => UnitNameLevel2 after update: ${newSite.unitNameLevel2}`);
   });
+  console.log("4. All sites (unitNameLevel2) updated");
 }
 
 importData = () => {
-  // updateThemes();
-  // updateThemeInSites();
-  // addUnitNameInSites();
+  updateThemes();
+  updateThemeInSites();
+  addUnitNameInSites();
   addUnitNameN2InSites();
 }
 

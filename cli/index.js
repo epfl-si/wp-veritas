@@ -27,5 +27,13 @@ program
   commands.restoreProdDatabase();
 })
 
+program
+.command('restore-prod-db-on-test')
+.description('Restore the production MongoDB on test MongoDB')
+.action(function () {
+  commands.restoreProdDatabaseOnTest();
+})
+
+
 // allow commander to parse `process.argv`
 program.parse(process.argv);

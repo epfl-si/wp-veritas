@@ -32,17 +32,17 @@ if (Meteor.isServer) {
     name: 'Update unit names',
     schedule: function(parser) {
       // parser is a later.parse object
-      return parser.text('every 30 minutes');
+      return parser.text('every 10 minutes');
     },
     job: function(intendedAt) {
-
+      console.log("Update unitName and unitNameLevel2 of each site starting ...");
       // Update all sites
       let sites = Sites.find({}).fetch();
       sites.forEach(site => {
 
         let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
-        let unitName = site.unitName;
-        let unitNameLevel2 = site.unitNameLevel2;
+        let unitName = '';
+        let unitNameLevel2 = '';
 
         if ('cn' in unit) {
           unitName = unit.cn;
@@ -50,14 +50,21 @@ if (Meteor.isServer) {
         if ('dn' in unit) {
           let dn = unit.dn.split(",");
           if (dn.length == 5) {
-            unitNameLevel2 = dn[2];
+            // dn[2] = 'ou=associations'
+            unitNameLevel2 = dn[2].split("=")[1];
           }
         }
 
         Sites.update(
           { _id: site._id },
-          { $set: { 'unitName' : unitName, 'unitNameLevel2': unitNameLevel2} },
+          { $set: {
+            'unitName': unitName,
+            'unitNameLevel2': unitNameLevel2
+          }},
         );
+
+        let newSite = Sites.findOne(site._id);
+        console.log(`Site: ${newSite.url} after update => unitName: ${newSite.unitName} UnitNameLevel2: ${newSite.unitNameLevel2}`);
 
       });
       console.log('All sites updated:', intendedAt);

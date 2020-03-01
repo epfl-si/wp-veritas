@@ -151,3 +151,8 @@ module.exports.restoreProdDatabase = async function () {
   return true;
 }
 
+module.exports.restoreProdDatabaseOnTest = async function () {
+  console.log("Restore prod database on test database");
+  return true;
+}
+
