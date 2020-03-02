@@ -31,7 +31,7 @@ if (Meteor.isServer) {
   SyncedCron.add({
     name: 'Update unit names',
     schedule: function(parser) {
-      // parser is a later.parse object
+      // Note: epfl-ldap-js cache is 4 hours
       return parser.text('every 6 hours');
     },
     job: function(intendedAt) {
