@@ -181,9 +181,7 @@ export const sitesSchema = new SimpleSchema({
     unitName: {
       type: String,
       label: 'Nom de l unité',
-      optional: false,
-      min: 1,
-      max: 100,
+      optional: true,
     },
     unitNameLevel2: {
       type: String,
