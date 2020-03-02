@@ -32,7 +32,7 @@ if (Meteor.isServer) {
     name: 'Update unit names',
     schedule: function(parser) {
       // parser is a later.parse object
-      return parser.text('every 10 minutes');
+      return parser.text('every 6 hours');
     },
     job: function(intendedAt) {
       console.log("Update unitName and unitNameLevel2 of each site starting ...");
