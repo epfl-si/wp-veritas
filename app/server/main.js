@@ -10,7 +10,7 @@ import { Sites } from '../imports/api/collections';
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let importDatas = true;
+let importDatas = false;
   
 if (Meteor.isServer) {
   import './tequila-config';
@@ -32,7 +32,8 @@ if (Meteor.isServer) {
     name: 'Update unit names',
     schedule: function(parser) {
       // Note: epfl-ldap-js cache is 4 hours
-      return parser.text('every 6 hours');
+      // Charles François said, "Changes in unit structure are currently only made once a night."
+      return parser.text('every 24 hours');
     },
     job: function(intendedAt) {
       console.log("Update unitName and unitNameLevel2 of each site starting ...");
@@ -73,6 +74,8 @@ if (Meteor.isServer) {
 
   Meteor.startup(function () {
     // code to run on server at startup
-    SyncedCron.start();
+
+    // Disable cron because LDAP Connection is not closed
+    // SyncedCron.start();
   });
 }
