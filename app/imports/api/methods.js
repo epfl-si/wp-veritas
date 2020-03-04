@@ -387,6 +387,24 @@ Meteor.methods({
 
     site = prepareUpdateInsert(site, 'insert');
 
+    // Ldap search to get unitName and unitLevel2
+    let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
+    let unitName = '';
+    let unitNameLevel2 = '';
+    if ('cn' in unit) {
+        unitName = unit.cn;
+    }
+    if ('dn' in unit) {
+        let dn = unit.dn.split(",");
+        if (dn.length == 5) {
+        // dn[2] = 'ou=associations'
+        unitNameLevel2 = dn[2].split("=")[1];
+        }
+    }
+
+    console.log('Insert new site with unitName: ', unitName);
+    console.log('Insert new site with unitNameLevel2:', unitNameLevel2);
+
     let siteDocument = {
       url: site.url,
       slug: site.slug,
@@ -398,6 +416,8 @@ Meteor.methods({
       theme: site.theme,
       languages: site.languages,
       unitId: site.unitId,
+      unitName: unitName,
+      unitNameLevel2: unitNameLevel2,
       snowNumber: site.snowNumber,
       status: site.status,
       comment: site.comment,

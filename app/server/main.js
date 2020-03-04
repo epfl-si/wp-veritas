@@ -10,7 +10,7 @@ import { Sites } from '../imports/api/collections';
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let importDatas = false;
+let importDatas = true;
   
 if (Meteor.isServer) {
   import './tequila-config';
@@ -74,8 +74,6 @@ if (Meteor.isServer) {
 
   Meteor.startup(function () {
     // code to run on server at startup
-
-    // Disable cron because LDAP Connection is not closed
-    // SyncedCron.start();
+    SyncedCron.start();
   });
 }

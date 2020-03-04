@@ -103,8 +103,8 @@ addUnitNameN2InSites = () => {
 }
 
 importData = () => {
-  updateThemes();
-  updateThemeInSites();
+  //updateThemes();
+  //updateThemeInSites();
   addUnitNameInSites();
   addUnitNameN2InSites();
 }
