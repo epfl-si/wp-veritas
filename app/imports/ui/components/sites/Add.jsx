@@ -91,7 +91,7 @@ class Add extends Component {
         plannedClosingDate: '',
         tags: [],
         professors: [],
-        infraWP: true,
+        wpInfra: true,
       }
     } else if (this.state.action == 'edit') {
       initialValues = this.getSite();
@@ -186,8 +186,8 @@ class Add extends Component {
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Site dans l'infrastructure WordPress VPSI ?" name="infraWP" type="checkbox"
-                  checked={ values.infraWP }
+                  label="Site dans l'infrastructure WordPress VPSI ?" name="wpInfra" type="checkbox"
+                  checked={ values.wpInfra }
                   component={ CustomSingleCheckbox } />
 
                 <Field

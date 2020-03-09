@@ -202,7 +202,7 @@ export const sitesSchema = new SimpleSchema({
             'no-wordpress', 'in-preparation'
         ],
     },
-    infraWP: {
+    wpInfra: {
         type: Boolean,
         optional: false,
     },

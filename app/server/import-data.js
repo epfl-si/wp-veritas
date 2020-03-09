@@ -102,35 +102,33 @@ addUnitNameN2InSites = () => {
   console.log("4. All sites (unitNameLevel2) updated");
 }
 */
-addInfraWP = () => {
-  console.log("Add a new field 'infraWP' of each site starting ...");
+addWPInfra = () => {
+  console.log("Add a new field 'wpInfra' of each site starting ...");
   let sites = Sites.find({}).fetch();
   sites.forEach(site => {
-    if ('infraWP' in site) {
-      console.log("Le site a déjà un infraWP");
+    if ('wpInfra' in site) {
+      console.log("Le site a déjà un wpInfra");
     } else {
         console.log(site.status);
-        let infraWP = true;
+        let wpInfra = true;
         if (site.status === 'no-wordpress') {
-            infraWP = false;
+            wpInfra = false;
         } else {
-            infraWP = true;
+            wpInfra = true;
         }
         Sites.update(
             { _id: site._id },
-            { $set: { 'infraWP' : infraWP } },
+            { $set: { 'wpInfra' : wpInfra } },
         );
     }
     let newSite = Sites.findOne(site._id);
-    console.log(`Site: ${newSite.url} => infraWP after update: ${newSite.infraWP}`);
+    console.log(`Site: ${newSite.url} => wpInfra after update: ${newSite.wpInfra}`);
   });
-  console.log("All sites (infraWP) updated");
+  console.log("All sites (wpInfra) updated");
 }
 
 importData = () => {
-  
-    addInfraWP();
-
+    addWPInfra();
 }
 
 export { importData }
