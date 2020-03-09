@@ -58,7 +58,6 @@ export const CustomSingleCheckbox = ({ field, form, ...props }) => {
       <input 
         { ...field } 
         { ...props }
-        checked={ form.values.userExperience }
         className="form-check-input"
         id={ field.name }
        />

@@ -91,6 +91,7 @@ class Add extends Component {
         plannedClosingDate: '',
         tags: [],
         professors: [],
+        infraWP: true,
       }
     } else if (this.state.action == 'edit') {
       initialValues = this.getSite();
@@ -181,6 +182,13 @@ class Add extends Component {
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
                 <ErrorMessage name="title" component={ CustomError } />
+
+                <Field
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  label="Site dans l'infrastructure WordPress VPSI ?" name="infraWP" type="checkbox"
+                  checked={ values.infraWP }
+                  component={ CustomSingleCheckbox } />
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
@@ -288,7 +296,8 @@ class Add extends Component {
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="À observer avec ressenti" name="userExperience" type="checkbox" 
+                  label="À observer avec ressenti" name="userExperience" type="checkbox"
+                  checked={ values.userExperience }
                   component={ CustomSingleCheckbox } />
 
                 <Field

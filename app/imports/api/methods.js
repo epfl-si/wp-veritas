@@ -431,6 +431,7 @@ Meteor.methods({
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
+      infraWP: site.infraWP,
     }
 
     let newSiteId = Sites.insert(siteDocument);
@@ -571,6 +572,7 @@ Meteor.methods({
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
+      infraWP: site.infraWP,
     }
 
     let siteBeforeUpdate = Sites.findOne({ _id: site._id});

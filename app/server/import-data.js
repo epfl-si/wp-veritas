@@ -1,5 +1,5 @@
 import { Themes, Sites } from '../imports/api/collections';
-
+/*
 updateThemes = () => {
   console.log("1. Update themes starting ...");
   let themes = Themes.find({}).fetch();
@@ -101,12 +101,36 @@ addUnitNameN2InSites = () => {
   });
   console.log("4. All sites (unitNameLevel2) updated");
 }
+*/
+addInfraWP = () => {
+  console.log("Add a new field 'infraWP' of each site starting ...");
+  let sites = Sites.find({}).fetch();
+  sites.forEach(site => {
+    if ('infraWP' in site) {
+      console.log("Le site a déjà un infraWP");
+    } else {
+        console.log(site.status);
+        let infraWP = true;
+        if (site.status === 'no-wordpress') {
+            infraWP = false;
+        } else {
+            infraWP = true;
+        }
+        Sites.update(
+            { _id: site._id },
+            { $set: { 'infraWP' : infraWP } },
+        );
+    }
+    let newSite = Sites.findOne(site._id);
+    console.log(`Site: ${newSite.url} => infraWP after update: ${newSite.infraWP}`);
+  });
+  console.log("All sites (infraWP) updated");
+}
 
 importData = () => {
-  //updateThemes();
-  //updateThemeInSites();
-  addUnitNameInSites();
-  addUnitNameN2InSites();
+  
+    addInfraWP();
+
 }
 
 export { importData }
