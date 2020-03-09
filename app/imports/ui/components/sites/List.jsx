@@ -109,6 +109,8 @@ class List extends Component {
           "faculty",
           "languages",
           "unitId",
+          "unitName",
+          "unitNameLevel2",
           "snowNumber",
           "status",
           "facutyTags",

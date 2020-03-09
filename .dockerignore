@@ -1,5 +1,6 @@
 .git
 .meteor/local
 **/node_modules
-scripts
+**/dump
+cli
 test
