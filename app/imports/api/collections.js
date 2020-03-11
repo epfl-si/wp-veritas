@@ -202,6 +202,10 @@ export const sitesSchema = new SimpleSchema({
             'no-wordpress', 'in-preparation'
         ],
     },
+    wpInfra: {
+        type: Boolean,
+        optional: false,
+    },
     comment: {
         type: String,
         label: "Commentaire",

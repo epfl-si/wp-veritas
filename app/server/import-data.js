@@ -1,5 +1,5 @@
 import { Themes, Sites } from '../imports/api/collections';
-
+/*
 updateThemes = () => {
   console.log("1. Update themes starting ...");
   let themes = Themes.find({}).fetch();
@@ -101,12 +101,34 @@ addUnitNameN2InSites = () => {
   });
   console.log("4. All sites (unitNameLevel2) updated");
 }
+*/
+addWPInfra = () => {
+  console.log("Add a new field 'wpInfra' of each site starting ...");
+  let sites = Sites.find({}).fetch();
+  sites.forEach(site => {
+    if ('wpInfra' in site) {
+      console.log("Le site a déjà un wpInfra");
+    } else {
+        console.log(site.status);
+        let wpInfra = true;
+        if (site.status === 'no-wordpress') {
+            wpInfra = false;
+        } else {
+            wpInfra = true;
+        }
+        Sites.update(
+            { _id: site._id },
+            { $set: { 'wpInfra' : wpInfra } },
+        );
+    }
+    let newSite = Sites.findOne(site._id);
+    console.log(`Site: ${newSite.url} => wpInfra after update: ${newSite.wpInfra}`);
+  });
+  console.log("All sites (wpInfra) updated");
+}
 
 importData = () => {
-  //updateThemes();
-  //updateThemeInSites();
-  addUnitNameInSites();
-  addUnitNameN2InSites();
+    addWPInfra();
 }
 
 export { importData }
