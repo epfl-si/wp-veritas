@@ -49,3 +49,4 @@ ostrio:logger
 ostrio:loggermongo
 
 littledata:synced-cron
+meteortesting:mocha

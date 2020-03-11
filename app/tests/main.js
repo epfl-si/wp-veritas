@@ -1,4 +1,5 @@
 import assert from "assert";
+import "../imports/api/categories.tests"
 
 describe("wp-veritas", function () {
   it("package.json has correct name", async function () {
