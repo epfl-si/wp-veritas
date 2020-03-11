@@ -95,12 +95,10 @@ class Search extends React.Component {
         if (this.state.site == {}) {
           res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
         } else {
-          if (this.state.site.status == 'created') {
-            
+          if (this.state.site.wpInfra) {
             res = this.state.site.url + '/wp-admin';
             res = `L'instance WordPress est : <a href='${ res }' target="_blank">${ res }</a>`;
             res += ` <br />Unité de rattachement <strong>${ this.state.unitName }</strong>`;
-  
           } else {
             res = `Le site <a href='${ this.state.urlSearched }' target="_blank">${ this.state.urlSearched }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
           }

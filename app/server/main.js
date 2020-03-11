@@ -20,7 +20,6 @@ if (Meteor.isServer) {
   new AppLogger();
 
   if (importDatas) {
-    //removeAllCollections();
     importData();
   }
 

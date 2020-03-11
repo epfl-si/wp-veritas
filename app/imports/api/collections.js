@@ -137,13 +137,6 @@ export const sitesSchema = new SimpleSchema({
         max: 100,
         min: 3,
     },
-    type: {
-        type: String,
-        label: "Type",
-        optional: false,
-        max: 100,
-        min: 3,
-    },
     category: {
         type: String,
         label: "Catégorie",
@@ -194,14 +187,6 @@ export const sitesSchema = new SimpleSchema({
         optional: true,
         max: 100,
     },
-    status: {
-        type: String,
-        label: "Statut",
-        allowedValues: [
-            'requested', 'created', 'archived', 'trashed',
-            'no-wordpress', 'in-preparation'
-        ],
-    },
     wpInfra: {
         type: Boolean,
         optional: false,
@@ -212,32 +197,7 @@ export const sitesSchema = new SimpleSchema({
         optional: true,
         max: 255,
     },
-    plannedClosingDate: {
-        type: String,
-        label: "Date de fermeture planifiée",
-        optional: true,
-    },
-    requestedDate: {
-        type: Date,
-        optional: true,
-    },
     createdDate: {
-        type: Date,
-        optional: true,
-    },
-    archivedDate: {
-        type: Date,
-        optional: true,
-    },
-    trashedDate: {
-        type: Date,
-        optional: true,
-    },
-    inPreparationDate: {
-        type: Date,
-        optional: true,
-    },
-    noWordPressDate: {
         type: Date,
         optional: true,
     },
@@ -355,28 +315,17 @@ tagSchema.messageBox = messageBox;
 professorSchema.messageBox = messageBox;
 
 class Site {
-    constructor(doc) {
+    
+  constructor(doc) {
         _.extend(this, doc);
     }
 
-    // TODO: Use https://github.com/vazco/meteor-universe-i18n
-    getStatus() {
-        switch(this.status) {
-            case 'requested':
-              return 'Demandé';
-            case 'created':
-                return 'Créé';
-            case 'archived':
-                return 'Archivé';
-            case 'trashed':
-                return 'Supprimé';
-            case 'no-wordpress':
-                return 'Non WordPress'
-            case 'in-preparation':
-                return 'En préparation'
-            default:
-              return this.status;
-          }
+    getWpInfra() {
+      if (this.wpInfra) {
+        return 'Oui';
+      } else {
+        return 'Non';
+      }
     }
 }
 
@@ -389,6 +338,7 @@ export const Sites = new Mongo.Collection('sites', {
  * @param {string=} text to search, approximatively (regex wide search, insensitive)
  * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
  */
+/*
 Sites.tagged_search = function (text="", tags=[]) {
     // build the query
     let finder = {
@@ -453,7 +403,7 @@ Sites.tagged_search = function (text="", tags=[]) {
             }
         }
     ).fetch();
-}
+}*/
 
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');

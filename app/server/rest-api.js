@@ -21,14 +21,14 @@ Api.addRoute('sites', {authRequired: false}, {
 
     if (query && this.queryParams.site_url) {
       return Sites.findOne({'url': this.queryParams.site_url});
-    } else if (query && (this.queryParams.text || this.queryParams.tags)) {
+    } /*else if (query && (this.queryParams.text || this.queryParams.tags)) {
       if (this.queryParams.tags && !(Array.isArray(this.queryParams.tags))) {
         this.queryParams.tags = [this.queryParams.tags];
       }
       return Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
     } else if (query && (this.queryParams.tagged)) {
       return Sites.tagged_search();
-    } else {
+    }*/ else {
       // nope, we are here for all the sites data
       return Sites.find({}).fetch();
     }

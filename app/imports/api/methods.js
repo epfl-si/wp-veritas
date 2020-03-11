@@ -62,68 +62,6 @@ function prepareUpdateInsert(site, action) {
     }
   }
 
-  let currentSite = Sites.findOne({url:site.url});
-
-  if (site.status == 'requested') {
-    site.requestedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.requestedDate = null;
-    } else {
-      site.requestedDate = currentSite.requestedDate;
-    }
-  }
-
-  if (site.status == 'created') {
-    site.createdDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.createdDate = null;
-    } else {
-      site.createdDate = currentSite.createdDate;
-    }
-  }
-    
-  if (site.status == 'archived') {
-    site.archivedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.archivedDate = null;
-    } else {
-      site.archivedDate = currentSite.archivedDate;
-    }
-  }
-
-  if (site.status == 'trashed') {
-    site.trashedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.trashedDate = null;
-    } else {
-      site.trashedDate = currentSite.trashedDate;
-    }
-  }
-
-  if (site.status == 'in-preparation') {
-    site.inPreparationDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.inPreparationDate = null;
-    } else {
-      site.inPreparationDate = currentSite.inPreparationDate;
-    }
-  }
-
-  if (site.status == 'no-wordpress') {
-    site.noWordPressDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.noWordPressDate = null;
-    } else {
-      site.noWordPressDate = currentSite.noWordPressDate;
-    }
-  }
-
   if (site.tags == undefined) {
     site.tags = [];
   }
@@ -411,7 +349,6 @@ Meteor.methods({
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
-      type: site.type,
       category: site.category,
       theme: site.theme,
       languages: site.languages,
@@ -419,15 +356,8 @@ Meteor.methods({
       unitName: unitName,
       unitNameLevel2: unitNameLevel2,
       snowNumber: site.snowNumber,
-      status: site.status,
       comment: site.comment,
-      plannedClosingDate: site.plannedClosingDate,
-      requestedDate: site.requestedDate,
       createdDate: site.createdDate,
-      archivedDate: site.archivedDate,
-      trashedDate: site.trashedDate,
-      noWordPressDate: site.noWordPressDate,
-      inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
@@ -554,21 +484,13 @@ Meteor.methods({
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
-      type: site.type,
       category: site.category,
       theme: site.theme,
       languages: site.languages,
       unitId: site.unitId,
       snowNumber: site.snowNumber,
-      status: site.status,
       comment: site.comment,
-      plannedClosingDate: site.plannedClosingDate,
-      requestedDate: site.requestedDate,
       createdDate: site.createdDate,
-      archivedDate: site.archivedDate,
-      trashedDate: site.trashedDate,
-      noWordPressDate: site.noWordPressDate,
-      inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,

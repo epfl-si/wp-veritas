@@ -86,9 +86,7 @@ class Add extends Component {
         languages: [], 
         unitId: '', 
         snowNumber: '',
-        status:'requested',
         comment: '',
-        plannedClosingDate: '',
         tags: [],
         professors: [],
         wpInfra: true,
@@ -274,24 +272,6 @@ class Add extends Component {
                   onBlur={this.updateUserMsg} 
                   placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text" component={ CustomInput } />
                 <ErrorMessage name="snowNumber" component={ CustomError } />
-                
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Date de fermeture planifiée" name="plannedClosingDate" type="date" component={ CustomInput } />
-                <ErrorMessage name="plannedClosingDate" component={ CustomError } />
-
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Statut" name="status" component={ CustomSelect } >
-                  <option value="requested">Demandé</option>
-                  <option value="created">Créé</option>
-                  <option value="in-preparation">En préparation</option>
-                  <option value="no-wordpress">Non WordPress</option>
-                  <option value="archived">Archivé</option>
-                  <option value="trashed">Mis en corbeille</option>
-                </Field>
 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
