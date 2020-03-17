@@ -24,7 +24,7 @@ class Add extends Component {
     }
   }
 
-  updateFields = (event) => {
+  updateFields = (event, values) => {
     if (event.target.checked === false) {
       values.openshiftEnv = "-- pas de sélection --";
       values.category = "-- pas de sélection --";
@@ -88,7 +88,7 @@ class Add extends Component {
         tagline: '', 
         title: '', 
         openshiftEnv: 'www', 
-        theme:'epfl',
+        theme:'wp-theme-2018',
         category:'GeneralPublic',
         languages: [], 
         unitId: '', 
@@ -133,6 +133,7 @@ class Add extends Component {
       content = <Loading />
     } else {
       
+      const emptyValue = "-- pas de sélection --";
       let msgAddSuccess = (
         <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
@@ -188,7 +189,7 @@ class Add extends Component {
                 <ErrorMessage name="title" component={ CustomError } />
 
                 <Field
-                  onChange={e => { handleChange(e); updateFields(e); this.updateUserMsg(); }}
+                  onChange={e => { handleChange(e); this.updateFields(e, values); this.updateUserMsg(); }}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   label="Site dans l'infrastructure WordPress VPSI ?" name="wpInfra" type="checkbox"
                   checked={ values.wpInfra }
@@ -202,7 +203,7 @@ class Add extends Component {
                   name="openshiftEnv"
                   component={ CustomSelect }
                   disabled = { values.wpInfra === false } >
-                  <option key="blank" value="blank">-- pas de sélection --</option>
+                  <option key="blank" value="blank">{ emptyValue }</option>
                   {this.props.openshiftenvs.map( (env, index) => (
                   <option key={env._id} value={env.name}>{env.name}</option>
                   ))}
@@ -215,7 +216,7 @@ class Add extends Component {
                   label="Catégorie" name="category" component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
-                  <option key="blank" value="blank">-- pas de sélection --</option>
+                  <option key="blank" value="blank">{ emptyValue }</option>
                   {this.props.categories.map( (category, index) => (
                   <option key={category._id} value={category.name}>{category.name}</option>
                   ))}
@@ -226,7 +227,8 @@ class Add extends Component {
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   label="Thème" name="theme" component={ CustomSelect } >
-                {this.props.themes.map( (theme, index) => (
+                  <option key="blank" value="blank">{ emptyValue }</option>
+                  {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
                 </Field>
