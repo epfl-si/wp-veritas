@@ -1,3 +1,4 @@
+import { check } from 'meteor/check'; 
 import { 
     Sites, 
     OpenshiftEnvs, 
@@ -5,7 +6,6 @@ import {
     Categories,
     Themes, 
     categoriesSchema,
-    sitesSchema, 
     openshiftEnvsSchema, 
     typesSchema, 
     themesSchema, 
@@ -15,7 +15,8 @@ import {
     professorSchema
   } from '../api/collections';
 
-import { check } from 'meteor/check'; 
+import { sitesSchema } from './schemas/sitesSchema';
+import { sitesWPInfraOutsideSchema } from './schemas/sitesWPInfraOutsideSchema';
 import { throwMeteorError } from '../api/error';
 import { AppLogger } from '../../server/logger';
 
@@ -321,8 +322,11 @@ Meteor.methods({
         'Only admins can insert sites.');
     }
 
-    sitesSchema.validate(site);
-
+    if (site.wpInfra) {
+      sitesSchema.validate(site);
+    } else {
+      sitesWPInfraOutsideSchema.validate(site);
+    }
     site = prepareUpdateInsert(site, 'insert');
 
     // Ldap search to get unitName and unitLevel2
