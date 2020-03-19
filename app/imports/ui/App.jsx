@@ -21,7 +21,7 @@ class Apps extends Component {
     return (
       <Router>
         <div className="App container">
-          <Header  />      
+          <Header />
           <Route path="/search" component={ Search } />
           { isAdmin || isTagsEditor ?
             (<React.Fragment>
@@ -34,10 +34,10 @@ class Apps extends Component {
             </React.Fragment>): null}
           { isAdmin ?   
             (<React.Fragment>
-            <Route exact path="/add" component={ Add } />
+            <Route path="/add" component={ Add } />
             <Route path="/edit/:_id" component={ Add } />
             <Route exact path="/admin" component={ Admin } />
-            <Route exact path="/admin/log/list" component={ Log } />
+            <Route path="/admin/log/list" component={ Log } />
             </React.Fragment>)
            : null}
           <Footer />

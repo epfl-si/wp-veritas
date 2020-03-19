@@ -133,7 +133,6 @@ class List extends Component {
     if (this.isLoading()) {
       content = <Loading />
     } else {
-      console.log(this.props.sites);
       content = (
         <Fragment>
           <h4 className="py-4 float-left">Source de vérité des sites WordPress</h4>
