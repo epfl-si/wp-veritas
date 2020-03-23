@@ -111,7 +111,7 @@ importData = () => {
   }
   */
 
-  deleteUnusedFields();
+  //deleteUnusedFields();
   
 }
 
