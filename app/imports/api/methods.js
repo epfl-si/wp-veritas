@@ -361,7 +361,7 @@ Meteor.methods({
       unitNameLevel2: unitNameLevel2,
       snowNumber: site.snowNumber,
       comment: site.comment,
-      createdDate: site.createdDate,
+      createdDate: new Date(),
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
