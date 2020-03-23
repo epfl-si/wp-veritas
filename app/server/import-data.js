@@ -1,10 +1,14 @@
 import { sitesSchema } from '../imports/api/schemas/sitesSchema';
 import { Sites } from '../imports/api/collections';
 
-importData = () => {
-
-  Sites.remove({});
-
+loadTestData = () => {
+  
+  // delete all data
+  const absoluteUrl = Meteor.absoluteUrl();
+  if (absoluteUrl === "http://localhost:3000/" || absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
+    Sites.remove({});
+  }
+  
   var myjson = {};
   myjson = JSON.parse(Assets.getText("inventory-test.json"));
   let sites = myjson['_meta']['hostvars'];
@@ -68,6 +72,47 @@ importData = () => {
     let newSiteId = Sites.insert(siteDocument);
     
   }
+}
+
+deleteUnusedFields = () => {
+
+  let sites = Sites.find({}).fetch();
+
+  sites.forEach(site => {
+
+    console.log(`Site ${ site.url }`);
+    console.log("Site avant :", site);
+
+    Sites.update(
+      { _id: site._id },
+      { $unset: {
+        'type': "",
+        'status': "",
+        'plannedClosingDate': "",
+        'requestedDate': "",
+        'archivedDate': "",
+        'trashedDate': "",
+        'inPreparationDate': "",
+        'noWordPressDate': "",
+      }},
+    );
+
+    let siteAfter = Sites.findOne({_id: site._id});
+    console.log("Site après : ", siteAfter);
+  });
+
+}
+
+importData = () => {
+  /*
+  const absoluteUrl = Meteor.absoluteUrl();
+  if (absoluteUrl === "http://localhost:3000/" || absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
+    loadTestData();
+  }
+  */
+
+  deleteUnusedFields();
+  
 }
 
 export { importData }

@@ -6,6 +6,19 @@ import { Loading } from '../ui/components/Messages';
 
 class Apps extends Component {
 
+  getEnvironment() {
+    const absoluteUrl = Meteor.absoluteUrl();
+    let environment;
+    if (absoluteUrl.startsWith('http://localhost:3000/')) {
+      environment = "LOCALHOST";
+    } else if (absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
+      environment = "TEST";
+    } else {
+      environment = "PROD";
+    }
+    return environment;
+  }
+
   render() {
     
     let isAdmin;
@@ -18,9 +31,16 @@ class Apps extends Component {
       isTagsEditor = Roles.userIsInRole(Meteor.userId(), 'tags-editor', Roles.GLOBAL_GROUP);
     }
 
+    const ribbon = (
+      <div className="ribbon-wrapper">
+          <div className="ribbon">{ this.getEnvironment() }</div>
+        </div>
+    );
+
     return (
       <Router>
         <div className="App container">
+          { this.getEnvironment() === "PROD" ? null : ribbon }
           <Header />
           <Route path="/search" component={ Search } />
           { isAdmin || isTagsEditor ?

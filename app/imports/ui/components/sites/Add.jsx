@@ -273,6 +273,12 @@ class Add extends Component {
                   component={ CustomInput }
                   disabled = { values.wpInfra === false } />
                 <ErrorMessage name="unitId" component={ CustomError } />
+                
+                { values.unitName ?
+                (<div className="form-group">
+                  <label htmlFor="unitName">Nom de l'unité :</label>
+                  <input className="form-control" id="unitName" type="text" disabled value={ values.unitName }/>
+                </div>) : null }
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
