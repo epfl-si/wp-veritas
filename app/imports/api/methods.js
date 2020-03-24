@@ -74,6 +74,31 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
+function getUnitNames(unitId) {
+
+  // Ldap search to get unitName and unitLevel2
+  let unit = Meteor.apply('getUnitFromLDAP', [unitId], true);
+  let unitName = '';
+  let unitNameLevel2 = '';
+  
+  if ('cn' in unit) {
+    unitName = unit.cn;
+  }
+  
+  if ('dn' in unit) {
+    let dn = unit.dn.split(",");
+    if (dn.length == 5) {
+      // dn[2] = 'ou=associations'
+      unitNameLevel2 = dn[2].split("=")[1];
+    }
+  }
+
+  return {
+    unitName: unitName,
+    unitNameLevel2: unitNameLevel2,
+  };
+}
+
 Meteor.methods({
 
   async getUserFromLDAP(sciper) {
@@ -329,21 +354,7 @@ Meteor.methods({
     }
     site = prepareUpdateInsert(site, 'insert');
 
-    // Ldap search to get unitName and unitLevel2
-    let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
-    let unitName = '';
-    let unitNameLevel2 = '';
-    if ('cn' in unit) {
-        unitName = unit.cn;
-    }
-    if ('dn' in unit) {
-        let dn = unit.dn.split(",");
-        if (dn.length == 5) {
-        // dn[2] = 'ou=associations'
-        unitNameLevel2 = dn[2].split("=")[1];
-        }
-    }
-
+    const { unitName, unitNameLevel2 } = getUnitNames(site.unitId);
     console.log('Insert new site with unitName: ', unitName);
     console.log('Insert new site with unitNameLevel2:', unitNameLevel2);
 
@@ -482,6 +493,10 @@ Meteor.methods({
 
     site = prepareUpdateInsert(site, 'update');
 
+    const { unitName, unitNameLevel2 } = getUnitNames(site.unitId);
+    console.log('Insert new site with unitName: ', unitName);
+    console.log('Insert new site with unitNameLevel2:', unitNameLevel2);
+
     let siteDocument = {
       url: site.url,
       slug: site.slug,
@@ -492,6 +507,8 @@ Meteor.methods({
       theme: site.theme,
       languages: site.languages,
       unitId: site.unitId,
+      unitName: unitName,
+      unitNameLevel2: unitNameLevel2,
       snowNumber: site.snowNumber,
       comment: site.comment,
       createdDate: site.createdDate,
