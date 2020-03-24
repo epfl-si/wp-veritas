@@ -24,6 +24,14 @@ class Add extends Component {
     }
   }
 
+  updateFields = (event, values) => {
+    if (event.target.checked === false) {
+      values.openshiftEnv = "-- pas de sélection --";
+      values.category = "-- pas de sélection --";
+      values.unitId = "";
+    }
+  }
+
   updateUserMsg = () => {
     this.setState({addSuccess: false, editSuccess: false});
   }
@@ -34,9 +42,9 @@ class Add extends Component {
     let site = Sites.findOne({_id: siteId});
     return site;
   }
-    
+
   submit = (values, actions) => {
-    
+
     let methodName;
     let state;
 
@@ -80,15 +88,12 @@ class Add extends Component {
         tagline: '', 
         title: '', 
         openshiftEnv: 'www', 
-        type: 'public', 
-        theme:'epfl',
+        theme:'wp-theme-2018',
         category:'GeneralPublic',
         languages: [], 
         unitId: '', 
         snowNumber: '',
-        status:'requested',
         comment: '',
-        plannedClosingDate: '',
         tags: [],
         professors: [],
         wpInfra: true,
@@ -103,7 +108,6 @@ class Add extends Component {
 
     const isLoading = (
       this.props.openshiftenvs === undefined || 
-      this.props.types === undefined || 
       this.props.themes === undefined ||
       this.props.categories === undefined ||
       initialValues === undefined
@@ -129,6 +133,7 @@ class Add extends Component {
       content = <Loading />
     } else {
       
+      const emptyValue = "-- pas de sélection --";
       let msgAddSuccess = (
         <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
@@ -166,7 +171,7 @@ class Add extends Component {
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
                 </div>
                 <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onChange={e => { handleChange(e); this.updateUserMsg(); }}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
@@ -184,37 +189,35 @@ class Add extends Component {
                 <ErrorMessage name="title" component={ CustomError } />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onChange={e => { handleChange(e); this.updateFields(e, values); this.updateUserMsg(); }}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   label="Site dans l'infrastructure WordPress VPSI ?" name="wpInfra" type="checkbox"
                   checked={ values.wpInfra }
-                  component={ CustomSingleCheckbox } />
+                  component={ CustomSingleCheckbox }
+                  />
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Openshift Environnement" name="openshiftEnv" component={ CustomSelect }>
+                  label="Environnement Openshift"
+                  name="openshiftEnv"
+                  component={ CustomSelect }
+                  disabled = { values.wpInfra === false } >
+                  <option key="blank" value="blank">{ emptyValue }</option>
                   {this.props.openshiftenvs.map( (env, index) => (
                   <option key={env._id} value={env.name}>{env.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
                 
-                <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Type" name="type" component={ CustomSelect } >
-                {this.props.types.map( (type, index) => (
-                  <option key={type._id} value={type.name}>{type.name}</option>
-                  ))}
-                </Field>
-                <ErrorMessage name="type" component={ CustomError } />
-                
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Catégorie" name="category" component={ CustomSelect } >
-                {this.props.categories.map( (category, index) => (
+                  label="Catégorie" name="category" component={ CustomSelect }
+                  disabled = { values.wpInfra === false }
+                  >
+                  <option key="blank" value="blank">{ emptyValue }</option>
+                  {this.props.categories.map( (category, index) => (
                   <option key={category._id} value={category.name}>{category.name}</option>
                   ))}
                 </Field>
@@ -224,7 +227,8 @@ class Add extends Component {
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   label="Thème" name="theme" component={ CustomSelect } >
-                {this.props.themes.map( (theme, index) => (
+                  <option key="blank" value="blank">{ emptyValue }</option>
+                  {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
                 </Field>
@@ -264,34 +268,25 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text" component={ CustomInput } />
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text"
+                  component={ CustomInput }
+                  disabled = { values.wpInfra === false } />
                 <ErrorMessage name="unitId" component={ CustomError } />
+                
+                { values.unitName ?
+                (<div className="form-group">
+                  <label htmlFor="unitName">Nom de l'unité :</label>
+                  <input className="form-control" id="unitName" type="text" disabled value={ values.unitName }/>
+                </div>) : null }
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
-                  onBlur={this.updateUserMsg} 
-                  placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text" component={ CustomInput } />
+                  onChange={e => { handleChange(e); this.updateUserMsg();}}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={this.updateUserMsg}
+                  placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text"
+                  component={ CustomInput } />
                 <ErrorMessage name="snowNumber" component={ CustomError } />
-                
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Date de fermeture planifiée" name="plannedClosingDate" type="date" component={ CustomInput } />
-                <ErrorMessage name="plannedClosingDate" component={ CustomError } />
-
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Statut" name="status" component={ CustomSelect } >
-                  <option value="requested">Demandé</option>
-                  <option value="created">Créé</option>
-                  <option value="in-preparation">En préparation</option>
-                  <option value="no-wordpress">Non WordPress</option>
-                  <option value="archived">Archivé</option>
-                  <option value="trashed">Mis en corbeille</option>
-                </Field>
 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
@@ -303,13 +298,14 @@ class Add extends Component {
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
-                  onBlur={this.updateUserMsg} 
-                  placeholder="" label="Slug pour le ressenti" name="slug" type="text" component={ CustomInput } />
+                  onBlur={this.updateUserMsg}
+                  placeholder="" label="Slug pour le ressenti" name="slug" type="text"
+                  component={ CustomInput } />
                 <ErrorMessage name="slug" component={ CustomError } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
+                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
                   label="Commentaire" name="comment" component={CustomTextarea} />
                 <ErrorMessage name="comment" component={ CustomError } />
                 <div className="my-1 text-right">
@@ -330,13 +326,11 @@ class Add extends Component {
 }
 export default withTracker(() => {
     Meteor.subscribe('openshiftEnv.list');
-    Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
     Meteor.subscribe('category.list');
     Meteor.subscribe('sites.list');
     return {
       openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
-      types: Types.find({}, {sort: {name:1 }}).fetch(),
       themes: Themes.find({}, {sort: {name:1 }}).fetch(),
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
       sites: Sites.find({}).fetch(),

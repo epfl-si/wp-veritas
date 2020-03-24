@@ -7,10 +7,15 @@ export const CustomInput = ({ field, form: { errors }, ...props }) => {
   } else {
     cssClassName = 'form-group';
   }
+  let disabled = null;
+  if (props.disabled) {
+    disabled = 'disabled';
+  }
   return (
     <div className={cssClassName}>
       <label>{ props.label }</label>
       <input 
+        { ...disabled }
         { ...field } 
         { ...props } 
         className={errors[field.name] ? "is-invalid form-control" : "form-control"}
@@ -41,10 +46,14 @@ export const CustomSelect = ({ field, form, ...props }) => {
   } else {
     cssClassName = 'form-group';
   }
+  let disabled = null;
+  if (props.disabled) {
+    disabled = 'disabled';
+  }
   return (
     <div className={cssClassName}>
       { props.label ? (<label>{ props.label }</label>) : null }
-      <select 
+      <select { ...disabled }
         { ...field }
         { ...props }
         className="form-control mt-0" />

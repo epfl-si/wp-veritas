@@ -10,8 +10,7 @@ const Cells = (props) => (
       <tr key={ site._id }>
         <th scope="row">{ index+1 }</th>
         <td><a href={ site.url } target="_blank">{ site.url }</a></td>
-        <td >{ site.type }</td>
-        <td >{ site.getStatus() }</td>
+        <td >{ site.getWpInfra() }</td>
         <td >{ site.openshiftEnv }</td>
         <td >
           <Link className="mr-2" to={ `/edit/${ site._id }` }>
@@ -104,7 +103,6 @@ class List extends Component {
           "title",
           "tagline",
           "openshiftEnv",
-          "type",
           "theme",
           "faculty",
           "languages",
@@ -117,11 +115,7 @@ class List extends Component {
           "instituteTags",
           "clusterTags",
           "scipers",
-          "plannedClosingDate",
-          "requestedDate",
-          "createdDate",
-          "archivedDate",
-          "trashedDate"
+          "createdDate"
         ],
         data: sites
     });
@@ -150,8 +144,7 @@ class List extends Component {
               <tr>
                 <th className="w-5" scope="col">#</th>
                 <th className="w-25" scope="col">URL</th>
-                <th className="w-10" scope="col">Type</th>
-                <th className="w-10" scope="col">Statut</th>
+                <th className="w-10" scope="col">Infrastructure VPSI</th>
                 <th className="w-10" scope="col">Env. Openshift</th>
                 <th className="w-30" >Actions</th>
               </tr>

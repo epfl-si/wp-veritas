@@ -10,7 +10,7 @@ import { Sites } from '../imports/api/collections';
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let importDatas = false;
+let importDatas = true;
   
 if (Meteor.isServer) {
   import './tequila-config';
@@ -20,7 +20,6 @@ if (Meteor.isServer) {
   new AppLogger();
 
   if (importDatas) {
-    //removeAllCollections();
     importData();
   }
 

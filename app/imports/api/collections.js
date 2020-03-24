@@ -3,6 +3,9 @@ import SimpleSchema from 'simpl-schema';
 import { check } from 'meteor/check';
 import { Tracker } from 'meteor/tracker';
 import MessageBox from 'message-box';
+import { sitesSchema } from './schemas/sitesSchema';
+import { sitesWPInfraOutsideSchema } from './schemas/sitesWPInfraOutsideSchema';
+import { isRequired, isRequiredUnderCondition } from './schemas/utils';
 
 SimpleSchema.defineValidationErrorTransform(error => {
     const ddpError = new Meteor.Error(error.message);
@@ -43,18 +46,6 @@ const messageBox = new MessageBox({
 
 messageBox.setLanguage('fr');
 
-function isRequired() {
-    if (this.value === '') {
-        return "required";
-    }
-}
-
-function isRequiredUnderCondition() {    
-    if (this.obj.type != 'field-of-research' && this.value === '') {
-        return "required";
-    }
-}
-
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
@@ -94,210 +85,6 @@ export const themesSchema = new SimpleSchema({
 }, { check });
 
 themesSchema.messageBox = messageBox;
-
-export const sitesSchema = new SimpleSchema({
-    // _id use to update a site
-    _id: {
-        type: String,
-        optional: true,
-    },
-    url: {
-        type: String,
-        label: "URL",
-        optional: false,
-        max: 100,
-        min: 17, // https://x.epfl.ch is the minimum
-        custom: isRequired,
-        regEx: SimpleSchema.RegEx.Url,
-    },
-    slug: {
-        type: String,
-        label: "Slug",
-        optional: true,
-        max: 50,
-    },
-    tagline: {
-        type: String,
-        label: "Tagline",
-        optional: true,
-        max: 100,
-    },
-    title: {
-        type: String,
-        label: "Titre",
-        optional: false,
-        max: 100,
-        min: 2,
-        custom: isRequired
-    },
-    openshiftEnv: {
-        type: String,
-        label: "Environnement openshift",
-        optional: false,
-        max: 100,
-        min: 3,
-    },
-    type: {
-        type: String,
-        label: "Type",
-        optional: false,
-        max: 100,
-        min: 3,
-    },
-    category: {
-        type: String,
-        label: "Catégorie",
-        optional: false,
-        max: 100,
-        min: 3,
-    }, 
-    theme: {
-        type: String,
-        label: "Thème",
-        optional: false,
-        max: 100,
-        min: 3,
-    },
-    languages: {
-        type: Array,
-        label: "Langues",
-        custom: function () {
-            if (this.value.length === 0) {
-                return "required";
-            }
-        },
-    },
-    'languages.$': {
-        type: String,
-        allowedValues: ['en', 'fr', 'de', 'el', 'es', 'ro', 'it'],
-    },
-    unitId: {
-        type: String,
-        label: 'ID de l unité',
-        optional: false,
-        min: 1,
-        max: 100,
-    },
-    unitName: {
-      type: String,
-      label: 'Nom de l unité',
-      optional: true,
-    },
-    unitNameLevel2: {
-      type: String,
-      label: 'Nom de l unité de niveau 2',
-      optional: true,
-    },
-    snowNumber: {
-        type: String,
-        label: "Numéro de ticket SNOW",
-        optional: true,
-        max: 100,
-    },
-    status: {
-        type: String,
-        label: "Statut",
-        allowedValues: [
-            'requested', 'created', 'archived', 'trashed',
-            'no-wordpress', 'in-preparation'
-        ],
-    },
-    wpInfra: {
-        type: Boolean,
-        optional: false,
-    },
-    comment: {
-        type: String,
-        label: "Commentaire",
-        optional: true,
-        max: 255,
-    },
-    plannedClosingDate: {
-        type: String,
-        label: "Date de fermeture planifiée",
-        optional: true,
-    },
-    requestedDate: {
-        type: Date,
-        optional: true,
-    },
-    createdDate: {
-        type: Date,
-        optional: true,
-    },
-    archivedDate: {
-        type: Date,
-        optional: true,
-    },
-    trashedDate: {
-        type: Date,
-        optional: true,
-    },
-    inPreparationDate: {
-        type: Date,
-        optional: true,
-    },
-    noWordPressDate: {
-        type: Date,
-        optional: true,
-    },
-    userExperience: {
-        type: Boolean,
-        optional: true,
-    },
-    professors: {
-      type: Array,
-      label: "Professors",
-    },
-    'professors.$': {
-      type: Object,
-      optional: true
-    },
-    'professors.$._id': {
-      type: String,
-      optional: true
-    },
-    'professors.$.sciper': {
-      type: String,
-      optional: true
-    },
-    'professors.$.displayName': {
-      type: String,
-      optional: true
-    },
-    tags: {
-      type: Array,
-      label: "Tags",
-    },
-    'tags.$': {
-      type: Object,
-      optional: true
-    },
-    'tags.$._id': {
-      type: String,
-      optional: true
-    },
-    'tags.$.url_fr': {
-      type: String,
-      optional: true
-    },
-    'tags.$.url_en': {
-      type: String,
-      optional: true
-    },
-    'tags.$.name_fr': {
-      type: String,
-      optional: true
-    },
-    'tags.$.name_en': {
-      type: String,
-      optional: true
-    },
-    'tags.$.type': {
-      type: String,
-      optional: true
-    },
-}, { check });
 
 export const professorSchema = new SimpleSchema({
   // _id use to update a tag
@@ -351,32 +138,22 @@ export const tagSchema = new SimpleSchema({
 }, { tracker: Tracker } )
 
 sitesSchema.messageBox = messageBox;
+sitesWPInfraOutsideSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
 professorSchema.messageBox = messageBox;
 
 class Site {
-    constructor(doc) {
+    
+  constructor(doc) {
         _.extend(this, doc);
     }
 
-    // TODO: Use https://github.com/vazco/meteor-universe-i18n
-    getStatus() {
-        switch(this.status) {
-            case 'requested':
-              return 'Demandé';
-            case 'created':
-                return 'Créé';
-            case 'archived':
-                return 'Archivé';
-            case 'trashed':
-                return 'Supprimé';
-            case 'no-wordpress':
-                return 'Non WordPress'
-            case 'in-preparation':
-                return 'En préparation'
-            default:
-              return this.status;
-          }
+    getWpInfra() {
+      if (this.wpInfra) {
+        return 'Oui';
+      } else {
+        return 'Non';
+      }
     }
 }
 
@@ -389,6 +166,7 @@ export const Sites = new Mongo.Collection('sites', {
  * @param {string=} text to search, approximatively (regex wide search, insensitive)
  * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
  */
+/*
 Sites.tagged_search = function (text="", tags=[]) {
     // build the query
     let finder = {
@@ -453,7 +231,7 @@ Sites.tagged_search = function (text="", tags=[]) {
             }
         }
     ).fetch();
-}
+}*/
 
 export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 export const Types = new Mongo.Collection('types');

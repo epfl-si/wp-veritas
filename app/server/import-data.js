@@ -1,134 +1,117 @@
-import { Themes, Sites } from '../imports/api/collections';
-/*
-updateThemes = () => {
-  console.log("1. Update themes starting ...");
-  let themes = Themes.find({}).fetch();
+import { sitesSchema } from '../imports/api/schemas/sitesSchema';
+import { Sites } from '../imports/api/collections';
 
-  themes.forEach(theme => {
-    console.log(`Theme before update: ${theme.name}`);
-    let themeName;
-    if (theme.name == "epfl") {
-      themeName = "wp-theme-2018";
-    } else if (theme.name == "epfl-light") {
-      themeName = "wp-theme-light";
+loadTestData = () => {
+  
+  // delete all data
+  const absoluteUrl = Meteor.absoluteUrl();
+  if (absoluteUrl === "http://localhost:3000/" || absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
+    Sites.remove({});
+  }
+  
+  var myjson = {};
+  myjson = JSON.parse(Assets.getText("inventory-test.json"));
+  let sites = myjson['_meta']['hostvars'];
+  // console.log(sites);
+
+  for (var currentSite in sites) {
+    let site = myjson['_meta']['hostvars'][currentSite];
+
+    if (site.wp_hostname !== 'migration-wp.epfl.ch') {
+      continue;
     }
-    if (themeName !== undefined) {
-      Themes.update(
-        { _id: theme._id }, 
-        { $set: { 'name' : themeName } },
-      );
+    if (site.wp_env !== 'int') {
+      continue;
     }
-    let newTheme = Themes.findOne(theme._id);
-    console.log(`Theme after update: ${newTheme.name}`);
-  })
-  console.log(`1. All themes updated`);
+    console.log(site);
+    
+    let url = `https://${ site.wp_hostname }/${ site.wp_path }`;
+    let title = site.wp_path;
+    let category = site['wp_details']['options']['epfl:site_category'];
+    if (category == null) {
+      category = 'GeneralPublic';
+    }
+    let theme = site['wp_details']['options']['stylesheet'];;
+    let languages = site['wp_details']['polylang']['langs'];
+    if (!languages) {
+      continue;
+    }
+    let unitId = site['wp_details']['options']['plugin:epfl_accred:unit_id'];
+    let unitName = site['wp_details']['options']['plugin:epfl_accred:unit'];
+
+    console.log(url);
+    console.log(title);
+    console.log(category);
+    console.log(theme);
+    console.log(languages);
+    console.log(unitId);
+    console.log(unitName);
+
+    let siteDocument = {
+      url: url,
+      tagline: '',
+      title: title,
+      wpInfra: true,
+      openshiftEnv: 'int',
+      category: category,
+      theme: theme,
+      languages: languages,
+      unitId: unitId,
+      unitName: unitName,
+      unitNameLevel2: '',
+      snowNumber: '',
+      comment: '',
+      userExperience: false,
+      slug: '',
+      professors: [],
+      tags: [],
+    }
+    
+    sitesSchema.validate(siteDocument);
+
+    let newSiteId = Sites.insert(siteDocument);
+    
+  }
 }
 
-updateThemeInSites = () => {
-  console.log("2. Update theme of each site starting ...");
-  let sites = Sites.find({}).fetch();
-  
-  sites.forEach(site => {
-    console.log(`Theme of site before update: ${site.theme}`);
+deleteUnusedFields = () => {
 
-    // Mettre à jour le theme 2018 => epfl
-    if (site.theme == "epfl") {
-      site.theme = "wp-theme-2018";
-    } else if (site.theme == "epfl-light") {
-      site.theme = "wp-theme-light";
-    }
+  let sites = Sites.find({}).fetch();
+
+  sites.forEach(site => {
+
+    console.log(`Site ${ site.url }`);
+    console.log("Site avant :", site);
 
     Sites.update(
-      { _id: site._id }, 
-      { $set: { 'theme' : site.theme } },
+      { _id: site._id },
+      { $unset: {
+        'type': "",
+        'status': "",
+        'plannedClosingDate': "",
+        'requestedDate': "",
+        'archivedDate': "",
+        'trashedDate': "",
+        'inPreparationDate': "",
+        'noWordPressDate': "",
+      }},
     );
 
-    let newSite = Sites.findOne(site._id);
-    console.log(`Theme of site after update: ${ newSite.theme }`);
+    let siteAfter = Sites.findOne({_id: site._id});
+    console.log("Site après : ", siteAfter);
   });
 
-  console.log(`Nb sites avec theme == epfl: ${ Sites.find({theme : "epfl" }).count() }`);
-  console.log(`Nb sites avec theme == epfl-light: ${ Sites.find({theme : "epfl-light" }).count() }`);
-  console.log("2. All sites (themes) updated");
-}
-
-addUnitNameInSites = () => {
-
-  console.log("3. Update unitName of each site starting ...");
-  let sites = Sites.find({}).fetch();
-  sites.forEach(site => {
-    if ('unitName' in site) {
-      console.log("Le site a déjà un unitName: ", site.unitName);
-    } else {
-      let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
-      console.log("unit:", unit);
-      if ('cn' in unit ) {
-        Sites.update(
-          { _id: site._id }, 
-          { $set: { 'unitName' : unit.cn } },
-        );
-      }
-    }
-    let newSite = Sites.findOne(site._id);
-    console.log(`Site: ${newSite.url} => UnitName after update: ${newSite.unitName}`);
-  });
-  console.log("3. All sites (unitName) updated");
-}
-
-addUnitNameN2InSites = () => {
-  console.log("4. Update unitNameLevel2 of each site starting ...");
-  let sites = Sites.find({}).fetch();
-  sites.forEach(site => {
-    if ('unitNameLevel2' in site) {
-      console.log("Le site a déjà un unitNameLevel2");
-    } else {
-      let unit = Meteor.apply('getUnitFromLDAP', [site.unitId], true);
-      console.log("unit:", unit);
-      if ('dn' in unit) {
-        let dn = unit.dn.split(",");
-        if (dn.length == 5) {
-          // example 'ou=associations'
-          let unitName = dn[2].split("=")[1];
-          Sites.update(
-            { _id: site._id }, 
-            { $set: { 'unitNameLevel2' : unitName } },
-          ); 
-        }
-      }
-    }
-    let newSite = Sites.findOne(site._id);
-    console.log(`Site: ${newSite.url} => UnitNameLevel2 after update: ${newSite.unitNameLevel2}`);
-  });
-  console.log("4. All sites (unitNameLevel2) updated");
-}
-*/
-addWPInfra = () => {
-  console.log("Add a new field 'wpInfra' of each site starting ...");
-  let sites = Sites.find({}).fetch();
-  sites.forEach(site => {
-    if ('wpInfra' in site) {
-      console.log("Le site a déjà un wpInfra");
-    } else {
-        console.log(site.status);
-        let wpInfra = true;
-        if (site.status === 'no-wordpress') {
-            wpInfra = false;
-        } else {
-            wpInfra = true;
-        }
-        Sites.update(
-            { _id: site._id },
-            { $set: { 'wpInfra' : wpInfra } },
-        );
-    }
-    let newSite = Sites.findOne(site._id);
-    console.log(`Site: ${newSite.url} => wpInfra after update: ${newSite.wpInfra}`);
-  });
-  console.log("All sites (wpInfra) updated");
 }
 
 importData = () => {
-    addWPInfra();
+  
+  const absoluteUrl = Meteor.absoluteUrl();
+  if (
+    // absoluteUrl === "http://localhost:3000/" || 
+    absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
+    loadTestData();
+  }
+    
 }
 
 export { importData }

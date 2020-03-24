@@ -1,3 +1,4 @@
+import { check } from 'meteor/check'; 
 import { 
     Sites, 
     OpenshiftEnvs, 
@@ -5,7 +6,6 @@ import {
     Categories,
     Themes, 
     categoriesSchema,
-    sitesSchema, 
     openshiftEnvsSchema, 
     typesSchema, 
     themesSchema, 
@@ -15,7 +15,8 @@ import {
     professorSchema
   } from '../api/collections';
 
-import { check } from 'meteor/check'; 
+import { sitesSchema } from './schemas/sitesSchema';
+import { sitesWPInfraOutsideSchema } from './schemas/sitesWPInfraOutsideSchema';
 import { throwMeteorError } from '../api/error';
 import { AppLogger } from '../../server/logger';
 
@@ -59,68 +60,6 @@ function prepareUpdateInsert(site, action) {
 
     if (site.slug != '' && Sites.find({slug:site.slug}).count() > 0) {
       throwMeteorError('slug', 'Ce slug existe déjà !');
-    }
-  }
-
-  let currentSite = Sites.findOne({url:site.url});
-
-  if (site.status == 'requested') {
-    site.requestedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.requestedDate = null;
-    } else {
-      site.requestedDate = currentSite.requestedDate;
-    }
-  }
-
-  if (site.status == 'created') {
-    site.createdDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.createdDate = null;
-    } else {
-      site.createdDate = currentSite.createdDate;
-    }
-  }
-    
-  if (site.status == 'archived') {
-    site.archivedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.archivedDate = null;
-    } else {
-      site.archivedDate = currentSite.archivedDate;
-    }
-  }
-
-  if (site.status == 'trashed') {
-    site.trashedDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.trashedDate = null;
-    } else {
-      site.trashedDate = currentSite.trashedDate;
-    }
-  }
-
-  if (site.status == 'in-preparation') {
-    site.inPreparationDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.inPreparationDate = null;
-    } else {
-      site.inPreparationDate = currentSite.inPreparationDate;
-    }
-  }
-
-  if (site.status == 'no-wordpress') {
-    site.noWordPressDate = new Date();
-  } else {
-    if (currentSite == undefined) {
-      site.noWordPressDate = null;
-    } else {
-      site.noWordPressDate = currentSite.noWordPressDate;
     }
   }
 
@@ -383,8 +322,11 @@ Meteor.methods({
         'Only admins can insert sites.');
     }
 
-    sitesSchema.validate(site);
-
+    if (site.wpInfra) {
+      sitesSchema.validate(site);
+    } else {
+      sitesWPInfraOutsideSchema.validate(site);
+    }
     site = prepareUpdateInsert(site, 'insert');
 
     // Ldap search to get unitName and unitLevel2
@@ -411,7 +353,6 @@ Meteor.methods({
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
-      type: site.type,
       category: site.category,
       theme: site.theme,
       languages: site.languages,
@@ -419,15 +360,8 @@ Meteor.methods({
       unitName: unitName,
       unitNameLevel2: unitNameLevel2,
       snowNumber: site.snowNumber,
-      status: site.status,
       comment: site.comment,
-      plannedClosingDate: site.plannedClosingDate,
-      requestedDate: site.requestedDate,
-      createdDate: site.createdDate,
-      archivedDate: site.archivedDate,
-      trashedDate: site.trashedDate,
-      noWordPressDate: site.noWordPressDate,
-      inPreparationDate: site.inPreparationDate,
+      createdDate: new Date(),
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
@@ -554,21 +488,13 @@ Meteor.methods({
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
-      type: site.type,
       category: site.category,
       theme: site.theme,
       languages: site.languages,
       unitId: site.unitId,
       snowNumber: site.snowNumber,
-      status: site.status,
       comment: site.comment,
-      plannedClosingDate: site.plannedClosingDate,
-      requestedDate: site.requestedDate,
       createdDate: site.createdDate,
-      archivedDate: site.archivedDate,
-      trashedDate: site.trashedDate,
-      noWordPressDate: site.noWordPressDate,
-      inPreparationDate: site.inPreparationDate,
       userExperience: site.userExperience,
       tags: site.tags,
       professors: site.professors,
