@@ -9,45 +9,10 @@ import { AlertSuccess, Loading } from '../Messages';
 
 class ProfessorsList extends Component {
 
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      updateLDAPSuccess: false,
-    }
-  }
-
-  updateLDAPInformations = () => {
-
-    let method = 'updateLDAPInformations';
-
-    Meteor.call(method, (error, result) => {
-      if (error) {
-        console.log(`ERROR ${error}`);
-      } else {
-        console.log("Success");
-        let state = { updateLDAPSuccess: true };
-        this.setState(state);
-      }
-    });
-  }
-
   render() { 
-    
-    let msgUpdateLDAPSuccess = (
-      <div className="alert alert-success" role="alert">
-        Les informations des professeurs ont été mise à jour avec succès ! 
-      </div> 
-    )
-
     return (
-      <Fragment>
-      { this.state.updateLDAPSuccess && msgUpdateLDAPSuccess }
       <div className="card my-2">
         <h5 className="card-header">Liste des professeurs</h5>
-        <div className="my-2 text-right">
-            <button id="updateLDAPButton" onClick={ (e) => this.updateLDAPInformations(e) } className="btn btn-primary">Mise à jour des professeurs</button>
-          </div>
         <ul className="list-group">
           {this.props.professors.map( (professor, index) => (
             <li id={ "sciper-" + professor.sciper } key={ professor._id } className="list-group-item">
@@ -60,7 +25,6 @@ class ProfessorsList extends Component {
           ))}
         </ul>
       </div>
-      </Fragment>
     )
   }
 }
@@ -105,7 +69,7 @@ class Professor extends Component {
 
   submitProfessor = async (values, actions) => {
     let state;
-    const getLDAPInformationsPromise = (method, values) => {
+    const getUserFromLDAPPromise = (method, values) => {
       return new Promise((resolve, reject) => {
         Meteor.call(method, values, (error, result) => {
           if (error) {
@@ -130,12 +94,12 @@ class Professor extends Component {
           } else {
             actions.setSubmitting(false);
             actions.resetForm();
-            this.setState(state);
+            this.setState({addSuccess: true, editSuccess: false, deleteSuccess: false, action: 'add'});
           }
         });
       });
     }
-    const ldapInfo = await getLDAPInformationsPromise('getLDAPInformations', values.sciper);
+    const ldapInfo = await getUserFromLDAPPromise('getUserFromLDAP', values.sciper);
     let infos = { 
       'sciper': ldapInfo.sciper, 
       'displayName': ldapInfo.displayName
@@ -165,7 +129,7 @@ class Professor extends Component {
     let content;
     let initialValues = this.getInitialValues();
     let isLoading = (this.props.professors == undefined || initialValues == undefined);
-
+  
     if (isLoading) {
       content = <Loading />;
     } else {
@@ -205,7 +169,6 @@ class Professor extends Component {
                 )}
             </Formik>
           </div>
-          
 
           { this.state.deleteSuccess ? ( 
             <AlertSuccess message={ 'Le professeur a été supprimé avec succès !' } />

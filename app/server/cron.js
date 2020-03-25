@@ -3,7 +3,7 @@ import { Sites, Professors } from '../imports/api/collections';
 SyncedCron.add({
   name: 'Update professors name',
   schedule: function(parser) {
-    return parser.text('every 2 minutes');
+    return parser.text('every 24 hours');
   },
   job: function(intendedAt) {
     console.log("Update professors ...");
@@ -14,9 +14,6 @@ SyncedCron.add({
     professors.forEach(prof => {
       publicLdapContext.users.getUserBySciper(prof.sciper, function(err, user) {
 
-        console.log("Sciper: ", user.sciper);
-        console.log("Display name: ", user.displayName);
-        
         let professorDocument = {
           displayName: user.displayName,
         }
@@ -24,6 +21,9 @@ SyncedCron.add({
           { _id: prof._id }, 
           { $set: professorDocument }
         );
+
+        let profAfter = Professors.findOne(prof._id);
+        console.log(`Prof: ${profAfter.sciper} after update => DisplayName: ${profAfter.displayName}`);
         
       })
     });
@@ -31,7 +31,6 @@ SyncedCron.add({
   }
 });
 
-/*
 SyncedCron.add({
   name: 'Update unit names',
   schedule: function(parser) {
@@ -81,4 +80,3 @@ SyncedCron.add({
     console.log('All sites updated:', intendedAt);
   }
 });
-*/

@@ -111,12 +111,12 @@ Meteor.methods({
     });
     return result;
   },
-
-  async getUnitFromLDAP(sciper) {
+  
+  async getUnitFromLDAP(uniqueIdentifier) {
     let result;
     const publicLdapContext = require('epfl-ldap')();
     result = await new Promise(function (resolve, reject) {
-      publicLdapContext.units.getUnitByUniqueIdentifier(sciper, function(err, data) {
+      publicLdapContext.units.getUnitByUniqueIdentifier(uniqueIdentifier, function(err, data) {
         resolve(data);
       });
     });
@@ -962,21 +962,23 @@ Meteor.methods({
     let sites = Sites.find({}).fetch();
     sites.forEach(function(site) {
       new_professors = [];
-      site.professors.forEach(function(professor) {
-        if (professor._id === professorId) {
-          // we want delete this tag of current professor
-        } else {
-          new_professors.push(professor);
-        }
-      });
-      Sites.update(
-        {"_id": site._id},
-        {
-          $set: {
-            'professors': new_professors,
+      if ('professors' in site) {
+        site.professors.forEach(function(professor) {
+          if (professor._id === professorId) {
+            // we want delete this tag of current professor
+          } else {
+            new_professors.push(professor);
           }
-        }
-      );
+        });
+        Sites.update(
+          {"_id": site._id},
+          {
+            $set: {
+              'professors': new_professors,
+            }
+          }
+        );
+      }
     });
   },
 });
