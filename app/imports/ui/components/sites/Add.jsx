@@ -28,7 +28,13 @@ class Add extends Component {
     if (event.target.checked === false) {
       values.openshiftEnv = "-- pas de sélection --";
       values.category = "-- pas de sélection --";
+      values.theme = "-- pas de sélection --";
       values.unitId = "";
+      values.languages = [];
+    } else {
+      values.openshiftEnv = "www";
+      values.category = "GeneralPublic";
+      values.theme = "wp-theme-2018";
     }
   }
 
@@ -226,7 +232,9 @@ class Add extends Component {
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Thème" name="theme" component={ CustomSelect } >
+                  label="Thème" name="theme" component={ CustomSelect }
+                  disabled = { values.wpInfra === false }
+                  >
                   <option key="blank" value="blank">{ emptyValue }</option>
                   {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
@@ -239,31 +247,44 @@ class Add extends Component {
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
                   label="Français" name="languages" type="checkbox" value="fr" 
-                  component={ CustomCheckbox } />
+                  component={ CustomCheckbox } 
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Anglais" name="languages" type="checkbox" value="en" component={ CustomCheckbox } />
+                  label="Anglais" name="languages" type="checkbox" value="en" 
+                  component={ CustomCheckbox } 
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Allemand" name="languages" type="checkbox" value="de" component={ CustomCheckbox } />
+                  label="Allemand" name="languages" type="checkbox" value="de" 
+                  component={ CustomCheckbox } 
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Italien" name="languages" type="checkbox" value="it" component={ CustomCheckbox } />
+                  label="Italien" name="languages" type="checkbox" value="it" 
+                  component={ CustomCheckbox }
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Espagnol" name="languages" type="checkbox" value="es" component={ CustomCheckbox } />
+                  label="Espagnol" name="languages" type="checkbox" value="es" 
+                  component={ CustomCheckbox }
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Grec" name="languages" type="checkbox" value="el" component={ CustomCheckbox } />
+                  label="Grec" name="languages" type="checkbox" value="el" 
+                  component={ CustomCheckbox }
+                  disabled = { values.wpInfra === false } />
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Roumain" name="languages" type="checkbox" value="ro" component={ CustomCheckbox } />
+                  label="Roumain" name="languages" type="checkbox" value="ro" 
+                  component={ CustomCheckbox }
+                  disabled = { values.wpInfra === false } />
                 <ErrorMessage name="languages" component={ CustomError } />
 
                 <Field

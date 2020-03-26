@@ -53,18 +53,14 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
   theme: {
       type: String,
       label: "Thème",
-      optional: false,
+      optional: true,
       max: 100,
       min: 3,
   },
   languages: {
       type: Array,
       label: "Langues",
-      custom: function () {
-          if (this.value.length === 0) {
-              return "required";
-          }
-      },
+      optional: true,
   },
   'languages.$': {
       type: String,
