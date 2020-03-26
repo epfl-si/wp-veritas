@@ -54,6 +54,7 @@ table {
   top: -3px;
   right: -3px
 }
+
 .ribbon {
   font-size: 12px;
   color: #007bff;
@@ -81,7 +82,8 @@ table {
   background-image: -o-linear-gradient(top, #ffffff 45%, #dedede 100%);
   background-image: linear-gradient(to bottom, #ffffff 45%, #dedede 100%);
   background-repeat: repeat-x;
-  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffdedede', GradientType=0)
+  filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffdedede', GradientType=0);
+  z-index: 1000;
 }
 
 .ribbon:before,

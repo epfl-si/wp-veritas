@@ -103,6 +103,7 @@ class List extends Component {
           "title",
           "tagline",
           "openshiftEnv",
+          "category",
           "theme",
           "faculty",
           "languages",
