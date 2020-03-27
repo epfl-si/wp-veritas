@@ -209,7 +209,9 @@ class Add extends Component {
                   name="openshiftEnv"
                   component={ CustomSelect }
                   disabled = { values.wpInfra === false } >
+                  { values.wpInfra === false ?
                   <option key="blank" value="blank">{ emptyValue }</option>
+                  : null }
                   {this.props.openshiftenvs.map( (env, index) => (
                   <option key={env._id} value={env.name}>{env.name}</option>
                   ))}
@@ -222,7 +224,9 @@ class Add extends Component {
                   label="Catégorie" name="category" component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
+                  { values.wpInfra === false ?
                   <option key="blank" value="blank">{ emptyValue }</option>
+                  : null }
                   {this.props.categories.map( (category, index) => (
                   <option key={category._id} value={category.name}>{category.name}</option>
                   ))}
@@ -235,7 +239,9 @@ class Add extends Component {
                   label="Thème" name="theme" component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
+                  { values.wpInfra === false ?
                   <option key="blank" value="blank">{ emptyValue }</option>
+                  : null }
                   {this.props.themes.map( (theme, index) => (
                   <option key={theme._id} value={theme.name}>{theme.name}</option>
                   ))}
