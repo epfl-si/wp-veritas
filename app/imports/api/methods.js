@@ -489,8 +489,11 @@ Meteor.methods({
       site.professors = [];
     }
 
-    sitesSchema.validate(site);
-
+    if (site.wpInfra) {
+      sitesSchema.validate(site);
+    } else {
+      sitesWPInfraOutsideSchema.validate(site);
+    }
     site = prepareUpdateInsert(site, 'update');
 
     const { unitName, unitNameLevel2 } = getUnitNames(site.unitId);

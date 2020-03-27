@@ -76,9 +76,14 @@ export const CustomSingleCheckbox = ({ field, form, ...props }) => {
 }
 
 export const CustomCheckbox = ({ field, form, ...props }) => {
+  let disabled = null;
+  if (props.disabled) {
+    disabled = 'disabled';
+  }
   return (
     <div className="form-group form-check form-check-inline">
       <input 
+        { ...disabled }
         { ...field } 
         { ...props } 
         checked={form.values.languages && form.values.languages.includes(field.value)} 
