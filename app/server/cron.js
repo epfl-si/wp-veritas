@@ -48,34 +48,38 @@ SyncedCron.add({
     let sites = Sites.find({}).fetch();
     sites.forEach(site => {
 
-      fullLdapContext.units.getUnitByUniqueIdentifier(site.unitId, function(err, unit) {
+      if ('wpInfra' in site && site.wpInfra) {
 
-        let unitName = '';
-        let unitNameLevel2 = '';
+        fullLdapContext.units.getUnitByUniqueIdentifier(site.unitId, function(err, unit) {
 
-        if ('cn' in unit) {
-          unitName = unit.cn;
-        }
-        if ('dn' in unit) {
-          let dn = unit.dn.split(",");
-          if (dn.length == 5) {
-            // dn[2] = 'ou=associations'
-            unitNameLevel2 = dn[2].split("=")[1];
+          let unitName = '';
+          let unitNameLevel2 = '';
+
+          if ('cn' in unit) {
+            unitName = unit.cn;
           }
-        }
+          if ('dn' in unit) {
+            let dn = unit.dn.split(",");
+            if (dn.length == 5) {
+              // dn[2] = 'ou=associations'
+              unitNameLevel2 = dn[2].split("=")[1];
+            }
+          }
 
-        Sites.update(
-          { _id: site._id },
-          { $set: {
-          'unitName': unitName,
-          'unitNameLevel2': unitNameLevel2
-          }},
-        );
+          Sites.update(
+            { _id: site._id },
+            { $set: {
+            'unitName': unitName,
+            'unitNameLevel2': unitNameLevel2
+            }},
+          );
 
-        let newSite = Sites.findOne(site._id);
-        console.log(`Site: ${newSite.url} after update => unitName: ${newSite.unitName} UnitNameLevel2: ${newSite.unitNameLevel2}`);
+          let newSite = Sites.findOne(site._id);
+          console.log(`Site: ${newSite.url} after update => unitName: ${newSite.unitName} UnitNameLevel2: ${newSite.unitNameLevel2}`);
         
-      });
+        });
+        
+      }
     });
     console.log('All sites updated:', intendedAt);
   }
