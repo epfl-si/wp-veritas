@@ -40,23 +40,22 @@ export const CustomTextarea = ({ field, form: { errors }, ...props}) => {
 }
 
 export const CustomSelect = ({ field, form, ...props }) => {
-  let cssClassName;
-  if (field.name == 'role') {
-    cssClassName = 'form-group float-left px-2 mb-0';
-  } else {
-    cssClassName = 'form-group';
-  }
-  let disabled = null;
+
+  let disabled;
   if (props.disabled) {
     disabled = 'disabled';
   }
+
   return (
-    <div className={cssClassName}>
+    <div className="form-group">
       { props.label ? (<label>{ props.label }</label>) : null }
-      <select { ...disabled }
+      <select 
+        disabled={disabled}
         { ...field }
-        { ...props }
-        className="form-control mt-0" />
+        className="form-control mt-0"
+        >
+        { props.children }
+      </select>
     </div>
   )
 }

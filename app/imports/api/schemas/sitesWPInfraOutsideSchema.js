@@ -40,22 +40,16 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       type: String,
       label: "Environnement openshift",
       optional: false,
-      max: 100,
-      min: 3,
   },
   category: {
       type: String,
       label: "Catégorie",
       optional: false,
-      max: 100,
-      min: 3,
   }, 
   theme: {
       type: String,
       label: "Thème",
       optional: true,
-      max: 100,
-      min: 3,
   },
   languages: {
       type: Array,

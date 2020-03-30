@@ -113,9 +113,9 @@ cleanNoWPInfraSites = () => {
     console.log("Site avant :", site);
     
     let siteDocument = {
-      openshiftEnv : "-- pas de sélection --",
-      category : "-- pas de sélection --",
-      theme : "-- pas de sélection --",
+      openshiftEnv : "",
+      category : "",
+      theme : "",
       languages : [],
       unitId : '',
     }

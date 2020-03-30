@@ -26,9 +26,9 @@ class Add extends Component {
 
   updateFields = (event, values) => {
     if (event.target.checked === false) {
-      values.openshiftEnv = "-- pas de sélection --";
-      values.category = "-- pas de sélection --";
-      values.theme = "-- pas de sélection --";
+      values.openshiftEnv = "";
+      values.category = "";
+      values.theme = "";
       values.unitId = "";
       values.languages = [];
     } else {
@@ -139,7 +139,6 @@ class Add extends Component {
       content = <Loading />
     } else {
       
-      const emptyValue = "-- pas de sélection --";
       let msgAddSuccess = (
         <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
@@ -210,10 +209,10 @@ class Add extends Component {
                   component={ CustomSelect }
                   disabled = { values.wpInfra === false } >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label="" />
                   : null }
                   {this.props.openshiftenvs.map( (env, index) => (
-                  <option key={env._id} value={env.name}>{env.name}</option>
+                  <option key={env._id} value={env.name} label={env.name} />
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
@@ -221,33 +220,38 @@ class Add extends Component {
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Catégorie" name="category" component={ CustomSelect }
+                  label="Catégorie"
+                  name="category"
+                  component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label="" />
                   : null }
                   {this.props.categories.map( (category, index) => (
-                  <option key={category._id} value={category.name}>{category.name}</option>
+                  <option key={category._id} value={category.name} label={category.name} />
                   ))}
                 </Field>
                 <ErrorMessage name="category" component={ CustomError } />
 
                 <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Thème" name="theme" component={ CustomSelect }
+                  onChange={e => { handleChange(e); this.updateUserMsg(); }}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg(); }}
+                  label="Thème"
+                  name="theme"
+                  component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label="" />
                   : null }
                   {this.props.themes.map( (theme, index) => (
-                  <option key={theme._id} value={theme.name}>{theme.name}</option>
+                  <option key={theme._id} value={theme.name} label={theme.name} />
                   ))}
                 </Field>
+
                 <ErrorMessage name="theme" component={ CustomError } />
-                
+
                 <h6>Langues</h6>                  
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 

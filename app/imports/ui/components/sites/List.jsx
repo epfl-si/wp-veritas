@@ -11,7 +11,7 @@ const Cells = (props) => (
         <th scope="row">{ index+1 }</th>
         <td><a href={ site.url } target="_blank">{ site.url }</a></td>
         <td >{ site.getWpInfra() }</td>
-        <td >{ site.openshiftEnv === '-- pas de sélection --' ? '' :  site.openshiftEnv }</td>
+        <td >{ site.openshiftEnv }</td>
         <td >
           <Link className="mr-2" to={ `/edit/${ site._id }` }>
             <button type="button" style={ {marginBottom: "3px"} } className="btn btn-outline-primary">Éditer</button>
@@ -100,6 +100,7 @@ class List extends Component {
         fields: [
           "_id",
           "url",
+          "wpInfra",
           "title",
           "tagline",
           "openshiftEnv",
