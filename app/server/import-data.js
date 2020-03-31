@@ -139,8 +139,6 @@ importData = () => {
     loadTestData();
   }
 
-  cleanNoWPInfraSites();
-    
 }
 
 export { importData }
