@@ -34,6 +34,12 @@ program
   commands.restoreProdDatabaseOnTest();
 })
 
+program
+.command('load-tests-data-on-test-db')
+.description('Load tests data on test MongoDB')
+.action(function () {
+  commands.loadTestsDataOnTest();
+})
 
 // allow commander to parse `process.argv`
 program.parse(process.argv);

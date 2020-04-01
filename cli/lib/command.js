@@ -152,7 +152,7 @@ const _restore = async function (source) {
   console.log(`Dump ${source} MongoDB`);
 
   // wait few secondes
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 8000));
 
   await _moveDumpFolder(source);
   if (source == 'prod-on-test') {
@@ -174,6 +174,132 @@ const _restore = async function (source) {
   return true;
 }
 
+const _loadTestData = async function (destination) {
+  
+  // se connecter un local (puis en test)
+  let connectionString = `mongodb://localhost:3001/`;
+  const client = await MongoClient.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true});
+  
+  // Delete all documents of 'sites' collection
+  let db;
+  if (destination === "test") {
+    dbName = 'wp-veritas-test';
+  } else if (destination === "localhost") {
+    dbName = "meteor";
+  }
+  db = client.db(dbName);
+  await db.collection('sites').deleteMany({});
+  client.close();
+
+  console.log("Delete all documents of 'sites' collection");
+
+  // Parse data
+  var fs = require('fs');
+  var myjson = JSON.parse(fs.readFileSync(config.WORKSPACE_PATH + 'wp-veritas/app/private/inventory-test.json', 'utf8'));
+  
+  let sites = myjson['_meta']['hostvars'];
+  //console.log(Object.values(sites));
+  try {
+    Object.values(sites).forEach(async currentSite => {
+      
+      //console.log(currentSite);
+      
+      let stop = false;
+      let site = currentSite;
+      let url, title, category, theme, languages;
+
+      if (site.wp_hostname !== 'migration-wp.epfl.ch') {
+        stop = true;
+      }
+      if (site.wp_env !== 'int') {
+        stop = true;
+      }
+      
+      if (!stop) {
+
+        url = `https://${ site.wp_hostname }/${ site.wp_path }`;
+        title = site.wp_path;
+        category = site['wp_details']['options']['epfl:site_category'];
+        if (category == null) {
+          category = 'GeneralPublic';
+        }
+        theme = site['wp_details']['options']['stylesheet'];;
+        languages = site['wp_details']['polylang']['langs'];
+        
+        if (!languages) {
+          stop = true;
+        }
+      }
+      if (!stop) {
+        console.log("Stop: ", stop);
+        console.log("url: ", url);
+        console.log("title: ", title);
+        console.log("category: ", category);
+        console.log("theme: ", theme);
+        console.log("languages: ", languages);
+        console.log("------------------");
+      }
+
+      
+      if (!stop) {
+        let unitId = site['wp_details']['options']['plugin:epfl_accred:unit_id'];
+        let unitName = site['wp_details']['options']['plugin:epfl_accred:unit'];
+
+        let siteDocument = {
+          url: url,
+          tagline: '',
+          title: title,
+          wpInfra: true,
+          openshiftEnv: 'int',
+          category: category,
+          theme: theme,
+          languages: languages,
+          unitId: unitId,
+          unitName: unitName,
+          unitNameLevel2: '',
+          snowNumber: '',
+          comment: '',
+          userExperience: false,
+          slug: '',
+          professors: [],
+          tags: [],
+        }
+        console.log("STOP ?: ", stop);
+        console.log(siteDocument);
+
+        let connectionString = `mongodb://localhost:3001/`;
+        const client = await MongoClient.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true});
+  
+        // Delete all documents of 'sites' collection
+        let db;
+        if (destination === "test") {
+          dbName = 'wp-veritas-test';
+        } else if (destination === "localhost") {
+          dbName = "meteor";
+        }
+        db = client.db(dbName);
+
+        let c = await db.collection("sites").insertOne(siteDocument);
+        
+        client.close();
+      }
+      
+    });
+  }
+  catch (error) { 
+    console.log(error);
+    
+  }
+  finally {
+    
+  }
+
+  
+  
+  return true;
+}
+
+
 module.exports.deleteAllDocuments = async function () {
   const connectionString = `mongodb://localhost:3001/`;
   await _deleteAllDocuments(connectionString);
@@ -194,5 +320,12 @@ module.exports.restoreProdDatabase = async function () {
 module.exports.restoreProdDatabaseOnTest = async function () {
   await _restore('prod-on-test');
   console.log("Restore prod database on test database");
+  return true;
+}
+
+module.exports.loadTestsDataOnTest = async function () {
+  let destination = 'localhost';
+  await _loadTestData(destination);
+  console.log("Load tests data on test DB");
   return true;
 }
