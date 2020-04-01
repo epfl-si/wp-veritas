@@ -13,14 +13,9 @@ Meteor.publish('sites.list', function() {
     ];
 });
 
-Meteor.publish('site.single', function(siteId) {
-
-    check(siteId, String);
-    
-    let siteCursor = Sites.find({_id: siteId});
-    return [
-        siteCursor,
-    ]; 
+Meteor.publish('siteById', function (siteId) {
+  check(siteId, String);
+  return Sites.find({ _id: siteId });
 });
 
 Meteor.publish('openshiftEnv.list', function() {

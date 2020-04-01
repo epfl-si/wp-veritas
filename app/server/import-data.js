@@ -103,6 +103,33 @@ deleteUnusedFields = () => {
 
 }
 
+cleanNoWPInfraSites = () => {
+
+  let sites = Sites.find({ wpInfra: false}).fetch();
+
+  sites.forEach(site => {
+
+    console.log(`Site ${ site.url }`);
+    console.log("Site avant :", site);
+    
+    let siteDocument = {
+      openshiftEnv : "",
+      category : "",
+      theme : "",
+      languages : [],
+      unitId : '',
+    }
+
+    Sites.update(
+      { _id: site._id }, 
+      { $set: siteDocument }
+    );
+
+    let siteAfter = Sites.findOne({_id: site._id});
+    console.log("Site après : ", siteAfter); 
+  })
+}
+
 importData = () => {
   
   const absoluteUrl = Meteor.absoluteUrl();
@@ -111,7 +138,7 @@ importData = () => {
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
     loadTestData();
   }
-    
+
 }
 
 export { importData }

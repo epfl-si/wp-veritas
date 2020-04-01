@@ -11,8 +11,12 @@ class Add extends Component {
     super(props);
     
     let action;
+    let unitName = '';
     if (this.props.match.path.startsWith('/edit')) {
       action = 'edit';
+      if ('site' in props && props.site) {
+        unitName = props.site.unitName;
+      }
     } else {
       action = 'add';
     }
@@ -21,14 +25,15 @@ class Add extends Component {
       action: action,
       addSuccess: false,
       editSuccess: false,
+      unitName: unitName,
     }
   }
 
   updateFields = (event, values) => {
     if (event.target.checked === false) {
-      values.openshiftEnv = "-- pas de sélection --";
-      values.category = "-- pas de sélection --";
-      values.theme = "-- pas de sélection --";
+      values.openshiftEnv = "";
+      values.category = "";
+      values.theme = "";
       values.unitId = "";
       values.languages = [];
     } else {
@@ -40,13 +45,6 @@ class Add extends Component {
 
   updateUserMsg = () => {
     this.setState({addSuccess: false, editSuccess: false});
-  }
-
-  getSite = () => {
-    // Get the URL parameter
-    let siteId = this.props.match.params._id;
-    let site = Sites.findOne({_id: siteId});
-    return site;
   }
 
   submit = (values, actions) => {
@@ -65,7 +63,7 @@ class Add extends Component {
     Meteor.call(
       methodName,
       values, 
-      (errors, siteId) => {
+      (errors, site) => {
         if (errors) {
           let formErrors = {};
           errors.details.forEach(function(error) {
@@ -78,6 +76,7 @@ class Add extends Component {
           if (this.state.action === 'add') {
             actions.resetForm();
           }
+          state.unitName = site.unitName;
           this.setState(state);
         }
       }
@@ -105,7 +104,7 @@ class Add extends Component {
         wpInfra: true,
       }
     } else if (this.state.action == 'edit') {
-      initialValues = this.getSite();
+      initialValues = this.props.site;
     }
     return initialValues;
   }
@@ -138,8 +137,11 @@ class Add extends Component {
     if (this.isLoading(initialValues)) {
       content = <Loading />
     } else {
-      
-      const emptyValue = "-- pas de sélection --";
+
+      if (this.action === 'edit' && this.state.unitName === '') {
+        this.setState({"unitName": this.props.site.unitName})
+      }
+
       let msgAddSuccess = (
         <div className="alert alert-success" role="alert">
           Le nouveau site a été ajouté avec succès ! 
@@ -210,10 +212,10 @@ class Add extends Component {
                   component={ CustomSelect }
                   disabled = { values.wpInfra === false } >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label=""></option>
                   : null }
                   {this.props.openshiftenvs.map( (env, index) => (
-                  <option key={env._id} value={env.name}>{env.name}</option>
+                  <option key={env._id} value={env.name} label={env.name} >{env.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
@@ -221,33 +223,38 @@ class Add extends Component {
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Catégorie" name="category" component={ CustomSelect }
+                  label="Catégorie"
+                  name="category"
+                  component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label=""></option>
                   : null }
                   {this.props.categories.map( (category, index) => (
-                  <option key={category._id} value={category.name}>{category.name}</option>
+                  <option key={category._id} value={category.name} label={category.name}>{category.name}</option>
                   ))}
                 </Field>
                 <ErrorMessage name="category" component={ CustomError } />
 
                 <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Thème" name="theme" component={ CustomSelect }
+                  onChange={e => { handleChange(e); this.updateUserMsg(); }}
+                  onBlur={e => { handleBlur(e); this.updateUserMsg(); }}
+                  label="Thème"
+                  name="theme"
+                  component={ CustomSelect }
                   disabled = { values.wpInfra === false }
                   >
                   { values.wpInfra === false ?
-                  <option key="blank" value="blank">{ emptyValue }</option>
+                  <option key="blank" value="blank" label=""></option>
                   : null }
                   {this.props.themes.map( (theme, index) => (
-                  <option key={theme._id} value={theme.name}>{theme.name}</option>
+                  <option key={theme._id} value={theme.name} label={theme.name}>{theme.name}</option>
                   ))}
                 </Field>
+
                 <ErrorMessage name="theme" component={ CustomError } />
-                
+
                 <h6>Langues</h6>                  
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
@@ -301,10 +308,16 @@ class Add extends Component {
                   disabled = { values.wpInfra === false } />
                 <ErrorMessage name="unitId" component={ CustomError } />
                 
-                { values.unitName ?
+                { this.state.action === 'edit' && this.state.unitName ?
                 (<div className="form-group">
                   <label htmlFor="unitName">Nom de l'unité :</label>
-                  <input className="form-control" id="unitName" type="text" disabled value={ values.unitName }/>
+                  <input
+                    className="form-control"
+                    id="unitName"
+                    type="text"
+                    disabled
+                    value={ this.state.unitName }
+                  />
                 </div>) : null }
 
                 <Field
@@ -351,15 +364,28 @@ class Add extends Component {
     return content;
   }
 }
-export default withTracker(() => {
-    Meteor.subscribe('openshiftEnv.list');
-    Meteor.subscribe('theme.list');
-    Meteor.subscribe('category.list');
-    Meteor.subscribe('sites.list');
+export default withTracker((props) => {
+
+  Meteor.subscribe('openshiftEnv.list');
+  Meteor.subscribe('theme.list');
+  Meteor.subscribe('category.list');
+
+  let sites;
+
+  if (props.match.path === "/edit/:_id") {
+    Meteor.subscribe('siteById', props.match.params._id);
+    sites = Sites.find({_id: props.match.params._id}).fetch();
     return {
       openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
       themes: Themes.find({}, {sort: {name:1 }}).fetch(),
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
-      sites: Sites.find({}).fetch(),
-    };  
+      site: sites[0]
+    };
+  } else {
+    return {
+      openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
+      themes: Themes.find({}, {sort: {name:1 }}).fetch(),
+      categories: Categories.find({}, {sort: {name:1 }}).fetch(),
+    };
+  }
 })(Add);

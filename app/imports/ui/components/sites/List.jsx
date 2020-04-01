@@ -100,6 +100,7 @@ class List extends Component {
         fields: [
           "_id",
           "url",
+          "wpInfra",
           "title",
           "tagline",
           "openshiftEnv",

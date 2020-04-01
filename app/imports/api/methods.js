@@ -355,8 +355,6 @@ Meteor.methods({
     site = prepareUpdateInsert(site, 'insert');
 
     const { unitName, unitNameLevel2 } = getUnitNames(site.unitId);
-    console.log('Insert new site with unitName: ', unitName);
-    console.log('Insert new site with unitNameLevel2:', unitNameLevel2);
 
     let siteDocument = {
       url: site.url,
@@ -389,7 +387,7 @@ Meteor.methods({
       this.userId
     );
 
-    return newSiteId;
+    return newSite;
   },
 
   associateProfessorsToSite(site, professors) {
@@ -497,8 +495,6 @@ Meteor.methods({
     site = prepareUpdateInsert(site, 'update');
 
     const { unitName, unitNameLevel2 } = getUnitNames(site.unitId);
-    console.log('Insert new site with unitName: ', unitName);
-    console.log('Insert new site with unitNameLevel2:', unitNameLevel2);
 
     let siteDocument = {
       url: site.url,
@@ -536,7 +532,7 @@ Meteor.methods({
       this.userId
     );
 
-    return site._id;
+    return updatedSite;
   },
     
   removeSite(siteId){
