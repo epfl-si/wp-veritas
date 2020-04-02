@@ -35,6 +35,13 @@ program
 })
 
 program
+.command('load-tests-data-on-localhost-db')
+.description('Load tests data on localhost MongoDB')
+.action(function () {
+  commands.loadTestsDataOnLocalhost();
+})
+
+program
 .command('load-tests-data-on-test-db')
 .description('Load tests data on test MongoDB')
 .action(function () {
