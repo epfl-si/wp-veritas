@@ -22,8 +22,8 @@ import { AppLogger } from '../../server/logger';
 
 function prepareUpdateInsert(site, action) {
 
-  if (site.slug == undefined) {
-    site.slug = '';
+  if (site.userExperienceUniqueLabel == undefined) {
+    site.userExperienceUniqueLabel = '';
   }
 
   // Delete "/" at the end of URL 
@@ -32,7 +32,7 @@ function prepareUpdateInsert(site, action) {
     site.url = url.slice(0, -1);
   }
   
-  // Check if url is unique and if slug is unique
+  // Check if url is unique and if userExperienceUniqueLabel is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === 'update') {
     let sites = Sites.find({url:site.url});
@@ -43,13 +43,13 @@ function prepareUpdateInsert(site, action) {
         throwMeteorError('url', 'Cette URL existe déjà !');
       }
     }
-    if (site.slug != '') {
-      let sitesBySlug = Sites.find({slug:site.slug});
-      if (sitesBySlug.count() > 1) {
-        throwMeteorError('slug', 'Ce slug existe déjà !');
-      } else if (sitesBySlug.count() == 1) {
-        if (sitesBySlug.fetch()[0]._id != site._id) {
-          throwMeteorError('slug', 'Ce slug existe déjà !');
+    if (site.userExperienceUniqueLabel != '') {
+      let sitesByUXUniqueLabel = Sites.find({userExperienceUniqueLabel:site.userExperienceUniqueLabel});
+      if (sitesByUXUniqueLabel.count() > 1) {
+        throwMeteorError('userExperienceUniqueLabel', 'Ce label existe déjà !');
+      } else if (sitesByUXUniqueLabel.count() == 1) {
+        if (sitesByUXUniqueLabel.fetch()[0]._id != site._id) {
+          throwMeteorError('userExperienceUniqueLabel', 'Ce label existe déjà !');
         }
       }
     }
@@ -58,8 +58,8 @@ function prepareUpdateInsert(site, action) {
       throwMeteorError('url', 'Cette URL existe déjà !');
     }
 
-    if (site.slug != '' && Sites.find({slug:site.slug}).count() > 0) {
-      throwMeteorError('slug', 'Ce slug existe déjà !');
+    if (site.userExperienceUniqueLabel != '' && Sites.find({userExperienceUniqueLabel:site.userExperienceUniqueLabel}).count() > 0) {
+      throwMeteorError('userExperienceUniqueLabel', 'Ce label existe déjà !');
     }
   }
 
@@ -358,7 +358,6 @@ Meteor.methods({
 
     let siteDocument = {
       url: site.url,
-      slug: site.slug,
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
@@ -372,6 +371,7 @@ Meteor.methods({
       comment: site.comment,
       createdDate: new Date(),
       userExperience: site.userExperience,
+      userExperienceUniqueLabel: site.userExperienceUniqueLabel,
       tags: site.tags,
       professors: site.professors,
       wpInfra: site.wpInfra,
@@ -498,7 +498,6 @@ Meteor.methods({
 
     let siteDocument = {
       url: site.url,
-      slug: site.slug,
       tagline: site.tagline,
       title: site.title,
       openshiftEnv: site.openshiftEnv,
@@ -512,6 +511,7 @@ Meteor.methods({
       comment: site.comment,
       createdDate: site.createdDate,
       userExperience: site.userExperience,
+      userExperienceUniqueLabel: site.userExperienceUniqueLabel,
       tags: site.tags,
       professors: site.professors,
       wpInfra: site.wpInfra,
