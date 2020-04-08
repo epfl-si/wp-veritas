@@ -16,12 +16,6 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       custom: isRequired,
       regEx: SimpleSchema.RegEx.Url,
   },
-  slug: {
-      type: String,
-      label: "Slug",
-      optional: true,
-      max: 50,
-  },
   tagline: {
       type: String,
       label: "Tagline",
@@ -98,6 +92,16 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
   userExperience: {
       type: Boolean,
       optional: true,
+  },
+  userExperienceUniqueLabel: {
+    type: String,
+    optional: true,
+    max: 50,
+  },
+  slug: {
+    type: String,
+    optional: true,
+    max: 50,
   },
   professors: {
     type: Array,

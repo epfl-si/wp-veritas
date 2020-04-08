@@ -65,6 +65,7 @@ class Add extends Component {
       values, 
       (errors, site) => {
         if (errors) {
+          console.log(errors);
           let formErrors = {};
           errors.details.forEach(function(error) {
             formErrors[error.name] = error.message;                        
@@ -89,7 +90,7 @@ class Add extends Component {
     if (this.state.action == 'add') {
       initialValues = { 
         url: '',
-        slug: '',
+        userExperienceUniqueLabel: '',
         tagline: '', 
         title: '', 
         openshiftEnv: 'www', 
@@ -339,9 +340,9 @@ class Add extends Component {
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
                   onBlur={this.updateUserMsg}
-                  placeholder="" label="Slug pour le ressenti" name="slug" type="text"
+                  placeholder="Libellé doit être unique" label="Libellé pour le ressenti" name="userExperienceUniqueLabel" type="text"
                   component={ CustomInput } />
-                <ErrorMessage name="slug" component={ CustomError } />
+                <ErrorMessage name="userExperienceUniqueLabel" component={ CustomError } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 

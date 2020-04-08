@@ -59,7 +59,7 @@ class Header extends Component {
                 <div className="dropdown-menu">
                   <NavLink className="dropdown-item" exact to="/admin" activeClassName="active">Admin</NavLink>
                   <NavLink className="dropdown-item" to="/admin/log/list" activeClassName="active">Voir les logs</NavLink>
-                  <div className="dropdown-item">Version 1.3.10</div>
+                  <div className="dropdown-item">Version 1.3.12</div>
                 </div>
               </li>
               : null}
