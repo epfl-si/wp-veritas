@@ -5,6 +5,7 @@
 
 const program = require('commander');
 const commands = require('./lib/command');
+const config = require("./lib/config.js");
 
 program
   .command('clean-all-documents')
@@ -48,5 +49,12 @@ program
   commands.loadTestsDataOnTest();
 })
 
-// allow commander to parse `process.argv`
-program.parse(process.argv);
+let rootDirectory = config.WORKSPACE_PATH + "wp-veritas";
+if (process.env.PWD !== rootDirectory) {
+  console.log("You need to get to the root of project wp-veritas.");
+  console.log("Please run:");
+  console.log(`cd ${rootDirectory}`);
+} else {
+  // allow commander to parse `process.argv`
+  program.parse(process.argv);
+}
