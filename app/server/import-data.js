@@ -62,7 +62,7 @@ loadTestData = () => {
       snowNumber: '',
       comment: '',
       userExperience: false,
-      slug: '',
+      userExperienceUniqueLabel: '',
       professors: [],
       tags: [],
     }
@@ -130,15 +130,68 @@ cleanNoWPInfraSites = () => {
   })
 }
 
-importData = () => {
+renameSlugToUserExperienceUniqueLabel = () => {
+
+  let sites = Sites.find({}).fetch();
+
+  sites.forEach(site => {
+
+    console.log(`Site ${ site.url }`);
+    console.log("Site avant :", site);
+
+    let slug = '';
+    if ("slug" in site && site.slug) {
+      slug = site.slug;
+    } 
   
+    let siteDocument = {
+      userExperienceUniqueLabel: slug,
+    }
+
+    Sites.update(
+      { _id: site._id }, 
+      { $set: siteDocument }
+    );
+
+    let siteAfter = Sites.findOne({_id: site._id});
+    console.log("Site après : ", siteAfter); 
+    
+  });
+
+}
+
+deleteSlug = () => {
+
+  let sites = Sites.find({}).fetch();
+
+  sites.forEach(site => {
+
+    console.log(`Site ${ site.url }`);
+    console.log("Site avant :", site);
+
+    Sites.update(
+      { _id: site._id },
+      { $unset: {
+        'slug': "",
+      }},
+    );
+
+    let siteAfter = Sites.findOne({_id: site._id});
+    console.log("Site après : ", siteAfter); 
+
+  });
+
+}
+
+importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
     loadTestData();
   }
-
+  renameSlugToUserExperienceUniqueLabel();
+  // deleteSlug();
 }
 
 export { importData }
