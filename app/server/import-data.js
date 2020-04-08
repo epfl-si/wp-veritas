@@ -185,13 +185,15 @@ deleteSlug = () => {
 
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
+  /*
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
     loadTestData();
   }
-  renameSlugToUserExperienceUniqueLabel();
-  // deleteSlug();
+  */
+  
+  deleteSlug();
 }
 
 export { importData }
