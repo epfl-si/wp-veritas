@@ -16,17 +16,16 @@ module.exports.getTarget = (source) => {
     target = "test";
   }
   return target;
-}
+};
 
 /**
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-
   if (["localhost", "test", "prod"].includes(environment) === false) {
     throw new Error("Environment is unknown");
   }
-  
+
   if (environment === "localhost") {
     return "mongodb://localhost:3001/";
   }
@@ -44,10 +43,9 @@ module.exports.getConnectionString = (environment) => {
   }
 
   return `mongodb://${dbUsername}:${dbPwd}@${dbHost}.epfl.ch/${dbName}`;
-}
+};
 
-createClient = async function(connectionString) {
-
+createClient = async function (connectionString) {
   // Check DB
   if (
     !connectionString.includes("localhost") &&
@@ -57,14 +55,15 @@ createClient = async function(connectionString) {
   }
 
   const client = await MongoClient.connect(connectionString, {
+    useNewUrlParser: true,
     useUnifiedTopology: true,
+    connectTimeoutMS: 300000,
   });
-  
+
   return client;
-}
+};
 
-getDB = function(target, client) {
-
+getDB = function (target, client) {
   let dbName;
   if (target === "test") {
     dbName = "wp-veritas";
@@ -72,29 +71,36 @@ getDB = function(target, client) {
     dbName = "meteor";
   }
   return client.db(dbName);
-}
+};
 
 /**
  * Insert one site
  */
-module.exports.insertOneSite = async function(connectionString, target, siteDocument) {
+module.exports.insertOneSite = async function (
+  connectionString,
+  target,
+  siteDocument
+) {
   const client = await createClient(connectionString);
   const db = getDB(target, client);
   await db.collection("sites").insertOne(siteDocument);
   client.close();
-}
+};
 
 /**
- * Delete all documents of collection. 
- * 
+ * Delete all documents of collection.
+ *
  * We remove all documents only of source DB (i.e. localhost DB or test DB)
  */
-module.exports.deleteAllDocuments = async function (connectionString, target, collectionToDelete='all') {
-  
+module.exports.deleteAllDocuments = async function (
+  connectionString,
+  target,
+  collectionToDelete = "all"
+) {
   const client = await createClient(connectionString);
   const db = getDB(target, client);
-  
-  if (collectionToDelete === 'all') { 
+
+  if (collectionToDelete === "all") {
     await db.collection("sites").deleteMany({});
     console.log(`All documents off sites collections are deleted`);
 
@@ -119,11 +125,15 @@ module.exports.deleteAllDocuments = async function (connectionString, target, co
     await db.collection("AppLogs").deleteMany({});
     console.log(`All documents off AppLogs collections are deleted`);
 
-    await db.collection("users").deleteMany({ username: { $nin: ["charmier"] } });
+    await db
+      .collection("users")
+      .deleteMany({ username: { $nin: ["charmier"] } });
     console.log(`All documents off users collections are deleted`);
   } else {
     await db.collection(collectionToDelete).deleteMany({});
-    console.log(`All documents off ${ collectionToDelete } collections are deleted`);
+    console.log(
+      `All documents off ${collectionToDelete} collections are deleted`
+    );
   }
   client.close();
 };
@@ -142,7 +152,6 @@ module.exports.dumpMongoDB = async function (connectionString) {
  * Restore data on target DB
  */
 module.exports.restoreMongoDB = async function (connectionString, dbName) {
-
   // Check DB
   if (
     !connectionString.includes("localhost") &&
@@ -151,10 +160,9 @@ module.exports.restoreMongoDB = async function (connectionString, dbName) {
     throw new Error("STOP don't TOUCH on this DB !");
   }
 
-  await new Promise(function (resolve, reject) {       
+  await new Promise(function (resolve, reject) {
     let command = `mongorestore --db="${dbName}" --uri="${connectionString}" dump/${dbName}`;
     console.log("Restore command: ", command);
     resolve(exec(command));
   });
-
 };

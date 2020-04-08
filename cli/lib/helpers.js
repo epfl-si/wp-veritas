@@ -42,18 +42,15 @@ module.exports.parseData = () => {
  */
 module.exports.loadData = async (destination, data) => {
   let sites = data["_meta"]["hostvars"];
-
   try {
     Object.values(sites).forEach(async (currentSite) => {
       let stop = false;
-
       if (
         currentSite.wp_hostname !== "migration-wp.epfl.ch" ||
         currentSite.wp_env !== "int"
       ) {
         stop = true;
       }
-
       let url, title, category, theme, languages;
       if (!stop) {
         url = `https://${currentSite.wp_hostname}/${currentSite.wp_path}`;
@@ -69,7 +66,6 @@ module.exports.loadData = async (destination, data) => {
           stop = true;
         }
       }
-
       if (!stop) {
         let unitId =
           currentSite["wp_details"]["options"]["plugin:epfl_accred:unit_id"];
@@ -95,11 +91,8 @@ module.exports.loadData = async (destination, data) => {
           professors: [],
           tags: [],
         };
-        //console.log("STOP ?: ", stop);
-        //console.log(siteDocument);
 
         let connectionString = dbHelpers.getConnectionString(destination);
-        // console.log(connectionString);
 
         await dbHelpers.insertOneSite(
           connectionString,
