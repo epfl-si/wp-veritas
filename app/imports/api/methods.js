@@ -1,13 +1,11 @@
 import { check } from 'meteor/check'; 
 import { 
     Sites, 
-    OpenshiftEnvs, 
-    Types,
+    OpenshiftEnvs,
     Categories,
     Themes, 
     categoriesSchema,
     openshiftEnvsSchema, 
-    typesSchema, 
     themesSchema, 
     Tags,
     tagSchema, 
@@ -635,47 +633,6 @@ Meteor.methods({
     );
   },
 
-  insertType(type) {
-
-    if (!this.userId) {
-      throw new Meteor.Error('not connected');
-    }
-
-    const canInsert = Roles.userIsInRole(
-      this.userId,
-      ['admin'], 
-      Roles.GLOBAL_GROUP
-    );
-
-    if (! canInsert) {
-      throw new Meteor.Error('unauthorized',
-        'Only admins can insert Type.');
-    }
-
-    // Check if name is unique
-    // TODO: Move this code to SimpleSchema custom validation function
-    if (Types.find({name: type.name}).count()>0) {
-      throwMeteorError('name', 'Nom du type existe déjà !');
-    }
-
-    typesSchema.validate(type);
-
-    let typeDocument = {
-      name: type.name,
-    };
-    
-    let newTypeId = Types.insert(typeDocument);
-    let newType = Types.findOne({_id: newTypeId});
-
-    AppLogger.getLog().info(
-      `Insert type ID ${ newType._id }`, 
-      { before: "", after: newType }, 
-      this.userId
-    );
-
-    return newType;
-  },
-
   insertCategory(category) {
 
     if (!this.userId) {
@@ -716,35 +673,6 @@ Meteor.methods({
 
     return newCategoryId;
 
-  },
-
-  removeType(typeId){
-
-    if (!this.userId) {
-        throw new Meteor.Error('not connected');
-    }
-
-    const canRemove = Roles.userIsInRole(
-        this.userId,
-        ['admin'], 
-        Roles.GLOBAL_GROUP
-    );
-
-    if (! canRemove) {
-        throw new Meteor.Error('unauthorized',
-          'Only admins can remove Type.');
-    }
-
-    check(typeId, String);
-
-    let type = Types.findOne({_id: typeId});
-    Types.remove({_id: typeId});
-
-    AppLogger.getLog().info(
-      `Delete type ID ${ typeId }`, 
-      { before: type, after: "" }, 
-      this.userId
-    );
   },
 
   removeCategory(categoryId){

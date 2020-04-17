@@ -113,9 +113,6 @@ module.exports.deleteAllDocuments = async function (
     await db.collection("themes").deleteMany({});
     console.log(`All documents off themes collections are deleted`);
 
-    await db.collection("types").deleteMany({});
-    console.log(`All documents off types collections are deleted`);
-
     await db.collection("categories").deleteMany({});
     console.log(`All documents off categories collections are deleted`);
 

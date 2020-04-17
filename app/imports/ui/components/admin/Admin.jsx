@@ -2,7 +2,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Meteor } from 'meteor/meteor';
 import React, { Component, Fragment } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
-import { Categories, Types, OpenshiftEnvs, Themes } from '../../../api/collections';
+import { Categories, OpenshiftEnvs, Themes } from '../../../api/collections';
 import { CustomError, CustomInput } from '../CustomFields';
 import { AlertSuccess, Loading } from '../Messages'
 
@@ -62,34 +62,6 @@ const CategoriesForm = (props) =>
     </Formik>
   </div>
 
-const TypesForm = (props) =>
-  <div className="card-body">
-    <Formik
-      onSubmit={ props.submitType }
-      initialValues={ { name: ''} }
-      validateOnBlur={ false }
-      validateOnChange={ false }
-    >
-      {({
-        handleSubmit,
-        isSubmitting,
-        handleChange,
-        handleBlur,
-      }) => (    
-        <form onSubmit={ handleSubmit } className="">
-          <Field 
-            onChange={e => { handleChange(e); props.updateUserMsg();}}
-            onBlur={e => { handleBlur(e); props.updateUserMsg();}}
-            placeholder="Nom du type à ajouter" name="name" type="text" component={ CustomInput } />
-          <ErrorMessage name="name" component={ CustomError } />
-          <div className="my-1 text-right">
-            <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-          </div>
-        </form>
-      )}
-    </Formik>
-  </div>
-
 const OpenShiftEnvsForm = (props) => 
   <div className="card-body">
     <Formik
@@ -131,23 +103,6 @@ const OpenshiftEnvsList = (props) =>
             } aria-hidden="true">&times;</span>
           </button>
         </li>
-      ))}
-    </ul>
-  </Fragment>
-
-const TypesList = (props) =>
-  <Fragment>
-    <h5 className="card-header">Liste des types des sites WordPress</h5>
-    <ul className="list-group">
-      {props.types.map( (type, index) => (
-        <li key={type._id} value={type.name} className="list-group-item">
-          {type.name}
-          <button type="button" className="close" aria-label="Close">
-            <span  onClick={
-              () => { if (window.confirm('Are you sure you wish to delete this item?')) props.deleteType(type._id) }
-            } aria-hidden="true">&times;</span>
-          </button>
-      </li>
       ))}
     </ul>
   </Fragment>
@@ -209,9 +164,6 @@ class Admin extends Component {
       if (collection._name === 'openshiftenvs') {
           meteorMethodName = 'insertOpenshiftEnv';
           target = 'environnement openshift';
-      } else if (collection._name === 'types') {
-          meteorMethodName = 'insertType';
-          target = 'type';
       } else if (collection._name === 'themes') {
           meteorMethodName = 'insertTheme';
           target = 'thème';
@@ -244,10 +196,6 @@ class Admin extends Component {
         this.submit(OpenshiftEnvs, values, actions);
     }
 
-    submitType = (values, actions) => {
-        this.submit(Types, values, actions);
-    }
-
     submitTheme = (values, actions) => {
         this.submit(Themes, values, actions);
     }
@@ -264,9 +212,6 @@ class Admin extends Component {
       if (collection._name === 'openshiftenvs') {
         meteorMethodName = 'removeOpenshiftEnv';
         target = 'environnement openshift';
-      } else if (collection._name === 'types') {
-        meteorMethodName = 'removeType';
-        target = 'type';
       } else if (collection._name === 'themes') {
         meteorMethodName = 'removeTheme';
         target = 'thème';
@@ -292,10 +237,6 @@ class Admin extends Component {
         this.delete(OpenshiftEnvs, openshiftEnvID);
     }
 
-    deleteType = (typeID) => {
-        this.delete(Types, typeID);
-    }
-
     deleteTheme = (themeID) => {
         this.delete(Themes, themeID);
     }
@@ -307,7 +248,6 @@ class Admin extends Component {
     isLoading = () => {
       const isLoading = (
         this.props.openshiftenvs === undefined || 
-        this.props.types === undefined || 
         this.props.themes === undefined ||
         this.props.categories === undefined
       );
@@ -337,17 +277,6 @@ class Admin extends Component {
               />
               <OpenShiftEnvsForm 
                 submitOpenShiftEnv= { this.submitOpenShiftEnv }
-                updateUserMsg={ this.updateUserMsg }
-              />
-            </div>
-
-            <div className="card my-2">
-              <TypesList
-                types={ this.props.types } 
-                deleteType={ this.deleteType }
-              />
-              <TypesForm 
-                submitType= { this.submitType }
                 updateUserMsg={ this.updateUserMsg }
               />
             </div>
@@ -392,13 +321,11 @@ class Admin extends Component {
 export default withTracker(() => {
     
     Meteor.subscribe('openshiftEnv.list');
-    Meteor.subscribe('type.list');
     Meteor.subscribe('theme.list');
     Meteor.subscribe('category.list');
 
     return {
         openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
-        types: Types.find({}, {sort: {name:1 }}).fetch(),
         themes: Themes.find({}, {sort: {name:1 }}).fetch(),
         categories: Categories.find({}, {sort: {name:1 }}).fetch(),
     };

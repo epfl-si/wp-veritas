@@ -56,16 +56,6 @@ export const openshiftEnvsSchema = new SimpleSchema({
 
 openshiftEnvsSchema.messageBox = messageBox;
 
-export const typesSchema = new SimpleSchema({
-    name: {
-        type: String,
-        label: "Nom du type",
-        custom: isRequired,
-    }
-}, { check });
-
-typesSchema.messageBox = messageBox;
-
 export const categoriesSchema = new SimpleSchema({
     name: {
         type: String,
@@ -234,7 +224,6 @@ Sites.tagged_search = function (text="", tags=[]) {
 }*/
 
 const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
-const Types = new Mongo.Collection('types');
 const Categories = new Mongo.Collection('categories');
 const Themes = new Mongo.Collection('themes');
 const Tags = new Mongo.Collection('tags');
@@ -242,12 +231,6 @@ const Professors = new Mongo.Collection('professors');
 const AppLogs = new Mongo.Collection('AppLogs');
 
 OpenshiftEnvs.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-Types.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
@@ -285,7 +268,6 @@ AppLogs.deny({
 
 export {
   OpenshiftEnvs,
-  Types,
   Categories,
   Themes,
   Tags,
