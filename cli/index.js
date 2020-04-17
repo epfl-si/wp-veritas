@@ -5,6 +5,7 @@
 
 const program = require('commander');
 const commands = require('./lib/command');
+const config = require("./lib/config.js");
 
 program
   .command('clean-all-documents')
@@ -34,6 +35,26 @@ program
   commands.restoreProdDatabaseOnTest();
 })
 
+program
+.command('load-tests-data-on-localhost-db')
+.description('Load tests data on localhost MongoDB')
+.action(function () {
+  commands.loadTestsDataOnLocalhost();
+})
 
-// allow commander to parse `process.argv`
-program.parse(process.argv);
+program
+.command('load-tests-data-on-test-db')
+.description('Load tests data on test MongoDB')
+.action(function () {
+  commands.loadTestsDataOnTest();
+})
+
+let rootDirectory = config.WORKSPACE_PATH + "wp-veritas";
+if (process.env.PWD !== rootDirectory) {
+  console.log("You need to get to the root of project wp-veritas.");
+  console.log("Please run:");
+  console.log(`cd ${rootDirectory}`);
+} else {
+  // allow commander to parse `process.argv`
+  program.parse(process.argv);
+}
