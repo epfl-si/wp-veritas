@@ -10,6 +10,7 @@ import "../imports/api/methods/themes";
 import "../imports/api/methods/professors";
 import "../imports/api/methods/categories";
 import "../imports/api/methods/openshift-env";
+import "../imports/api/methods/sites";
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
