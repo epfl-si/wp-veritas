@@ -25,27 +25,18 @@ nathantreid:static-assets
 
 alexwine:bootstrap-4          # bootstrap 4
 peppelg:bootstrap-3-modal     # bootstrap 3 modal but works with bootstrap 4
-
-
 react-meteor-data            
-
 nimble:restivus               # API Rest
 check                         # Check schema mongoDB
-
 # TODO: install this package and check all warnings
 #audit-argument-checks        # Audit check mongoDB
-
 epfl:accounts-tequila
-
 harrison:papa-parse       # Export CSV
 pfafman:filesaver         # Export CSV
-
 http
-
 erasaur:meteor-lodash     # _.extends
 alanning:roles
-
 ostrio:logger
 ostrio:loggermongo
-
 littledata:synced-cron
+mdg:validated-method

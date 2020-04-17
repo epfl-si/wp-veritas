@@ -49,6 +49,7 @@ littledata:synced-cron@1.5.1
 livedata@1.0.18
 localstorage@1.2.0
 logging@1.1.20
+mdg:validated-method@1.2.0
 meteor@1.9.2
 meteor-base@1.4.0
 minifier-css@1.4.1

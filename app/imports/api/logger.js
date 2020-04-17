@@ -1,6 +1,6 @@
 import { Logger }      from 'meteor/ostrio:logger';
 import { LoggerMongo } from 'meteor/ostrio:loggermongo';
-import { AppLogs } from '../imports/api/collections';
+import { AppLogs } from './collections';
 
 class AppLogger {
 

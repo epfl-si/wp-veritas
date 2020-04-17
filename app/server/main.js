@@ -3,13 +3,14 @@ import { WebApp } from 'meteor/webapp';
 import '../imports/api/methods'; // Call meteor methods backend
 import './publications'; // Call meteor publications backend
 import { importData } from './import-data';
-import { AppLogger } from './logger';
+import { AppLogger } from '../imports/api/logger';
 import './indexes';
+import "../imports/api/methods/tags";
 
 // Define lang <html lang="fr" />
 WebApp.addHtmlAttributeHook(() => ({ lang: 'fr' }));
 
-let importDatas = true;
+let importDatas = false;
   
 if (Meteor.isServer) {
   import './tequila-config';

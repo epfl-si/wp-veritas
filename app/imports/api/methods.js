@@ -7,8 +7,6 @@ import {
     categoriesSchema,
     openshiftEnvsSchema, 
     themesSchema, 
-    Tags,
-    tagSchema, 
     Professors,
     professorSchema
   } from '../api/collections';
@@ -16,7 +14,7 @@ import {
 import { sitesSchema } from './schemas/sitesSchema';
 import { sitesWPInfraOutsideSchema } from './schemas/sitesWPInfraOutsideSchema';
 import { throwMeteorError } from '../api/error';
-import { AppLogger } from '../../server/logger';
+import { AppLogger } from '../api/logger';
 
 function prepareUpdateInsert(site, action) {
 
@@ -139,170 +137,6 @@ Meteor.methods({
       });
     });
   },
-
-  insertTag(tag){
-        
-    if (!this.userId) {
-        throw new Meteor.Error('not connected');
-    }
-
-    const canInsert = Roles.userIsInRole(
-        this.userId,
-        ['admin', 'tags-editor'], 
-        Roles.GLOBAL_GROUP
-    );
-
-    if (! canInsert) {
-        throw new Meteor.Error('unauthorized',
-          'Only admins and editors can insert tags.');
-    }
-
-    tagSchema.validate(tag);
-
-    // Check if name is unique
-    // TODO: Move this code to SimpleSchema custom validation function
-    if (Tags.find({name: tag.name_fr}).count()>0) {
-        throwMeteorError('name_fr', 'Nom [FR] du type existe déjà !');
-    }
-    if (Tags.find({name: tag.name_en}).count()>0) {
-        throwMeteorError('name_en', 'Nom [EN] du type existe déjà !');
-    }
-
-    let tagDocument = {
-        name_fr: tag.name_fr,
-        name_en: tag.name_en,
-        url_fr: tag.url_fr,
-        url_en: tag.url_en,
-        type: tag.type
-    }
-
-    let newtag = Tags.insert(tagDocument);
-
-    AppLogger.getLog().info(
-      `Insert tag ID ${ newtag._id }`, 
-      { before: "", after: newtag }, 
-      this.userId
-    );
-    
-    return newtag;
-  },
-
-  updateTag(tag){
-
-    if (!this.userId) {
-      throw new Meteor.Error('not connected');
-    }
-
-    const canUpdate = Roles.userIsInRole(
-      this.userId,
-      ['admin', 'tags-editor'], 
-      Roles.GLOBAL_GROUP
-    );
-
-    if (! canUpdate) {
-      throw new Meteor.Error('unauthorized',
-        'Only admins and editors can update tags.');
-    }
-
-    tagSchema.validate(tag);
-
-    let tagDocument = {
-      name_fr: tag.name_fr,
-      name_en: tag.name_en,
-      url_fr: tag.url_fr,
-      url_en: tag.url_en,
-      type: tag.type
-    }
-    
-    let tagBeforeUpdate = Tags.findOne({_id: tag._id});
-
-    Tags.update(
-      { _id: tag._id }, 
-      { $set: tagDocument }
-    );
-
-    let updatedTag = Tags.findOne({_id: tag._id});
-
-    AppLogger.getLog().info(
-      `Update tag ID ${ tag._id }`, 
-      { before: tagBeforeUpdate , after: updatedTag }, 
-      this.userId
-    );
-    
-    // we need update all sites that have this updated tag
-    let sites = Sites.find({}).fetch();
-    sites.forEach(function(site) {
-      new_tags = [];
-      site.tags.forEach(function(current_tag) {
-        if (current_tag._id === tag._id) {
-          // we want update this tag of current site
-          new_tags.push(tag);
-        } else {
-          new_tags.push(current_tag);
-        }
-      });
-      Sites.update(
-        {"_id": site._id},
-        {
-          $set: {
-            'tags': new_tags,
-          }
-        }
-      );
-    });
-  },
-
-  removeTag(tagId){
-
-    if (!this.userId) {
-        throw new Meteor.Error('not connected');
-    }
-
-    const canRemove = Roles.userIsInRole(
-        this.userId,
-        ['admin', 'tags-editor'], 
-        Roles.GLOBAL_GROUP
-    );
-
-    if (! canRemove) {
-        throw new Meteor.Error('unauthorized',
-          'Only admins and editors can remove tags.');
-    }
-
-    check(tagId, String);
-
-    let tagBeforeDelete = Tags.findOne({_id: tagId});
-
-    Tags.remove({_id: tagId});
-
-    AppLogger.getLog().info(
-      `Remove tag ID ${ tagId }`,
-      { before: tagBeforeDelete , after: "" },
-      this.userId
-    );
-
-    // we need update all sites that have this deleted tag
-    let sites = Sites.find({}).fetch();
-    sites.forEach(function(site) {
-      new_tags = [];
-      site.tags.forEach(function(tag) {
-        if (tag._id === tagId) {
-          // we want delete this tag of current site
-        } else {
-          new_tags.push(tag);
-        }
-      });
-      Sites.update(
-        {"_id": site._id},
-        {
-          $set: {
-            'tags': new_tags,
-          }
-        }
-      );
-    });
-  },
-
   insertSite(site){
     if (!this.userId) {
       throw new Meteor.Error('not connected');
