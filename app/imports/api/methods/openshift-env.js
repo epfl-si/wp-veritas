@@ -1,26 +1,69 @@
 import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
+import { throwMeteorError } from "../error";
+import { OpenshiftEnvs, openshiftEnvsSchema } from "../collections";
+import { checkUserAndRole } from "./utils";
+import { AppLogger } from "../logger";
 
-import { tagsSchema } from "../collections";
+checkUniqueName = (openshiftEnv) => {
+  if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
+    throwMeteorError("name", "Cet environnement openshift existe déjà !");
+  }
+};
 
-const insertTag = new ValidatedMethod({
-  name: "insertTag",
-  validate: tagsSchema.validator(),
-  run(newTag) {},
+const insertOpenshiftEnv = new ValidatedMethod({
+  name: "insertOpenshiftEnv",
+  validate(newOpenshiftEnv) {
+    checkUniqueName(newOpenshiftEnv);
+    openshiftEnvsSchema.validate(newOpenshiftEnv);
+  },
+  run(newOpenshiftEnv) {
+    checkUserAndRole(
+      this.userId,
+      ["admin"],
+      "Only admins can insert openShiftEnv."
+    );
+
+    let openshiftEnvDocument = {
+      name: newOpenshiftEnv.name,
+    };
+
+    let newOpenshiftEnvId = OpenshiftEnvs.insert(openshiftEnvDocument);
+    let newOpenshiftEnvAfterInsert = OpenshiftEnvs.findOne({
+      _id: newOpenshiftEnvId,
+    });
+
+    AppLogger.getLog().info(
+      `Insert openshiftEnvs ID ${newOpenshiftEnvId}`,
+      { before: "", after: newOpenshiftEnvAfterInsert },
+      this.userId
+    );
+
+    return newOpenshiftEnvId;
+  },
 });
 
-const updateTag = new ValidatedMethod({
-  name: "updateTag",
-  validate: tagsSchema.validator(),
-  run(newTag) {},
-});
-
-const removeTag = new ValidatedMethod({
-  name: "removeTag",
+const removeOpenshiftEnv = new ValidatedMethod({
+  name: "removeOpenshiftEnv",
   validate: new SimpleSchema({
-    tagId: { type: String },
+    openshiftEnvId: { type: String },
   }).validator(),
-  run({ tagId }) {},
+  run({ openshiftEnvId }) {
+    checkUserAndRole(
+      this.userId,
+      ["admin"],
+      "Only admins can remove openShiftEnv."
+    );
+
+    let openshiftEnv = OpenshiftEnvs.findOne({ _id: openshiftEnvId });
+    OpenshiftEnvs.remove({ _id: openshiftEnvId });
+
+    AppLogger.getLog().info(
+      `Delete openshiftEnv ID ${openshiftEnvId}`,
+      { before: openshiftEnv, after: "" },
+      this.userId
+    );
+  },
 });
 
-export { insertTag, updateTag, removeTag };
+export { insertOpenshiftEnv, removeOpenshiftEnv };

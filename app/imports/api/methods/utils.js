@@ -7,14 +7,14 @@ function trimObjValues(obj) {
   }, {});
 }
 
-checkUserAndRole = (userId, msg) => {
+checkUserAndRole = (userId, roles, msg) => {
   if (!userId) {
     throw new Meteor.Error("not connected");
   }
 
   const canDoAction = Roles.userIsInRole(
     userId,
-    ["admin", "tags-editor"],
+    roles,
     Roles.GLOBAL_GROUP
   );
 

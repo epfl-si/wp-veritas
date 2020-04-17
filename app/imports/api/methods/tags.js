@@ -13,13 +13,19 @@ checkUniqueName = (newTag, action) => {
     if (Tags.find({ name_en: newTag.name_en }).count() > 0) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
-  } else if (action === 'update') {
+  } else if (action === "update") {
     let frTags = Tags.find({ name_fr: newTag.name_fr });
-    if (frTags.count() > 1  || (frTags.count() == 1 && frTags.fetch()[0]._id != newTag._id)) {
+    if (
+      frTags.count() > 1 ||
+      (frTags.count() == 1 && frTags.fetch()[0]._id != newTag._id)
+    ) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
     }
     let enTags = Tags.find({ name_en: newTag.name_en });
-    if (enTags.count() > 1 || (enTags.count() == 1 && enTags.fetch()[0]._id != newTag._id)) {
+    if (
+      enTags.count() > 1 ||
+      (enTags.count() == 1 && enTags.fetch()[0]._id != newTag._id)
+    ) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
   }
@@ -28,11 +34,15 @@ checkUniqueName = (newTag, action) => {
 const insertTag = new ValidatedMethod({
   name: "insertTag",
   validate(newTag) {
-    checkUniqueName(newTag, 'insert');
+    checkUniqueName(newTag, "insert");
     tagSchema.validate(newTag);
   },
   run(newTag) {
-    checkUserAndRole(this.userId, "Only admins and editors can insert tags.");
+    checkUserAndRole(
+      this.userId,
+      ["admins", "tags-editor"],
+      "Only admins and editors can insert tags."
+    );
 
     let newTagDocument = {
       name_fr: newTag.name_fr,
@@ -57,11 +67,15 @@ const insertTag = new ValidatedMethod({
 const updateTag = new ValidatedMethod({
   name: "updateTag",
   validate(newTag) {
-    checkUniqueName(newTag, 'update');
+    checkUniqueName(newTag, "update");
     tagSchema.validate(newTag);
   },
   run(newTag) {
-    checkUserAndRole(this.userId, "Only admins and editors can update tags.");
+    checkUserAndRole(
+      this.userId,
+      ["admins", "tags-editor"],
+      "Only admins and editors can update tags."
+    );
 
     let newTagDocument = {
       name_fr: newTag.name_fr,
@@ -113,24 +127,27 @@ const removeTag = new ValidatedMethod({
     tagId: { type: String },
   }).validator(),
   run({ tagId }) {
+    checkUserAndRole(
+      this.userId,
+      ["admins", "tags-editor"],
+      "Only admins and editors can remove tags."
+    );
 
-    checkUserAndRole(this.userId, "Only admins and editors can remove tags.");
+    let tagBeforeDelete = Tags.findOne({ _id: tagId });
 
-    let tagBeforeDelete = Tags.findOne({_id: tagId});
-  
-    Tags.remove({_id: tagId});
-  
+    Tags.remove({ _id: tagId });
+
     AppLogger.getLog().info(
-      `Remove tag ID ${ tagId }`,
-      { before: tagBeforeDelete , after: "" },
+      `Remove tag ID ${tagId}`,
+      { before: tagBeforeDelete, after: "" },
       this.userId
     );
-  
+
     // we need update all sites that have this deleted tag
     let sites = Sites.find({}).fetch();
-    sites.forEach(function(site) {
+    sites.forEach(function (site) {
       newTags = [];
-      site.tags.forEach(tag => {
+      site.tags.forEach((tag) => {
         if (tag._id === tagId) {
           // we want delete this tag of current site
         } else {
@@ -138,11 +155,11 @@ const removeTag = new ValidatedMethod({
         }
       });
       Sites.update(
-        {"_id": site._id},
+        { _id: site._id },
         {
           $set: {
-            'tags': newTags,
-          }
+            tags: newTags,
+          },
         }
       );
     });
