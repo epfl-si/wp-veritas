@@ -1,6 +1,6 @@
 import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
-import { Sites } from "../collections";
+import { Sites, professorSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
 import { throwMeteorError } from "../error";
@@ -220,4 +220,45 @@ const removeSite = new ValidatedMethod({
   },
 });
 
-export { insertSite, updateSite, removeSite };
+const associateProfessorsToSite = new ValidatedMethod({
+  name: "associateProfessorsToSite",
+  validate({ site, professors }) {
+    if (Array.isArray(professors)) {
+      professors.forEach((prof) => {
+        professorSchema.validate(prof);
+      });
+    } else {
+      throwMeteorError("professors", "Professors data are BAD");
+    }
+
+    if (site.wpInfra) {
+      sitesSchema.validate(site);
+    } else {
+      sitesWPInfraOutsideSchema.validate(site);
+    }
+  },
+  run({ site, professors }) {
+    checkUserAndRole(
+      this.userId,
+      ["admin", "tags-editor"],
+      "Only admins and editors can associate tags to a site."
+    );
+
+    let siteDocument = {
+      professors: professors,
+    };
+
+    let siteBeforeUpdate = Sites.findOne({ _id: site._id });
+    Sites.update({ _id: site._id }, { $set: siteDocument });
+
+    let updatedSite = Sites.findOne({ _id: site._id });
+
+    AppLogger.getLog().info(
+      `Associate professors to site with ID ${site._id}`,
+      { before: siteBeforeUpdate, after: updatedSite },
+      this.userId
+    );
+  },
+});
+
+export { insertSite, updateSite, removeSite, associateProfessorsToSite };
