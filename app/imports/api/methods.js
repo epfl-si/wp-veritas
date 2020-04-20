@@ -26,20 +26,5 @@ Meteor.methods({
     });
     return result;
   },
-
-  updateLDAPInformations() {
-    let professors = Professors.find({}).fetch();
-    professors.forEach((prof) => {
-      Meteor.call("getUserFromLDAP", prof.sciper, (error, LDAPinformations) => {
-        if (error) {
-          console.log(`ERROR ${error}`);
-        } else {
-          let professorDocument = {
-            displayName: LDAPinformations.displayName,
-          };
-          Professors.update({ _id: prof._id }, { $set: professorDocument });
-        }
-      });
-    });
-  }
+  
 });
