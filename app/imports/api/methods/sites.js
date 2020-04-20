@@ -1,6 +1,6 @@
 import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
-import { Sites, professorSchema } from "../collections";
+import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
 import { throwMeteorError } from "../error";
@@ -241,7 +241,7 @@ const associateProfessorsToSite = new ValidatedMethod({
     checkUserAndRole(
       this.userId,
       ["admin", "tags-editor"],
-      "Only admins and editors can associate tags to a site."
+      "Only admins and editors can associate professors to a site."
     );
 
     let siteDocument = {
@@ -261,4 +261,52 @@ const associateProfessorsToSite = new ValidatedMethod({
   },
 });
 
-export { insertSite, updateSite, removeSite, associateProfessorsToSite };
+const associateTagsToSite = new ValidatedMethod({
+  name: "associateTagsToSite",
+  validate({ site, tags }) {
+    if (Array.isArray(tags)) {
+      tags.forEach((tag) => {
+        tagSchema.validate(tag);
+      });
+    } else {
+      throwMeteorError("tags", "Tags data are BAD");
+    }
+
+    if (site.wpInfra) {
+      sitesSchema.validate(site);
+    } else {
+      sitesWPInfraOutsideSchema.validate(site);
+    }
+  },
+  run({ site, tags }) {
+    checkUserAndRole(
+      this.userId,
+      ["admin", "tags-editor"],
+      "Only admins and editors can associate tags to a site."
+    );
+
+    let siteDocument = {
+      tags: tags,
+    };
+
+    let siteBeforeUpdate = Sites.findOne({ _id: site._id });
+
+    Sites.update({ _id: site._id }, { $set: siteDocument });
+
+    let updatedSite = Sites.findOne({ _id: site._id });
+
+    AppLogger.getLog().info(
+      `Associate tags to site with ID ${site._id}`,
+      { before: siteBeforeUpdate, after: updatedSite },
+      this.userId
+    );
+  },
+});
+
+export {
+  insertSite,
+  updateSite,
+  removeSite,
+  associateProfessorsToSite,
+  associateTagsToSite,
+};

@@ -41,40 +41,5 @@ Meteor.methods({
         }
       });
     });
-  },
-
-  associateTagsToSite(site, tags) {
-    if (!this.userId) {
-      throw new Meteor.Error("not connected");
-    }
-
-    const canAssociate = Roles.userIsInRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      Roles.GLOBAL_GROUP
-    );
-
-    if (!canAssociate) {
-      throw new Meteor.Error(
-        "unauthorized",
-        "Only admins and editors can associate tags to a site."
-      );
-    }
-
-    let siteDocument = {
-      tags: tags,
-    };
-
-    let siteBeforeUpdate = Sites.findOne({ _id: site._id });
-
-    Sites.update({ _id: site._id }, { $set: siteDocument });
-
-    let updatedSite = Sites.findOne({ _id: site._id });
-
-    AppLogger.getLog().info(
-      `Associate tags to site with ID ${site._id}`,
-      { before: siteBeforeUpdate, after: updatedSite },
-      this.userId
-    );
-  },
+  }
 });
