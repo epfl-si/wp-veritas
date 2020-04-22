@@ -183,6 +183,18 @@ deleteSlug = () => {
 
 }
 
+deleteUserProfile = () => {
+
+  let users = Meteor.users.find({}).fetch();
+  users.forEach(user => {
+    Meteor.users.update(
+      { _id: user._id },
+      { $unset: { 'profile': '' } },
+    );
+  });
+  console.log("All profiles are deleted");
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -193,7 +205,7 @@ importData = () => {
   }
   */
   
-  deleteSlug();
+ deleteUserProfile();
 }
 
 export { importData }

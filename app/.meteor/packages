@@ -28,8 +28,7 @@ peppelg:bootstrap-3-modal     # bootstrap 3 modal but works with bootstrap 4
 react-meteor-data            
 nimble:restivus               # API Rest
 check                         # Check schema mongoDB
-# TODO: install this package and check all warnings
-#audit-argument-checks        # Audit check mongoDB
+audit-argument-checks         # Audit check mongoDB
 epfl:accounts-tequila
 harrison:papa-parse       # Export CSV
 pfafman:filesaver         # Export CSV

@@ -13,7 +13,7 @@ import "../imports/api/methods/categories";
 import "../imports/api/methods/openshift-env";
 import "../imports/api/methods/sites";
 
-let importDatas = false;
+let importDatas = true;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
