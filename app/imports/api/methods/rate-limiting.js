@@ -19,8 +19,8 @@ const rateLimiter = (methods) => {
           return true;
         },
       },
-      1,
-      600000
+      5,
+      1000
     );
   }
 };
