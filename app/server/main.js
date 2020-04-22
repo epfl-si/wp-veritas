@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { WebApp } from 'meteor/webapp';
 import '../imports/api/methods'; // Call meteor methods backend
-import './publications'; // Call meteor publications backend
+import '../imports/api/publications'; // Call meteor publications backend
 import { importData } from './import-data';
 import { AppLogger } from '../imports/api/logger';
 import './indexes';
