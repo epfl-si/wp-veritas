@@ -237,8 +237,8 @@ class Admin extends Component {
       meteorMethodName = "insertCategory";
       target = "catégorie";
     }
-    import { insertCategory } from "../../../api/methods/categories";
-    insertCategory.call(values, (errors, objectId) => {
+
+    Meteor.call(meteorMethodName, values, (errors, objectId) => {
       if (errors) {
         console.debug(errors);
         let formErrors = {};
@@ -275,15 +275,15 @@ class Admin extends Component {
     if (collection._name === "openshiftenvs") {
       meteorMethodName = "removeOpenshiftEnv";
       target = "environnement openshift";
-      elementToDelete = { 'openshiftEnvId': elementId };
+      elementToDelete = { openshiftEnvId: elementId };
     } else if (collection._name === "themes") {
       meteorMethodName = "removeTheme";
       target = "thème";
-      elementToDelete = { 'themeId': elementId };
+      elementToDelete = { themeId: elementId };
     } else if (collection._name === "categories") {
       meteorMethodName = "removeCategory";
       target = "catégorie";
-      elementToDelete = { 'categoryId': elementId };
+      elementToDelete = { categoryId: elementId };
     }
 
     Meteor.call(meteorMethodName, elementToDelete, (error, objectId) => {
