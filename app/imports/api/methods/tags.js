@@ -4,6 +4,7 @@ import { throwMeteorError } from "../error";
 import { Sites, Tags, tagSchema } from "../collections";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 checkUniqueName = (newTag, action) => {
   if (action === "insert") {
@@ -40,7 +41,7 @@ const insertTag = new ValidatedMethod({
   run(newTag) {
     checkUserAndRole(
       this.userId,
-      ["admins", "tags-editor"],
+      ["admin", "tags-editor"],
       "Only admins and editors can insert tags."
     );
 
@@ -73,7 +74,7 @@ const updateTag = new ValidatedMethod({
   run(newTag) {
     checkUserAndRole(
       this.userId,
-      ["admins", "tags-editor"],
+      ["admin", "tags-editor"],
       "Only admins and editors can update tags."
     );
 
@@ -129,7 +130,7 @@ const removeTag = new ValidatedMethod({
   run({ tagId }) {
     checkUserAndRole(
       this.userId,
-      ["admins", "tags-editor"],
+      ["admin", "tags-editor"],
       "Only admins and editors can remove tags."
     );
 
@@ -165,5 +166,7 @@ const removeTag = new ValidatedMethod({
     });
   },
 });
+
+rateLimiter([insertTag, updateTag, removeTag]);
 
 export { insertTag, updateTag, removeTag };

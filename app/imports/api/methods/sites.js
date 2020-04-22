@@ -6,6 +6,7 @@ import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema"
 import { throwMeteorError } from "../error";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
@@ -302,6 +303,14 @@ const associateTagsToSite = new ValidatedMethod({
     );
   },
 });
+
+rateLimiter([
+  insertSite,
+  updateSite,
+  removeSite,
+  associateProfessorsToSite,
+  associateTagsToSite,
+]);
 
 export {
   insertSite,

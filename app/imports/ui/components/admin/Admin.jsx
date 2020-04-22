@@ -237,9 +237,10 @@ class Admin extends Component {
       meteorMethodName = "insertCategory";
       target = "catégorie";
     }
-
-    Meteor.call(meteorMethodName, values, (errors, objectId) => {
+    import { insertCategory } from "../../../api/methods/categories";
+    insertCategory.call(values, (errors, objectId) => {
       if (errors) {
+        console.debug(errors);
         let formErrors = {};
         errors.details.forEach(function (error) {
           formErrors[error.name] = error.message;

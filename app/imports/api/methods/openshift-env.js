@@ -4,6 +4,7 @@ import { throwMeteorError } from "../error";
 import { OpenshiftEnvs, openshiftEnvsSchema } from "../collections";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 checkUniqueName = (openshiftEnv) => {
   if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
@@ -65,5 +66,7 @@ const removeOpenshiftEnv = new ValidatedMethod({
     );
   },
 });
+
+rateLimiter([insertOpenshiftEnv, removeOpenshiftEnv]);
 
 export { insertOpenshiftEnv, removeOpenshiftEnv };

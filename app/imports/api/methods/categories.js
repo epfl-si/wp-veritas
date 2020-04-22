@@ -4,6 +4,7 @@ import { throwMeteorError } from "../error";
 import { Categories, categoriesSchema } from "../collections";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 checkUniqueName = (category) => {
   if (Categories.find({ name: category.name }).count() > 0) {
@@ -63,5 +64,7 @@ const removeCategory = new ValidatedMethod({
     );
   },
 });
+
+rateLimiter([insertCategory, removeCategory]);
 
 export { insertCategory, removeCategory };

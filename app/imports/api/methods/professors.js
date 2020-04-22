@@ -4,6 +4,7 @@ import { throwMeteorError } from "../error";
 import { Sites, Professors, professorSchema } from "../collections";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 checkUniqueName = (professor) => {
   if (Professors.find({ sciper: professor.sciper }).count() > 0) {
@@ -87,5 +88,7 @@ const removeProfessor = new ValidatedMethod({
     });
   },
 });
+
+rateLimiter([insertProfessor, removeProfessor]);
 
 export { insertProfessor, removeProfessor };

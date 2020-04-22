@@ -4,6 +4,7 @@ import { throwMeteorError } from "../error";
 import { Themes, themesSchema } from "../collections";
 import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
+import { rateLimiter } from "./rate-limiting";
 
 checkUniqueName = (theme) => {
   if (Themes.find({ name: theme.name }).count() > 0) {
@@ -55,5 +56,7 @@ const removeTheme = new ValidatedMethod({
     );
   },
 });
+
+rateLimiter([insertTheme, removeTheme]);
 
 export { insertTheme, removeTheme };
