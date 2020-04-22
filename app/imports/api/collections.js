@@ -49,6 +49,8 @@ messageBox.setLanguage('fr');
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
+        // TODO: Gérér le ' [apostrophe] du lable ci-dessous.
+        // https://github.com/aldeed/simple-schema-js/issues/22
         label: "Nom de l environnement openshift",
         custom: isRequired,
     }
