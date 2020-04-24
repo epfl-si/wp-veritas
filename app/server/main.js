@@ -21,7 +21,7 @@ if (Meteor.isServer) {
   Meteor.startup(function () {
     // code to run on server at startup
 
-    //import "./tequila-config";
+    import "./tequila-config";
     import "./rest-api";
     import "./cron";
 
