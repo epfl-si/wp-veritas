@@ -1,24 +1,49 @@
 import assert from "assert";
-import { Sites } from "../../collections";
+import { Sites, Tags } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
+import { insertTag } from "../tags";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 
+function createTag(userId, args) {
+  const context = { userId }
+  insertTag._execute(context, args);
+}
 
 if (Meteor.isServer) {
-
   describe("meteor methods site", function () {
     before(function () {
       resetDatabase();
-      
     });
 
     it("insert site", () => {
       let userId = createUser();
 
+      const args1 = { 
+        name_fr: "Beaujolais",
+        name_en: "Beaujolais",
+        url_fr: "https://fr.wikipedia.org/wiki/Beaujolais",
+        url_en: "https://en.wikipedia.org/wiki/Beaujolais",
+        type: "field-of-research",
+      };
+
+      const args2 = { 
+        name_fr: "Vin nature",
+        name_en: "Nature wine",
+        url_fr: "https://fr.wikipedia.org/wiki/Vin_naturel",
+        url_en: "https://en.wikipedia.org/wiki/Natural_wine",
+        type: "field-of-research",
+      };
+
+      let tag1 = createTag(userId, args1);
+      let tag2 = createTag(userId, args2);
+
+      let tagsNumber = Tags.find({}).count();
+      assert.strictEqual(tagsNumber, 2);
+
       const url = "https://www.epfl.ch/beaujolais/madame-placard";
       const title = "Ma meilleure découverte 2019";
-  
+
       const context = { userId };
       const args = {
         url: url,
@@ -36,17 +61,17 @@ if (Meteor.isServer) {
         createdDate: new Date(),
         userExperience: false,
         userExperienceUniqueLabel: "",
-        tags: [],
+        tags: [tag1, tag2],
         professors: [],
         wpInfra: true,
       };
 
       insertSite._execute(context, args);
 
-      let nb = Sites.find({}).count();
+      let sitesNumber = Sites.find({}).count();
       let site = Sites.findOne({ url: url });
 
-      assert.strictEqual(nb, 1);
+      assert.strictEqual(sitesNumber, 1);
       assert.strictEqual(site.title, title);
     });
 
@@ -97,13 +122,13 @@ if (Meteor.isServer) {
       const context = { userId };
       const args = { siteId: site._id };
 
-      let nbBefore = Sites.find({}).count();
-      assert.strictEqual(nbBefore, 1);
+      let sitesNumberBeforeRemove = Sites.find({}).count();
+      assert.strictEqual(sitesNumberBeforeRemove, 1);
 
       removeSite._execute(context, args);
 
-      let nbAfter = Sites.find({}).count();
-      assert.strictEqual(nbAfter, 0);
+      let sitesNumberAfterRemove = Sites.find({}).count();
+      assert.strictEqual(sitesNumberAfterRemove, 0);
     });
   });
 }
