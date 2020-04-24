@@ -1,47 +1,9 @@
 import assert from "assert";
-import { Tags, Sites } from "../../collections";
+import { Tags } from "../../collections";
 import { insertTag, updateTag, removeTag } from "../tags";
-import { insertSite } from "../sites";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
-
-function getSitesByTag(tag) {
-  let sitesByTag = [];
-  let sites = Sites.find({}).fetch();
-  sites.forEach((site) => {
-    site.tags.forEach((currentTag) => {
-      if (currentTag._id === tag._id) {
-        sitesByTag.push(site);
-      }
-    });
-  });
-  return sitesByTag;
-}
-
-function createSite(userId, tag) {
-  const context = { userId };
-  const args = {
-    url: "https://www.epfl.ch/beaujolais/madame-placard",
-    tagline: "Yvon Métras",
-    title: "Ma meilleure découverte 2019",
-    openshiftEnv: "www",
-    category: "GeneralPublic",
-    theme: "wp-theme-2018",
-    languages: ["en", "fr"],
-    unitId: "13030",
-    unitName: "IDEV-FSD",
-    unitNameLevel2: "SI",
-    snowNumber: "42",
-    comment: "Vin nature par excellence !",
-    createdDate: new Date(),
-    userExperience: false,
-    userExperienceUniqueLabel: "",
-    tags: [tag],
-    professors: [],
-    wpInfra: true,
-  };
-  insertSite._execute(context, args);
-}
+import { createSite, getSitesByTag } from "./helpers";
 
 if (Meteor.isServer) {
   describe("meteor methods tag", function () {
@@ -69,7 +31,7 @@ if (Meteor.isServer) {
       let tag = Tags.findOne({ name_en: "Algebra" });
 
       // Create site with this tag
-      createSite(userId, tag);
+      createSite(userId, [tag], []);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tag.name_fr, "Algèbre");
@@ -126,10 +88,13 @@ if (Meteor.isServer) {
       let nbBefore = Tags.find({}).count();
       assert.strictEqual(nbBefore, 1);
 
+      let siteNumbersBefore = getSitesByTag(tag).length;
+      assert.strictEqual(siteNumbersBefore, 1);
+
       removeTag._execute(context, args);
 
-      let siteNumbers = getSitesByTag(tag).length;
-      assert.strictEqual(siteNumbers, 0);
+      let siteNumbersAfter = getSitesByTag(tag).length;
+      assert.strictEqual(siteNumbersAfter, 0);
 
       let nbAfter = Tags.find({}).count();
       assert.strictEqual(nbAfter, 0);

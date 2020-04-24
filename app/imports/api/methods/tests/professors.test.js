@@ -3,6 +3,7 @@ import { Professors } from "../../collections";
 import { insertProfessor, removeProfessor } from "../professors";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
+import { createSite, getSitesByProfessor } from "./helpers";
 
 if (Meteor.isServer) {
   describe("meteor methods professor", function () {
@@ -24,6 +25,9 @@ if (Meteor.isServer) {
       let nb = Professors.find({}).count();
       let professor = Professors.findOne({ sciper: "188475" });
 
+      // Create site with this professor
+      createSite(userId, [], [professor]);
+
       assert.strictEqual(nb, 1);
       assert.strictEqual(professor.displayName, "Charmier Grégory");
     });
@@ -38,7 +42,13 @@ if (Meteor.isServer) {
       let nbBefore = Professors.find({}).count();
       assert.strictEqual(nbBefore, 1);
 
+      let siteNumbersBefore = getSitesByProfessor(professor).length;
+      assert.strictEqual(siteNumbersBefore, 1);
+
       removeProfessor._execute(context, args);
+
+      let siteNumbersAfter = getSitesByProfessor(professor).length;
+      assert.strictEqual(siteNumbersAfter, 0);
 
       let nbAfter = Professors.find({}).count();
       assert.strictEqual(nbAfter, 0);
