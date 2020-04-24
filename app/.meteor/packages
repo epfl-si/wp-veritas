@@ -39,3 +39,7 @@ ostrio:logger
 ostrio:loggermongo
 littledata:synced-cron
 mdg:validated-method
+
+meteortesting:mocha        # Test
+lmieulet:meteor-coverage   # Test
+xolvio:cleaner             # Test clean database

@@ -1,11 +1,9 @@
 import helmet from "helmet";
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
-import "../imports/api/methods"; // Call meteor methods backend
+
 import "../imports/api/publications"; // Call meteor publications backend
-import { importData } from "./import-data";
-import { AppLogger } from "../imports/api/logger";
-import "./indexes";
+import "../imports/api/methods"; // Call meteor methods backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
 import "../imports/api/methods/professors";
@@ -13,13 +11,17 @@ import "../imports/api/methods/categories";
 import "../imports/api/methods/openshift-env";
 import "../imports/api/methods/sites";
 
+import { importData } from "./import-data";
+import { AppLogger } from "../imports/api/logger";
+import "./indexes";
+
 let importDatas = true;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
     // code to run on server at startup
 
-    import "./tequila-config";
+    //import "./tequila-config";
     import "./rest-api";
     import "./cron";
 

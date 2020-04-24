@@ -6,7 +6,7 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
-checkUniqueName = (openshiftEnv) => {
+checkUniqueOpenshiftEnvName = (openshiftEnv) => {
   if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
     throwMeteorError("name", "Cet environnement openshift existe déjà !");
   }
@@ -15,7 +15,7 @@ checkUniqueName = (openshiftEnv) => {
 const insertOpenshiftEnv = new ValidatedMethod({
   name: "insertOpenshiftEnv",
   validate(newOpenshiftEnv) {
-    checkUniqueName(newOpenshiftEnv);
+    checkUniqueOpenshiftEnvName(newOpenshiftEnv);
     openshiftEnvsSchema.validate(newOpenshiftEnv);
   },
   run(newOpenshiftEnv) {

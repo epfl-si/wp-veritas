@@ -6,7 +6,7 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
-checkUniqueName = (newTag, action) => {
+checkUniqueTagName = (newTag, action) => {
   if (action === "insert") {
     if (Tags.find({ name_fr: newTag.name_fr }).count() > 0) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
@@ -35,7 +35,7 @@ checkUniqueName = (newTag, action) => {
 const insertTag = new ValidatedMethod({
   name: "insertTag",
   validate(newTag) {
-    checkUniqueName(newTag, "insert");
+    checkUniqueTagName(newTag, "insert");
     tagSchema.validate(newTag);
   },
   run(newTag) {
@@ -68,7 +68,7 @@ const insertTag = new ValidatedMethod({
 const updateTag = new ValidatedMethod({
   name: "updateTag",
   validate(newTag) {
-    checkUniqueName(newTag, "update");
+    checkUniqueTagName(newTag, "update");
     tagSchema.validate(newTag);
   },
   run(newTag) {

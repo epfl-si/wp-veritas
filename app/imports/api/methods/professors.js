@@ -6,16 +6,16 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
-checkUniqueName = (professor) => {
+checkUniqueSciper = (professor) => {
   if (Professors.find({ sciper: professor.sciper }).count() > 0) {
-    throwMeteorError("name", "Un professeur avec le même sciper existe déjà !");
+    throwMeteorError("sciper", "Un professeur avec le même sciper existe déjà !");
   }
 };
 
 const insertProfessor = new ValidatedMethod({
   name: "insertProfessor",
   validate(newProfessor) {
-    checkUniqueName(newProfessor, "insert");
+    checkUniqueSciper(newProfessor, "insert");
     professorSchema.validate(newProfessor);
   },
   run(newProfessor) {
@@ -28,16 +28,13 @@ const insertProfessor = new ValidatedMethod({
       sciper: newProfessor.sciper,
       displayName: newProfessor.displayName,
     };
-
     let newProfessorId = Professors.insert(professorDocument);
     let newProfessorAfterInsert = Professors.findOne({ _id: newProfessorId });
-
     AppLogger.getLog().info(
       `Insert professor ID ${newProfessorId}`,
       { before: "", after: newProfessorAfterInsert },
       this.userId
     );
-
     return newProfessorAfterInsert;
   },
 });

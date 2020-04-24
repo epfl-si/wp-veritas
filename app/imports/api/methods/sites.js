@@ -8,6 +8,8 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
+import "../methods"; // without this line run test failed
+
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
   let unit = Meteor.apply("getUnitFromLDAP", [unitId], true);

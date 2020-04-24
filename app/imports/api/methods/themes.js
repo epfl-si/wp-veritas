@@ -6,7 +6,7 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
-checkUniqueName = (theme) => {
+checkUniqueThemeName = (theme) => {
   if (Themes.find({ name: theme.name }).count() > 0) {
     throwMeteorError("name", "Nom du thème existe déjà !");
   }
@@ -15,7 +15,7 @@ checkUniqueName = (theme) => {
 const insertTheme = new ValidatedMethod({
   name: "insertTheme",
   validate(newTheme) {
-    checkUniqueName(newTheme);
+    checkUniqueThemeName(newTheme);
     themesSchema.validate(newTheme);
   },
   run(newTheme) {

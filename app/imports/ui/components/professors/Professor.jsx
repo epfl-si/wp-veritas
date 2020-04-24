@@ -4,7 +4,6 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Professors } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
-import { Link } from "react-router-dom";
 import { AlertSuccess, Loading } from "../Messages";
 import { insertProfessor, removeProfessor } from "../../../api/methods/professors";
 
@@ -83,7 +82,6 @@ class Professor extends Component {
   };
 
   submitProfessor = async (values, actions) => {
-    let state;
     const getUserFromLDAPPromise = (method, values) => {
       return new Promise((resolve, reject) => {
         Meteor.call(method, values, (error, result) => {
@@ -127,7 +125,7 @@ class Professor extends Component {
       sciper: ldapInfo.sciper,
       displayName: ldapInfo.displayName,
     };
-    const insert = await insertProfessorPromise(infos);
+    await insertProfessorPromise(infos);
   };
 
   getProfessor = () => {

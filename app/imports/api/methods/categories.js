@@ -6,7 +6,7 @@ import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 
-checkUniqueName = (category) => {
+checkUniqueCategoryName = (category) => {
   if (Categories.find({ name: category.name }).count() > 0) {
     throwMeteorError("name", "Nom de la catégorie existe déjà !");
   }
@@ -15,7 +15,7 @@ checkUniqueName = (category) => {
 const insertCategory = new ValidatedMethod({
   name: "insertCategory",
   validate(newCategory) {
-    checkUniqueName(newCategory);
+    checkUniqueCategoryName(newCategory);
     categoriesSchema.validate(newCategory);
   },
   run(newCategory) {
