@@ -9,6 +9,7 @@ before_script:
   - export PATH=$HOME/.meteor:$PATH
 script:
   - cd app/
+  - npm i
   - npm run test
 cache:
 directories:
