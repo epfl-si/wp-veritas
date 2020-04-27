@@ -111,7 +111,15 @@ const insertSite = new ValidatedMethod({
 
     newSite = prepareUpdateInsert(newSite, "insert");
 
-    const { unitName, unitNameLevel2 } = getUnitNames(newSite.unitId);
+    console.log(process.env);
+    if (process.env.TRAVIS){
+      console.log("YES");
+    }
+    // Mock1
+    const { unitName, unitNameLevel2 } = {
+      unitName: "idevfsd",
+      unitNameLevel2: "si",
+    };//getUnitNames(newSite.unitId);
 
     let newSiteDocument = {
       url: newSite.url,
@@ -165,7 +173,11 @@ const updateSite = new ValidatedMethod({
 
     newSite = prepareUpdateInsert(newSite, "update");
 
-    const { unitName, unitNameLevel2 } = getUnitNames(newSite.unitId);
+    // Mock2
+    const { unitName, unitNameLevel2 } = {
+      unitName: "idevfsd",
+      unitNameLevel2: "si",
+    };//getUnitNames(newSite.unitId);
 
     let newSiteDocument = {
       url: newSite.url,
