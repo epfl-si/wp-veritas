@@ -114,3 +114,6 @@ ATTENTION :
 Pour mettre à jour l'image avec FROM node:10.19-alpine 
 On a du utiliser node version 10 car avec la 12 on avait un prob avec Fiber 
 FROM node:10.19-alpine
+
+## Comment exécuter les tests
+TEST_WATCH=1 meteor test --driver-package meteortesting:mocha

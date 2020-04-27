@@ -1,4 +1,10 @@
 import assert from "assert";
+import "../imports/api/methods/tests/categories.test";
+import "../imports/api/methods/tests/openshift-env.test";
+import "../imports/api/methods/tests/professors.test";
+import "../imports/api/methods/tests/themes.test";
+import "../imports/api/methods/tests/tags.test";
+import "../imports/api/methods/tests/sites.test";
 
 describe("wp-veritas", function () {
   it("package.json has correct name", async function () {

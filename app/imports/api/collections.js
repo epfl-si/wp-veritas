@@ -49,22 +49,14 @@ messageBox.setLanguage('fr');
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
+        // TODO: Gérér le ' [apostrophe] du lable ci-dessous.
+        // https://github.com/aldeed/simple-schema-js/issues/22
         label: "Nom de l environnement openshift",
         custom: isRequired,
     }
 }, { tracker: Tracker } );
 
 openshiftEnvsSchema.messageBox = messageBox;
-
-export const typesSchema = new SimpleSchema({
-    name: {
-        type: String,
-        label: "Nom du type",
-        custom: isRequired,
-    }
-}, { check });
-
-typesSchema.messageBox = messageBox;
 
 export const categoriesSchema = new SimpleSchema({
     name: {
@@ -233,10 +225,60 @@ Sites.tagged_search = function (text="", tags=[]) {
     ).fetch();
 }*/
 
-export const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
-export const Types = new Mongo.Collection('types');
-export const Categories = new Mongo.Collection('categories');
-export const Themes = new Mongo.Collection('themes');
-export const Tags = new Mongo.Collection('tags');
-export const Professors = new Mongo.Collection('professors');
-export const AppLogs = new Mongo.Collection('AppLogs');
+const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
+const Categories = new Mongo.Collection('categories');
+const Themes = new Mongo.Collection('themes');
+const Tags = new Mongo.Collection('tags');
+const Professors = new Mongo.Collection('professors');
+const AppLogs = new Mongo.Collection('AppLogs');
+
+OpenshiftEnvs.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+Categories.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+Themes.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+Tags.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+Professors.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+AppLogs.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+Meteor.users.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+export {
+  OpenshiftEnvs,
+  Categories,
+  Themes,
+  Tags,
+  Professors,
+  AppLogs
+}

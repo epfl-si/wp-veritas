@@ -20,9 +20,6 @@ Tequila.start({
     return tequila.uniqueid;
   },
   upsert: (tequila) => ({ $set: {
-    profile: {
-      sciper: tequila.uniqueid
-    },
     username: tequila.user,
     emails: [ tequila.email ],
   }}),

@@ -11,7 +11,7 @@ class Header extends Component {
     } else { 
       let isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin', Roles.GLOBAL_GROUP);
       let isTagsEditor = Roles.userIsInRole(Meteor.userId(), 'tags-editor', Roles.GLOBAL_GROUP);
-      let peopleUrl = "https://people.epfl.ch/" + this.props.currentUser.profile.sciper;
+      let peopleUrl = "https://people.epfl.ch/" + this.props.currentUser._id;
       content = (
         <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
           <Link className="navbar-brand" to="/"><img src={logo} className="App-logo" alt="logo"/></Link>
@@ -59,7 +59,7 @@ class Header extends Component {
                 <div className="dropdown-menu">
                   <NavLink className="dropdown-item" exact to="/admin" activeClassName="active">Admin</NavLink>
                   <NavLink className="dropdown-item" to="/admin/log/list" activeClassName="active">Voir les logs</NavLink>
-                  <div className="dropdown-item">Version 1.3.12</div>
+                  <div className="dropdown-item">Version 1.4.0</div>
                 </div>
               </li>
               : null}
