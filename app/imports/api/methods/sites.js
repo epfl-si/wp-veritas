@@ -111,16 +111,16 @@ const insertSite = new ValidatedMethod({
 
     newSite = prepareUpdateInsert(newSite, "insert");
 
-    console.log(process.env);
+    let unitName, unitNameLevel2;
+    // TODO: Find a more elegant way to mock this for Travis CI
     if (process.env.TRAVIS){
-      console.log("YES");
+      unitName = "idev-fsd";
+      unitNameLevel2 = "si"
+    } else {
+      unitName = getUnitNames(newSite.unitId).unitName;
+      unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
     }
-    // Mock1
-    const { unitName, unitNameLevel2 } = {
-      unitName: "idevfsd",
-      unitNameLevel2: "si",
-    };//getUnitNames(newSite.unitId);
-
+    
     let newSiteDocument = {
       url: newSite.url,
       tagline: newSite.tagline,
@@ -173,11 +173,15 @@ const updateSite = new ValidatedMethod({
 
     newSite = prepareUpdateInsert(newSite, "update");
 
-    // Mock2
-    const { unitName, unitNameLevel2 } = {
-      unitName: "idevfsd",
-      unitNameLevel2: "si",
-    };//getUnitNames(newSite.unitId);
+    let unitName, unitNameLevel2;
+    // TODO: Find a more elegant way to mock this for Travis CI
+    if (process.env.TRAVIS){
+      unitName = "idev-fsd";
+      unitNameLevel2 = "si"
+    } else {
+      unitName = getUnitNames(newSite.unitId).unitName;
+      unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
+    }
 
     let newSiteDocument = {
       url: newSite.url,
