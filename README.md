@@ -1,5 +1,7 @@
 # wp-veritas
 
+[![Build Status](https://travis-ci.org/epfl-si/wp-polylex.svg?branch=master)](https://travis-ci.org/epfl-si/wp-polylex)
+
 Cette application a pour but de stocker la source de vérité des sites WordPress de l'EPFL.
 
 ## Lancer l'application en local 
