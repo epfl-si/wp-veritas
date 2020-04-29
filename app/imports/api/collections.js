@@ -17,8 +17,8 @@ SimpleSchema.defineValidationErrorTransform(error => {
 const messageBox = new MessageBox({
     messages: {
         fr: {
-          required: 'Le champ "{{label}}" est obligatoire',
-          minString: 'Le champ "{{label}}" doit contenir au moins {{min}} caractères',
+          required: (ctx) => `Le champ "${ctx.label}" est obligatoire`,
+          minString: (ctx) => `Le champ "${ctx.label}" doit contenir au moins ${ctx.min} caractères`,
           maxString: 'Le champ "{{label}}" ne peut pas avoir plus de {{max}} caractères',
           minNumber: 'Le champ "{{label}}" a pour valeur minimale {{min}}',
           maxNumber: 'Le champ "{{label}}" a pour valeur maximale {{max}}',
