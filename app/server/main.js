@@ -34,7 +34,7 @@ if (Meteor.isServer) {
         directives: {
           defaultSrc: ["'self'"],
           // TODO: How to remove "'unsafe-eval'" and make form validation work ?
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
           connectSrc: ["*"],
           imgSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
