@@ -13,7 +13,7 @@
     "epfl-ldap": "^1.0.0",
     "formik": "^1.4.2",
     "helmet": "^3.22.0",
-    "jquery": "^3.3.1",
+    "jquery": "^3.5.0",
     "ldapjs": "^1.0.2",
     "message-box": "^0.2.0",
     "meteor-node-stubs": "^0.4.1",
