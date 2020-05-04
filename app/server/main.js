@@ -25,6 +25,9 @@ if (Meteor.isServer) {
     import "./rest-api";
     import "./cron";
 
+    let isAdmin = Roles.userIsInRole("188475", ['admin'], "wp-veritas");
+    console.log("SERVER isAdmin ? :", isAdmin);
+
     // Define lang <html lang="fr" />
     WebApp.addHtmlAttributeHook(() => ({ lang: "fr" }));
 

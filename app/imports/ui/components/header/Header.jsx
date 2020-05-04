@@ -79,8 +79,28 @@ class Header extends Component {
 }
 // I don't know why but I need to keep 'withRouter'
 // if I want active NavLink
-export default withRouter(withTracker(() => {
-  return {
-    currentUser: Meteor.user(),
-  };
+export default withRouter(withTracker((props) => {
+
+  if (Meteor.userId()) {
+
+    let isAdmin = Roles.userIsInRole(Meteor.userId(), ['admin'], 'medium');
+    let isEditor = Roles.userIsInRole(Meteor.userId(), ['editor'], 'medium');
+    let currentUser = Meteor.user();
+    let isLoading = currentUser == undefined;
+
+    return {
+      isLoading: isLoading,
+      isPrivatePage: true,
+      currentUser: currentUser,
+      currentUserIsAdmin: isAdmin,
+      currentUserIsEditor: isEditor,
+    };
+
+  } else {
+
+    return {
+      isLoading: false,
+      isPrivatePage: false,
+    }
+  }
 })(Header));
