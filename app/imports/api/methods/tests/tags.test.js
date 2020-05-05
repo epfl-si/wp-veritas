@@ -4,11 +4,13 @@ import { insertTag, updateTag, removeTag } from "../tags";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByTag } from "./helpers";
+import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods tag", function () {
     before(function () {
       resetDatabase();
+      loadFixtures();
     });
 
     it("insert tag", () => {

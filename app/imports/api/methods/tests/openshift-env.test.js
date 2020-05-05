@@ -3,11 +3,13 @@ import assert from "assert";
 import { OpenshiftEnvs } from "../../collections";
 import { insertOpenshiftEnv, removeOpenshiftEnv } from "../openshift-env";
 import { createUser } from "../../../../tests/helpers";
+import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods openshiftEnv", function () {
     before(function () {
       resetDatabase();
+      loadFixtures();
     });
 
     it("insert openshiftEnv", () => {

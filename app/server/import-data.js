@@ -195,6 +195,23 @@ deleteUserProfile = () => {
   console.log("All profiles are deleted");
 }
 
+updateRoles = () => {
+
+  // Drop 'roles' collection
+  Meteor.roles.rawCollection().drop();
+
+  // Delete 'roles' attribut of each user
+  let users = Meteor.users.find({}).fetch();
+  users.forEach(user => {
+    Meteor.users.update(
+      { _id: user._id }, 
+      { $unset: { 'roles': '' } },
+    );
+  });
+
+  console.log("All roles of users are deleted");
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -205,7 +222,7 @@ importData = () => {
   }
   */
   
- deleteUserProfile();
+ updateRoles();
 }
 
 export { importData }

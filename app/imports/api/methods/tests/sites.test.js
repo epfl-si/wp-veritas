@@ -4,6 +4,7 @@ import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
+import { loadFixtures } from "../../../../server/fixtures";
 
 function createTag(userId, args) {
   const context = { userId }
@@ -14,6 +15,7 @@ if (Meteor.isServer) {
   describe("meteor methods site", function () {
     before(function () {
       resetDatabase();
+      loadFixtures();
     });
 
     it("insert site", () => {

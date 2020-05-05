@@ -14,4 +14,5 @@ if (Meteor.isDevelopment) {
   window.Sites = Sites;
   window.OpenshiftEnvs = OpenshiftEnvs;
   window.Themes = Themes;
+  window.Users = Meteor.users;
 }
