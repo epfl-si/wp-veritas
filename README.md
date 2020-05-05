@@ -119,3 +119,11 @@ FROM node:10.19-alpine
 
 ## Comment exécuter les tests
 TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
+
+## Mise à jour de paquet alanning:roles
+La mise à jour du paquet `alanning:roles` de la version 1 à la version 3 a necessité des changements en DB.
+En effet, il faut supprimer la collection `roles` et la re-créée via le fichier server/fixtures.js
+De plus, le user n'a plus d'attributs roles mais une nouvelle collection `role-assignement`
+
+### procédure de mise en prod
+Lancer le déploiement => ce qui va exécuter `updateRoles` qui supprime la collection `roles` et qui supprime l'attribut roles dans chaque user. La collection est re-créée par les fixtures.
