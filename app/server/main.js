@@ -1,6 +1,7 @@
 import helmet from "helmet";
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
+import { loadFixtures } from "./fixtures";
 
 import "../imports/api/publications"; // Call meteor publications backend
 import "../imports/api/methods"; // Call meteor methods backend
@@ -19,12 +20,6 @@ let importDatas = true;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // code to run on server at startup
-
-    import "./tequila-config";
-    import "./rest-api";
-    import "./cron";
-
     // Define lang <html lang="fr" />
     WebApp.addHtmlAttributeHook(() => ({ lang: "fr" }));
 
@@ -49,6 +44,12 @@ if (Meteor.isServer) {
     if (importDatas) {
       importData();
     }
+
+    loadFixtures();
+
+    import "./tequila-config";
+    import "./rest-api";
+    import "./cron";
 
     SyncedCron.start();
   });

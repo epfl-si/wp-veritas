@@ -3,11 +3,13 @@ import { Themes } from "../../collections";
 import { insertTheme, removeTheme } from "../themes";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
+import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods theme", function () {
     before(function () {
       resetDatabase();
+      loadFixtures();
     });
 
     it("insert theme", () => {

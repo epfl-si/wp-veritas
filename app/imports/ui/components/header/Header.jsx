@@ -2,15 +2,14 @@ import React, { Component } from 'react';
 import { Link, NavLink, withRouter} from 'react-router-dom';
 import { withTracker } from 'meteor/react-meteor-data';
 import logo from './Logo_EPFL.svg';
+import { Loading } from "../Messages";
 
 class Header extends Component {
   render() {
     let content;
-    if (this.props.currentUser === undefined) { 
+    if (this.props.isLoading) { 
       content = <Loading />
     } else { 
-      let isAdmin = Roles.userIsInRole(Meteor.userId(), 'admin', Roles.GLOBAL_GROUP);
-      let isTagsEditor = Roles.userIsInRole(Meteor.userId(), 'tags-editor', Roles.GLOBAL_GROUP);
       let peopleUrl = "https://people.epfl.ch/" + this.props.currentUser._id;
       content = (
         <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
@@ -22,16 +21,16 @@ class Header extends Component {
                   Source de vérité
                 </a>
                 <div className="dropdown-menu" >
-                  { isAdmin || isTagsEditor ?
+                  { this.props.currentUserIsAdmin || this.props.currentUserIsEditor ?
                   <NavLink className="dropdown-item" exact to="/" activeClassName="active">Voir la source de vérité</NavLink>
                   : null}
                   <NavLink className="dropdown-item" to="/search" activeClassName="active">Instance WordPress ?</NavLink>
-                  { isAdmin ?
+                  { this.props.currentUserIsAdmin ?
                   <NavLink className="dropdown-item" to="/add" activeClassName="active">Ajouter un nouveau site</NavLink>
                   : null}
                 </div>
               </li>
-              { isAdmin || isTagsEditor ?
+              { this.props.currentUserIsAdmin || this.props.currentUserIsEditor ?
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Tags
@@ -41,7 +40,7 @@ class Header extends Component {
                 </div>
               </li>
               : null}
-              { isAdmin || isTagsEditor ?
+              { this.props.currentUserIsAdmin || this.props.currentUserIsEditor ?
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Professeurs
@@ -51,7 +50,7 @@ class Header extends Component {
                 </div>
               </li>
               : null}
-              { isAdmin ?
+              { this.props.currentUserIsAdmin ?
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   Admins
@@ -79,8 +78,23 @@ class Header extends Component {
 }
 // I don't know why but I need to keep 'withRouter'
 // if I want active NavLink
-export default withRouter(withTracker(() => {
-  return {
-    currentUser: Meteor.user(),
-  };
+export default withRouter(withTracker((props) => {
+
+
+    console.log("UserId: ", Meteor.userId());
+
+    let isAdmin = Roles.userIsInRole(Meteor.userId(), ['admin'], 'veritas');
+    let isEditor = Roles.userIsInRole(Meteor.userId(), ['tags-editor'], 'veritas');
+    let currentUser = Meteor.user();
+    let isLoading = currentUser == undefined;
+
+    return {
+      isLoading: isLoading,
+      isPrivatePage: true,
+      currentUser: currentUser,
+      currentUserIsAdmin: isAdmin,
+      currentUserIsEditor: isEditor,
+    };
+
+
 })(Header));
