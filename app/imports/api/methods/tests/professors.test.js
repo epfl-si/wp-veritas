@@ -4,11 +4,13 @@ import { insertProfessor, removeProfessor } from "../professors";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByProfessor } from "./helpers";
+import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods professor", function () {
     before(function () {
       resetDatabase();
+      loadFixtures();
     });
 
     it("insert professor", () => {
