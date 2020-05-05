@@ -17,28 +17,28 @@ SimpleSchema.defineValidationErrorTransform(error => {
 const messageBox = new MessageBox({
     messages: {
         fr: {
-          required: 'Le champ "{{label}}" est obligatoire',
-          minString: 'Le champ "{{label}}" doit contenir au moins {{min}} caractères',
-          maxString: 'Le champ "{{label}}" ne peut pas avoir plus de {{max}} caractères',
-          minNumber: 'Le champ "{{label}}" a pour valeur minimale {{min}}',
-          maxNumber: 'Le champ "{{label}}" a pour valeur maximale {{max}}',
-          minNumberExclusive: 'Le champ "{{label}}" doit être plus supérieur à {{min}}',
-          maxNumberExclusive: 'Le champ "{{label}}" doit être plus inférieur à {{max}}',
-          minDate: 'Le champ "{{label}}" doit être le ou après le {{min}}',
-          maxDate: 'Le champ "{{label}}" ne peut pas être après le {{max}}',
-          badDate: 'Le champ "{{label}}" n\'est pas une date valide',
-          minCount: 'Vous devez spécifier au moins {{minCount}}} valeurs',
-          maxCount: 'Vous ne pouvez pas spécifier plus de {{maxCount}}} valeurs',
-          noDecimal: 'Ce champ doit être un entier',
-          notAllowed: 'Ce champ n\'a pas une valeur autorisée',
-          expectedType: '{{label}} doit être de type {{dataType}}',
+          required: (context) => `Le champ "${context.label}" est obligatoire`,
+          minString: (context) => `Le champ "${context.label}" doit contenir au moins ${context.min} caractères`,
+          maxString: (context) => `Le champ "${context.label}" ne peut pas avoir plus de ${context.max} caractères`,
+          minNumber: (context) => `Le champ "${context.label}" a pour valeur minimale ${context.min}`,
+          maxNumber: (context) => `Le champ "${context.label}" a pour valeur maximale ${context.max}`,
+          minNumberExclusive: (context) => `Le champ "${context.label}" doit être plus supérieur à ${context.min}`,
+          maxNumberExclusive: (context) => `Le champ "${context.label}" doit être plus inférieur à ${context.max}`,
+          minDate: (context) => `Le champ "${context.label}" doit être le ou après le ${context.min}`,
+          maxDate: (context) => `Le champ "${context.label}" ne peut pas être après le ${context.max}`,
+          badDate: (context) => `Le champ "${context.label}" n\'est pas une date valide`,
+          minCount: (context) => `Vous devez spécifier au moins ${context.minCount} valeurs`,
+          maxCount: (context) => `Vous ne pouvez pas spécifier plus de ${context.maxCount} valeurs`,
+          noDecimal: () => `Ce champ doit être un entier`,
+          notAllowed: () => `Ce champ n\'a pas une valeur autorisée`,
+          expectedType: (context) => `${context.label} doit être de type ${context.dataType}`,
           regEx({ label, regExp }) {
             switch (regExp) {
                 case (SimpleSchema.RegEx.Url.toString()):
                 return "Cette URL est invalide";
             }
         },
-        keyNotInSchema: '{{name}} n\'est pas autorisé par le schéma',
+        keyNotInSchema: (context) => `${context.name} n\'est pas autorisé par le schéma`,
         },
       },
     tracker: Tracker,
@@ -49,9 +49,7 @@ messageBox.setLanguage('fr');
 export const openshiftEnvsSchema = new SimpleSchema({
     name: {
         type: String,
-        // TODO: Gérér le ' [apostrophe] du lable ci-dessous.
-        // https://github.com/aldeed/simple-schema-js/issues/22
-        label: "Nom de l environnement openshift",
+        label: "Nom de l'environnement openshift",
         custom: isRequired,
     }
 }, { tracker: Tracker } );
