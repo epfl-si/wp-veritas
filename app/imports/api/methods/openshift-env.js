@@ -2,9 +2,9 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { OpenshiftEnvs, openshiftEnvsSchema } from "../collections";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { Admin } from "./role";
 
 checkUniqueOpenshiftEnvName = (openshiftEnv) => {
   if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
@@ -14,17 +14,12 @@ checkUniqueOpenshiftEnvName = (openshiftEnv) => {
 
 const insertOpenshiftEnv = new ValidatedMethod({
   name: "insertOpenshiftEnv",
+  role: Admin,
   validate(newOpenshiftEnv) {
     checkUniqueOpenshiftEnvName(newOpenshiftEnv);
     openshiftEnvsSchema.validate(newOpenshiftEnv);
   },
   run(newOpenshiftEnv) {
-    checkUserAndRole(
-      this.userId,
-      ["admin"],
-      "Only admins can insert openShiftEnv."
-    );
-
     let openshiftEnvDocument = {
       name: newOpenshiftEnv.name,
     };
@@ -46,16 +41,11 @@ const insertOpenshiftEnv = new ValidatedMethod({
 
 const removeOpenshiftEnv = new ValidatedMethod({
   name: "removeOpenshiftEnv",
+  role: Admin,
   validate: new SimpleSchema({
     openshiftEnvId: { type: String },
   }).validator(),
   run({ openshiftEnvId }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin"],
-      "Only admins can remove openShiftEnv."
-    );
-
     let openshiftEnv = OpenshiftEnvs.findOne({ _id: openshiftEnvId });
     OpenshiftEnvs.remove({ _id: openshiftEnvId });
 

@@ -2,9 +2,9 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Themes, themesSchema } from "../collections";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { Admin } from "./role";
 
 checkUniqueThemeName = (theme) => {
   if (Themes.find({ name: theme.name }).count() > 0) {
@@ -14,13 +14,12 @@ checkUniqueThemeName = (theme) => {
 
 const insertTheme = new ValidatedMethod({
   name: "insertTheme",
+  role: Admin,
   validate(newTheme) {
     checkUniqueThemeName(newTheme);
     themesSchema.validate(newTheme);
   },
   run(newTheme) {
-    checkUserAndRole(this.userId, ["admin"], "Only admins can insert Theme");
-
     let themeDocument = {
       name: newTheme.name,
     };
@@ -40,12 +39,11 @@ const insertTheme = new ValidatedMethod({
 
 const removeTheme = new ValidatedMethod({
   name: "removeTheme",
+  role: Admin,
   validate: new SimpleSchema({
     themeId: { type: String },
   }).validator(),
   run({ themeId }) {
-    checkUserAndRole(this.userId, ["admin"], "Only admins can remove Theme");
-
     let theme = Themes.findOne({ _id: themeId });
     Themes.remove({ _id: themeId });
 

@@ -2,9 +2,9 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Sites, Tags, tagSchema } from "../collections";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { Editor } from "./role";
 
 checkUniqueTagName = (newTag, action) => {
   if (action === "insert") {
@@ -34,17 +34,12 @@ checkUniqueTagName = (newTag, action) => {
 
 const insertTag = new ValidatedMethod({
   name: "insertTag",
+  role: Editor,
   validate(newTag) {
     checkUniqueTagName(newTag, "insert");
     tagSchema.validate(newTag);
   },
   run(newTag) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and editors can insert tags."
-    );
-
     let newTagDocument = {
       name_fr: newTag.name_fr,
       name_en: newTag.name_en,
@@ -67,17 +62,12 @@ const insertTag = new ValidatedMethod({
 
 const updateTag = new ValidatedMethod({
   name: "updateTag",
+  role: Editor,
   validate(newTag) {
     checkUniqueTagName(newTag, "update");
     tagSchema.validate(newTag);
   },
   run(newTag) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and editors can update tags."
-    );
-
     let newTagDocument = {
       name_fr: newTag.name_fr,
       name_en: newTag.name_en,
@@ -124,16 +114,11 @@ const updateTag = new ValidatedMethod({
 
 const removeTag = new ValidatedMethod({
   name: "removeTag",
+  role: Editor,
   validate: new SimpleSchema({
     tagId: { type: String },
   }).validator(),
   run({ tagId }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and editors can remove tags."
-    );
-
     let tagBeforeDelete = Tags.findOne({ _id: tagId });
 
     Tags.remove({ _id: tagId });

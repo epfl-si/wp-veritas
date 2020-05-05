@@ -2,28 +2,27 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Sites, Professors, professorSchema } from "../collections";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { Editor } from "./role";
 
 checkUniqueSciper = (professor) => {
   if (Professors.find({ sciper: professor.sciper }).count() > 0) {
-    throwMeteorError("sciper", "Un professeur avec le même sciper existe déjà !");
+    throwMeteorError(
+      "sciper",
+      "Un professeur avec le même sciper existe déjà !"
+    );
   }
 };
 
 const insertProfessor = new ValidatedMethod({
   name: "insertProfessor",
+  role: Editor,
   validate(newProfessor) {
     checkUniqueSciper(newProfessor, "insert");
     professorSchema.validate(newProfessor);
   },
   run(newProfessor) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and tags-editors can insert professor."
-    );
     let professorDocument = {
       sciper: newProfessor.sciper,
       displayName: newProfessor.displayName,
@@ -41,16 +40,11 @@ const insertProfessor = new ValidatedMethod({
 
 const removeProfessor = new ValidatedMethod({
   name: "removeProfessor",
+  role: Editor,
   validate: new SimpleSchema({
     professorId: { type: String },
   }).validator(),
   run({ professorId }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and tags-editor can remove professor."
-    );
-
     let professor = Professors.findOne({ _id: professorId });
 
     Professors.remove({ _id: professorId });
