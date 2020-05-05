@@ -1,7 +1,4 @@
 import Tequila from "meteor/epfl:accounts-tequila";
-import { loadFixtures } from './fixtures';
-
-loadFixtures();
 
 Tequila.start({
   service: "wp-veritas",
