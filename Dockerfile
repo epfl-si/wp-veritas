@@ -25,7 +25,7 @@ RUN apk --no-cache add \
 
 # Copy in entrypoint
 COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
-RUN chmod 777 -R $SCRIPTS_FOLDER/node_modules/
+RUN chmod 750 -R $SCRIPTS_FOLDER/node_modules/
 
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
