@@ -78,8 +78,8 @@ class Apps extends Component {
   }
 }
 export default withTracker(() => {
-  let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "medium");
-  let isEditor = Roles.userIsInRole(Meteor.userId(), ["editor"], "medium");
+  let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
+  let isEditor = Roles.userIsInRole(Meteor.userId(), ["tags-editor"], "wp-veritas");
   let isRole = isAdmin || isEditor;
   let isLoading;
 

@@ -159,11 +159,12 @@ class Header extends Component {
 // if I want active NavLink
 export default withRouter(
   withTracker((props) => {
-    let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "veritas");
+    
+    let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
     let isEditor = Roles.userIsInRole(
       Meteor.userId(),
       ["tags-editor"],
-      "veritas"
+      "wp-veritas"
     );
     let currentUser = Meteor.user();
     let isLoading = currentUser == undefined;
