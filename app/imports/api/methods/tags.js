@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Sites, Tags, tagSchema } from "../collections";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Editor } from "./role";
+import { VeritasValidatedMethod, Editor } from "./role";
 
 checkUniqueTagName = (newTag, action) => {
   if (action === "insert") {
@@ -32,7 +31,7 @@ checkUniqueTagName = (newTag, action) => {
   }
 };
 
-const insertTag = new ValidatedMethod({
+const insertTag = new VeritasValidatedMethod({
   name: "insertTag",
   role: Editor,
   validate(newTag) {
@@ -60,7 +59,7 @@ const insertTag = new ValidatedMethod({
   },
 });
 
-const updateTag = new ValidatedMethod({
+const updateTag = new VeritasValidatedMethod({
   name: "updateTag",
   role: Editor,
   validate(newTag) {
@@ -112,7 +111,7 @@ const updateTag = new ValidatedMethod({
   },
 });
 
-const removeTag = new ValidatedMethod({
+const removeTag = new VeritasValidatedMethod({
   name: "removeTag",
   role: Editor,
   validate: new SimpleSchema({

@@ -1,4 +1,3 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
@@ -6,7 +5,7 @@ import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema"
 import { throwMeteorError } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Admin, Editor } from "./role";
+import { VeritasValidatedMethod, Admin, Editor } from "./role";
 
 import "../methods"; // without this line run test failed
 
@@ -98,7 +97,7 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
-const insertSite = new ValidatedMethod({
+const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
   validate(newSite) {
@@ -155,7 +154,7 @@ const insertSite = new ValidatedMethod({
   },
 });
 
-const updateSite = new ValidatedMethod({
+const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   validate(newSite) {
@@ -219,7 +218,7 @@ const updateSite = new ValidatedMethod({
   },
 });
 
-const removeSite = new ValidatedMethod({
+const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
   role: Admin,
   validate: new SimpleSchema({
@@ -237,7 +236,7 @@ const removeSite = new ValidatedMethod({
   },
 });
 
-const associateProfessorsToSite = new ValidatedMethod({
+const associateProfessorsToSite = new VeritasValidatedMethod({
   name: "associateProfessorsToSite",
   role: Editor,
   validate({ site, professors }) {
@@ -273,7 +272,7 @@ const associateProfessorsToSite = new ValidatedMethod({
   },
 });
 
-const associateTagsToSite = new ValidatedMethod({
+const associateTagsToSite = new VeritasValidatedMethod({
   name: "associateTagsToSite",
   role: Editor,
   validate({ site, tags }) {

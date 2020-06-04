@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Sites, Professors, professorSchema } from "../collections";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Editor } from "./role";
+import { VeritasValidatedMethod, Editor } from "./role";
 
 checkUniqueSciper = (professor) => {
   if (Professors.find({ sciper: professor.sciper }).count() > 0) {
@@ -15,7 +14,7 @@ checkUniqueSciper = (professor) => {
   }
 };
 
-const insertProfessor = new ValidatedMethod({
+const insertProfessor = new VeritasValidatedMethod({
   name: "insertProfessor",
   role: Editor,
   validate(newProfessor) {
@@ -38,7 +37,7 @@ const insertProfessor = new ValidatedMethod({
   },
 });
 
-const removeProfessor = new ValidatedMethod({
+const removeProfessor = new VeritasValidatedMethod({
   name: "removeProfessor",
   role: Editor,
   validate: new SimpleSchema({

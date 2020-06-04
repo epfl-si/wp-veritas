@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Categories, categoriesSchema } from "../collections";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Admin } from "./role";
+import { VeritasValidatedMethod, Admin } from "./role";
 
 checkUniqueCategoryName = (category) => {
   if (Categories.find({ name: category.name }).count() > 0) {
@@ -12,7 +11,7 @@ checkUniqueCategoryName = (category) => {
   }
 };
 
-const insertCategory = new ValidatedMethod({
+const insertCategory = new VeritasValidatedMethod({
   name: "insertCategory",
   role: Admin,
   validate(newCategory) {
@@ -38,7 +37,7 @@ const insertCategory = new ValidatedMethod({
   },
 });
 
-const removeCategory = new ValidatedMethod({
+const removeCategory = new VeritasValidatedMethod({
   name: "removeCategory",
   role: Admin,
   validate: new SimpleSchema({

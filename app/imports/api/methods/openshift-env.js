@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { OpenshiftEnvs, openshiftEnvsSchema } from "../collections";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Admin } from "./role";
+import { VeritasValidatedMethod, Admin } from "./role";
 
 checkUniqueOpenshiftEnvName = (openshiftEnv) => {
   if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
@@ -12,7 +11,7 @@ checkUniqueOpenshiftEnvName = (openshiftEnv) => {
   }
 };
 
-const insertOpenshiftEnv = new ValidatedMethod({
+const insertOpenshiftEnv = new VeritasValidatedMethod({
   name: "insertOpenshiftEnv",
   role: Admin,
   validate(newOpenshiftEnv) {
@@ -39,7 +38,7 @@ const insertOpenshiftEnv = new ValidatedMethod({
   },
 });
 
-const removeOpenshiftEnv = new ValidatedMethod({
+const removeOpenshiftEnv = new VeritasValidatedMethod({
   name: "removeOpenshiftEnv",
   role: Admin,
   validate: new SimpleSchema({

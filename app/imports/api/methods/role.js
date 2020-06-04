@@ -6,7 +6,7 @@ import { checkUserAndRole } from "./utils";
  *
  * Pour cela, on ajoute à la méthode validate la vérification de l'utilisateur
  */
-class PolylexValidatedMethod extends ValidatedMethod {
+class VeritasValidatedMethod extends ValidatedMethod {
   constructor(args) {
     const validateOrig = args.validate;
     args.validate = function () {
@@ -33,4 +33,4 @@ class Editor {
   }
 }
 
-export { Admin, Editor, PolylexValidatedMethod };
+export { Admin, Editor, VeritasValidatedMethod };

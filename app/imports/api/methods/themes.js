@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Themes, themesSchema } from "../collections";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
-import { Admin } from "./role";
+import { VeritasValidatedMethod, Admin } from "./role";
 
 checkUniqueThemeName = (theme) => {
   if (Themes.find({ name: theme.name }).count() > 0) {
@@ -12,7 +11,7 @@ checkUniqueThemeName = (theme) => {
   }
 };
 
-const insertTheme = new ValidatedMethod({
+const insertTheme = new VeritasValidatedMethod({
   name: "insertTheme",
   role: Admin,
   validate(newTheme) {
@@ -37,7 +36,7 @@ const insertTheme = new ValidatedMethod({
   },
 });
 
-const removeTheme = new ValidatedMethod({
+const removeTheme = new VeritasValidatedMethod({
   name: "removeTheme",
   role: Admin,
   validate: new SimpleSchema({
