@@ -5,10 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: epflsi/wp-veritas:0.8.2
+    #image: epflsi/wp-veritas:0.8.2
     ports:
       - '80:3000'
     links:
+      - mongo
+    depends_on:
       - mongo
     volumes:
       - .:/src

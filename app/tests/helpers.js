@@ -13,7 +13,7 @@ function createUser() {
   let user = Meteor.users.findOne({ username: "toto" });
   let userId = user._id;
 
-  Roles.setUserRoles(userId, ["admin"], Roles.GLOBAL_GROUP);
+  Roles.setUserRoles(userId, ["admin"], "wp-veritas");
 
   return userId;
 }

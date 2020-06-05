@@ -6,21 +6,19 @@ Tequila.start({
   bypass: ["/api"],
   getUserId(tequila) {
     if (tequila.group.includes("wp-veritas-admins")) {
-      Roles.setUserRoles(tequila.uniqueid, ["admin"], Roles.GLOBAL_GROUP);
-      console.log("Admin");
+      Roles.setUserRoles(tequila.uniqueid, ["admin"], "wp-veritas");
     } else if (tequila.group.includes("wp-veritas-editors")) {
-      Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], Roles.GLOBAL_GROUP);
+      Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], "wp-veritas");
     } else {
-      Roles.setUserRoles(tequila.uniqueid, ["epfl-member"], Roles.GLOBAL_GROUP);
+      Roles.setUserRoles(tequila.uniqueid, ["epfl-member"], "wp-veritas");
     }
-    // Greg is admin forever and even after
-    /*
-    if (tequila.uniqueid === "188475") {
-      Roles.setUserRoles(tequila.uniqueid, ["admin"], Roles.GLOBAL_GROUP);
-    }
-    */
 
-    
+    // Greg is admin forever and even after
+    if (tequila.uniqueid === "188475") {
+      Roles.setUserRoles(tequila.uniqueid, ["admin"], "wp-veritas");
+      // Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], "wp-veritas");
+    }
+
     return tequila.uniqueid;
   },
   upsert: (tequila) => ({

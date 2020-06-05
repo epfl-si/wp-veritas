@@ -12,11 +12,7 @@ checkUserAndRole = (userId, roles, msg) => {
     throw new Meteor.Error("not connected");
   }
 
-  const canDoAction = Roles.userIsInRole(
-    userId,
-    roles,
-    Roles.GLOBAL_GROUP
-  );
+  const canDoAction = Roles.userIsInRole(userId, roles, "wp-veritas");
 
   if (!canDoAction) {
     throw new Meteor.Error("unauthorized", msg);

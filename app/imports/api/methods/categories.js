@@ -1,10 +1,9 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { throwMeteorError } from "../error";
 import { Categories, categoriesSchema } from "../collections";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { VeritasValidatedMethod, Admin } from "./role";
 
 checkUniqueCategoryName = (category) => {
   if (Categories.find({ name: category.name }).count() > 0) {
@@ -12,19 +11,15 @@ checkUniqueCategoryName = (category) => {
   }
 };
 
-const insertCategory = new ValidatedMethod({
+const insertCategory = new VeritasValidatedMethod({
   name: "insertCategory",
+  role: Admin,
   validate(newCategory) {
     checkUniqueCategoryName(newCategory);
     categoriesSchema.validate(newCategory);
   },
   run(newCategory) {
-    checkUserAndRole(
-      this.userId,
-      ["admin"],
-      "Only admins can insert category."
-    );
-
+    
     let categoryDocument = {
       name: newCategory.name,
     };
@@ -42,17 +37,13 @@ const insertCategory = new ValidatedMethod({
   },
 });
 
-const removeCategory = new ValidatedMethod({
+const removeCategory = new VeritasValidatedMethod({
   name: "removeCategory",
+  role: Admin,
   validate: new SimpleSchema({
     categoryId: { type: String },
   }).validator(),
   run({ categoryId }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin"],
-      "Only admins can remove category."
-    );
 
     let category = Categories.findOne({ _id: categoryId });
     Categories.remove({ _id: categoryId });

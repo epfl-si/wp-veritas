@@ -156,13 +156,11 @@ export const Sites = new Mongo.Collection('sites', {
  * @param {string=} text to search, approximatively (regex wide search, insensitive)
  * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
  */
-/*
+
 Sites.tagged_search = function (text="", tags=[]) {
     // build the query
     let finder = {
-        $and : [
-            { $or : [ { status : "created" }, { status : "no-wordpress" } ] },
-        ]
+       $and : []
     };
 
     finder['$and'].push({
@@ -221,7 +219,7 @@ Sites.tagged_search = function (text="", tags=[]) {
             }
         }
     ).fetch();
-}*/
+}
 
 const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 const Categories = new Mongo.Collection('categories');

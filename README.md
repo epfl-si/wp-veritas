@@ -20,7 +20,7 @@ Vous êtes alors redirigé sur une URL du type https://localhost:3000/?key=aop0w
 
 Se positionner dans le répertoire racine et faire un : `docker-compose up`
 
-Ensuite aller à l'adresse https://localhost:3000
+Ensuite aller à l'adresse https://localhost
 
 ## Utiliser le CLI
 

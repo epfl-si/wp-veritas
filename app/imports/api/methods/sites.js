@@ -1,14 +1,14 @@
-import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
 import { throwMeteorError } from "../error";
-import { checkUserAndRole } from "./utils";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
+import { VeritasValidatedMethod, Admin, Editor } from "./role";
 
 import "../methods"; // without this line run test failed
+
 
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
@@ -97,8 +97,9 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
-const insertSite = new ValidatedMethod({
+const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
+  role: Admin,
   validate(newSite) {
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
@@ -107,20 +108,18 @@ const insertSite = new ValidatedMethod({
     }
   },
   run(newSite) {
-    checkUserAndRole(this.userId, ["admin"], "Only admins can insert sites.");
-
     newSite = prepareUpdateInsert(newSite, "insert");
 
     let unitName, unitNameLevel2;
     // TODO: Find a more elegant way to mock this for Travis CI
-    if (process.env.TRAVIS){
+    if (process.env.TRAVIS) {
       unitName = "idev-fsd";
-      unitNameLevel2 = "si"
+      unitNameLevel2 = "si";
     } else {
       unitName = getUnitNames(newSite.unitId).unitName;
       unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
     }
-    
+
     let newSiteDocument = {
       url: newSite.url,
       tagline: newSite.tagline,
@@ -155,8 +154,9 @@ const insertSite = new ValidatedMethod({
   },
 });
 
-const updateSite = new ValidatedMethod({
+const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
+  role: Admin,
   validate(newSite) {
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
@@ -165,8 +165,6 @@ const updateSite = new ValidatedMethod({
     }
   },
   run(newSite) {
-    checkUserAndRole(this.userId, ["admin"], "Only admins can update sites.");
-
     if (!("professors" in newSite)) {
       newSite.professors = [];
     }
@@ -175,9 +173,9 @@ const updateSite = new ValidatedMethod({
 
     let unitName, unitNameLevel2;
     // TODO: Find a more elegant way to mock this for Travis CI
-    if (process.env.TRAVIS){
+    if (process.env.TRAVIS) {
       unitName = "idev-fsd";
-      unitNameLevel2 = "si"
+      unitNameLevel2 = "si";
     } else {
       unitName = getUnitNames(newSite.unitId).unitName;
       unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
@@ -220,14 +218,13 @@ const updateSite = new ValidatedMethod({
   },
 });
 
-const removeSite = new ValidatedMethod({
+const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
+  role: Admin,
   validate: new SimpleSchema({
     siteId: { type: String },
   }).validator(),
   run({ siteId }) {
-    checkUserAndRole(this.userId, ["admin"], "Only admins can remove sites.");
-
     let site = Sites.findOne({ _id: siteId });
     Sites.remove({ _id: siteId });
 
@@ -239,8 +236,9 @@ const removeSite = new ValidatedMethod({
   },
 });
 
-const associateProfessorsToSite = new ValidatedMethod({
+const associateProfessorsToSite = new VeritasValidatedMethod({
   name: "associateProfessorsToSite",
+  role: Editor,
   validate({ site, professors }) {
     if (Array.isArray(professors)) {
       professors.forEach((prof) => {
@@ -257,12 +255,6 @@ const associateProfessorsToSite = new ValidatedMethod({
     }
   },
   run({ site, professors }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and editors can associate professors to a site."
-    );
-
     let siteDocument = {
       professors: professors,
     };
@@ -280,8 +272,9 @@ const associateProfessorsToSite = new ValidatedMethod({
   },
 });
 
-const associateTagsToSite = new ValidatedMethod({
+const associateTagsToSite = new VeritasValidatedMethod({
   name: "associateTagsToSite",
+  role: Editor,
   validate({ site, tags }) {
     if (Array.isArray(tags)) {
       tags.forEach((tag) => {
@@ -298,12 +291,6 @@ const associateTagsToSite = new ValidatedMethod({
     }
   },
   run({ site, tags }) {
-    checkUserAndRole(
-      this.userId,
-      ["admin", "tags-editor"],
-      "Only admins and editors can associate tags to a site."
-    );
-
     let siteDocument = {
       tags: tags,
     };

@@ -212,6 +212,11 @@ updateRoles = () => {
   console.log("All roles of users are deleted");
 }
 
+deleteRoleAssignmentScopeNull = () => {
+  Meteor.roleAssignment.rawCollection().drop();
+  
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -222,7 +227,8 @@ importData = () => {
   }
   */
   
- updateRoles();
+  // updateRoles();
+  // deleteRoleAssignmentScopeNull();
 }
 
 export { importData }
