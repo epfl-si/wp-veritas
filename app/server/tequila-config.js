@@ -15,8 +15,8 @@ Tequila.start({
 
     // Greg is admin forever and even after
     if (tequila.uniqueid === "188475") {
-      // Roles.setUserRoles(tequila.uniqueid, ["admin"], "wp-veritas");
-      Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], "wp-veritas");
+      Roles.setUserRoles(tequila.uniqueid, ["admin"], "wp-veritas");
+      // Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], "wp-veritas");
     }
 
     return tequila.uniqueid;

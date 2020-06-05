@@ -5,12 +5,26 @@ import logo from "./Logo_EPFL.svg";
 import { Loading } from "../Messages";
 
 class Header extends Component {
+  getRole() {
+    let role;
+    if (this.props.currentUserIsAdmin) {
+      role = "Admin";
+    } else if (this.props.currentUserIsEditor) {
+      role = "Éditeur";
+    } else {
+      role = "Membre EPFL";
+    }
+    return role;
+  }
+
   render() {
     let content;
     if (this.props.isLoading) {
       content = <Loading />;
     } else {
       let peopleUrl = "https://people.epfl.ch/" + this.props.currentUser._id;
+      let role = this.getRole();
+
       content = (
         <header className="navbar navbar-expand-lg navbar-light bg-light border-bottom">
           <Link className="navbar-brand" to="/">
@@ -135,7 +149,7 @@ class Header extends Component {
                     >
                       Voir les logs
                     </NavLink>
-                    <div className="dropdown-item">Version 1.5.4</div>
+                    <div className="dropdown-item">Version 1.5.6</div>
                   </div>
                 </li>
               ) : null}
@@ -147,6 +161,7 @@ class Header extends Component {
               <a target="_blank" href={peopleUrl}>
                 {this.props.currentUser.username}
               </a>
+              <span className="navbar-text">&nbsp;({role})</span>
             </div>
           </div>
         </header>
@@ -159,7 +174,6 @@ class Header extends Component {
 // if I want active NavLink
 export default withRouter(
   withTracker((props) => {
-    
     let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
     let isEditor = Roles.userIsInRole(
       Meteor.userId(),
