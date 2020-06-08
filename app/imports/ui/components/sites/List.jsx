@@ -160,16 +160,14 @@ class List extends Component {
     saveAs(blob, "wp-veritas.csv");
   };
 
-  isLoading = () => {
-    return this.props.sites === undefined;
-  };
-
   render() {
     let content;
-    if (this.isLoading()) {
+    
+    if (this.props.loading) {
       content = <Loading />;
     } else {
-
+      // TODO: Astuce car le state n'est pas setter correctement à partir de props
+      let sites = this.state.sites.length > 0 ? this.state.sites : this.props.sites;
       content = (
         <Fragment>
           <h4 className="py-4 float-left">
@@ -209,7 +207,7 @@ class List extends Component {
                 <th className="w-30">Actions</th>
               </tr>
             </thead>
-            <Cells sites={this.state.sites} deleteSite={this.deleteSite} />
+            <Cells sites={sites} deleteSite={this.deleteSite} />
           </table>
         </Fragment>
       );
@@ -218,8 +216,9 @@ class List extends Component {
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe("sites.list");
+  const handle = Meteor.subscribe("sites.list");
   return {
+    loading: !handle.ready(),
     sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
   };
 })(List);
