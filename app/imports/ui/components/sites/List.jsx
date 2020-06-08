@@ -58,12 +58,30 @@ const Cells = (props) => (
 );
 
 class List extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchValue: "",
+      sites: props.sites
+    };
+  }
+
+  componentWillReceiveProps(){
+    this.setState({sites: this.props.sites});
+  }
+
   deleteSite = (siteId) => {
     removeSite.call({ siteId }, function (error, siteId) {
       if (error) {
         console.log(`ERROR removeSite ${error}`);
       }
     });
+  };
+
+  search = (event) => {
+    const keyword = event.target.value;
+    const sites = Sites.find({"url": {$regex: ".*" + keyword + ".*", '$options' : 'i'}}).fetch();
+    this.setState({ searchValue: keyword, sites: sites });
   };
 
   export = () => {
@@ -151,6 +169,7 @@ class List extends Component {
     if (this.isLoading()) {
       content = <Loading />;
     } else {
+
       content = (
         <Fragment>
           <h4 className="py-4 float-left">
@@ -161,6 +180,17 @@ class List extends Component {
               Exporter CSV
             </button>
           </div>
+          <form onSubmit={this.onSubmit}>
+            <div className="input-group md-form form-sm form-2 pl-0">
+              <input
+                type="search"
+                className="form-control my-0 py-1"
+                value={ this.state.searchValue }
+                onChange={this.search}
+                placeholder="Filter par mot-clé"
+              />
+            </div>
+          </form>
           <table className="table table-striped">
             <thead>
               <tr>
@@ -179,7 +209,7 @@ class List extends Component {
                 <th className="w-30">Actions</th>
               </tr>
             </thead>
-            <Cells sites={this.props.sites} deleteSite={this.deleteSite} />
+            <Cells sites={this.state.sites} deleteSite={this.deleteSite} />
           </table>
         </Fragment>
       );
