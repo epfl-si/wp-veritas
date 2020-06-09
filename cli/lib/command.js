@@ -45,7 +45,7 @@ const _restore = async function (source) {
   
   // Move dump/wp-veritas
   console.log("STEP 4: NEED TO MOVE dump/wp-veritas ?");
-  if (target === "localhost") {
+  if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
     await helpers.moveDumpFolder();
     console.log("Move wp-veritas/ to meteor/");
   } else {
@@ -59,7 +59,7 @@ const _restore = async function (source) {
   // Restore source DB on target DB
   console.log("STEP 5: RESTORE SOURCE ON TARGET");
   let dbName = "wp-veritas";
-  if (target === "localhost") {
+  if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
     dbName = 'meteor';
   }
   await dbHelpers.restoreMongoDB(targetConnectionString, dbName);
@@ -84,7 +84,7 @@ const _loadTestData = async function (destination) {
 };
 
 module.exports.deleteAllDocuments = async function () {
-  const target = "localhost";
+  const target = config.LOCAL_TARGET_TEST_DB_HOST;
   const connectionString = dbHelpers.getConnectionString(target);
   console.log("Connection string of Target:", connectionString);
   await dbHelpers.deleteAllDocuments(connectionString, target);
@@ -110,7 +110,7 @@ module.exports.restoreProdDatabaseOnTest = async function () {
 };
 
 module.exports.loadTestsDataOnLocalhost = async function () {
-  let destination = "localhost";
+  let destination = config.LOCAL_TARGET_TEST_DB_HOST;
   await _loadTestData(destination);
   console.log("Load tests data on localhost DB");
   return true;

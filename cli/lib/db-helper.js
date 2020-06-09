@@ -11,7 +11,7 @@ module.exports.getTarget = (source) => {
   }
   let target;
   if (source === "test" || source === "prod") {
-    target = "localhost";
+    target = config.LOCAL_TARGET_TEST_DB_HOST;
   } else if (source === "prod-on-test") {
     target = "test";
   }
@@ -22,12 +22,12 @@ module.exports.getTarget = (source) => {
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-  if (["localhost", "test", "prod"].includes(environment) === false) {
+  if ([config.LOCAL_TARGET_TEST_DB_HOST, "test", "prod"].includes(environment) === false) {
     throw new Error("Environment is unknown");
   }
 
-  if (environment === "localhost") {
-    return "mongodb://localhost:3001/";
+  if (environment === config.LOCAL_TARGET_TEST_DB_HOST) {
+    return `mongodb://${config.LOCAL_TARGET_TEST_DB_HOST}:${config.LOCAL_TARGET_TEST_DB_PORT}/`;
   }
 
   let dbUsername = config.TEST_DB_USERNAME;
@@ -48,7 +48,7 @@ module.exports.getConnectionString = (environment) => {
 createClient = async function (connectionString) {
   // Check DB
   if (
-    !connectionString.includes("localhost") &&
+    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");
@@ -67,7 +67,7 @@ getDB = function (target, client) {
   let dbName;
   if (target === "test") {
     dbName = "wp-veritas";
-  } else if (target === "localhost") {
+  } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
     dbName = "meteor";
   }
   return client.db(dbName);
@@ -140,7 +140,10 @@ module.exports.deleteAllDocuments = async function (
  */
 module.exports.dumpMongoDB = async function (connectionString) {
   await new Promise(function (resolve, reject) {
-    const command = `mongodump --forceTableScan  --uri ${connectionString}`;
+    // mongodump is a native executable, please install mongo-tools
+    // and be sure to have a version with the --uri option avalaible.
+    const command = `mongodump --forceTableScan --uri ${connectionString}`;
+    console.log(command)
     resolve(exec(command));
   });
 };
@@ -151,7 +154,7 @@ module.exports.dumpMongoDB = async function (connectionString) {
 module.exports.restoreMongoDB = async function (connectionString, dbName) {
   // Check DB
   if (
-    !connectionString.includes("localhost") &&
+    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");
