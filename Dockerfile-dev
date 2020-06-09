@@ -1,0 +1,33 @@
+#
+# This docker file aims to provide a simple environment for development purpose.
+#
+# Build: docker-compose -f docker-compose-dev.yml build
+# Deploy: docker-compose -f docker-compose-dev.yml up
+# Exec: docker exec -it --user root wp-veritas_meteor bash
+# Run: docker run -it --entrypoint bash --rm wp-veritas_app -c "meteor --version"
+
+FROM node:12-buster-slim
+LABEL maintainer="IDEV-FSD <idev-fsd@groupes.epfl.ch>"
+
+ENV LC_ALL=POSIX
+ENV METEOR_VERSION=1.10.2
+ENV METEOR_ALLOW_SUPERUSER=1
+
+RUN apt-get -yqq update \
+    && DEBIAN_FRONTEND=noninteractive apt-get -yqq install \
+        curl \
+        g++ \
+        make \
+        mongo-tools \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN curl "https://install.meteor.com/?release=${METEOR_VERSION}" | /bin/sh
+ENV PATH=$PATH:/root/.meteor
+
+RUN meteor --version
+
+WORKDIR /app
+VOLUME /app
+
+EXPOSE 3000
+CMD [ "meteor" ]
