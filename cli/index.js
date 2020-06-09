@@ -15,39 +15,39 @@ program
   })
 
 program
-.command('restore-test-db')
-.description('Restore the test MongoDB on local MongoDB')
-.action(function () {
-  commands.restoreTestDatabase();
+  .command('restore-test-db')
+  .description('Restore the test MongoDB on local MongoDB')
+  .action(function () {
+    commands.restoreTestDatabase();
+  })
+
+program
+  .command('restore-prod-db')
+  .description('Restore the production MongoDB on local MongoDB')
+  .action(function () {
+    commands.restoreProdDatabase();
+  })
+
+program
+  .command('restore-prod-db-on-test')
+  .description('Restore the production MongoDB on test MongoDB')
+  .action(function () {
+    commands.restoreProdDatabaseOnTest();
+  })
+
+program
+  .command('load-tests-data-on-localhost-db')
+  .description('Load tests data on localhost MongoDB')
+  .action(function () {
+    commands.loadTestsDataOnLocalhost();
 })
 
 program
-.command('restore-prod-db')
-.description('Restore the production MongoDB on local MongoDB')
-.action(function () {
-  commands.restoreProdDatabase();
-})
-
-program
-.command('restore-prod-db-on-test')
-.description('Restore the production MongoDB on test MongoDB')
-.action(function () {
-  commands.restoreProdDatabaseOnTest();
-})
-
-program
-.command('load-tests-data-on-localhost-db')
-.description('Load tests data on localhost MongoDB')
-.action(function () {
-  commands.loadTestsDataOnLocalhost();
-})
-
-program
-.command('load-tests-data-on-test-db')
-.description('Load tests data on test MongoDB')
-.action(function () {
-  commands.loadTestsDataOnTest();
-})
+  .command('load-tests-data-on-test-db')
+  .description('Load tests data on test MongoDB')
+  .action(function () {
+    commands.loadTestsDataOnTest();
+  })
 
 let rootDirectory = config.WORKSPACE_PATH;
 if (process.env.PWD !== rootDirectory) {
