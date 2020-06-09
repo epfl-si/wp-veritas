@@ -10,7 +10,7 @@ const dbHelpers = require("./db-helper.js");
  */
 module.exports.deleteDumpFolder = async function () {
   await new Promise(function (resolve, reject) {
-    let command = `rm ${config.WORKSPACE_PATH}wp-veritas/dump/ -rf`;
+    let command = `rm ${config.WORKSPACE_PATH}/dump/ -rf`;
     resolve(exec(command));
   });
 };
@@ -19,8 +19,8 @@ module.exports.deleteDumpFolder = async function () {
  * Move wp-veritas/dump/wp-veritas/ to wp-veritas/dump/meteor/
  */
 module.exports.moveDumpFolder = async () => {
-  const source = `${config.WORKSPACE_PATH}wp-veritas/dump/wp-veritas/`;
-  const target = `${config.WORKSPACE_PATH}wp-veritas/dump/meteor/`;
+  const source = `${config.WORKSPACE_PATH}/dump/wp-veritas/`;
+  const target = `${config.WORKSPACE_PATH}/dump/meteor/`;
   await mv(source, target);
 };
 
@@ -30,7 +30,7 @@ module.exports.moveDumpFolder = async () => {
 module.exports.parseData = () => {
   var myjson = JSON.parse(
     fs.readFileSync(
-      config.WORKSPACE_PATH + "wp-veritas/app/private/inventory-test.json",
+      config.WORKSPACE_PATH + "/app/private/inventory-test.json",
       "utf8"
     )
   );

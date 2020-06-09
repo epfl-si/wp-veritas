@@ -49,7 +49,7 @@ program
   commands.loadTestsDataOnTest();
 })
 
-let rootDirectory = config.WORKSPACE_PATH + "wp-veritas";
+let rootDirectory = config.WORKSPACE_PATH;
 if (process.env.PWD !== rootDirectory) {
   console.log("You need to get to the root of project wp-veritas.");
   console.log("Please run:");
