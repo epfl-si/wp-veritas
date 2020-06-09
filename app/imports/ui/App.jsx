@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { withTracker } from "meteor/react-meteor-data";
 import {
   Header,
   Footer,
@@ -16,7 +15,7 @@ import {
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Loading } from "../ui/components/Messages";
 
-class Apps extends Component {
+class App extends Component {
   getEnvironment() {
     const absoluteUrl = Meteor.absoluteUrl();
     let environment;
@@ -77,24 +76,4 @@ class Apps extends Component {
     }
   }
 }
-export default withTracker(() => {
-  let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
-  let isEditor = Roles.userIsInRole(Meteor.userId(), ["tags-editor"], "wp-veritas");
-  let isRole = isAdmin || isEditor;
-  let isLoading;
-
-  if (isRole) {
-    isLoading = Meteor.user() === undefined;
-    currentUser = Meteor.user();
-  } else {
-    isLoading = false;
-    currentUser = "";
-  }
-
-  return {
-    isLoading: isLoading,
-    currentUser: currentUser,
-    currentUserIsAdmin: isAdmin,
-    currentUserIsEditor: isEditor,
-  };
-})(Apps);
+export default App;
