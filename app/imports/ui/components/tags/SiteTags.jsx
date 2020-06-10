@@ -45,16 +45,6 @@ class SiteTags extends React.Component {
     );
   };
 
-  isLoading(site) {
-    return (
-      this.props.sites === undefined ||
-      this.props.facultyTags === undefined ||
-      this.props.instituteTags === undefined ||
-      this.props.fieldOfResearchTags === undefined ||
-      site == undefined
-    );
-  }
-
   getSite = () => {
     // Get the URL parameter
     let siteId = this.props.match.params._id;
@@ -64,12 +54,10 @@ class SiteTags extends React.Component {
 
   render() {
     let content;
-    let site = this.getSite();
-    const isLoading = this.isLoading(site);
-
-    if (isLoading) {
+    if (this.props.loading) {
       content = <h1>Loading....</h1>;
     } else {
+      let site = this.getSite();
       let msgSaveSuccess = (
         <div className="alert alert-success" role="alert">
           La modification a été enregistrée avec succès !
@@ -166,8 +154,10 @@ class SiteTags extends React.Component {
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe("tag.list");
-  Meteor.subscribe("sites.list");
+  const handles = [
+    Meteor.subscribe("tag.list"),
+    Meteor.subscribe("sites.list")
+  ]
 
   let facultyTags = Tags.find(
     { type: "faculty" },
@@ -185,6 +175,7 @@ export default withTracker(() => {
   ).fetch();
 
   return {
+    loading: handles.some((handle) => !handle.ready()),
     facultyTags: facultyTags,
     instituteTags: instituteTags,
     fieldOfResearchTags: fieldOfResearchTags,
