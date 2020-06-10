@@ -4,7 +4,7 @@ import React, { Component, Fragment } from "react";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Categories, OpenshiftEnvs, Themes } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
-import { AlertSuccess, Loading } from "../Messages";
+import { AlertSuccess, Loading, DangerMessage } from "../Messages";
 
 const ThemesForm = (props) => (
   <div className="card-body">
@@ -153,35 +153,51 @@ const OpenshiftEnvsList = (props) => (
   </Fragment>
 );
 
-const CategoriesList = (props) => (
-  <Fragment>
-    <h5 className="card-header">Liste des catégories des sites WordPress</h5>
-    <ul className="list-group">
-      {props.categories.map((category, index) => (
-        <li
-          key={category._id}
-          value={category.name}
-          className="list-group-item"
-        >
-          {category.name}
-          <button type="button" className="close" aria-label="Close">
-            <span
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you wish to delete this item?")
-                )
-                  props.deleteCategory(category._id);
-              }}
-              aria-hidden="true"
-            >
-              &times;
-            </span>
-          </button>
-        </li>
-      ))}
-    </ul>
-  </Fragment>
-);
+class CategoriesList extends Component {
+  render () {
+    let haveError = this.props.categoriesError;
+    return (
+      <Fragment>
+      <h5 className="card-header">Liste des catégories des sites WordPress</h5>
+      <ul className="list-group">
+        {this.props.categories.map((category, index) => (
+          <li
+            key={category._id}
+            value={category.name}
+            className="list-group-item"
+          >
+            <div className="ListEntry">
+              {category.name}
+              <button type="button" className="close" aria-label="Close">
+                <span
+                  onClick={() => {
+                    if (
+                      window.confirm("Are you sure you wish to delete this item?")
+                    )
+                      this.props.deleteCategory(category._id);
+                  }}
+                  aria-hidden="true"
+                >
+                  &times;
+                </span>
+              </button>
+
+              { (haveError.elementId === category._id) &&
+                <DangerMessage
+                    elementId={"category-" + category._id}
+                    title={haveError.title}
+                    message={haveError.details}
+                    additional={haveError.additional}
+                  />
+              }
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Fragment>
+    )
+  }
+}
 
 const ThemesList = (props) => (
   <Fragment>
@@ -215,6 +231,7 @@ class Admin extends Component {
     this.state = {
       addSuccess: false,
       deleteSuccess: false,
+      categoryError: false,
       target: "",
     };
   }
@@ -288,6 +305,14 @@ class Admin extends Component {
 
     Meteor.call(meteorMethodName, elementToDelete, (error, objectId) => {
       if (error) {
+        this.setState({
+          categoryError: {
+            elementId,
+            details: error.details[0].message,
+            title: error.name,
+            additional: error.details[0].additional
+          },
+        });
         console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
       } else {
         this.setState({ deleteSuccess: true, target: target });
@@ -347,6 +372,7 @@ class Admin extends Component {
 
           <div className="card my-2">
             <CategoriesList
+              categoriesError={this.state.categoryError}
               categories={this.props.categories}
               deleteCategory={this.deleteCategory}
             />
