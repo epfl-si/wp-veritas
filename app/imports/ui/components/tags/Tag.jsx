@@ -124,17 +124,12 @@ class Tag extends Component {
     return initialValues;
   };
 
-  isLoading(initialValues) {
-    return this.props.tags === undefined || initialValues === undefined;
-  }
-
   render() {
     let content;
-    let initialValues = this.getInitialValues();
-
-    if (this.isLoading(initialValues)) {
+    if (this.props.loading) {
       return <Loading />;
     } else {
+      let initialValues = this.getInitialValues();
       let edit = this.state.action == "edit";
 
       let msgSaveSuccess = (
@@ -349,8 +344,9 @@ class Tag extends Component {
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe("tag.list");
+  const handle = Meteor.subscribe("tag.list");
   return {
+    loading: !handle.ready(),
     tags: Tags.find({}, { sort: { name_fr: 1 } }).fetch(),
   };
 })(Tag);
