@@ -37,14 +37,6 @@ class SiteProfessors extends Component {
     });
   };
 
-  isLoading(site) {
-    return (
-      this.props.sites === undefined ||
-      this.props.professors === undefined ||
-      site == undefined
-    );
-  }
-
   getSite = () => {
     // Get the URL parameter
     let siteId = this.props.match.params._id;
@@ -54,12 +46,11 @@ class SiteProfessors extends Component {
 
   render() {
     let content;
-    let site = this.getSite();
-    const isLoading = this.isLoading(site);
-
-    if (isLoading) {
+  
+    if (this.props.loading) {
       content = <Loading />;
     } else {
+      let site = this.getSite();
       let msgSaveSuccess = (
         <div className="alert alert-success" role="alert">
           La modification a été enregistrée avec succès !
@@ -126,10 +117,12 @@ class SiteProfessors extends Component {
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe("professor.list");
-  Meteor.subscribe("sites.list");
-
+  const handles = [ 
+    Meteor.subscribe("professor.list"),
+    Meteor.subscribe("sites.list"),
+  ];
   return {
+    loading: handles.some((handle) => !handle.ready()),
     professors: Professors.find({}, { sort: { sciper: 1 } }).fetch(),
     sites: Sites.find({}).fetch(),
   };
