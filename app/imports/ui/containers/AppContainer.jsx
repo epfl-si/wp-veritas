@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import App from '../App.jsx';
 
-export default withTracker(() => {
+const AppContainer = withTracker(() => {
   let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
   let isEditor = Roles.userIsInRole(Meteor.userId(), ["tags-editor"], "wp-veritas");
   let isRole = isAdmin || isEditor;
@@ -23,3 +23,5 @@ export default withTracker(() => {
     currentUserIsEditor: isEditor,
   };
 })(App);
+
+export default AppContainer;

@@ -57,7 +57,7 @@ const Cells = (props) => (
   </tbody>
 );
 
-class List extends Component {
+class ListSite extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -215,10 +215,5 @@ class List extends Component {
     return content;
   }
 }
-export default withTracker(() => {
-  const handle = Meteor.subscribe("sites.list");
-  return {
-    loading: !handle.ready(),
-    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
-  };
-})(List);
+
+export default ListSite;

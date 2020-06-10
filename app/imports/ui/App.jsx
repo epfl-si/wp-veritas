@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import {
   Header,
   Footer,
-  Add,
-  List,
   Admin,
   Search,
   Tag,
@@ -12,6 +10,8 @@ import {
   Professor,
   SiteProfessors,
 } from "./components";
+import ListSiteContainer from "../ui/containers/ListSiteContainer.jsx";
+import AddSiteContainer from "../ui/containers/AddSiteContainer.jsx";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Loading } from "../ui/components/Messages";
 
@@ -50,7 +50,7 @@ class App extends Component {
             <Route path="/search" component={Search} />
             {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
               <React.Fragment>
-                <Route exact path="/" component={List} />
+                <Route exact path="/" component={ListSiteContainer} />
                 <Route path="/tags" component={Tag} />
                 <Route path="/tag/:_id" component={Tag} />
                 <Route path="/site-tags/:_id" component={SiteTags} />
@@ -63,8 +63,8 @@ class App extends Component {
             ) : null}
             {this.props.currentUserIsAdmin ? (
               <React.Fragment>
-                <Route path="/add" component={Add} />
-                <Route path="/edit/:_id" component={Add} />
+                <Route path="/add" component={AddSiteContainer} />
+                <Route path="/edit/:_id" component={AddSiteContainer} />
                 <Route exact path="/admin" component={Admin} />
                 <Route path="/admin/log/list" component={Log} />
               </React.Fragment>
