@@ -1,7 +1,7 @@
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component, Fragment } from 'react';
 import { AppLogs } from '../../../api/collections';
-import { Link } from 'react-router-dom';
+import { Loading } from "../Messages";
 import moment from 'moment';
 
 class LogCells extends Component {
@@ -33,30 +33,35 @@ class Log extends Component {
 
   render() {
     let content;
-    content = (
-      <Fragment>
-        <h4 className="py-4">Liste des logs</h4>
-        <table className="table table-striped">
-            <thead>
-              <tr>
-                <th className="w-5" scope="col">#</th>
-                <th className="w-15" scope="col">Date</th>
-                <th className="w-10" scope="col">Sciper</th>
-                <th className="w-15" scope="col">Message</th>
-                <th scope="col">Avant</th>
-                <th scope="col">Après</th>
-              </tr>
-            </thead>
-            <LogCells logs={ this.props.logs } />
-          </table>
-      </Fragment>
-    );
+    if (this.props.loading) {
+      content = <Loading />;
+    } else {
+      content = (
+        <Fragment>
+          <h4 className="py-4">Liste des logs</h4>
+          <table className="table table-striped">
+              <thead>
+                <tr>
+                  <th className="w-5" scope="col">#</th>
+                  <th className="w-15" scope="col">Date</th>
+                  <th className="w-10" scope="col">Sciper</th>
+                  <th className="w-15" scope="col">Message</th>
+                  <th scope="col">Avant</th>
+                  <th scope="col">Après</th>
+                </tr>
+              </thead>
+              <LogCells logs={ this.props.logs } />
+            </table>
+        </Fragment>
+      );
+    }
     return content;
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe('log.list');
+  const handle = Meteor.subscribe('log.list');
   return {
+    loading: !handle.ready(),
     logs: AppLogs.find({}, {sort: {date: -1}}).fetch(),
   };
 })(Log);
