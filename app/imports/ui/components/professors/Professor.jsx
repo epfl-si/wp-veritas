@@ -147,13 +147,10 @@ class Professor extends Component {
 
   render() {
     let content;
-    let initialValues = this.getInitialValues();
-    let isLoading =
-      this.props.professors == undefined || initialValues == undefined;
-
-    if (isLoading) {
+    if (this.props.loading) {
       content = <Loading />;
     } else {
+      let initialValues = this.getInitialValues();
       content = (
         <Fragment>
           <div className="card">
@@ -223,8 +220,9 @@ class Professor extends Component {
   }
 }
 export default withTracker(() => {
-  Meteor.subscribe("professor.list");
+  const handle = Meteor.subscribe("professor.list");
   return {
+    loading: !handle.ready(),
     professors: Professors.find({}, { sort: { displayName: 1 } }).fetch(),
   };
 })(Professor);
