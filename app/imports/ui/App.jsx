@@ -3,7 +3,7 @@ import {
   Header,
   Footer,
   Admin,
-  Search,
+  SearchSite,
   Tag,
   SiteTags,
   Log,
@@ -47,7 +47,7 @@ class App extends Component {
           <div className="App container">
             {this.getEnvironment() === "PROD" ? null : ribbon}
             <Header />
-            <Route path="/search" component={Search} />
+            <Route path="/search" component={SearchSite} />
             {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
               <React.Fragment>
                 <Route exact path="/" component={ListSiteContainer} />

@@ -7,8 +7,7 @@ import * as yup from 'yup';
 import ReactHtmlParser from 'react-html-parser';
 import { Loading } from '../Messages';
 
-
-class Search extends React.Component {
+class SearchSite extends React.Component {
 
   urlSchema = yup.object().shape({
     url: yup.
@@ -80,14 +79,10 @@ class Search extends React.Component {
       actions.resetForm();
     }
 
-    loading = () => {
-      return this.props.sites === undefined;
-    }
-
     render() {  
       let content;
 
-      if (this.loading()) {
+      if (this.props.loading) {
         content = <Loading />
       } else {
 
@@ -143,8 +138,9 @@ class Search extends React.Component {
 }
 
 export default withTracker(() => {
-  Meteor.subscribe('sites.list');
+  const handle = Meteor.subscribe('sites.list');
   return {
+    loading: !handle.ready(),
     sites: Sites.find({}, {sort: {url: 1}}).fetch(),
   };
-})(Search);
+})(SearchSite);
