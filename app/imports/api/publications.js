@@ -11,8 +11,7 @@ import { check } from "meteor/check";
 
 if (Meteor.isServer) {
   Meteor.publish("sites.list", function () {
-    let siteCursor = Sites.find({}, { sort: { url: 1 } });
-    return [siteCursor];
+    return Sites.find({}, { sort: { url: 1 } });
   });
 
   Meteor.publish("siteById", function (siteId) {
