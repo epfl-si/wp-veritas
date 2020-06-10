@@ -307,17 +307,9 @@ class Admin extends Component {
     this.delete(Categories, categoryID);
   };
 
-  isLoading = () => {
-    const isLoading =
-      this.props.openshiftenvs === undefined ||
-      this.props.themes === undefined ||
-      this.props.categories === undefined;
-    return isLoading;
-  };
-
   render() {
     let content;
-    if (this.isLoading()) {
+    if (this.props.loading) {
       content = <Loading />;
     } else {
       content = (
@@ -386,11 +378,13 @@ class Admin extends Component {
 }
 
 export default withTracker(() => {
-  Meteor.subscribe("openshiftEnv.list");
-  Meteor.subscribe("theme.list");
-  Meteor.subscribe("category.list");
-
+  const handles = [
+    Meteor.subscribe("openshiftEnv.list"),
+    Meteor.subscribe("theme.list"),
+    Meteor.subscribe("category.list")
+  ]
   return {
+    loading: handles.some((handle) => !handle.ready()),
     openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
     categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
