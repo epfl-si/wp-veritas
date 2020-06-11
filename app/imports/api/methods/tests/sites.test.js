@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Sites, Tags } from "../../collections";
+import { Sites, Tags, Categories } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { resetDatabase } from "meteor/xolvio:cleaner";
@@ -53,6 +53,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
+        categories: Categories.find({ name: "GeneralPublic" }),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
