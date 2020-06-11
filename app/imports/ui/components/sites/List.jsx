@@ -62,12 +62,12 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
-      sites: props.sites
+      sites: props.sites,
     };
   }
 
-  componentWillReceiveProps(){
-    this.setState({sites: this.props.sites});
+  componentWillReceiveProps() {
+    this.setState({ sites: this.props.sites });
   }
 
   deleteSite = (siteId) => {
@@ -80,7 +80,9 @@ class List extends Component {
 
   search = (event) => {
     const keyword = event.target.value;
-    const sites = Sites.find({"url": {$regex: ".*" + keyword + ".*", '$options' : 'i'}}).fetch();
+    const sites = Sites.find({
+      url: { $regex: ".*" + keyword + ".*", $options: "i" },
+    }).fetch();
     this.setState({ searchValue: keyword, sites: sites });
   };
 
@@ -88,6 +90,10 @@ class List extends Component {
     let sites = Sites.find({}).fetch();
 
     sites.forEach(function (site) {
+      site.categories = site.categories
+        .map((category) => category.name)
+        .join(",");
+
       let facutyTags = "";
       let instituteTags = "";
       let clusterTags = "";
@@ -139,6 +145,7 @@ class List extends Component {
         "tagline",
         "openshiftEnv",
         "category",
+        "categories",
         "theme",
         "faculty",
         "languages",
@@ -162,12 +169,13 @@ class List extends Component {
 
   render() {
     let content;
-    
+
     if (this.props.loading) {
       content = <Loading />;
     } else {
       // TODO: Astuce car le state n'est pas setter correctement à partir de props
-      let sites = this.state.sites.length > 0 ? this.state.sites : this.props.sites;
+      let sites =
+        this.state.sites.length > 0 ? this.state.sites : this.props.sites;
       content = (
         <Fragment>
           <h4 className="py-4 float-left">
@@ -183,7 +191,7 @@ class List extends Component {
               <input
                 type="search"
                 className="form-control my-0 py-1"
-                value={ this.state.searchValue }
+                value={this.state.searchValue}
                 onChange={this.search}
                 placeholder="Filter par mot-clé"
               />
