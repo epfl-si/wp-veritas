@@ -1,0 +1,48 @@
+# This docker-compose file aim to provide a development environement to avoid
+# having version mismatch with the production environement, e.g. meteor or node.
+#
+# It also expose the mongoDB port to facilitate the use of a mongoDB browser 
+# (e.g. robo3t).
+#
+# For the app service, the configuration user 
+# (https://docs.docker.com/compose/compose-file/#domainname-hostname-ipc-mac_address-privileged-read_only-shm_size-stdin_open-tty-user-working_dir)
+# attempt to use the same user as the host user, to avoid permssions problems,
+# especially on the /app/.meteor/local folder.
+#
+
+version: '3'
+
+services:
+  app:
+    container_name: wp-veritas_meteor
+    build:
+      context: .
+      dockerfile: Dockerfile-dev
+    ports:
+      - '80:3000'
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    volumes:
+      - $PWD/app:/app
+      - $PWD:/src
+    user: ${UID:-1000}:${GID:-1000}
+    environment:
+      ROOT_URL: ${APP_ROOT_URL:-http://localhost}
+      MONGO_URL: mongodb://mongo:27017/meteor
+      PORT: 3000
+      METEOR_SETTINGS_FILE: /src/app/meteor-settings.json # See docker/entrypoint.sh
+
+  mongo:
+    container_name: wp-veritas_mongo
+    image: mongo:latest
+    ports: 
+      - '27017:27017'
+    command:
+      - --storageEngine=wiredTiger
+    volumes:
+      - data:/data/db
+
+volumes:
+  data:
