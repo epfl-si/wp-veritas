@@ -7,7 +7,7 @@ import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
 
 function createTag(userId, args) {
-  const context = { userId }
+  const context = { userId };
   insertTag._execute(context, args);
 }
 
@@ -16,12 +16,15 @@ if (Meteor.isServer) {
     before(function () {
       resetDatabase();
       loadFixtures();
+      Categories.insert({
+        name: "GeneralPublic",
+      });
     });
 
     it("insert site", () => {
       let userId = createUser();
 
-      const args1 = { 
+      const args1 = {
         name_fr: "Beaujolais",
         name_en: "Beaujolais",
         url_fr: "https://fr.wikipedia.org/wiki/Beaujolais",
@@ -29,7 +32,7 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      const args2 = { 
+      const args2 = {
         name_fr: "Vin nature",
         name_en: "Nature wine",
         url_fr: "https://fr.wikipedia.org/wiki/Vin_naturel",
@@ -53,7 +56,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
-        categories: Categories.find({ name: "GeneralPublic" }),
+        categories: Categories.find({ name: "GeneralPublic" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -92,6 +95,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
+        categories: Categories.find({ name: "GeneralPublic" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
