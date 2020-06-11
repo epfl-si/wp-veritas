@@ -217,6 +217,24 @@ deleteRoleAssignmentScopeNull = () => {
   
 }
 
+updateCategoriesFromCategory = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach(site => {
+
+    let siteDocument = {
+      categories: [site.category],
+    }
+
+    Sites.update(
+      { _id: site._id }, 
+      { $set: siteDocument }
+    );
+
+  });
+
+  console.log("All sites are updated");
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -227,8 +245,7 @@ importData = () => {
   }
   */
   
-  // updateRoles();
-  // deleteRoleAssignmentScopeNull();
+  updateCategoriesFromCategory();
 }
 
 export { importData }
