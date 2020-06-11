@@ -1,4 +1,4 @@
-import { Sites, OpenshiftEnvs, Tags, Professors } from '../imports/api/collections';
+import { Sites, OpenshiftEnvs, Tags, Categories } from '../imports/api/collections';
 import getUnits from './units';
 
 
@@ -183,6 +183,21 @@ Api.addRoute('professors/:sciper/tags', {authRequired: false}, {
       }
     });
     return tags;
+  }
+});
+
+
+// Maps to: /api/v1/categories/
+Api.addRoute('categories', {authRequired: false}, {
+  get: function () {
+    return Categories.find({}).fetch();
+  }
+});
+
+// Maps to: /api/v1/categories/:name
+Api.addRoute('categories/:name', {authRequired: false}, {
+  get: function () {
+    return Categories.findOne({name:this.urlParams.name});
   }
 });
 
