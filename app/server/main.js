@@ -16,7 +16,7 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
-let importDatas = true;
+let importDatas = false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
