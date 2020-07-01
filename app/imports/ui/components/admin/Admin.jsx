@@ -5,6 +5,7 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { Categories, OpenshiftEnvs, Themes } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading } from "../Messages";
+import Swal from 'sweetalert2'
 
 const ThemesForm = (props) => (
   <div className="card-body">
@@ -137,10 +138,7 @@ const OpenshiftEnvsList = (props) => (
           <button type="button" className="close" aria-label="Close">
             <span
               onClick={() => {
-                if (
-                  window.confirm("Are you sure you wish to delete this item?")
-                )
-                  props.deleteOpenshiftEnv(env._id);
+                props.handleClickOnDeleteOpenshiftButton(env._id);
               }}
               aria-hidden="true"
             >
@@ -167,10 +165,7 @@ const CategoriesList = (props) => (
           <button type="button" className="close" aria-label="Close">
             <span
               onClick={() => {
-                if (
-                  window.confirm("Are you sure you wish to delete this item?")
-                )
-                  props.deleteCategory(category._id);
+                props.handleClickOnDeleteCategoryButton(category._id);
               }}
               aria-hidden="true"
             >
@@ -193,10 +188,7 @@ const ThemesList = (props) => (
           <button type="button" className="close" aria-label="Close">
             <span
               onClick={() => {
-                if (
-                  window.confirm("Are you sure you wish to delete this item?")
-                )
-                  props.deleteTheme(theme._id);
+                props.handleClickOnDeleteThemeButton(theme._id);
               }}
               aria-hidden="true"
             >
@@ -307,6 +299,53 @@ class Admin extends Component {
     this.delete(Categories, categoryID);
   };
 
+  handleClickOnDeleteOpenshiftButton = (openshiftEnvID) => { 
+    this.handleClickOnDeleteButton(OpenshiftEnvs, openshiftEnvID);
+  }
+
+  handleClickOnDeleteThemeButton = (themeID) => { 
+    this.handleClickOnDeleteButton(Themes, themeID);
+  }
+
+  handleClickOnDeleteCategoryButton = (categoryID) => { 
+    this.handleClickOnDeleteButton(Categories, categoryID);
+  }
+
+  handleClickOnDeleteButton = (collection, elementId) => {
+
+    let element = collection.findOne({_id: elementId});
+    let label;
+
+    if (collection._name === "openshiftenvs") {
+      label = "l'environnement openshift";
+    } else if (collection._name === "themes") {
+      label = "le thème";
+    } else if (collection._name === "categories") {
+      label = "la catégorie";
+    }
+
+    Swal.fire({
+      title: `Voulez vous vraiment supprimer ${label}: ${ element.name } ?`,
+      text: 'Cette action est irréversible',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non'
+    }).then((result) => {
+      if(result.value){
+        if (collection._name === "openshiftenvs") {
+          this.deleteOpenshiftEnv(elementId);
+        } else if (collection._name === "themes") {
+          this.deleteTheme(elementId);
+        } else if (collection._name === "categories") {
+          this.deleteCategory(elementId);
+        }
+      }
+    })
+  }
+
   isLoading = () => {
     const isLoading =
       this.props.openshiftenvs === undefined ||
@@ -337,7 +376,7 @@ class Admin extends Component {
           <div className="card my-2">
             <OpenshiftEnvsList
               openshiftenvs={this.props.openshiftenvs}
-              deleteOpenshiftEnv={this.deleteOpenshiftEnv}
+              handleClickOnDeleteOpenshiftButton={this.handleClickOnDeleteOpenshiftButton}
             />
             <OpenShiftEnvsForm
               submitOpenShiftEnv={this.submitOpenShiftEnv}
@@ -348,7 +387,7 @@ class Admin extends Component {
           <div className="card my-2">
             <CategoriesList
               categories={this.props.categories}
-              deleteCategory={this.deleteCategory}
+              handleClickOnDeleteCategoryButton={this.handleClickOnDeleteCategoryButton}
             />
             <CategoriesForm
               submitCategory={this.submitCategory}
@@ -359,7 +398,7 @@ class Admin extends Component {
           <div className="card my-2">
             <ThemesList
               themes={this.props.themes}
-              deleteTheme={this.deleteTheme}
+              handleClickOnDeleteThemeButton={this.handleClickOnDeleteThemeButton}
             />
             <ThemesForm
               submitTheme={this.submitTheme}
