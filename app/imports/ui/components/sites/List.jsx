@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Sites } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { removeSite } from "../../../api/methods/sites";
+import Swal from 'sweetalert2'
 
 const Cells = (props) => (
   <tbody>
@@ -44,10 +45,9 @@ const Cells = (props) => (
           <button
             type="button"
             className="btn btn-outline-primary"
-            onClick={() => {
-              if (window.confirm("Are you sure you wish to delete this item?"))
-                props.deleteSite(site._id);
-            }}
+              onClick={() => {
+                  props.handleClick(site._id);
+              }}
           >
             Supprimer
           </button>
@@ -68,6 +68,26 @@ class List extends Component {
 
   componentWillReceiveProps(){
     this.setState({sites: this.props.sites});
+  handleClick = (siteId) => {
+
+    Swal.fire({
+      title: 'Voulez vous vraiment supprimer ce site ?',
+      text: 'User will have Admin Privileges',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non'
+    }).then((result) => {
+      if(result.value){
+        this.deleteSite(siteId);
+        // Delete site of state component
+        let sites = this.state.sites.filter((site) => { return site._id !== siteId });
+        this.setState({sites: sites});
+      }
+    })
+  }
   }
 
   deleteSite = (siteId) => {
@@ -207,7 +227,7 @@ class List extends Component {
                 <th className="w-30">Actions</th>
               </tr>
             </thead>
-            <Cells sites={sites} deleteSite={this.deleteSite} />
+            <Cells sites={this.state.sites} handleClick={this.handleClick} />
           </table>
         </Fragment>
       );
