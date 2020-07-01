@@ -66,8 +66,6 @@ class List extends Component {
     };
   }
 
-  componentWillReceiveProps(){
-    this.setState({sites: this.props.sites});
   handleClick = (siteId) => {
 
     Swal.fire({
@@ -88,6 +86,17 @@ class List extends Component {
       }
     })
   }
+
+  // More information here: https://alligator.io/react/get-derived-state/
+  static getDerivedStateFromProps(props, state) {
+    if (props.sites != state.sites) {
+      // Set state with props
+      return {
+        sites: props.sites,
+      }
+    }
+    // Return null if the state hasn't changed
+    return null;
   }
 
   deleteSite = (siteId) => {
@@ -183,11 +192,9 @@ class List extends Component {
   render() {
     let content;
     
-    if (this.props.loading) {
-      content = <Loading />;
+    if (this.props.loading && this.state.sites.lenght == 0) {
+      return <Loading />;
     } else {
-      // TODO: Astuce car le state n'est pas setter correctement à partir de props
-      let sites = this.state.sites.length > 0 ? this.state.sites : this.props.sites;
       content = (
         <Fragment>
           <h4 className="py-4 float-left">
