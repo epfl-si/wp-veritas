@@ -46,7 +46,7 @@ const Cells = (props) => (
             type="button"
             className="btn btn-outline-primary"
               onClick={() => {
-                  props.handleClick(site._id);
+                  props.handleClickOnDeleteButton(site._id);
               }}
           >
             Supprimer
@@ -66,11 +66,25 @@ class List extends Component {
     };
   }
 
-  handleClick = (siteId) => {
+  // More information here: https://alligator.io/react/get-derived-state/
+  static getDerivedStateFromProps(props, state) {
+    if (props.sites != state.sites) {
+      // Set state with props
+      return {
+        sites: props.sites,
+      }
+    }
+    // Return null if the state hasn't changed
+    return null;
+  }
+
+  handleClickOnDeleteButton = (siteId) => {
+
+    let site = Sites.findOne({_id: siteId});
 
     Swal.fire({
-      title: 'Voulez vous vraiment supprimer ce site ?',
-      text: 'User will have Admin Privileges',
+      title: `Voulez vous vraiment supprimer le site: ${ site.url } ?`,
+      text: 'Cette action est irréversible',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -85,18 +99,6 @@ class List extends Component {
         this.setState({sites: sites});
       }
     })
-  }
-
-  // More information here: https://alligator.io/react/get-derived-state/
-  static getDerivedStateFromProps(props, state) {
-    if (props.sites != state.sites) {
-      // Set state with props
-      return {
-        sites: props.sites,
-      }
-    }
-    // Return null if the state hasn't changed
-    return null;
   }
 
   deleteSite = (siteId) => {
@@ -234,7 +236,7 @@ class List extends Component {
                 <th className="w-30">Actions</th>
               </tr>
             </thead>
-            <Cells sites={this.state.sites} handleClick={this.handleClick} />
+            <Cells sites={this.state.sites} handleClickOnDeleteButton={this.handleClickOnDeleteButton} />
           </table>
         </Fragment>
       );
