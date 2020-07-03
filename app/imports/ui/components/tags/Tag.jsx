@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2'
 import { withTracker } from "meteor/react-meteor-data";
 import React, { Component, Fragment } from "react";
 import { Tags } from "../../../api/collections";
@@ -76,6 +77,26 @@ class Tag extends Component {
         console.log(`ERROR deleteTag ${error}`);
       }
     });
+  }
+
+  handleClickOnDeleteButton = (tagId) => {
+
+    let tag = Tags.findOne({_id: tagId});
+
+    Swal.fire({
+      title: `Voulez vous vraiment supprimer le tag: ${ tag.nameFr } ?`,
+      text: 'Cette action est irréversible',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non'
+    }).then((result) => {
+      if(result.value){
+        this.deleteTag(tagId);
+      }
+    })
   }
 
   updateSaveSuccess = () => {
@@ -323,12 +344,7 @@ class Tag extends Component {
                         >
                           <span
                             onClick={() => {
-                              if (
-                                window.confirm(
-                                  "Are you sure you wish to delete this item?"
-                                )
-                              )
-                                this.deleteTag(tag._id);
+                                this.handleClickOnDeleteButton(tag._id);
                             }}
                             aria-hidden="true"
                           >

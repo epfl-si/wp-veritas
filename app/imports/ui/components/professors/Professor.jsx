@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2'
 import React, { Component, Fragment } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -24,12 +25,7 @@ class ProfessorsList extends Component {
               <button type="button" className="close" aria-label="Close">
                 <span
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you wish to delete this item?"
-                      )
-                    )
-                      this.props.callBackDeleteProfessor(professor._id);
+                    this.props.handleClickOnDeleteButton(professor._id);
                   }}
                   aria-hidden="true"
                 >
@@ -72,6 +68,26 @@ class Professor extends Component {
       }
     });
   };
+
+  handleClickOnDeleteButton = (professorId) => {
+
+    let professor = Professors.findOne({_id: professorId});
+
+    Swal.fire({
+      title: `Voulez vous vraiment supprimer le professeur: ${ professor.displayName } ?`,
+      text: 'Cette action est irréversible',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non'
+    }).then((result) => {
+      if(result.value){
+        this.deleteProfessor(professorId);
+      }
+    })
+  }
 
   updateUserMsg = () => {
     this.setState({
@@ -215,6 +231,7 @@ class Professor extends Component {
           <ProfessorsList
             professors={this.props.professors}
             callBackDeleteProfessor={this.deleteProfessor}
+            handleClickOnDeleteButton={this.handleClickOnDeleteButton}
           />
         </Fragment>
       );
