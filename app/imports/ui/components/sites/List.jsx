@@ -68,7 +68,7 @@ class List extends Component {
 
   // More information here: https://alligator.io/react/get-derived-state/
   static getDerivedStateFromProps(props, state) {
-    if (props.sites != state.sites) {
+    if (state.searchValue === "" && props.sites != state.sites) {
       // Set state with props
       return {
         sites: props.sites,
@@ -194,7 +194,7 @@ class List extends Component {
   render() {
     let content;
     
-    if (this.props.loading && this.state.sites.lenght == 0) {
+    if (this.props.loading) {
       return <Loading />;
     } else {
       content = (
