@@ -158,6 +158,9 @@ const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   validate(newSite) {
+    if (!("professors" in newSite)) {
+      newSite.professors = [];
+    }
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
     } else {
@@ -165,10 +168,6 @@ const updateSite = new VeritasValidatedMethod({
     }
   },
   run(newSite) {
-    if (!("professors" in newSite)) {
-      newSite.professors = [];
-    }
-
     newSite = prepareUpdateInsert(newSite, "update");
 
     let unitName, unitNameLevel2;
