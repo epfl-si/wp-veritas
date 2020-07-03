@@ -39,7 +39,7 @@ export const CustomTextarea = ({ field, form: { errors }, ...props}) => {
   )
 }
 
-export const CustomSelect = ({ field, form, ...props }) => {
+export const CustomSelect = ({ field, form: { errors }, ...props }) => {
 
   let disabled;
   if (props.disabled) {
@@ -52,7 +52,7 @@ export const CustomSelect = ({ field, form, ...props }) => {
       <select 
         disabled={disabled}
         { ...field }
-        className="form-control mt-0"
+        className={errors[field.name] ? "is-invalid form-control" : "form-control mt-0"}
         >
         { props.children }
       </select>
