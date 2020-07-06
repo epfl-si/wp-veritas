@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Sites } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { removeSite } from "../../../api/methods/sites";
+import Swal from 'sweetalert2'
 
 const Cells = (props) => (
   <tbody>
@@ -44,10 +45,9 @@ const Cells = (props) => (
           <button
             type="button"
             className="btn btn-outline-primary"
-            onClick={() => {
-              if (window.confirm("Are you sure you wish to delete this item?"))
-                props.deleteSite(site._id);
-            }}
+              onClick={() => {
+                  props.handleClickOnDeleteButton(site._id);
+              }}
           >
             Supprimer
           </button>
@@ -66,8 +66,39 @@ class List extends Component {
     };
   }
 
-  componentWillReceiveProps() {
-    this.setState({ sites: this.props.sites });
+  // More information here: https://alligator.io/react/get-derived-state/
+  static getDerivedStateFromProps(props, state) {
+    if (state.searchValue === "" && props.sites != state.sites) {
+      // Set state with props
+      return {
+        sites: props.sites,
+      }
+    }
+    // Return null if the state hasn't changed
+    return null;
+  }
+
+  handleClickOnDeleteButton = (siteId) => {
+
+    let site = Sites.findOne({_id: siteId});
+
+    Swal.fire({
+      title: `Voulez vous vraiment supprimer le site: ${ site.url } ?`,
+      text: 'Cette action est irréversible',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Oui',
+      cancelButtonText: 'Non'
+    }).then((result) => {
+      if(result.value){
+        this.deleteSite(siteId);
+        // Delete site of state component
+        let sites = this.state.sites.filter((site) => { return site._id !== siteId });
+        this.setState({sites: sites});
+      }
+    })
   }
 
   deleteSite = (siteId) => {
@@ -171,11 +202,8 @@ class List extends Component {
     let content;
 
     if (this.props.loading) {
-      content = <Loading />;
+      return <Loading />;
     } else {
-      // TODO: Astuce car le state n'est pas setter correctement à partir de props
-      let sites =
-        this.state.sites.length > 0 ? this.state.sites : this.props.sites;
       content = (
         <Fragment>
           <h4 className="py-4 float-left">
@@ -215,7 +243,7 @@ class List extends Component {
                 <th className="w-30">Actions</th>
               </tr>
             </thead>
-            <Cells sites={sites} deleteSite={this.deleteSite} />
+            <Cells sites={this.state.sites} handleClickOnDeleteButton={this.handleClickOnDeleteButton} />
           </table>
         </Fragment>
       );

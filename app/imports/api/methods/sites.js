@@ -2,7 +2,7 @@ import SimpleSchema from "simpl-schema";
 import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
-import { throwMeteorError } from "../error";
+import { throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
@@ -97,6 +97,22 @@ function prepareUpdateInsert(site, action) {
   return site;
 }
 
+const validateConsistencyOfFields = (newSite) => {
+  // Check if inside site datas are OK
+  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.category === 'Inside') {
+    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.category === 'Inside')) {
+      throwMeteorErrors(["url", "category", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
+    }
+  }
+
+  // Check if subdomains-lite site datas are OK
+  if ((newSite.openshiftEnv === 'subdomains-lite' || newSite.openshiftEnv.startsWith("unm-")) || newSite.theme === 'wp-theme-light') {
+    if (!((newSite.openshiftEnv === 'subdomains-lite' || newSite.openshiftEnv.startsWith("unm-")) && newSite.theme === 'wp-theme-light')) {
+      throwMeteorErrors(["theme", "openshiftEnv"], "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents");
+    }
+  }
+}
+
 const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
@@ -106,6 +122,7 @@ const insertSite = new VeritasValidatedMethod({
     } else {
       sitesWPInfraOutsideSchema.validate(newSite);
     }
+    validateConsistencyOfFields(newSite);
   },
   run(newSite) {
     newSite = prepareUpdateInsert(newSite, "insert");
@@ -159,17 +176,21 @@ const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   validate(newSite) {
+
+    // TODO: Ajouter un champ professors: [] à tous les sites qui n'ont pas de prof
+    if (!("professors" in newSite)) {
+      newSite.professors = [];
+    }
+
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
     } else {
       sitesWPInfraOutsideSchema.validate(newSite);
     }
+
+    validateConsistencyOfFields(newSite);
   },
   run(newSite) {
-    if (!("professors" in newSite)) {
-      newSite.professors = [];
-    }
-
     newSite = prepareUpdateInsert(newSite, "update");
 
     let unitName, unitNameLevel2;
