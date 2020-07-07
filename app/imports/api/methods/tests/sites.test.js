@@ -8,7 +8,8 @@ import { loadFixtures } from "../../../../server/fixtures";
 
 function createTag(userId, args) {
   const context = { userId };
-  insertTag._execute(context, args);
+  idTag = insertTag._execute(context, args);
+  return Tags.findOne({_id: idTag});
 }
 
 if (Meteor.isServer) {
@@ -46,6 +47,9 @@ if (Meteor.isServer) {
       let tag1 = createTag(userId, tagArgs1);
       let tag2 = createTag(userId, tagArgs2);
 
+      console.log(tag1);
+      console.log(tag2);
+
       let tagsNumber = Tags.find({}).count();
       assert.strictEqual(tagsNumber, 2);
 
@@ -59,7 +63,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
-        categories: [Categories.find({ name: "Restauration" }).fetch()],
+        categories: Categories.find({ name: "Restauration" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -74,6 +78,8 @@ if (Meteor.isServer) {
         professors: [],
         wpInfra: true,
       };
+
+      console.log(args);
 
       insertSite._execute(context, args);
 
