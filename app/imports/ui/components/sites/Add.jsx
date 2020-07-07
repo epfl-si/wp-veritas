@@ -172,6 +172,7 @@ class Add extends Component {
                 handleBlur,
                 isSubmitting,
                 values,
+                setFieldValue,
             }) => (
               
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
@@ -180,19 +181,31 @@ class Add extends Component {
                 </div>
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
                 <ErrorMessage name="tagline" component={ CustomError } />
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
                 <ErrorMessage name="title" component={ CustomError } />
 
@@ -239,7 +252,7 @@ class Add extends Component {
 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg(); }}
+                  onBlur={e => { handleBlur(e);this.updateUserMsg(); }}
                   label="Thème"
                   name="theme"
                   component={ CustomSelect }
@@ -302,7 +315,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text"
                   component={ CustomInput }
                   disabled = { values.wpInfra === false } />
@@ -322,8 +339,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  onBlur={this.updateUserMsg}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text"
                   component={ CustomInput } />
                 <ErrorMessage name="snowNumber" component={ CustomError } />
@@ -337,8 +357,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
-                  onBlur={this.updateUserMsg}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Libellé doit être unique" label="Libellé pour le ressenti" name="userExperienceUniqueLabel" type="text"
                   component={ CustomInput } />
                 <ErrorMessage name="userExperienceUniqueLabel" component={ CustomError } />
