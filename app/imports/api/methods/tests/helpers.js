@@ -29,9 +29,6 @@ function getSitesByProfessor(professor) {
 
 function createSite(userId, categories, tags, professors) {
   const context = { userId };
-  if (!categories) {
-    categories = Categories.findOne({ name: "GeneralPublic" });
-  }
   const args = {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
     tagline: "Yvon Métras",
