@@ -195,15 +195,23 @@ deleteRoleAssignmentScopeNull = () => {
 };
 
 updateCategoriesFromCategory = () => {
+
+  // Delete GeneralPublic entry
+  Categories.remove({ name: "GeneralPublic" });
+
   let sites = Sites.find().fetch();
   sites.forEach((site) => {
+    let category;
+    if (site.category === "GeneralPublic") {
+      category = [];
+    } else {
+      category = site.category;
+    }
     let siteDocument = {
-      categories: Categories.find({ name: site.category }).fetch(),
+      categories: Categories.find({ name: category }).fetch(),
     };
-
     Sites.update({ _id: site._id }, { $set: siteDocument });
   });
-
   console.log("All sites are updated");
 };
 
