@@ -169,7 +169,7 @@ class CategoriesList extends Component {
               <button type="button" className="close" aria-label="Close">
                 <span
                   onClick={() => {
-                    props.handleClickOnDeleteCategoryButton(category._id);
+                    this.props.handleClickOnDeleteCategoryButton(category._id);
                   }}
                   aria-hidden="true"
                 >
