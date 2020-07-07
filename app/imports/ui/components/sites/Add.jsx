@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
-import { Loading } from '../Messages';
+import { Loading, AlertSiteSuccess } from '../Messages';
 class Add extends Component {
 
   constructor(props){
@@ -74,6 +74,7 @@ class Add extends Component {
         } else {
           actions.setSubmitting(false);
           if (this.state.action === 'add') {
+            state.previousSite = site;
             actions.resetForm();
           }
           state.unitName = site.unitName;
@@ -142,12 +143,6 @@ class Add extends Component {
         this.setState({"unitName": this.props.site.unitName})
       }
 
-      let msgAddSuccess = (
-        <div className="alert alert-success" role="alert">
-          Le nouveau site a été ajouté avec succès ! 
-        </div> 
-      )
-
       let msgEditSuccess = (
         <div className="alert alert-success" role="alert">
           Le site a été modifié avec succès ! 
@@ -158,7 +153,12 @@ class Add extends Component {
           
         <div className="card my-2">
             <h5 className="card-header">{ this.getPageTitle() }</h5> 
-            { this.state.addSuccess && msgAddSuccess }
+            { this.state.addSuccess ? (
+              <AlertSiteSuccess
+                id={this.state.previousSite._id}
+                title={this.state.previousSite.title}
+              />
+            ) : null} 
             { this.state.editSuccess && msgEditSuccess }
             <Formik
             onSubmit={ this.submit }
@@ -356,7 +356,12 @@ class Add extends Component {
                 
             )}
             </Formik>
-            { this.state.addSuccess && msgAddSuccess }
+            { this.state.addSuccess ? (
+              <AlertSiteSuccess
+                id={this.state.previousSite._id}
+                title={this.state.previousSite.title}
+              />
+            ) : null}
             { this.state.editSuccess && msgEditSuccess }
         </div>
       )
