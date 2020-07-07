@@ -215,6 +215,18 @@ updateCategoriesFromCategory = () => {
   console.log("All sites are updated");
 };
 
+updateCategoryAdmin = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach((site) => {
+    if (site.category === "admin") {
+      let siteDocument = {
+        category: "Admin",
+      };
+      Sites.update({ _id: site._id }, { $set: siteDocument });
+    }
+  });
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -224,7 +236,7 @@ importData = () => {
     loadTestData();
   }
   */
-
+  updateCategoryAdmin();
   updateCategoriesFromCategory();
 };
 
