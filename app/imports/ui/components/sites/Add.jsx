@@ -231,7 +231,7 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
-
+                {/*
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
@@ -248,9 +248,9 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="category" component={ CustomError } />
-                
+                  */}
                 <div className="form-group">
-                Catégories (NEW!)
+                Catégories
                 <MyCategorySelect
                   id="categories"
                   value={values.categories}
@@ -450,9 +450,15 @@ class MyCategorySelect extends React.Component {
           getOptionValue={(option) => option._id}
           placeholder={this.props.placeholder}
           isDisabled={this.props.isDisabled}
+          styles={{
+            control: styles => ({
+              ...styles,
+              borderColor: this.props.error ? 'red' : styles.borderColor
+            })
+          }}
           className="multiCategoriesSelect"
         />
-        {!!this.props.error && this.props.touched && (
+        {!!this.props.error && (
           <div style={{ color: "red", marginTop: ".5rem" }}>
             {this.props.error}
           </div>
