@@ -6,7 +6,7 @@ test:
 
 .PHONY: build
 build:
-  @echo '**** Start build: ****'
+	@echo '**** Start build: ****'
 	docker build -t epflsi/wp-veritas .
 	@echo '**** End build: ****'
 
