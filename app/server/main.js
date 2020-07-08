@@ -46,7 +46,7 @@ if (Meteor.isServer) {
 
     loadFixtures();
 
-    import "./tequila-config";
+    //import "./tequila-config";
     import "./rest-api";
     import "./cron";
 
