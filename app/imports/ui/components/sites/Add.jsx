@@ -38,6 +38,7 @@ class Add extends Component {
       values.theme = "";
       values.unitId = "";
       values.languages = [];
+      values.categories = [];
     } else {
       values.openshiftEnv = "www";
       values.category = "GeneralPublic";
@@ -63,6 +64,9 @@ class Add extends Component {
       state = {addSuccess: true, editSuccess: false, action: 'add'};
     } else if (this.state.action === 'edit') {
       methodName = 'updateSite';
+      if (values.categories === null) {
+        values.categories = [];
+      }
       state = {addSuccess: false, editSuccess: true, action: 'edit'};
     }
 
