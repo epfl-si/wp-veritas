@@ -212,7 +212,7 @@ updateCategoriesFromCategory = () => {
     };
     Sites.update({ _id: site._id }, { $set: siteDocument });
   });
-  console.log("All sites are updated");
+  console.log("All sites have now categories !");
 };
 
 updateCategoryAdmin = () => {
@@ -225,6 +225,7 @@ updateCategoryAdmin = () => {
       Sites.update({ _id: site._id }, { $set: siteDocument });
     }
   });
+  console.log("All sites with admin category are updated");
 }
 
 importData = () => {
