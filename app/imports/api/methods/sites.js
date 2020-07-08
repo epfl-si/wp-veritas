@@ -6,6 +6,7 @@ import { throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
+import { Telegram } from "../telegram";
 
 import "../methods"; // without this line run test failed
 
@@ -167,6 +168,8 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
 
+    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + site.url + ' on wp-veritas! #epfl-site-created');
+
     return newSite;
   },
 });
@@ -254,6 +257,8 @@ const removeSite = new VeritasValidatedMethod({
       { before: site, after: "" },
       this.userId
     );
+
+    Telegram.sendMessage('⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #epfl-site-deleted');
   },
 });
 
