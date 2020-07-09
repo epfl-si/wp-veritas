@@ -23,7 +23,6 @@ push:
 	docker push epflsi/wp-veritas:latest
 	@echo '**** End push: ****'
 
-
 .PHONY: deploy-test
 deploy-test:
 	@echo '**** Start deploy: ****'
@@ -35,6 +34,19 @@ deploy-test:
 	fi 
 	cd ansible/; \
 	ansible-playbook playbook.yml -i hosts-test
+	@echo '**** End deploy: ****'
+
+.PHONY: deploy-prod
+deploy-prod:
+	@echo '**** Start deploy: ****'
+	if [ -z "$$(oc project)" ]; then \
+		echo "pas loggué"; \
+		oc login; \
+	else \
+		echo "loggué"; \
+	fi
+	cd ansible/; \
+	ansible-playbook playbook.yml -i hosts-prod
 	@echo '**** End deploy: ****'
 
 .PHONY: publish
