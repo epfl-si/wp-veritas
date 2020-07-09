@@ -2,7 +2,7 @@ import SimpleSchema from "simpl-schema";
 import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
-import { throwMeteorErrors } from "../error";
+import { throwMeteorErrors, throwMeteorError } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
@@ -168,7 +168,7 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
 
-    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + site.url + ' on wp-veritas! #epfl-site-created');
+    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #epfl-site-created');
 
     return newSite;
   },
