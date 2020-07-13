@@ -3,8 +3,8 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
+import { Loading, AlertSiteSuccess } from '../Messages';
 import Select from "react-select";
-import { Loading } from '../Messages';
 
 class Add extends Component {
 
@@ -85,6 +85,7 @@ class Add extends Component {
         } else {
           actions.setSubmitting(false);
           if (this.state.action === 'add') {
+            state.previousSite = site;
             actions.resetForm();
           }
           state.unitName = site.unitName;
@@ -154,12 +155,6 @@ class Add extends Component {
         this.setState({"unitName": this.props.site.unitName})
       }
 
-      let msgAddSuccess = (
-        <div className="alert alert-success" role="alert">
-          Le nouveau site a été ajouté avec succès ! 
-        </div> 
-      )
-
       let msgEditSuccess = (
         <div className="alert alert-success" role="alert">
           Le site a été modifié avec succès ! 
@@ -170,7 +165,12 @@ class Add extends Component {
           
         <div className="card my-2">
             <h5 className="card-header">{ this.getPageTitle() }</h5> 
-            { this.state.addSuccess && msgAddSuccess }
+            { this.state.addSuccess ? (
+              <AlertSiteSuccess
+                id={this.state.previousSite._id}
+                title={this.state.previousSite.title}
+              />
+            ) : null} 
             { this.state.editSuccess && msgEditSuccess }
             <Formik
             onSubmit={ this.submit }
@@ -196,19 +196,31 @@ class Add extends Component {
                 </div>
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
                 <ErrorMessage name="url" component={ CustomError } />
                 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
                 <ErrorMessage name="tagline" component={ CustomError } />
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
                 <ErrorMessage name="title" component={ CustomError } />
 
@@ -272,7 +284,7 @@ class Add extends Component {
 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg(); }}
+                  onBlur={e => { handleBlur(e);this.updateUserMsg(); }}
                   label="Thème"
                   name="theme"
                   component={ CustomSelect }
@@ -335,7 +347,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text"
                   component={ CustomInput }
                   disabled = { values.wpInfra === false } />
@@ -355,8 +371,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  onBlur={this.updateUserMsg}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text"
                   component={ CustomInput } />
                 <ErrorMessage name="snowNumber" component={ CustomError } />
@@ -370,8 +389,11 @@ class Add extends Component {
 
                 <Field
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}  
-                  onBlur={this.updateUserMsg}
+                  onBlur={ e => {
+                    handleBlur(e);
+                    setFieldValue(event.target.name, event.target.value.trim());
+                    this.updateUserMsg(); }
+                  }
                   placeholder="Libellé doit être unique" label="Libellé pour le ressenti" name="userExperienceUniqueLabel" type="text"
                   component={ CustomInput } />
                 <ErrorMessage name="userExperienceUniqueLabel" component={ CustomError } />
@@ -389,7 +411,12 @@ class Add extends Component {
                 
             )}
             </Formik>
-            { this.state.addSuccess && msgAddSuccess }
+            { this.state.addSuccess ? (
+              <AlertSiteSuccess
+                id={this.state.previousSite._id}
+                title={this.state.previousSite.title}
+              />
+            ) : null}
             { this.state.editSuccess && msgEditSuccess }
         </div>
       )
@@ -422,8 +449,6 @@ export default withTracker((props) => {
     };
   }
 })(Add);
-
-
 
 class MyCategorySelect extends React.Component {
   handleChange = (value) => {

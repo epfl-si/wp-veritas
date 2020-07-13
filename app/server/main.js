@@ -16,7 +16,8 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
-let importDatas = true;
+let importDatas = false;
+let disableTequila = false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
@@ -46,7 +47,9 @@ if (Meteor.isServer) {
 
     loadFixtures();
 
-    import "./tequila-config";
+    if (!disableTequila) {
+      import "./tequila-config";
+    }
     import "./rest-api";
     import "./cron";
 
