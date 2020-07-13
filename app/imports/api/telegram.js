@@ -28,10 +28,11 @@ class Telegram {
       // Note: they will only receive the messsage if they have alreay chatted 
       // with the bot, otherwise the bot won't be able to send message.
       Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS.split(',').forEach((id) => {
-        https.get(`https://api.telegram.org/${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}`, (res) => {
+        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}`;
+        https.get(url, (res) => {
           // TODO: there's no need for noise here, check the status code
           //       and only output something if needed
-          console.log('statusCode:', res.statusCode);
+          // console.log('statusCode:', res.statusCode);
           // console.log('headers:', res.headers);
 
           res.on('data', (d) => {
@@ -43,7 +44,7 @@ class Telegram {
         });
       })
     } else {
-      // console.log("Telegram params not defined, nothing to do...");
+      console.log("Telegram params not defined, nothing to do...");
     }
   }
 }
