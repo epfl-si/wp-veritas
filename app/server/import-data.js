@@ -4,8 +4,9 @@ import { Sites, Categories } from "../imports/api/collections";
 loadTestData = () => {
   // delete all data
   const absoluteUrl = Meteor.absoluteUrl();
+
   if (
-    absoluteUrl === "http://localhost:3000/" ||
+    absoluteUrlabsoluteUrl.startsWith("http://localhost") ||
     absoluteUrl.startsWith("https://wp-veritas.128.178.222.83.nip.io/")
   ) {
     Sites.remove({});
@@ -195,7 +196,6 @@ deleteRoleAssignmentScopeNull = () => {
 };
 
 updateCategoriesFromCategory = () => {
-
   // Delete GeneralPublic entry
   Categories.remove({ name: "GeneralPublic" });
 
@@ -226,7 +226,7 @@ updateCategoryAdmin = () => {
     }
   });
   console.log("All sites with admin category are updated");
-}
+};
 
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
