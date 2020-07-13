@@ -39,7 +39,24 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       type: String,
       label: "Catégorie",
       optional: false,
-  }, 
+  },
+  categories: {
+    type: Array,
+    label: "Categories",
+    optional: false
+  },
+  'categories.$': {
+    type: Object,
+    optional: true
+  },
+  'categories.$._id': {
+    type: String,
+    optional: true
+  },
+  'categories.$.name': {
+    type: String,
+    optional: true
+  },
   theme: {
       type: String,
       label: "Thème",

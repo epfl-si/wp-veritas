@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Professors } from "../../collections";
+import { Professors, Categories } from "../../collections";
 import { insertProfessor, removeProfessor } from "../professors";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
@@ -26,9 +26,9 @@ if (Meteor.isServer) {
 
       let nb = Professors.find({}).count();
       let professor = Professors.findOne({ sciper: "188475" });
-
+      
       // Create site with this professor
-      createSite(userId, [], [professor]);
+      createSite(userId, [], [], [professor]);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(professor.displayName, "Charmier Grégory");

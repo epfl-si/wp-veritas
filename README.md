@@ -111,34 +111,20 @@ Commands:
 
 ## Déployer une nouvelle version sur l'environnement de test d'openshift
 
-Pour commencer, on doit changer le numéro de version : 
-- Fichier ansible/roles/epfl.wp-veritas/vars/main.yml
-- Dans le composant Header app/imports/ui/header/Header.jsx
-- On commit/push 
-- On crée le tag : `git tag -a 1.0.0 -m "wp-veritas version 1.0.0"`
-- On push le tag : `git push --follow-tags`
+On se place à la racine du projet.
 
-On commence par builder l'image :
+Ensuite, on commence par:
+- builder l'image
+- créer un nouveau tag en fonction de la valeur de la variable `wp_veritas_image_version` présente dans le fichier `ansible/roles/epfl.wp-veritas/vars/main.yml`
+- pousser l'image dans dockerhub
 
-`docker build -t epflsi/wp-veritas .`
+Pour ce faire, on lance la commande:
 
-On crée un tag pour cette image 
+`make publish`
 
-`docker tag epflsi/wp-veritas:latest epflsi/wp-veritas:0.1.10`
+Pour déployer sur l'environnement de test:
 
-On pousse l'image dans dockerhub
-
-`docker push epflsi/wp-veritas:0.1.10`
-
-`docker push epflsi/wp-veritas:latest`
-
-Ensuite on doit modifier la référence à cette image dans le déploiment openshift en éditant le fichier ansible/main.yml.
-
-`wp_veritas_image_version: '0.1.10'`
-
-`cd ansible/`
-
-`ansible-playbook playbook.yml -i hosts-test`
+`make deploy-test`
 
 ## Déployer une nouvelle version sur l'environnement de prod d'openshift
 
