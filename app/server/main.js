@@ -17,7 +17,7 @@ import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
 let importDatas = false;
-let disableTequila = false;
+let disableTequila = true;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {

@@ -5,6 +5,7 @@ import { Sites, OpenshiftEnvs, Themes } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { removeSite } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
+import Checkbox from "./CheckBox";
 
 const Cells = (props) => (
   <tbody>
@@ -62,24 +63,24 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
-<<<<<<< HEAD
       openshiftEnv: "no-filter",
       theme: "no-filter",
-=======
->>>>>>> master
+      languagesFilter: false, // Filter language used ?
+      languages: [],
       sites: props.sites,
     };
   }
 
   // More information here: https://alligator.io/react/get-derived-state/
   static getDerivedStateFromProps(props, state) {
-    console.log("props lenght:", props.sites.length);
-    console.log("state lenght:", state.sites.length);
+    console.log("props nb sites :", props.sites.length);
+    console.log("state nb sites :", state.sites.length);
 
     if (
       state.searchValue === "" &&
       state.openshiftEnv === "no-filter" &&
       state.theme === "no-filter" &&
+      state.languagesFilter === false &&
       props.sites != state.sites
     ) {
       // Set state with props
@@ -123,15 +124,17 @@ class List extends Component {
     });
   };
 
-  search = (event) => {
-    console.log(this.refs.openshiftEnv.value);
-    console.log(this.refs.theme.value);
-    console.log(this.refs.keyword.value);
+  isChecked = (langIsChecked) => {
+    let find = false;
+    this.state.languages.forEach(lang => {
+      if (lang === langIsChecked.name) {
+        find = true
+      }
+    })
+    return find;
+  }
 
-    const openshiftEnv = this.refs.openshiftEnv.value;
-    const theme = this.refs.theme.value;
-    const keyword = this.refs.keyword.value;
-
+  _createFilters = (keyword, languages, openshiftEnv, theme) => {
     let filters = {};
 
     if (keyword !== "") {
@@ -144,16 +147,43 @@ class List extends Component {
     if (theme !== "no-filter") {
       filters.theme = theme;
     }
+    if (languages.length > 0) {
+      filters.languages = { $all: languages };
+    }
+    return filters;
+  }
 
+
+  search = () => {
+
+    const openshiftEnv = this.refs.openshiftEnv.value;
+    const theme = this.refs.theme.value;
+    const keyword = this.refs.keyword.value;
+
+    let languages = [];
+    for (const property in this.refs) {
+      if (property.startsWith('lang')) {
+        if (this.refs[property].checked) {
+          languages.push(this.refs[property].name);
+        }
+      }
+    }
+
+    const filters = this._createFilters(keyword, languages, openshiftEnv, theme);
     const sites = Sites.find(filters).fetch();
 
-    console.log(sites.length);
+    let languagesFilter = true;
+    if (languages.length === 0) {
+      languagesFilter = false;
+    }
 
     this.setState({
       searchValue: keyword,
       openshiftEnv: openshiftEnv,
       theme: theme,
       sites: sites,
+      languages: languages,
+      languagesFilter: languagesFilter,
     });
   };
 
@@ -244,6 +274,43 @@ class List extends Component {
     if (this.props.loading) {
       return <Loading />;
     } else {
+      const languages = [
+        {
+          name: "fr",
+          key: "langFr",
+          label: "Français",
+        },
+        {
+          name: "en",
+          key: "langEn",
+          label: "Anglais",
+        },
+        {
+          name: "de",
+          key: "langDe",
+          label: "Allemand",
+        },
+        {
+          name: "it",
+          key: "langIt",
+          label: "Italien",
+        },
+        {
+          name: "es",
+          key: "langEs",
+          label: "Espagnol",
+        },
+        {
+          name: "gr",
+          key: "langGr",
+          label: "Grec",
+        },
+        {
+          name: "ro",
+          key: "langRo",
+          label: "Roumain",
+        },
+      ];
       content = (
         <Fragment>
           <h4 className="py-3 float-left">
@@ -254,31 +321,36 @@ class List extends Component {
               Exporter CSV
             </button>
           </div>
-          <form className="form-inline" onSubmit={this.onSubmit} style={ { marginTop: "40px", marginBottom: "20px"} }>
+          <form
+            className="form-inline"
+            onSubmit={this.onSubmit}
+            style={{ marginTop: "40px", marginBottom: "20px" }}
+          >
             <div className="input-group md-form form-sm form-2 pl-0">
               <input
                 ref="keyword"
                 type="search"
-<<<<<<< HEAD
                 className="form-control my-0 py-1 block"
-                style={ { width:"500px", height: "38px" } }
-=======
+                style={{ width: "500px", height: "38px" }}
                 className="form-control my-0 py-1"
->>>>>>> master
                 value={this.state.searchValue}
                 onChange={this.search}
                 placeholder="Filter par mot-clé"
               />
             </div>
-            <div className="form-group" >
+            <div className="form-group">
               <select
                 ref="openshiftEnv"
                 name="openshiftEnv"
                 className="form-control mt-0"
-                style={ { width:"300px" } }
+                style={{ width: "300px" }}
                 onChange={this.search}
               >
-                <option key="0" value="no-filter" label="pas de filtre par env openshift">
+                <option
+                  key="0"
+                  value="no-filter"
+                  label="pas de filtre par env openshift"
+                >
                   No Filter
                 </option>
                 {this.props.openshiftEnvs.map((openshiftEnv, index) => (
@@ -295,10 +367,14 @@ class List extends Component {
                 ref="theme"
                 name="theme"
                 className="form-control mt-0"
-                style={ { width:"300px" } }
+                style={{ width: "300px" }}
                 onChange={this.search}
               >
-                <option key="0" value="no-filter" label="pas de filtre par thème">
+                <option
+                  key="0"
+                  value="no-filter"
+                  label="pas de filtre par thème"
+                >
                   No Filter
                 </option>
                 {this.props.themes.map((theme, index) => (
@@ -307,13 +383,19 @@ class List extends Component {
                   </option>
                 ))}
               </select>
+              {languages.map((lang) => (
+                <label key={lang.key} >
+                  {lang.name}
+                  <Checkbox ref={lang.key} name={lang.name} checked={ this.isChecked(lang) } onChange={this.search} />
+                </label>
+              ))}
             </div>
           </form>
           <table className="table table-striped">
             <thead>
               <tr>
                 <th className="w-5" scope="col">
-                  #
+                  # {this.state.sites.length }
                 </th>
                 <th className="w-25" scope="col">
                   URL
