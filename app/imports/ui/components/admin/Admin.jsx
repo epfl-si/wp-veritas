@@ -1,6 +1,7 @@
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
+import PopOver from "../popover/PopOver";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Categories, OpenshiftEnvs, Themes } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
@@ -130,7 +131,17 @@ const OpenShiftEnvsForm = (props) => (
 
 const OpenshiftEnvsList = (props) => (
   <Fragment>
-    <h5 className="card-header">Liste des environnements openshift</h5>
+    <h5 className="card-header">
+      Liste des environnements openshift
+      <PopOver
+        title="Environnements Openshift"
+        placement="bottom"
+        description="Les environnements OpenShift permettent de définir sur quelles machines
+                     virtuelles seront déployés les site. Certaines conditions doivent être remplies, 
+                     comme par exemple un site dans l'environnement `inside` doit avoir l'url
+                     inside.epfl.ch."
+      />
+    </h5>
     <ul className="list-group">
       {props.openshiftenvs.map((env, index) => (
         <li key={env._id} value={env.name} className="list-group-item">
