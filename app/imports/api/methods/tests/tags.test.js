@@ -31,9 +31,9 @@ if (Meteor.isServer) {
 
       let nb = Tags.find({}).count();
       let tag = Tags.findOne({ name_en: "Algebra" });
-
+    
       // Create site with this tag
-      createSite(userId, [tag], []);
+      createSite(userId, [], [tag], []);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tag.name_fr, "Algèbre");

@@ -62,8 +62,11 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
+<<<<<<< HEAD
       openshiftEnv: "no-filter",
       theme: "no-filter",
+=======
+>>>>>>> master
       sites: props.sites,
     };
   }
@@ -158,6 +161,10 @@ class List extends Component {
     let sites = Sites.find({}).fetch();
 
     sites.forEach(function (site) {
+      site.categories = site.categories
+        .map((category) => category.name)
+        .join(",");
+
       let facutyTags = "";
       let instituteTags = "";
       let clusterTags = "";
@@ -209,6 +216,7 @@ class List extends Component {
         "tagline",
         "openshiftEnv",
         "category",
+        "categories",
         "theme",
         "faculty",
         "languages",
@@ -251,8 +259,12 @@ class List extends Component {
               <input
                 ref="keyword"
                 type="search"
+<<<<<<< HEAD
                 className="form-control my-0 py-1 block"
                 style={ { width:"500px", height: "38px" } }
+=======
+                className="form-control my-0 py-1"
+>>>>>>> master
                 value={this.state.searchValue}
                 onChange={this.search}
                 placeholder="Filter par mot-clé"
