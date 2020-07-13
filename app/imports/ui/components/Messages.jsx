@@ -45,5 +45,3 @@ export const DangerMessage = (props) => (
     </button>
   </div>
 );
-
-export const Loading = () => <h1>Loading...</h1>;

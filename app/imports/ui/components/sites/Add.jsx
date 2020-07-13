@@ -5,7 +5,6 @@ import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collectio
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
 import { Loading, AlertSiteSuccess } from '../Messages';
 import Select from "react-select";
-import { Loading } from '../Messages';
 
 class Add extends Component {
 
