@@ -99,9 +99,9 @@ function prepareUpdateInsert(site, action) {
 
 const validateConsistencyOfFields = (newSite) => {
   // Check if inside site datas are OK
-  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.category === 'Inside') {
-    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.category === 'Inside')) {
-      throwMeteorErrors(["url", "category", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
+  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.categories.find(category => category.name === 'Inside')) {
+    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.categories.find(category => category.name === 'Inside'))) {
+      throwMeteorErrors(["url", "categories", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
     }
   }
 
@@ -143,6 +143,7 @@ const insertSite = new VeritasValidatedMethod({
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
       category: newSite.category,
+      categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
       unitId: newSite.unitId,
@@ -208,6 +209,7 @@ const updateSite = new VeritasValidatedMethod({
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
       category: newSite.category,
+      categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
       unitId: newSite.unitId,

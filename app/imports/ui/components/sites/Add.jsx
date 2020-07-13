@@ -3,12 +3,14 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
+import Select from "react-select";
 import { Loading } from '../Messages';
+
 class Add extends Component {
 
   constructor(props){
     super(props);
-    
+
     let action;
     let unitName = '';
     if (this.props.match.path.startsWith('/edit')) {
@@ -24,7 +26,8 @@ class Add extends Component {
       action: action,
       addSuccess: false,
       editSuccess: false,
-      unitName: unitName,
+      saveSuccess: false,
+      unitName: unitName
     }
   }
 
@@ -35,6 +38,7 @@ class Add extends Component {
       values.theme = "";
       values.unitId = "";
       values.languages = [];
+      values.categories = [];
     } else {
       values.openshiftEnv = "www";
       values.category = "GeneralPublic";
@@ -44,6 +48,10 @@ class Add extends Component {
 
   updateUserMsg = () => {
     this.setState({addSuccess: false, editSuccess: false});
+  }
+
+  updateSaveSuccess = (newValue) => {
+    this.setState({ saveSuccess: newValue });
   }
 
   submit = (values, actions) => {
@@ -56,6 +64,9 @@ class Add extends Component {
       state = {addSuccess: true, editSuccess: false, action: 'add'};
     } else if (this.state.action === 'edit') {
       methodName = 'updateSite';
+      if (values.categories === null) {
+        values.categories = [];
+      }
       state = {addSuccess: false, editSuccess: true, action: 'edit'};
     }
 
@@ -93,8 +104,9 @@ class Add extends Component {
         tagline: '', 
         title: '', 
         openshiftEnv: 'www', 
-        theme:'wp-theme-2018',
-        category:'GeneralPublic',
+        theme: 'wp-theme-2018',
+        category: 'GeneralPublic',
+        categories: [],
         languages: [], 
         unitId: '', 
         snowNumber: '',
@@ -172,6 +184,10 @@ class Add extends Component {
                 handleBlur,
                 isSubmitting,
                 values,
+                touched,
+                errors,
+                setFieldValue,
+                setFieldTouched
             }) => (
               
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
@@ -219,7 +235,7 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
-                
+                {/*
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}}
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}}
@@ -236,6 +252,23 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="category" component={ CustomError } />
+                  */}
+                <div className="form-group">
+                Catégories
+                <MyCategorySelect
+                  id="categories"
+                  value={values.categories}
+                  onChange={setFieldValue}
+                  onBlur={setFieldTouched}
+                  error={errors.categories}
+                  touched={touched.categories}
+                  options={this.props.categories}
+                  saveSuccess={this.updateSaveSuccess}
+                  placeholder="Sélectionner les catégories"
+                  name="categories"
+                  isDisabled={values.wpInfra === false}
+                />
+                </div>
 
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
@@ -389,3 +422,54 @@ export default withTracker((props) => {
     };
   }
 })(Add);
+
+
+
+class MyCategorySelect extends React.Component {
+  handleChange = (value) => {
+    console.log(value)
+    // this is going to call setFieldValue and manually update values.topcis
+    this.props.onChange(this.props.name, value);
+    this.props.saveSuccess(!this.props.saveSuccess);
+  };
+
+  handleBlur = () => {
+    // this is going to call setFieldTouched and manually update touched.topcis
+    this.props.onBlur(this.props.name, true);
+    this.props.saveSuccess(!this.props.saveSuccess);
+  };
+
+  render() {
+    let content;
+
+    content = (
+      <div className="multiCategoriesSelectContainer" style={{ margin: "1rem 0" }}>
+        <Select
+          isMulti
+          onChange={this.handleChange}
+          onBlur={this.handleBlur}
+          value={this.props.value}
+          options={this.props.options}
+          getOptionLabel={(option) => option.name}
+          getOptionValue={(option) => option._id}
+          placeholder={this.props.placeholder}
+          isDisabled={this.props.isDisabled}
+          styles={{
+            control: styles => ({
+              ...styles,
+              borderColor: this.props.error ? 'red' : styles.borderColor
+            })
+          }}
+          className="multiCategoriesSelect"
+        />
+        {!!this.props.error && (
+          <div style={{ color: "red", marginTop: ".5rem" }}>
+            {this.props.error}
+          </div>
+        )}
+      </div>
+    );
+
+    return content;
+  }
+}

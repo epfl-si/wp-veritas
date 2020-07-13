@@ -27,7 +27,7 @@ function getSitesByProfessor(professor) {
   return sitesByProfessor;
 }
 
-function createSite(userId, tags, professors) {
+function createSite(userId, categories, tags, professors) {
   const context = { userId };
   const args = {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
@@ -35,6 +35,7 @@ function createSite(userId, tags, professors) {
     title: "Ma meilleure découverte 2019",
     openshiftEnv: "www",
     category: "GeneralPublic",
+    categories: categories,
     theme: "wp-theme-2018",
     languages: ["en", "fr"],
     unitId: "13030",
@@ -52,8 +53,4 @@ function createSite(userId, tags, professors) {
   insertSite._execute(context, args);
 }
 
-export {
-  getSitesByTag,
-  getSitesByProfessor,
-  createSite
-}
+export { getSitesByTag, getSitesByProfessor, createSite };
