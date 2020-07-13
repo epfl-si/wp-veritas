@@ -168,7 +168,7 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
 
-    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #epfl-site-created');
+    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated');
 
     return newSite;
   },
@@ -258,7 +258,7 @@ const removeSite = new VeritasValidatedMethod({
       this.userId
     );
 
-    Telegram.sendMessage('⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #epfl-site-deleted');
+    Telegram.sendMessage('⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted');
   },
 });
 
