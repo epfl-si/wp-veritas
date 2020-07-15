@@ -43,7 +43,24 @@ export const sitesSchema = new SimpleSchema({
       optional: false,
       max: 100,
       min: 3,
-  }, 
+  },
+  categories: {
+    type: Array,
+    label: "Categories",
+    optional: false
+  },
+  'categories.$': {
+    type: Object,
+    optional: true
+  },
+  'categories.$._id': {
+    type: String,
+    optional: true
+  },
+  'categories.$.name': {
+    type: String,
+    optional: true
+  },
   theme: {
       type: String,
       label: "Thème",

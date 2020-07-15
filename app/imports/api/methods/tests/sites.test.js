@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Sites, Tags } from "../../collections";
+import { Sites, Tags, Categories } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { resetDatabase } from "meteor/xolvio:cleaner";
@@ -7,8 +7,9 @@ import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
 
 function createTag(userId, args) {
-  const context = { userId }
-  insertTag._execute(context, args);
+  const context = { userId };
+  idTag = insertTag._execute(context, args);
+  return Tags.findOne({_id: idTag});
 }
 
 if (Meteor.isServer) {
@@ -16,12 +17,18 @@ if (Meteor.isServer) {
     before(function () {
       resetDatabase();
       loadFixtures();
+      Categories.insert({
+        name: "Inside",
+      });
+      Categories.insert({
+        name: "Restauration",
+      });
     });
 
     it("insert site", () => {
       let userId = createUser();
 
-      const args1 = { 
+      const tagArgs1 = {
         name_fr: "Beaujolais",
         name_en: "Beaujolais",
         url_fr: "https://fr.wikipedia.org/wiki/Beaujolais",
@@ -29,7 +36,7 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      const args2 = { 
+      const tagArgs2 = {
         name_fr: "Vin nature",
         name_en: "Nature wine",
         url_fr: "https://fr.wikipedia.org/wiki/Vin_naturel",
@@ -37,8 +44,11 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      let tag1 = createTag(userId, args1);
-      let tag2 = createTag(userId, args2);
+      let tag1 = createTag(userId, tagArgs1);
+      let tag2 = createTag(userId, tagArgs2);
+
+      console.log(tag1);
+      console.log(tag2);
 
       let tagsNumber = Tags.find({}).count();
       assert.strictEqual(tagsNumber, 2);
@@ -53,6 +63,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
+        categories: Categories.find({ name: "Restauration" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -68,10 +79,15 @@ if (Meteor.isServer) {
         wpInfra: true,
       };
 
+      console.log(args);
+
       insertSite._execute(context, args);
 
       let sitesNumber = Sites.find({}).count();
       let site = Sites.findOne({ url: url });
+
+      assert.strictEqual(site.categories.length, 1);
+      assert.strictEqual(site.categories[0].name, "Restauration");
 
       assert.strictEqual(sitesNumber, 1);
       assert.strictEqual(site.title, title);
@@ -91,6 +107,7 @@ if (Meteor.isServer) {
         title: title,
         openshiftEnv: "www",
         category: "GeneralPublic",
+        categories: Categories.find({ name: "Restauration" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -114,6 +131,9 @@ if (Meteor.isServer) {
       assert.strictEqual(nb, 1);
       assert.strictEqual(siteAfterUpdate.tagline, "Yvon Métras");
       assert.strictEqual(siteAfterUpdate.title, title);
+
+      assert.strictEqual(site.categories.length, 1);
+      assert.strictEqual(site.categories[0].name, "Restauration");
     });
 
     it("remove site", () => {

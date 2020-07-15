@@ -2,7 +2,7 @@ import SimpleSchema from "simpl-schema";
 import { Sites, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
-import { throwMeteorErrors, throwMeteorError } from "../error";
+import { throwMeteorError, throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
@@ -100,9 +100,9 @@ function prepareUpdateInsert(site, action) {
 
 const validateConsistencyOfFields = (newSite) => {
   // Check if inside site datas are OK
-  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.category === 'Inside') {
-    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.category === 'Inside')) {
-      throwMeteorErrors(["url", "category", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
+  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.categories.find(category => category.name === 'Inside')) {
+    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.categories.find(category => category.name === 'Inside'))) {
+      throwMeteorErrors(["url", "categories", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
     }
   }
 
@@ -144,6 +144,7 @@ const insertSite = new VeritasValidatedMethod({
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
       category: newSite.category,
+      categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
       unitId: newSite.unitId,
@@ -168,9 +169,10 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
 
-    Telegram.sendMessage('👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated');
+    const message = '👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+    Telegram.sendMessage(message);
 
-    return newSite;
+    return newSiteAfterInsert;
   },
 });
 
@@ -211,6 +213,7 @@ const updateSite = new VeritasValidatedMethod({
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
       category: newSite.category,
+      categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
       unitId: newSite.unitId,
@@ -257,8 +260,9 @@ const removeSite = new VeritasValidatedMethod({
       { before: site, after: "" },
       this.userId
     );
-
-    Telegram.sendMessage('⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted');
+    
+    const message = '⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+    Telegram.sendMessage(message);
   },
 });
 

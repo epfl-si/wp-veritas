@@ -48,21 +48,21 @@ Dès lors, un site pourra avoir de 1 à N catégories.
 ## À faire
 
    - [x] Modifier la UI de wp-veritas (CRUD)
-       - [ ] Creation
+       - [x] Creation
           - [x] Modifier la page de création de site.
-       - [ ] Read
+       - [x] Read
           - [x] Griser la sélection de catégories lors que le schéma n'est pas VPSiens.
-       - [ ] Update
-          - [ ] Meteor methods: s'assurer de la mise à jour, dans les sites, d'une modfication d'un nom de catégorie.
-       - [ ] Delete 
-          - [x] Meteor methods: s'assurer que la suppression d'une catgéorie est gérée.
-   - [ ] Modifier l'export en CSV
-   - [ ] Modifier les tests de wp-veritas
-   - [ ] Modifier l'API de wp-veritas (à priori rien à faire si la DB change)
-   - [ ] Importer la catégorie de la version initiale dans les catégories.
+       - [x] Delete 
+          - [x] Meteor methods: s'assurer que la suppression d'une catégorie est gérée.
+   - [x] Modifier l'export en CSV
+   - [x] Modifier les tests de wp-veritas
+   - [x] Modifier l'API de wp-veritas (à priori rien à faire si la DB change)
+   - [x] Importer la catégorie de la version initiale dans les catégories.
+   - [ ] GeneralPublic valeur par défaut ?
    - [ ] Modifier `jahia2wp`
    - [ ] Modifier `ansible`
    - [ ] Tester
+   - [ ] Penser à supprimer l'ancien champ category dans la collection site.
 
 
 <!--
