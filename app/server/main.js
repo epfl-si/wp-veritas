@@ -54,5 +54,7 @@ if (Meteor.isServer) {
     import "./cron";
 
     SyncedCron.start();
+
+    console.log(process.env);
   });
 }
