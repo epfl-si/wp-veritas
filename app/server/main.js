@@ -29,7 +29,7 @@ if (Meteor.isServer) {
       helmet.contentSecurityPolicy({
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           connectSrc: ["*"],
           imgSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
