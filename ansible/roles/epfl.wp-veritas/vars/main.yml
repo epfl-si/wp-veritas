@@ -13,3 +13,5 @@ wp_veritas_db_user: wp-veritas
 wp_veritas_db_password: "{{ lookup('env','WP_VERITAS_DB_PASSWORD_PROD') if openshift_namespace == 'wwp' else lookup('env','WP_VERITAS_DB_PASSWORD_TEST') }}"
 meteor_settings_env: " {{ lookup('env','METEOR_SETTINGS') }}"
 db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
+wp_veritas_bot_token: "{{ lookup('env', 'WP_VERITAS_BOT_TOKEN') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_BOT_TOKEN_TEST') }}"
+wp_veritas_alerts_telegram_ids: "{{ lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST') }}"
