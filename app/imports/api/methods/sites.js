@@ -168,8 +168,9 @@ const insertSite = new VeritasValidatedMethod({
       { before: "", after: newSiteAfterInsert },
       this.userId
     );
-
-    const message = '👀 Pssst! ' + Meteor.user().username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+    
+    const user = Meteor.users.findOne({ _id: this.userId });    
+    const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
     Telegram.sendMessage(message);
 
     return newSiteAfterInsert;
@@ -261,7 +262,8 @@ const removeSite = new VeritasValidatedMethod({
       this.userId
     );
     
-    const message = '⚠️ Heads up! ' + Meteor.user().username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+    const user = Meteor.users.findOne({ _id: this.userId });
+    const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
     Telegram.sendMessage(message);
   },
 });

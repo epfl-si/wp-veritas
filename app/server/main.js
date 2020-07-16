@@ -55,6 +55,9 @@ if (Meteor.isServer) {
 
     SyncedCron.start();
 
-    console.log(process.env);
+    console.log("WP_VERITAS_BOT_TOKEN: ", process.env.WP_VERITAS_BOT_TOKEN);
+    console.log("WP_VERITAS_BOT_TOKEN_TEST: ", process.env.WP_VERITAS_BOT_TOKEN_TEST);
+    console.log("WP_VERITAS_ALERTS_TELEGRAM_IDS: ", process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS);
+    console.log("WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST: ", process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST);
   });
 }

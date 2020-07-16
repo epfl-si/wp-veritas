@@ -79,8 +79,6 @@ if (Meteor.isServer) {
         wpInfra: true,
       };
 
-      console.log(args);
-
       insertSite._execute(context, args);
 
       let sitesNumber = Sites.find({}).count();
