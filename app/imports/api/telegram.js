@@ -21,28 +21,26 @@ class Telegram {
   static WP_VERITAS_ALERTS_TELEGRAM_IDS = process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS || '';
 
   static sendMessage(message) {
-    if (process.env.ROOT_URL.includes('wp-veritas.epfl.ch')) {
-      if (Telegram.WP_VERITAS_BOT_TOKEN && Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS ) {
-        // Be sure to URL encode the content of the message
-        let urlEncodedMessage = encodeURIComponent(message);
-        // For each recipients, send the message.
-        // Note: they will only receive the messsage if they have alreay chatted 
-        // with the bot, otherwise the bot won't be able to send message.
-        Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS.split(',').forEach((id) => {
-          let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}`;
-          https.get(url, (res) => {
-            // TODO: there's no need for noise here, check the status code
-            //       and only output something if needed
-            // console.log('statusCode:', res.statusCode);
-            // console.log('headers:', res.headers);
-            res.on('data', (d) => {
-              process.stdout.write(d);
-            });
-          }).on('error', (e) => {
-            console.error(e);
+    if (Telegram.WP_VERITAS_BOT_TOKEN && Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS ) {
+      // Be sure to URL encode the content of the message
+      let urlEncodedMessage = encodeURIComponent(message);
+      // For each recipients, send the message.
+      // Note: they will only receive the messsage if they have alreay chatted 
+      // with the bot, otherwise the bot won't be able to send message.
+      Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS.split(',').forEach((id) => {
+        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}`;
+        https.get(url, (res) => {
+          // TODO: there's no need for noise here, check the status code
+          //       and only output something if needed
+          // console.log('statusCode:', res.statusCode);
+          // console.log('headers:', res.headers);
+          res.on('data', (d) => {
+            process.stdout.write(d);
           });
-        })
-      }
+        }).on('error', (e) => {
+          console.error(e);
+        });
+      })
     }
   }
 }
