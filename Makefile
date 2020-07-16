@@ -4,12 +4,13 @@ VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_ver
 .PHONY: help
 help:
 	@echo "make help:            Help"
+	@echo "make version:         Get the number version of wp-veritas"
 	@echo "make publish:         To build, tag and push new Image"
 	@echo "make deploy-test:     To deploy on test environment"
 	@echo "make deploy-prod:     To deploy on prod environment"
 
-.PHONY: test
-test:
+.PHONY: version
+version:
 	@echo $(VERSION)
 
 .PHONY: build
