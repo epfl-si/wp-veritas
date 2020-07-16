@@ -68,8 +68,6 @@ class Telegram {
             console.error(e);
           });
       });
-    } else {
-      console.log("GREEEEGGGGGG ! ");
     }
   }
 }
