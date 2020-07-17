@@ -44,3 +44,4 @@ mdg:validated-method
 meteortesting:mocha        # Test
 lmieulet:meteor-coverage   # Test
 xolvio:cleaner             # Test clean database
+service-configuration
