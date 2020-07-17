@@ -17,28 +17,8 @@ const https = require("https");
 import { getEnvironment } from "../api/utils";
 
 class Telegram {
-  static WP_VERITAS_BOT_TOKEN = Telegram.getToken();
-  static WP_VERITAS_ALERTS_TELEGRAM_IDS = Telegram.getAlertsTelegramIds();
-
-  static getToken() {
-    const environment = getEnvironment();
-    console.log(environment);
-    if (environment === "PROD") {
-      return process.env.WP_VERITAS_BOT_TOKEN || "";
-    } else {
-      return process.env.WP_VERITAS_BOT_TOKEN_TEST || "";
-    }
-  }
-
-  static getAlertsTelegramIds() {
-    const environment = getEnvironment();
-    console.log(environment);
-    if (environment === "PROD") {
-      return process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS || "";
-    } else {
-      return process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST || "";
-    }
-  }
+  static WP_VERITAS_BOT_TOKEN = process.env.WP_VERITAS_BOT_TOKEN || "";
+  static WP_VERITAS_ALERTS_TELEGRAM_IDS = process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS || "";
 
   static sendMessage(message) {
     if (
