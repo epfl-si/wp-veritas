@@ -36,7 +36,7 @@ Se positionner dans le répertoire app/ et lancer la commande :
 
 `cd app/`
 
-`meteor --settings meteor-settings.json`
+`env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json`
 
 Ensuite aller à l'adresse http://localhost:3000
 
