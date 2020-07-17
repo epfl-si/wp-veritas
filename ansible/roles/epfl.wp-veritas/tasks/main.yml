@@ -43,9 +43,19 @@
                     value: 'https://{{ wp_veritas_cname }}'
                   - name: METEOR_SETTINGS
                     valueFrom:
-                       secretKeyRef:
+                      secretKeyRef:
                         name: '{{ wp_veritas_secret_name }}'
                         key: meteor-settings
+                  - name: WP_VERITAS_BOT_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: '{{ wp_veritas_secret_name }}'
+                        key: bot-token
+                  - name: WP_VERITAS_ALERTS_TELEGRAM_IDS
+                    valueFrom:
+                      secretKeyRef:
+                        name: '{{ wp_veritas_secret_name }}'
+                        key: alert-telegram-ids
                 image: "{{ wp_veritas_image_tag }}"
                 imagePullPolicy: Always
                 name: pod-wp-veritas

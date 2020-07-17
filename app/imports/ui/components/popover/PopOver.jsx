@@ -5,7 +5,10 @@
  */
 import React, { useState } from 'react';
 import { Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import infoImg from './icons8info.svg';
+
+// TODO: This SVG not works in test infra. Convert SVG to correct JSX ?
+//import infoImg from './icons8info.svg';
+import infoImg from '../header/Logo_EPFL.svg';
 
 const PopOver = (props) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
