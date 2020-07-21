@@ -13,17 +13,28 @@ let Api = new Restivus({
   version: "v1",
 });
 
+const isIterable = (obj) => {
+  // checks for null and undefined
+  if (obj == null) {
+    return false;
+  }
+  return typeof obj[Symbol.iterator] === "function";
+};
 
 const formatSiteCategories = (sites) => {
-  for (let site of sites) {
-    if (site.categories) {
-      site.categories = site.categories.map(
-        (category) => category.name
-      );
+  if (isIterable(sites)) {
+    for (let site of sites) {
+      if (site.categories) {
+        site.categories = site.categories.map((category) => category.name);
+      }
+    }
+  } else {
+    if (sites.categories) {
+      sites.categories = sites.categories.map((category) => category.name);
     }
   }
   return sites;
-}
+};
 
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
