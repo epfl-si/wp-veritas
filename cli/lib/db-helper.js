@@ -91,6 +91,22 @@ module.exports.insertOneSite = async function (
 };
 
 /**
+ * Get category
+ */
+module.exports.getCategory = async function (
+  connectionString,
+  target,
+  categoryName
+) {
+  const client = await createClient(connectionString);
+  const db = getDB(target, client);
+  let category = await db.collection("categories").find({"name": categoryName}).toArray();
+  client.close();
+  return category;
+};
+
+
+/**
  * Delete all documents of collection.
  *
  * We remove all documents only of source DB (i.e. localhost DB or test DB)
