@@ -303,4 +303,27 @@ Api.addRoute(
   }
 );
 
+// Maps to: /api/v1/categories/:name/sites
+Api.addRoute(
+  "categories/:name/sites",
+  { authRequired: false },
+  {
+    get: function () {
+      let categoryName;
+      try {
+        categoryName = Categories.findOne({ name: this.urlParams.name }).name;
+      } catch (error) {
+        console.log(error);
+        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return APIError("Not found", msg);
+      }
+      return formatSiteCategories(
+        Sites.find({
+          categories: { $elemMatch: { name: categoryName } },
+        }).fetch()
+      );
+    },
+  }
+);
+
 export default Api;
