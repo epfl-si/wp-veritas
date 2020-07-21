@@ -1,10 +1,11 @@
+SHELL := bash
 VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_veritas_image_version: | cut -d' ' -f2 | tr -d \')
-
 
 .PHONY: help
 help:
 	@echo "make help:            Help"
 	@echo "make version:         Get the version number of wp-veritas"
+	@echo "make apidoc:          Refresh API documentation"
 	@echo "make publish:         To build, tag and push new Image"
 	@echo "make deploy-test:     To deploy on test environment"
 	@echo "make deploy-prod:     To deploy on prod environment"
@@ -12,6 +13,17 @@ help:
 .PHONY: version
 version:
 	@echo $(VERSION)
+
+.PHONY: apidoc
+apidoc:
+	@echo Running: npx apidoc -i $$(pwd)/app/server/ -o $$(pwd)/app/apidoc/ -c $$(pwd)/app/
+	@npx apidoc -i $$(pwd)/app/server/ -o $$(pwd)/app/apidoc/ -c $$(pwd)/app/
+	@read -p "Want to see the API Doc? [Yy]: " -n 1 -r; \
+	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
+		exit; \
+	else \
+		xdg-open $$(pwd)/app/apidoc/index.html; \
+	fi
 
 .PHONY: build
 build:

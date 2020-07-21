@@ -47,6 +47,26 @@ const formatSiteCategories = (sites) => {
   return sites;
 };
 
+/**
+ * @api {get} /sites List all Sites
+ * @apiName Sites
+ * @apiGroup Site
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ *
+ * @apiError UserNotFound The id of the User was not found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "error": "UserNotFound"
+ *     }
+ */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
@@ -93,6 +113,31 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /sites/:id Request Site information
+ * @apiName Sites
+ * @apiGroup Site
+ *
+ * @apiParam {Number} id Site unique ID.
+ *
+ * @apiSuccess {String} firstname Firstname of the User.
+ * @apiSuccess {String} lastname  Lastname of the User.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "firstname": "John",
+ *       "lastname": "Doe"
+ *     }
+ *
+ * @apiError UserNotFound The id of the User was not found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "error": "UserNotFound"
+ *     }
+ */
 // Maps to: /api/v1/sites/:id
 Api.addRoute(
   "sites/:id",
