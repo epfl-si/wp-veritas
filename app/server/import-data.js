@@ -228,6 +228,24 @@ updateCategoryAdmin = () => {
   console.log("All sites with admin category are updated");
 };
 
+updateSitesWithoutProfessors = () => {
+  let sites = Sites.find().fetch();
+  console.log("Nb sites: ", sites.length);
+  let nb = 1;
+  sites.forEach((site) => {
+    if (!("professors" in site)) {
+      console.log("Site: ", site.url);
+      let siteDocument = {
+        professors: []
+      };
+      Sites.update({ _id: site._id }, { $set: siteDocument });
+      nb += 1;
+    }
+  });
+  console.log("Nb sites without professors: ", nb);
+  console.log("All sites are updated");
+}
+
 importData = () => {
   const absoluteUrl = Meteor.absoluteUrl();
   /*
@@ -237,8 +255,10 @@ importData = () => {
     loadTestData();
   }
   */
-  updateCategoryAdmin();
-  updateCategoriesFromCategory();
+  //updateCategoryAdmin();
+  //updateCategoriesFromCategory();
+
+  updateSitesWithoutProfessors();
 };
 
 export { importData };
