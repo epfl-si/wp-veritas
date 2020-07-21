@@ -49,7 +49,8 @@ const formatSiteCategories = (sites) => {
 
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
-// and to: /api/v1/sites?text=... to search a list of sites from a text with status "created" or "no-wordpress"
+// and to: /api/v1/sites?search_url=... to filter sites based on URL
+// and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
 Api.addRoute(
@@ -61,7 +62,15 @@ Api.addRoute(
       var query = this.queryParams;
 
       if (query && this.queryParams.site_url) {
-        return formatSiteCategories(Sites.findOne({ url: this.queryParams.site_url }));
+        return formatSiteCategories(
+          Sites.find({ url: this.queryParams.site_url }).fetch()
+        );
+      } else if (query && this.queryParams.search_url) {
+        return formatSiteCategories(
+          Sites.find({
+            url: { $regex: this.queryParams.search_url, $options: "-i" },
+          }).fetch()
+        );
       } else if (query && (this.queryParams.text || this.queryParams.tags)) {
         if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
           this.queryParams.tags = [this.queryParams.tags];
