@@ -13,6 +13,17 @@ let Api = new Restivus({
   version: "v1",
 });
 
+const APIError = (status, message, statusCode = 404) => {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Custom-Header": `${status}: ${message}`,
+    },
+    body: { status, message },
+  };
+};
+
 const isIterable = (obj) => {
   // checks for null and undefined
   if (obj == null) {
