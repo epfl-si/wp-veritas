@@ -81,6 +81,9 @@ module.exports.insertOneSite = async function (
   target,
   siteDocument
 ) {
+  // Generate a new id
+  let id = Math.random().toString(36).substring(2);
+  siteDocument["_id"] = id;
   const client = await createClient(connectionString);
   const db = getDB(target, client);
   await db.collection("sites").insertOne(siteDocument);
