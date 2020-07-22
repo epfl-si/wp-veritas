@@ -3,49 +3,12 @@ import {
   OpenshiftEnvs,
   Tags,
   Categories,
-} from "../imports/api/collections";
-import getUnits from "./units";
+} from "../../imports/api/collections";
 
-// Global API configuration
-let Api = new Restivus({
-  useDefaultAuth: true,
-  prettyJson: true,
-  version: "v1",
-});
+import getUnits from "../units";
 
-const APIError = (status, message, statusCode = 404) => {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Custom-Header": `${status}: ${message}`,
-    },
-    body: { status, message },
-  };
-};
-
-const isIterable = (obj) => {
-  // checks for null and undefined
-  if (obj == null) {
-    return false;
-  }
-  return typeof obj[Symbol.iterator] === "function";
-};
-
-const formatSiteCategories = (sites) => {
-  if (isIterable(sites)) {
-    for (let site of sites) {
-      if (site.categories) {
-        site.categories = site.categories.map((category) => category.name);
-      }
-    }
-  } else {
-    if (sites.categories) {
-      sites.categories = sites.categories.map((category) => category.name);
-    }
-  }
-  return sites;
-};
+import { Api, APIError, formatSiteCategories} from "./utils";
+import "./categories";
 
 /**
  * @api {get} /sites  Get all sites
@@ -501,7 +464,7 @@ Api.addRoute(
 /**
  * @api {get} /tags/:id  Get tag by ID
  * @apiGroup Tags
- * @apiName tags
+ * @apiName tags by ID
  *
  * @apiParam   {Number} id      Tag ID.
  *
@@ -612,102 +575,8 @@ Api.addRoute(
   }
 );
 
-/**
- * @api {get} /categories  Get all categories
- * @apiGroup Categories
- * @apiName categories
- */
-// Maps to: /api/v1/categories/
-Api.addRoute(
-  "categories",
-  { authRequired: false },
-  {
-    get: function () {
-      return Categories.find({}).fetch();
-    },
-  }
-);
 
-/**
- * @api {get} /categories/:name  Get category by name
- * @apiGroup Categories
- * @apiName category
- *
- * @apiParam   {String} name  Category name.
- *
- * @apiSuccess {String} _id   Category ID.
- * @apiSuccess {String} name  Category name fr.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *       "_id": "iygEnBWnFsc9yPcks",
- *       "name": "Inside"
- *     }
- *
- * @apiError CategoryNotFound Category with this name wasn't found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "message": "CategoryNotFound"
- *     }
- */
-// Maps to: /api/v1/categories/:name
-Api.addRoute(
-  "categories/:name",
-  { authRequired: false },
-  {
-    get: function () {
-      // @TODO: CategoryNotFound
-      return Categories.findOne({ name: this.urlParams.name });
-    },
-  }
-);
 
-/**
- * @api {get} /categories/:name/sites  Get sites by category name
- * @apiGroup Categories
- * @apiName sites
- *
- * @apiParam   {String} name  Category name.
- *
- * @apiSuccess {String} _id   Category ID.
- * @apiSuccess {String} name  Category name fr.
- *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     //TODO
- *
- * @apiError CategoryNotFound Category with this name wasn't found.
- *
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Not Found
- *     {
- *       "message": "CategoryNotFound"
- *     }
- */
-// Maps to: /api/v1/categories/:name/sites
-Api.addRoute(
-  "categories/:name/sites",
-  { authRequired: false },
-  {
-    get: function () {
-      let categoryName;
-      try {
-        categoryName = Categories.findOne({ name: this.urlParams.name }).name;
-      } catch (error) {
-        console.log(error);
-        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
-        return APIError("Not found", msg);
-      }
-      return formatSiteCategories(
-        Sites.find({
-          categories: { $elemMatch: { name: categoryName } },
-        }).fetch()
-      );
-    },
-  }
-);
+
 
 export default Api;

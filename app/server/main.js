@@ -50,7 +50,7 @@ if (Meteor.isServer) {
     if (!disableTequila) {
       import "./tequila-config";
     }
-    import "./rest-api";
+    import "./api/rest-api";
     import "./cron";
 
     SyncedCron.start();
