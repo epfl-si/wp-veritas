@@ -22,7 +22,7 @@ apidoc:
 	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
 		exit; \
 	else \
-		xdg-open $$(pwd)/app/apidoc/index.html; \
+		xdg-open $$(pwd)/app/public/api/index.html; \
 	fi
 
 .PHONY: build
