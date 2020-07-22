@@ -58,6 +58,10 @@ class Apps extends Component {
             ) : null}
             <Footer />
           </div>
+          // @TODO: refactor in a RedirectAPI.jsx component
+          <Route path="/api" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
+          <Route path="/api/v1" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
+          <Route path="/api/doc" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
         </Router>
       );
     }

@@ -16,8 +16,8 @@ version:
 
 .PHONY: apidoc
 apidoc:
-	@echo Running: npx apidoc -i $$(pwd)/app/server/ -o $$(pwd)/app/apidoc/ -c $$(pwd)/app/
-	@npx apidoc -i $$(pwd)/app/server/ -o $$(pwd)/app/apidoc/ -c $$(pwd)/app/
+	@echo Running: npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/
+	@npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/
 	@read -p "Want to see the API Doc? [Yy]: " -n 1 -r; \
 	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
 		exit; \
@@ -72,6 +72,7 @@ deploy-prod:
 
 .PHONY: publish
 publish:
+	$(MAKE) apidoc
 	$(MAKE) build
 	$(MAKE) tag
 	$(MAKE) push
