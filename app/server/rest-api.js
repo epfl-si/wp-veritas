@@ -60,11 +60,12 @@ Api.addRoute(
     get: function () {
       // is that a id request from an url ?
       var query = this.queryParams;
-
       if (query && this.queryParams.site_url) {
-        return formatSiteCategories(
-          Sites.find({ url: this.queryParams.site_url }).fetch()
-        );
+        let siteUrl = this.queryParams.site_url;
+        if (siteUrl.endsWith("/")) {
+          siteUrl = siteUrl.slice(0, -1);
+        }
+        return formatSiteCategories(Sites.findOne({ url: siteUrl }));
       } else if (query && this.queryParams.search_url) {
         return formatSiteCategories(
           Sites.find({
