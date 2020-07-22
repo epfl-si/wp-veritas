@@ -13,21 +13,44 @@ let Api = new Restivus({
   version: "v1",
 });
 
+const APIError = (status, message, statusCode = 404) => {
+  return {
+    statusCode,
+    headers: {
+      "Content-Type": "application/json",
+      "X-Custom-Header": `${status}: ${message}`,
+    },
+    body: { status, message },
+  };
+};
+
+const isIterable = (obj) => {
+  // checks for null and undefined
+  if (obj == null) {
+    return false;
+  }
+  return typeof obj[Symbol.iterator] === "function";
+};
 
 const formatSiteCategories = (sites) => {
-  for (let site of sites) {
-    if (site.categories) {
-      site.categories = site.categories.map(
-        (category) => category.name
-      );
+  if (isIterable(sites)) {
+    for (let site of sites) {
+      if (site.categories) {
+        site.categories = site.categories.map((category) => category.name);
+      }
+    }
+  } else {
+    if (sites.categories) {
+      sites.categories = sites.categories.map((category) => category.name);
     }
   }
   return sites;
-}
+};
 
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
-// and to: /api/v1/sites?text=... to search a list of sites from a text with status "created" or "no-wordpress"
+// and to: /api/v1/sites?search_url=... to filter sites based on URL
+// and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
 Api.addRoute(
@@ -37,9 +60,18 @@ Api.addRoute(
     get: function () {
       // is that a id request from an url ?
       var query = this.queryParams;
-
       if (query && this.queryParams.site_url) {
-        return formatSiteCategories(Sites.findOne({ url: this.queryParams.site_url }));
+        let siteUrl = this.queryParams.site_url;
+        if (siteUrl.endsWith("/")) {
+          siteUrl = siteUrl.slice(0, -1);
+        }
+        return formatSiteCategories(Sites.findOne({ url: siteUrl }));
+      } else if (query && this.queryParams.search_url) {
+        return formatSiteCategories(
+          Sites.find({
+            url: { $regex: this.queryParams.search_url, $options: "-i" },
+          }).fetch()
+        );
       } else if (query && (this.queryParams.text || this.queryParams.tags)) {
         if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
           this.queryParams.tags = [this.queryParams.tags];
@@ -277,6 +309,29 @@ Api.addRoute(
   {
     get: function () {
       return Categories.findOne({ name: this.urlParams.name });
+    },
+  }
+);
+
+// Maps to: /api/v1/categories/:name/sites
+Api.addRoute(
+  "categories/:name/sites",
+  { authRequired: false },
+  {
+    get: function () {
+      let categoryName;
+      try {
+        categoryName = Categories.findOne({ name: this.urlParams.name }).name;
+      } catch (error) {
+        console.log(error);
+        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return APIError("Not found", msg);
+      }
+      return formatSiteCategories(
+        Sites.find({
+          categories: { $elemMatch: { name: categoryName } },
+        }).fetch()
+      );
     },
   }
 );
