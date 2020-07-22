@@ -48,25 +48,66 @@ const formatSiteCategories = (sites) => {
 };
 
 /**
- * @api {get} /sites List all Sites
+ * @api {get} /sites  Get all sites
  * @apiName Sites
  * @apiGroup Site
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
- *     }
- *
- * @apiError UserNotFound The id of the User was not found.
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "f7CaxxouACbWiYjQY",
+ *         "url": "https://www.epfl.ch/campus/services/canari",
+ *         "slug": "",
+ *         "tagline": "Canari",
+ *         "title": "Test",
+ *         "openshiftEnv": "www",
+ *         "category": "GeneralPublic",
+ *         "theme": "wp-theme-2018",
+ *         "languages": [
+ *           "en",
+ *           "fr"
+ *         ],
+ *         "unitId": "13031",
+ *         "unitName": "idev-ing",
+ *         "unitNameLevel2": "si",
+ *         "snowNumber": "",
+ *         "comment": "Site canari pour tester l'image",
+ *         "createdDate": "2020-03-05T09:52:06.310Z",
+ *         "userExperience": false,
+ *         "tags": [],
+ *         "professors": [],
+ *         "wpInfra": true,
+ *         "userExperienceUniqueLabel": ""
+ *       },
+ *       ...,
+ *     ]
+ * @apiError SitesNotFound  No sites returned
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  *     {
- *       "error": "UserNotFound"
+ *       "message": "SitesNotFound"
  *     }
  */
+ /**
+  * @api {get}  /sites?site_url={param} Get a site by URL
+  * @apiName Sites
+  * @apiGroup Sites with params
+  * @apiParam {String} site_url Exact site URL
+  * @apiDescription Note: final slash will be trimmed
+  * @apiExample {http} Example usage:
+  *     /api/v1/sites?site_url=https://www.epfl.ch/canari
+  */
+ /**
+  * @api {get}  /sites?search_url={param} Get sites by URL pattern
+  * @apiName Sites
+  * @apiGroup Sites with params
+  * @apiParam {String} search_url Text pattern present in URL
+  * @apiExample {http} Example usage:
+  *     /api/v1/sites?search_url=canari
+  */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
@@ -114,28 +155,68 @@ Api.addRoute(
 );
 
 /**
- * @api {get} /sites/:id Request Site information
+ * @api {get} /sites/:id  Get site by ID
  * @apiName Sites
  * @apiGroup Site
  *
  * @apiParam {Number} id Site unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} _id                       Site unique ID.
+ * @apiSuccess {String} url                       Site URL.
+ * @apiSuccess {String} slug                      Site slug.
+ * @apiSuccess {String} tagline                   Site tagline.
+ * @apiSuccess {String} title                     Site title.
+ * @apiSuccess {String} openshiftEnv              Site openshiftEnv.
+ * @apiSuccess {String} category                  Site category. — DEPRECATED
+ * @apiSuccess {Array}  categories                Site categories.
+ * @apiSuccess {String} theme                     Site theme.
+ * @apiSuccess {Array}  languages                 Site languages.
+ * @apiSuccess {Array}  tags                      Site tags.
+ * @apiSuccess {Array}  professors                Site professors.
+ * @apiSuccess {String} unitId                    Site unitId.
+ * @apiSuccess {String} unitName                  Site unitName.
+ * @apiSuccess {String} unitNameLevel2            Site unitNameLevel2.
+ * @apiSuccess {String} snowNumber                Site snowNumber.
+ * @apiSuccess {String} comment                   Site comment.
+ * @apiSuccess {String} createdDate               Site createdDate.
+ * @apiSuccess {String} userExperience            Site userExperience.
+ * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
+ * @apiSuccess {String} wpInfra                   Site wpInfra.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
+ *       "_id": "f7CaxxouACbWiYjQY",
+ *       "url": "https://www.epfl.ch/campus/services/canari",
+ *       "slug": "",
+ *       "tagline": "Canari",
+ *       "title": "Test",
+ *       "openshiftEnv": "www",
+ *       "category": "GeneralPublic",
+ *       "theme": "wp-theme-2018",
+ *       "languages": [
+ *         "en",
+ *         "fr"
+ *       ],
+ *       "unitId": "13031",
+ *       "unitName": "idev-ing",
+ *       "unitNameLevel2": "si",
+ *       "snowNumber": "",
+ *       "comment": "Site canari pour tester l'image",
+ *       "createdDate": "2020-03-05T09:52:06.310Z",
+ *       "userExperience": false,
+ *       "tags": [],
+ *       "professors": [],
+ *       "wpInfra": true,
+ *       "userExperienceUniqueLabel": ""
  *     }
  *
- * @apiError UserNotFound The id of the User was not found.
+ * @apiError SiteNotFound Site with this ID wasn't found.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  *     {
- *       "error": "UserNotFound"
+ *       "message": "SiteNotFound"
  *     }
  */
 // Maps to: /api/v1/sites/:id
@@ -144,6 +225,7 @@ Api.addRoute(
   { authRequired: false },
   {
     get: function () {
+      // @TODO: error if ID Not Found
       return formatSiteCategories(Sites.findOne(this.urlParams.id));
     },
   }
