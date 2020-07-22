@@ -6,6 +6,7 @@ help:
 	@echo "make help:            Help"
 	@echo "make version:         Get the version number of wp-veritas"
 	@echo "make apidoc:          Refresh API documentation"
+	@echo "make test:            Run test suit"
 	@echo "make publish:         To build, tag and push new Image"
 	@echo "make deploy-test:     To deploy on test environment"
 	@echo "make deploy-prod:     To deploy on prod environment"
@@ -24,6 +25,10 @@ apidoc:
 	else \
 		xdg-open $$(pwd)/app/public/api/index.html; \
 	fi
+
+.PHONY: test
+test:
+	@cd app; npm test
 
 .PHONY: build
 build:
