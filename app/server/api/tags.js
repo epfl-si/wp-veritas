@@ -2,7 +2,7 @@ import { Sites, Tags } from "../../imports/api/collections";
 import { Api } from "./utils";
 
 /**
- * @api {get} /tags  Get all tags.
+ * @api {get} /tags  Get all tags
  * @apiGroup Tags
  */
 // Maps to: /api/v1/tags/
