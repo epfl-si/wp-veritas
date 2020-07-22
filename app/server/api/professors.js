@@ -1,8 +1,6 @@
-import {
-    Sites,
-  } from "../../imports/api/collections";
-  import { Api } from "./utils";
-  
+import { Sites } from "../../imports/api/collections";
+import { Api } from "./utils";
+
 /**
  * @api {get} /professors/:sciper/tags  Get all tags for a professor
  * @apiGroup Professors
@@ -41,20 +39,23 @@ import {
  * @apiSampleRequest https://wp-veritas.epfl.ch/api/v1/professors/229105/tags
  */
 Api.addRoute(
-    "professors/:sciper/tags",
-    { authRequired: false },
-    {
-      get: function () {
-        let sciper = this.urlParams.id;
-        let sites = Sites.find({ "professors.sciper": sciper }).fetch();
-        let tags = [];
-        sites.forEach((site) => {
-          if (site.tags.length > 0) {
-            // array merge
-            tags = [...new Set([...tags, ...site.tags])];
-          }
-        });
-        return tags;
-      },
-    }
-  );
+  "professors/:sciper/tags",
+  { authRequired: false },
+  {
+    // @TODO: See https://github.com/epfl-si/wp-veritas/issues/99
+    //        https://wp-veritas.epfl.ch/api/v1/professors/229105/tags vs https://wp-veritas.epfl.ch/api/v1/professors/toto/tags
+    //        Error management
+    get: function () {
+      let sciper = this.urlParams.id;
+      let sites = Sites.find({ "professors.sciper": sciper }).fetch();
+      let tags = [];
+      sites.forEach((site) => {
+        if (site.tags.length > 0) {
+          // array merge
+          tags = [...new Set([...tags, ...site.tags])];
+        }
+      });
+      return tags;
+    },
+  }
+);
