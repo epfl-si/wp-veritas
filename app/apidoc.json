@@ -1,6 +1,9 @@
 {
   "name": "wp-veritas API",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "wp-veritas API documentation",
-  "sampleURL": "https://wp-veritas.epfl.ch/api/v1/"
+  "sampleURL": "https://wp-veritas.epfl.ch/api/v1/",
+  "template": {
+    "withCompare": false
+  }
 }
