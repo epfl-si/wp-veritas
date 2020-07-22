@@ -9,6 +9,7 @@ import getUnits from "../units";
 
 import { Api, APIError, formatSiteCategories } from "./utils";
 import "./categories";
+import "./professors";
 
 /**
  * @api {get} /sites  Get all sites
@@ -532,31 +533,6 @@ Api.addRoute(
         professors: scipers,
       };
       return result;
-    },
-  }
-);
-
-/**
- * @api {get} /professors/:sciper/tags  Get all tags for a professor
- * @apiGroup Professors
- */
-// Maps to: /api/v1/professors/:sciper/tags
-// Example: Return all tags of this sciper :sciper
-Api.addRoute(
-  "professors/:sciper/tags",
-  { authRequired: false },
-  {
-    get: function () {
-      let sciper = this.urlParams.id;
-      let sites = Sites.find({ "professors.sciper": sciper }).fetch();
-      let tags = [];
-      sites.forEach((site) => {
-        if (site.tags.length > 0) {
-          // array merge
-          tags = [...new Set([...tags, ...site.tags])];
-        }
-      });
-      return tags;
     },
   }
 );
