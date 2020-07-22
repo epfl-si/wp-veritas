@@ -9,12 +9,12 @@ import { Api, APIError, formatSiteCategories } from "./utils";
  *
  *     HTTP/1.1 200 OK
  *     [
- *       ...
+ *       ...,
  *       {
  *         "_id": "iygEnBWnFsc9yPcks",
  *         "name": "Inside"
  *       },
- *       ...
+ *       ...,
  *     ]
  */
 Api.addRoute(
