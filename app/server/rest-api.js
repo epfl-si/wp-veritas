@@ -48,25 +48,67 @@ const formatSiteCategories = (sites) => {
 };
 
 /**
- * @api {get} /sites List all Sites
- * @apiName Sites
- * @apiGroup Site
+ * @api {get} /sites  Get all sites
+ * @apiGroup Sites
+ * @apiName sites
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
- *     }
- *
- * @apiError UserNotFound The id of the User was not found.
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "f7CaxxouACbWiYjQY",
+ *         "url": "https://www.epfl.ch/campus/services/canari",
+ *         "slug": "",
+ *         "tagline": "Canari",
+ *         "title": "Test",
+ *         "openshiftEnv": "www",
+ *         "category": "GeneralPublic",
+ *         "theme": "wp-theme-2018",
+ *         "languages": [
+ *           "en",
+ *           "fr"
+ *         ],
+ *         "unitId": "13031",
+ *         "unitName": "idev-ing",
+ *         "unitNameLevel2": "si",
+ *         "snowNumber": "",
+ *         "comment": "Site canari pour tester l'image",
+ *         "createdDate": "2020-03-05T09:52:06.310Z",
+ *         "userExperience": false,
+ *         "tags": [],
+ *         "professors": [],
+ *         "wpInfra": true,
+ *         "userExperienceUniqueLabel": ""
+ *       },
+ *       ...,
+ *     ]
+ * @apiError SitesNotFound  No sites returned
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  *     {
- *       "error": "UserNotFound"
+ *       "message": "SitesNotFound"
  *     }
+ *
  */
+ /**
+  * @api {get}  /sites?site_url={param} Get a site by URL
+  * @apiGroup Sites
+  * @apiName Sites with params
+  * @apiParam {String} site_url Exact site URL
+  * @apiDescription Note: final slash will be trimmed
+  * @apiExample {http} Example usage:
+  *     /api/v1/sites?site_url=https://www.epfl.ch/canari
+  */
+ /**
+  * @api {get}  /sites?search_url={param} Get sites by URL pattern
+  * @apiGroup Sites
+  * @apiName Sites with params
+  * @apiParam {String} search_url Text pattern present in URL
+  * @apiExample {http} Example usage:
+  *     /api/v1/sites?search_url=canari
+  */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
@@ -114,28 +156,68 @@ Api.addRoute(
 );
 
 /**
- * @api {get} /sites/:id Request Site information
- * @apiName Sites
- * @apiGroup Site
+ * @api {get} /sites/:id  Get site by ID
+ * @apiGroup Sites
+ * @apiName site
  *
- * @apiParam {Number} id Site unique ID.
+ * @apiParam   {Number} id                        Site unique ID.
  *
- * @apiSuccess {String} firstname Firstname of the User.
- * @apiSuccess {String} lastname  Lastname of the User.
+ * @apiSuccess {String} _id                       Site unique ID.
+ * @apiSuccess {String} url                       Site URL.
+ * @apiSuccess {String} slug                      Site slug.
+ * @apiSuccess {String} tagline                   Site tagline.
+ * @apiSuccess {String} title                     Site title.
+ * @apiSuccess {String} openshiftEnv              Site openshiftEnv.
+ * @apiSuccess {String} category                  Site category. — DEPRECATED
+ * @apiSuccess {Array}  categories                Site categories.
+ * @apiSuccess {String} theme                     Site theme.
+ * @apiSuccess {Array}  languages                 Site languages.
+ * @apiSuccess {Array}  tags                      Site tags.
+ * @apiSuccess {Array}  professors                Site professors.
+ * @apiSuccess {String} unitId                    Site unitId.
+ * @apiSuccess {String} unitName                  Site unitName.
+ * @apiSuccess {String} unitNameLevel2            Site unitNameLevel2.
+ * @apiSuccess {String} snowNumber                Site snowNumber.
+ * @apiSuccess {String} comment                   Site comment.
+ * @apiSuccess {String} createdDate               Site createdDate.
+ * @apiSuccess {String} userExperience            Site userExperience.
+ * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
+ * @apiSuccess {String} wpInfra                   Site wpInfra.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "firstname": "John",
- *       "lastname": "Doe"
+ *       "_id": "f7CaxxouACbWiYjQY",
+ *       "url": "https://www.epfl.ch/campus/services/canari",
+ *       "slug": "",
+ *       "tagline": "Canari",
+ *       "title": "Test",
+ *       "openshiftEnv": "www",
+ *       "category": "GeneralPublic",
+ *       "theme": "wp-theme-2018",
+ *       "languages": [
+ *         "en",
+ *         "fr"
+ *       ],
+ *       "unitId": "13031",
+ *       "unitName": "idev-ing",
+ *       "unitNameLevel2": "si",
+ *       "snowNumber": "",
+ *       "comment": "Site canari pour tester l'image",
+ *       "createdDate": "2020-03-05T09:52:06.310Z",
+ *       "userExperience": false,
+ *       "tags": [],
+ *       "professors": [],
+ *       "wpInfra": true,
+ *       "userExperienceUniqueLabel": ""
  *     }
  *
- * @apiError UserNotFound The id of the User was not found.
+ * @apiError SiteNotFound Site with this ID wasn't found.
  *
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not Found
  *     {
- *       "error": "UserNotFound"
+ *       "message": "SiteNotFound"
  *     }
  */
 // Maps to: /api/v1/sites/:id
@@ -144,6 +226,7 @@ Api.addRoute(
   { authRequired: false },
   {
     get: function () {
+      // @TODO: error if ID Not Found
       return formatSiteCategories(Sites.findOne(this.urlParams.id));
     },
   }
@@ -158,19 +241,106 @@ Api.addRoute('sites-by-title/:title/tags', {authRequired: false}, {
   }
 });
 */
-
+/**
+ * @api {get} /sites/:id/tags    Get tags by site ID
+ * @apiGroup Sites
+ * @apiName tags
+ *
+ * @apiParam   {String} id       Site unique ID.
+ *
+ * @apiSuccess {String} _id      Site unique ID.
+ * @apiSuccess {String} url_fr   Site URL fr.
+ * @apiSuccess {String} url_en   Site URL en.
+ * @apiSuccess {String} name_fr  Tag name fr.
+ * @apiSuccess {String} name_en  Tag name en.
+ * @apiSuccess {String} type     Tag type.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "_id": "tbEWhLad86Nr8HYQL",
+ *         "url_fr": "https://sti.epfl.ch/fr/",
+ *         "url_en": "https://sti.epfl.ch/",
+ *         "name_fr": "STI",
+ *         "name_en": "STI",
+ *         "type": "faculty"
+ *       },
+ *       {
+ *         "_id": "SfT5ACprqquHcuWiG",
+ *         "url_fr": "https://sti.epfl.ch/research/institutes/iel/",
+ *         "url_en": "https://sti.epfl.ch/fr/recherche/instituts/iel/",
+ *         "name_fr": "IEL",
+ *         "name_en": "IEL",
+ *         "type": "institute"
+ *       }
+ *     ]
+ *
+ * @apiError SiteNotFound Site with this ID wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "SiteNotFound"
+ *     }
+ */
 // Maps to: /api/v1/sites/:id/tags
 Api.addRoute(
   "sites/:id/tags",
   { authRequired: false },
   {
     get: function () {
+      // @TODO: SiteNotFound
       let site = Sites.findOne(this.urlParams.id);
       return site.tags;
     },
   }
 );
 
+/**
+ * @api {get} /sites-with-tags-en/:tag1/:tag2  Get sites by tag name
+ * @apiGroup Sites
+ * @apiName tags
+ *
+ * @apiParam   {String} tag1     Tag name en.
+ * @apiParam   {String} tag2     Tag name en.
+ *
+ * @apiSuccess {String} _id      Site unique ID.
+ * @apiSuccess {String} url_fr   Site URL fr.
+ * @apiSuccess {String} url_en   Site URL en.
+ * @apiSuccess {String} name_fr  Tag name fr.
+ * @apiSuccess {String} name_en  Tag name en.
+ * @apiSuccess {String} type     Tag type.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *         "_id": "tbEWhLad86Nr8HYQL",
+ *         "url_fr": "https://sti.epfl.ch/fr/",
+ *         "url_en": "https://sti.epfl.ch/",
+ *         "name_fr": "STI",
+ *         "name_en": "STI",
+ *         "type": "faculty"
+ *       },
+ *       {
+ *         "_id": "SfT5ACprqquHcuWiG",
+ *         "url_fr": "https://sti.epfl.ch/research/institutes/iel/",
+ *         "url_en": "https://sti.epfl.ch/fr/recherche/instituts/iel/",
+ *         "name_fr": "IEL",
+ *         "name_en": "IEL",
+ *         "type": "institute"
+ *       }
+ *     ]
+ *
+ * @apiError SiteNotFound Site with this ID wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "SiteNotFound"
+ *     }
+ */
 // Maps to: /api/v1/sites-with-tags-en/:tag1/:tag2
 Api.addRoute(
   "sites-with-tags-en/:tag1/:tag2",
@@ -188,6 +358,11 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /sites-with-tags-fr/:tag1/:tag2  TODO
+ * @apiName tags
+ * @apiGroup Sites
+ */
 // Maps to: /api/v1/sites-with-tags-fr/:tag1/:tag2
 Api.addRoute(
   "sites-with-tags-fr/:tag1/:tag2",
@@ -205,6 +380,11 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /sites/wp-admin/:sciper  TODO
+ * @apiGroup Sites
+ * @apiName sites
+ */
 // Maps to: /api/v1/sites/wp-admin/:sciper
 Api.addRoute(
   "sites/wp-admin/:sciper",
@@ -228,28 +408,80 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /openshiftenvs  Get all OpenShift environments
+ * @apiGroup OpenShift
+ * @apiName OpenShiftENV
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "BMhjXSzf2brFzsWM6",
+ *         "name": "labs"
+ *       },
+ *       ...,
+ *     ]
+ */
 // Maps to: /api/v1/openshiftenvs/
 Api.addRoute(
   "openshiftenvs",
   { authRequired: false },
   {
     get: function () {
+      // @TODO: OpenShiftEnvNotFound
       return OpenshiftEnvs.find({}).fetch();
     },
   }
 );
 
+/**
+ * @api {get} /openshiftenvs/:id  Get OpenShift environment by ID
+ * @apiGroup OpenShift
+ * @apiName OpenShiftENV
+ *
+ * @apiParam   {Number} id    OpenShift environment ID.
+ *
+ * @apiSuccess {String} _id   OpenShift environment ID.
+ * @apiSuccess {String} name  OpenShift environment name.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "BMhjXSzf2brFzsWM6",
+ *         "name": "labs"
+ *       },
+ *       ...,
+ *     ]
+ *
+ * @apiError OpenShiftEnvNotFound OpenShiftEnv with this ID wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "OpenShiftEnvNotFound"
+ *     }
+ */
 // Maps to: /api/v1/openshiftenvs/:id
 Api.addRoute(
   "openshiftenvs/:id",
   { authRequired: false },
   {
     get: function () {
+      // @TODO: OpenShiftEnvNotFound
       return OpenshiftEnvs.findOne(this.urlParams.id);
     },
   }
 );
 
+/**
+ * @api {get} /tags  Get all tags.
+ * @apiGroup Tags
+ * @apiName tags
+ */
 // Maps to: /api/v1/tags/
 // Maps to: /api/v1/tags/?type=<type>
 Api.addRoute(
@@ -266,17 +498,56 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /tags/:id  Get tag by ID
+ * @apiGroup Tags
+ * @apiName tags
+ *
+ * @apiParam   {Number} id      Tag ID.
+ *
+ * @apiSuccess {String} _id     Tag ID.
+ * @apiSuccess {String} name_fr Tag name fr.
+ * @apiSuccess {String} name_en Tag name en.
+ * @apiSuccess {String} url_fr  URL fr.
+ * @apiSuccess {String} url_en  URL en.
+ * @apiSuccess {String} type    Tag type.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "_id": "WzuTsoutXC2EJpif4",
+ *       "name_fr": "Systems",
+ *       "name_en": "Systems",
+ *       "url_fr": "https://www.epfl.ch/research/domains/cluster?field-of-research=Systems",
+ *       "url_en": "https://www.epfl.ch/research/domains/cluster?field-of-research=Systems",
+ *       "type": "field-of-research"
+ *     }
+ *
+ * @apiError TagNotFound OpenShiftEnv with this ID wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "TagNotFound"
+ *     }
+ */
 // Maps to: /api/v1/tags/:id
 Api.addRoute(
   "tags/:id",
   { authRequired: false },
   {
     get: function () {
+      // @TODO: TagNotFound
       return Tags.findOne(this.urlParams.id);
     },
   }
 );
 
+/**
+ * @api {get} /tags/:id/clusters-and-professors  TODO
+ * @apiGroup Tags
+ * @apiName tags
+ */
 // Maps to: /api/v1/tags/:id/field-of-research
 // Example: Return all tags of 'field-of-research' type of tag STI
 Api.addRoute(
@@ -315,6 +586,11 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /professors/:sciper/tags  Get all tags for a professor
+ * @apiGroup Professors
+ * @apiName professors
+ */
 // Maps to: /api/v1/professors/:sciper/tags
 // Example: Return all tags of this sciper :sciper
 Api.addRoute(
@@ -336,6 +612,11 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /categories  Get all categories
+ * @apiGroup Categories
+ * @apiName categories
+ */
 // Maps to: /api/v1/categories/
 Api.addRoute(
   "categories",
@@ -347,17 +628,65 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /categories/:name  Get category by name
+ * @apiGroup Categories
+ * @apiName category
+ *
+ * @apiParam   {String} name  Category name.
+ *
+ * @apiSuccess {String} _id   Category ID.
+ * @apiSuccess {String} name  Category name fr.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "_id": "iygEnBWnFsc9yPcks",
+ *       "name": "Inside"
+ *     }
+ *
+ * @apiError CategoryNotFound Category with this name wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "CategoryNotFound"
+ *     }
+ */
 // Maps to: /api/v1/categories/:name
 Api.addRoute(
   "categories/:name",
   { authRequired: false },
   {
     get: function () {
+      // @TODO: CategoryNotFound
       return Categories.findOne({ name: this.urlParams.name });
     },
   }
 );
 
+/**
+ * @api {get} /categories/:name/sites  Get sites by category name
+ * @apiGroup Categories
+ * @apiName sites
+ *
+ * @apiParam   {String} name  Category name.
+ *
+ * @apiSuccess {String} _id   Category ID.
+ * @apiSuccess {String} name  Category name fr.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     //TODO
+ *
+ * @apiError CategoryNotFound Category with this name wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "CategoryNotFound"
+ *     }
+ */
 // Maps to: /api/v1/categories/:name/sites
 Api.addRoute(
   "categories/:name/sites",
