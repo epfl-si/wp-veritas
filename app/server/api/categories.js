@@ -1,15 +1,12 @@
-import {
-  Categories,
-  Sites,
-} from "../../imports/api/collections";
-import { Api, APIError, formatSiteCategories} from "./utils";
+import { Categories, Sites } from "../../imports/api/collections";
+import { Api, APIError, formatSiteCategories } from "./utils";
 
 /**
  * @api {get} /categories  Get all categories
  * @apiGroup Categories
- * 
+ *
  * @apiSuccessExample Success-Response:
- * 
+ *
  *     HTTP/1.1 200 OK
  *     [
  *       ...
@@ -63,7 +60,7 @@ Api.addRoute(
       try {
         result = Categories.findOne({ name: this.urlParams.name });
         if (!result) {
-          throw "result undefined"
+          throw "result undefined";
         }
       } catch (error) {
         console.log(error);
