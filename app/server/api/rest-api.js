@@ -7,13 +7,12 @@ import {
 
 import getUnits from "../units";
 
-import { Api, APIError, formatSiteCategories} from "./utils";
+import { Api, APIError, formatSiteCategories } from "./utils";
 import "./categories";
 
 /**
  * @api {get} /sites  Get all sites
  * @apiGroup Sites
- * @apiName sites
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -55,23 +54,21 @@ import "./categories";
  *     }
  *
  */
- /**
-  * @api {get}  /sites?site_url={param} Get a site by URL
-  * @apiGroup Sites
-  * @apiName Sites with params
-  * @apiParam {String} site_url Exact site URL
-  * @apiDescription Note: final slash will be trimmed
-  * @apiExample {http} Example usage:
-  *     /api/v1/sites?site_url=https://www.epfl.ch/canari
-  */
- /**
-  * @api {get}  /sites?search_url={param} Get sites by URL pattern
-  * @apiGroup Sites
-  * @apiName Sites with params
-  * @apiParam {String} search_url Text pattern present in URL
-  * @apiExample {http} Example usage:
-  *     /api/v1/sites?search_url=canari
-  */
+/**
+ * @api {get}  /sites?site_url={param} Get a site by URL
+ * @apiGroup Sites
+ * @apiParam {String} site_url Exact site URL
+ * @apiDescription Note: final slash will be trimmed
+ * @apiExample {http} Example usage:
+ *     /api/v1/sites?site_url=https://www.epfl.ch/canari
+ */
+/**
+ * @api {get}  /sites?search_url={param} Get sites by URL pattern
+ * @apiGroup Sites
+ * @apiParam {String} search_url Text pattern present in URL
+ * @apiExample {http} Example usage:
+ *     /api/v1/sites?search_url=canari
+ */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
@@ -121,7 +118,6 @@ Api.addRoute(
 /**
  * @api {get} /sites/:id  Get site by ID
  * @apiGroup Sites
- * @apiName site
  *
  * @apiParam   {Number} id                        Site unique ID.
  *
@@ -207,7 +203,6 @@ Api.addRoute('sites-by-title/:title/tags', {authRequired: false}, {
 /**
  * @api {get} /sites/:id/tags    Get tags by site ID
  * @apiGroup Sites
- * @apiName tags
  *
  * @apiParam   {String} id       Site unique ID.
  *
@@ -263,7 +258,6 @@ Api.addRoute(
 /**
  * @api {get} /sites-with-tags-en/:tag1/:tag2  Get sites by tag name
  * @apiGroup Sites
- * @apiName tags
  *
  * @apiParam   {String} tag1     Tag name en.
  * @apiParam   {String} tag2     Tag name en.
@@ -323,7 +317,6 @@ Api.addRoute(
 
 /**
  * @api {get} /sites-with-tags-fr/:tag1/:tag2  TODO
- * @apiName tags
  * @apiGroup Sites
  */
 // Maps to: /api/v1/sites-with-tags-fr/:tag1/:tag2
@@ -346,7 +339,6 @@ Api.addRoute(
 /**
  * @api {get} /sites/wp-admin/:sciper  TODO
  * @apiGroup Sites
- * @apiName sites
  */
 // Maps to: /api/v1/sites/wp-admin/:sciper
 Api.addRoute(
@@ -374,7 +366,6 @@ Api.addRoute(
 /**
  * @api {get} /openshiftenvs  Get all OpenShift environments
  * @apiGroup OpenShift
- * @apiName OpenShiftENV
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -402,7 +393,6 @@ Api.addRoute(
 /**
  * @api {get} /openshiftenvs/:id  Get OpenShift environment by ID
  * @apiGroup OpenShift
- * @apiName OpenShiftENV
  *
  * @apiParam   {Number} id    OpenShift environment ID.
  *
@@ -443,7 +433,6 @@ Api.addRoute(
 /**
  * @api {get} /tags  Get all tags.
  * @apiGroup Tags
- * @apiName tags
  */
 // Maps to: /api/v1/tags/
 // Maps to: /api/v1/tags/?type=<type>
@@ -464,7 +453,6 @@ Api.addRoute(
 /**
  * @api {get} /tags/:id  Get tag by ID
  * @apiGroup Tags
- * @apiName tags by ID
  *
  * @apiParam   {Number} id      Tag ID.
  *
@@ -509,7 +497,6 @@ Api.addRoute(
 /**
  * @api {get} /tags/:id/clusters-and-professors  TODO
  * @apiGroup Tags
- * @apiName tags
  */
 // Maps to: /api/v1/tags/:id/field-of-research
 // Example: Return all tags of 'field-of-research' type of tag STI
@@ -552,7 +539,6 @@ Api.addRoute(
 /**
  * @api {get} /professors/:sciper/tags  Get all tags for a professor
  * @apiGroup Professors
- * @apiName professors
  */
 // Maps to: /api/v1/professors/:sciper/tags
 // Example: Return all tags of this sciper :sciper
@@ -574,9 +560,5 @@ Api.addRoute(
     },
   }
 );
-
-
-
-
 
 export default Api;
