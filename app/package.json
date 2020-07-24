@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "bcrypt": "^4.0.1",
+    "chai-http": "^4.3.0",
     "epfl-ldap": "^1.0.0",
     "formik": "^2.1.4",
     "helmet": "^3.22.0",

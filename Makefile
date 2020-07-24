@@ -7,6 +7,7 @@ help:
 	@echo "make version:         Get the version number of wp-veritas"
 	@echo "make apidoc:          Refresh API documentation"
 	@echo "make test:            Run test suit"
+	@echo "make meteor:          Run app in http://localhost:3000"
 	@echo "make publish:         To build, tag and push new Image"
 	@echo "make deploy-test:     To deploy on test environment"
 	@echo "make deploy-prod:     To deploy on prod environment"
@@ -14,6 +15,7 @@ help:
 .PHONY: version
 version:
 	@echo $(VERSION)
+
 
 .PHONY: apidoc
 apidoc:
@@ -28,7 +30,13 @@ apidoc:
 
 .PHONY: test
 test:
-	@cd app; npm test
+	@echo '**** Start meteor: ****'
+	@cd app; env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3888
+
+.PHONY: meteor
+meteor:
+	@echo '**** Start meteor: ****'
+	cd app/; env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
 
 .PHONY: build
 build:
