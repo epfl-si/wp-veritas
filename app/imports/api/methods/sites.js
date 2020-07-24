@@ -169,10 +169,12 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
     
-    const user = Meteor.users.findOne({ _id: this.userId });    
-    const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
-    Telegram.sendMessage(message);
-
+    if (newSite.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+      Telegram.sendMessage(message);
+    }
+    
     return newSiteAfterInsert;
   },
 });
@@ -262,9 +264,11 @@ const removeSite = new VeritasValidatedMethod({
       this.userId
     );
     
-    const user = Meteor.users.findOne({ _id: this.userId });
-    const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
-    Telegram.sendMessage(message);
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+      Telegram.sendMessage(message);
+    }
   },
 });
 
