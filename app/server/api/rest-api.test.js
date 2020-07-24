@@ -6,6 +6,11 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../tests/helpers";
 import { loadFixtures } from "../fixtures";
 
+let chai = require("chai");
+let expect = chai.expect;
+let chaiHttp = require("chai-http");
+chai.use(chaiHttp);
+
 function createTag(userId, args) {
   const context = { userId };
   idTag = insertTag._execute(context, args);
@@ -13,10 +18,6 @@ function createTag(userId, args) {
 }
 
 if (Meteor.isServer) {
-  let chai = require("chai");
-  let expect = chai.expect;
-  let chaiHttp = require("chai-http");
-  chai.use(chaiHttp);
 
   let base_url;
 
@@ -81,7 +82,6 @@ if (Meteor.isServer) {
         userExperience: false,
         userExperienceUniqueLabel: "",
         tags: [tag1, tag2],
-        tags: [],
         professors: [],
         wpInfra: true,
       };
@@ -91,16 +91,17 @@ if (Meteor.isServer) {
       let sitesNumber = Sites.find({}).count();
       let site = Sites.findOne({ url: url });
 
-      //assert.strictEqual(site.categories.length, 1);
-      //assert.strictEqual(site.categories[0].name, "Restauration");
+      assert.strictEqual(site.categories.length, 1);
+      assert.strictEqual(site.categories[0].name, "Restauration");
 
       assert.strictEqual(sitesNumber, 1);
       assert.strictEqual(site.title, title);
     });
 
     it("GET /api/v1/sites", function () {
-
-      let site = Sites.findOne({url: "https://www.epfl.ch/beaujolais/madame-placard"});
+      let site = Sites.findOne({
+        url: "https://www.epfl.ch/beaujolais/madame-placard",
+      });
       let expectedResult = [
         {
           _id: site._id,
@@ -109,7 +110,7 @@ if (Meteor.isServer) {
           title: "Ma meilleure découverte 2019",
           openshiftEnv: "www",
           category: "GeneralPublic",
-          categories: site.categories,
+          categories: ["Restauration"],
           theme: "wp-theme-2018",
           languages: site.languages,
           unitId: "13030",
@@ -126,27 +127,17 @@ if (Meteor.isServer) {
         },
       ];
 
-      let test = expectedResult;
-
       chai
         .request(base_url)
         .get("/api/v1/sites")
         .end(function (err, res) {
-          
-          //console.log(res.body);
-          //console.log(expectedResult);
           expect(err).to.be.null;
           expect(res).to.have.status(200);
           expect(res.headers["content-type"]).to.equal("application/json");
-          expect(res.body._id).to.equal(expectedResult._id);
-          expect(res.body.url).to.equal(expectedResult.url);
-          expect(res.body.tagline).to.equal(expectedResult.tagline);
-          expect(res.body.title).to.equal(expectedResult.title);
-          expect(res.body.languages).to.deep.equal(expectedResult.languages);
-          expect(res.body.categories).to.deep.equal(expectedResult.categories);
-          expect(res.body.tags).to.deep.equal(expectedResult.tags);
+          expect(JSON.stringify(res.body)).to.eql(
+            JSON.stringify(expectedResult)
+          );
         });
     });
   });
 }
-
