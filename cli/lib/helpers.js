@@ -51,14 +51,25 @@ module.exports.loadData = async (destination, data) => {
       ) {
         stop = true;
       }
-      let url, title, category, theme, languages;
+      let url, title, categories, categoryName, theme, languages;
       if (!stop) {
         url = `https://${currentSite.wp_hostname}/${currentSite.wp_path}`;
         title = currentSite.wp_path;
-        category = currentSite["wp_details"]["options"]["epfl:site_category"];
-        if (category == null) {
-          category = "GeneralPublic";
+        categoryName = currentSite["wp_details"]["options"]["epfl:site_category"];       
+        if (categoryName == null) {
+          categoryName = "GeneralPublic";
         }
+
+        // Get category object by category name
+        let connectionString = dbHelpers.getConnectionString(destination);
+
+        // Return a empty list if category is GeneralPublic
+        categories = await dbHelpers.getCategory(
+          connectionString,
+          destination,
+          categoryName
+        );
+
         theme = currentSite["wp_details"]["options"]["stylesheet"];
         languages = currentSite["wp_details"]["polylang"]["langs"];
 
@@ -78,7 +89,7 @@ module.exports.loadData = async (destination, data) => {
           title: title,
           wpInfra: true,
           openshiftEnv: "int",
-          category: category,
+          categories: categories,
           theme: theme,
           languages: languages,
           unitId: unitId,
