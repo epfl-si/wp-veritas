@@ -65,7 +65,7 @@ Api.addRoute(
         if (siteUrl.endsWith("/")) {
           siteUrl = siteUrl.slice(0, -1);
         }
-        return formatSiteCategories(Sites.findOne({ url: siteUrl }));
+        return formatSiteCategories(Sites.find({ url: siteUrl }).fetch());
       } else if (query && this.queryParams.search_url) {
         return formatSiteCategories(
           Sites.find({
