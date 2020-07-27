@@ -89,7 +89,6 @@ module.exports.loadData = async (destination, data) => {
           title: title,
           wpInfra: true,
           openshiftEnv: "int",
-          category: categoryName,
           categories: categories,
           theme: theme,
           languages: languages,
@@ -103,7 +102,7 @@ module.exports.loadData = async (destination, data) => {
           professors: [],
           tags: [],
         };
-        
+
         let connectionString = dbHelpers.getConnectionString(destination);
 
         await dbHelpers.insertOneSite(
