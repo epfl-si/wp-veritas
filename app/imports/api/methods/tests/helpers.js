@@ -34,7 +34,6 @@ function createSite(userId, categories, tags, professors) {
     tagline: "Yvon Métras",
     title: "Ma meilleure découverte 2019",
     openshiftEnv: "www",
-    category: "GeneralPublic",
     categories: categories,
     theme: "wp-theme-2018",
     languages: ["en", "fr"],

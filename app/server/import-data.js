@@ -246,9 +246,19 @@ updateSitesWithoutProfessors = () => {
   console.log("All sites are updated");
 }
 
+updateSitesDeleteCategory = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach((site) => {
+    let siteId = site._id;
+    console.log(site);
+    Sites.update({ _id: siteId }, { $unset: { category: "" } });
+  });
+  console.log("All sites are updated");
+}
+
 importData = () => {
-  const absoluteUrl = Meteor.absoluteUrl();
   /*
+  const absoluteUrl = Meteor.absoluteUrl();
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
@@ -257,8 +267,9 @@ importData = () => {
   */
   //updateCategoryAdmin();
   //updateCategoriesFromCategory();
+  //updateSitesWithoutProfessors();
 
-  updateSitesWithoutProfessors();
+  updateSitesDeleteCategory();
 };
 
 export { importData };

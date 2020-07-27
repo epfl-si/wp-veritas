@@ -34,14 +34,12 @@ class Add extends Component {
   updateFields = (event, values) => {
     if (event.target.checked === false) {
       values.openshiftEnv = "";
-      values.category = "";
       values.theme = "";
       values.unitId = "";
       values.languages = [];
       values.categories = [];
     } else {
       values.openshiftEnv = "www";
-      values.category = "GeneralPublic";
       values.theme = "wp-theme-2018";
     }
   }
@@ -106,7 +104,6 @@ class Add extends Component {
         title: '', 
         openshiftEnv: 'www', 
         theme: 'wp-theme-2018',
-        category: 'GeneralPublic',
         categories: [],
         languages: [], 
         unitId: '', 
@@ -247,24 +244,7 @@ class Add extends Component {
                   ))}
                 </Field>
                 <ErrorMessage name="openshiftEnv" component={ CustomError } />
-                {/*
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Catégorie"
-                  name="category"
-                  component={ CustomSelect }
-                  disabled = { values.wpInfra === false }
-                  >
-                  { values.wpInfra === false ?
-                  <option key="blank" value="blank" label=""></option>
-                  : null }
-                  {this.props.categories.map( (category, index) => (
-                  <option key={category._id} value={category.name} label={category.name}>{category.name}</option>
-                  ))}
-                </Field>
-                <ErrorMessage name="category" component={ CustomError } />
-                  */}
+                
                 <div className="form-group">
                 Catégories
                 <MyCategorySelect
