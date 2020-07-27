@@ -25,8 +25,6 @@ class Telegram {
       Telegram.WP_VERITAS_BOT_TOKEN &&
       Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS
     ) {
-      console.log(Telegram.WP_VERITAS_BOT_TOKEN);
-      console.log(Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS);
       // Be sure to URL encode the content of the message
       let urlEncodedMessage = encodeURIComponent(message);
       // For each recipients, send the message.

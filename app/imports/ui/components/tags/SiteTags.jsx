@@ -19,10 +19,11 @@ class SiteTags extends React.Component {
 
   submit = (values, actions) => {
     let tags = [
-      ...values.facultyTags,
-      ...values.instituteTags,
-      ...values.fieldOfResearchTags,
+      ...(values.facultyTags || []),
+      ...(values.instituteTags || []),
+      ...(values.fieldOfResearchTags || []),
     ];
+
     let site = this.getSite();
     associateTagsToSite.call(
       {

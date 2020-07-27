@@ -13,6 +13,11 @@ help:
 version:
 	@echo $(VERSION)
 
+.PHONY: meteor
+meteor:
+	@echo '**** Start meteor: ****'
+	cd app/; env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
+
 .PHONY: build
 build:
 	@echo '**** Start build: ****'

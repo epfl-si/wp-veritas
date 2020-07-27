@@ -143,7 +143,6 @@ const insertSite = new VeritasValidatedMethod({
       tagline: newSite.tagline,
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
-      category: newSite.category,
       categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
@@ -169,10 +168,12 @@ const insertSite = new VeritasValidatedMethod({
       this.userId
     );
     
-    const user = Meteor.users.findOne({ _id: this.userId });    
-    const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
-    Telegram.sendMessage(message);
-
+    if (newSite.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+      Telegram.sendMessage(message);
+    }
+    
     return newSiteAfterInsert;
   },
 });
@@ -213,7 +214,6 @@ const updateSite = new VeritasValidatedMethod({
       tagline: newSite.tagline,
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
-      category: newSite.category,
       categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
@@ -262,9 +262,11 @@ const removeSite = new VeritasValidatedMethod({
       this.userId
     );
     
-    const user = Meteor.users.findOne({ _id: this.userId });
-    const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
-    Telegram.sendMessage(message);
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+      Telegram.sendMessage(message);
+    }
   },
 });
 
