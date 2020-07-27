@@ -1,2 +1,2 @@
 [wwp-prod-group]
-wwp               ansible_connection=local   openshift_namespace=wwp   serveur_name=prod
+wwp               ansible_connection=local   openshift_namespace=wwp

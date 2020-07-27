@@ -1,30 +1,17 @@
 ---
-# vars file for epfl.wp-veritas
-wp_veritas_app_name: wp-veritas
-server_name: dev
-wp_veritas_svc_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
-  'wp-veritas-test' if server_name == 'test' else (
-  'wp-veritas-dev')) }}"
-wp_veritas_route_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
-  'wp-veritas-test' if server_name == 'test' else (
-  'wp-veritas-dev')) }}"
-wp_veritas_secret_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
-  'wp-veritas-test' if server_name == 'test' else (
-  'wp-veritas-dev')) }}"
-wp_veritas_cname: "{{ 'wp-veritas.epfl.ch' if server_name == 'prod' else (
-  'wp-veritas-test.epfl.ch' if server_name == 'test' else (
-  'wp-veritas.128.178.222.83.nip.io' if server_name == 'dev')) }}"
-wp_veritas_deploy_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
-  'wp-veritas-test' if server_name == 'test' else (
-  'wp-veritas-dev')) }}"
-wp_veritas_image_version: '1.7.13'
-wp_veritas_image_tag: 'epflsi/wp-veritas:{{ wp_veritas_image_version }}'
-wp_veritas_db_name: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
-wp_veritas_db_user: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
-wp_veritas_db_password: "{{ lookup('env','WP_VERITAS_DB_PASSWORD_PROD') if server_name == 'prod' else (
-  lookup('env','WP_VERITAS_DB_PASSWORD_TEST') if server_name == 'test' else (
-  lookup('env','WP_VERITAS_DB_PASSWORD_DEV') }}"
-meteor_settings_env: " {{ lookup('env','METEOR_SETTINGS') }}"
-db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
-wp_veritas_bot_token: "{{ lookup('env', 'WP_VERITAS_BOT_TOKEN') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_BOT_TOKEN_TEST') }}"
-wp_veritas_alerts_telegram_ids: "{{ lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST') }}"
+  # vars file for epfl.wp-veritas
+  wp_veritas_app_name: wp-veritas
+  wp_veritas_svc_name: wp-veritas
+  wp_veritas_route_name: wp-veritas
+  wp_veritas_secret_name: "{{ 'wp-veritas' if openshift_namespace == 'wwp' else 'wp-veritas-test' }}"
+  wp_veritas_cname: "{{ wp_veritas_app_name + '.epfl.ch' if openshift_namespace == 'wwp' else 'wp-veritas.128.178.222.83.nip.io' }}"
+  wp_veritas_deploy_name: wp-veritas
+  wp_veritas_image_version: '1.8.0'
+  wp_veritas_image_tag: 'epflsi/wp-veritas:{{ wp_veritas_image_version }}'
+  wp_veritas_db_name: wp-veritas
+  wp_veritas_db_user: wp-veritas
+  wp_veritas_db_password: "{{ lookup('env','WP_VERITAS_DB_PASSWORD_PROD') if openshift_namespace == 'wwp' else lookup('env','WP_VERITAS_DB_PASSWORD_TEST') }}"
+  meteor_settings_env: " {{ lookup('env','METEOR_SETTINGS') }}"
+  db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
+  wp_veritas_bot_token: "{{ lookup('env', 'WP_VERITAS_BOT_TOKEN') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_BOT_TOKEN_TEST') }}"
+  wp_veritas_alerts_telegram_ids: "{{ lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST') }}"
