@@ -16,7 +16,7 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
-let importDatas = false;
+let importDatas = true;
 let disableTequila = false;
 
 if (Meteor.isServer) {
