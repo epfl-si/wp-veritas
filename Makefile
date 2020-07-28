@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_veritas_image_version: | cut -d' ' -f2 | tr -d \')
 
 
