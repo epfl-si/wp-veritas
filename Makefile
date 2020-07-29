@@ -3,13 +3,15 @@ SHELL := /bin/bash
 
 .PHONY: help
 help:
-	@echo "make help               — Help"
+	@echo "make help               — Display this help"
+	@echo "make meteor             — Run application wp-veritas on localhost"
 	@echo "make version            — Get the version number of wp-veritas"
 	@echo "make version-patch      — Bump wp-veritas version (patch)"
 	@echo "make version-minor      — Bump wp-veritas version (minor)"
 	@echo "make version-major      — Bump wp-veritas version (major)"
 	@echo "make version-special    — Bump wp-veritas to specified version"
 	@echo "make publish            — To build, tag and push new Image"
+	@echo "make deploy-dev         — To deploy on dev environment"
 	@echo "make deploy-test        — To deploy on test environment"
 	@echo "make deploy-prod        — To deploy on prod environment"
 
