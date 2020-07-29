@@ -22,7 +22,7 @@ module.exports.getTarget = (source) => {
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-  if ([config.LOCAL_TARGET_TEST_DB_HOST, "test", "prod"].includes(environment) === false) {
+  if ([config.LOCAL_TARGET_TEST_DB_HOST, "dev", "test", "prod"].includes(environment) === false) {
     throw new Error("Environment is unknown");
   }
 
@@ -30,10 +30,24 @@ module.exports.getConnectionString = (environment) => {
     return `mongodb://${config.LOCAL_TARGET_TEST_DB_HOST}:${config.LOCAL_TARGET_TEST_DB_PORT}/`;
   }
 
-  let dbUsername = config.TEST_DB_USERNAME;
-  let dbPwd = config.TEST_DB_PWD;
-  let dbHost = config.TEST_DB_HOST;
-  let dbName = config.TEST_DB_NAME;
+  let dbUsername;
+  let dbPwd;
+  let dbHost;
+  let dbName;
+  
+  if (environment === "dev") {
+    dbUsername = config.DEV_DB_USERNAME;
+    dbPwd = config.DEV_DB_PWD;
+    dbHost = config.DEV_DB_HOST;
+    dbName = config.DEV_DB_NAME;
+  }
+
+  if (environment === "test") {
+    dbUsername = config.TEST_DB_USERNAME;
+    dbPwd = config.TEST_DB_PWD;
+    dbHost = config.TEST_DB_HOST;
+    dbName = config.TEST_DB_NAME;
+  }
 
   if (environment === "prod") {
     dbUsername = config.PROD_DB_USERNAME;
@@ -64,9 +78,12 @@ createClient = async function (connectionString) {
 };
 
 getDB = function (target, client) {
+  
   let dbName;
-  if (target === "test") {
+  if (target === "dev") {
     dbName = "wp-veritas";
+  } else if (target === "test") {
+    dbName = "wp-veritas-test";
   } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
     dbName = "meteor";
   }
@@ -81,11 +98,30 @@ module.exports.insertOneSite = async function (
   target,
   siteDocument
 ) {
+  // Generate a new id
+  let id = Math.random().toString(36).substring(2);
+  siteDocument["_id"] = id;
   const client = await createClient(connectionString);
   const db = getDB(target, client);
   await db.collection("sites").insertOne(siteDocument);
   client.close();
 };
+
+/**
+ * Get category
+ */
+module.exports.getCategory = async function (
+  connectionString,
+  target,
+  categoryName
+) {
+  const client = await createClient(connectionString);
+  const db = getDB(target, client);
+  let category = await db.collection("categories").find({"name": categoryName}).toArray();
+  client.close();
+  return category;
+};
+
 
 /**
  * Delete all documents of collection.
