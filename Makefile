@@ -1,5 +1,6 @@
 # wp-veritas' Makefile
 SHELL := /bin/bash
+
 .PHONY: help
 help:
 	@echo "make help               — Help"
@@ -62,6 +63,19 @@ push:
 	docker push epflsi/wp-veritas:latest
 	@echo '**** End push: ****'
 
+.PHONY: deploy-dev
+deploy-dev:
+	@echo '**** Start deploy: ****'
+	if [ -z "$$(oc project)" ]; then \
+		echo "pas loggué"; \
+		oc login; \
+	else \
+		echo "loggué"; \
+	fi
+	cd ansible/; \
+	ansible-playbook playbook.yml -i hosts-dev -vvv
+	@echo '**** End deploy: ****'
+
 .PHONY: deploy-test
 deploy-test:
 	@echo '**** Start deploy: ****'
@@ -70,7 +84,7 @@ deploy-test:
 		oc login; \
 	else \
 		echo "loggué"; \
-	fi 
+	fi
 	cd ansible/; \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
@@ -94,8 +108,6 @@ publish:
 	$(MAKE) tag
 	$(MAKE) push
 
-
-### TEST
 .PHONY: develop
 develop:
 	@docker-compose -f docker-compose-dev.yml up
