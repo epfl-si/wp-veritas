@@ -6,6 +6,7 @@ VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_ver
 help:
 	@echo "make help:            Help"
 	@echo "make version:         Get the version number of wp-veritas"
+	@echo "make meteor:          Start application on localhost"
 	@echo "make publish:         To build, tag and push new Image"
 	@echo "make deploy-dev:      To deploy on dev environment"
 	@echo "make deploy-test:     To deploy on test environment"
