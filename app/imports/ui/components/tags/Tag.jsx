@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 import { withTracker } from "meteor/react-meteor-data";
 import React, { Component, Fragment } from "react";
 import { Tags } from "../../../api/collections";
@@ -7,6 +7,7 @@ import { CustomError, CustomInput, CustomSelect } from "../CustomFields";
 import { Link } from "react-router-dom";
 import { Loading } from "../Messages";
 import { insertTag, updateTag, removeTag } from "../../../api/methods/tags";
+import PopOver from "../popover/PopOver";
 
 class Tag extends Component {
   constructor(props) {
@@ -80,24 +81,23 @@ class Tag extends Component {
   }
 
   handleClickOnDeleteButton = (tagId) => {
-
-    let tag = Tags.findOne({_id: tagId});
+    let tag = Tags.findOne({ _id: tagId });
 
     Swal.fire({
-      title: `Voulez vous vraiment supprimer le tag: ${ tag.nameFr } ?`,
-      text: 'Cette action est irréversible',
-      icon: 'warning',
+      title: `Voulez vous vraiment supprimer le tag: ${tag.nameFr} ?`,
+      text: "Cette action est irréversible",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui',
-      cancelButtonText: 'Non'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Oui",
+      cancelButtonText: "Non",
     }).then((result) => {
-      if(result.value){
+      if (result.value) {
         this.deleteTag(tagId);
       }
-    })
-  }
+    });
+  };
 
   updateSaveSuccess = () => {
     this.setState({ saveSuccess: false });
@@ -167,7 +167,16 @@ class Tag extends Component {
       content = (
         <Fragment>
           <div className="card my-2">
-            <h5 className="card-header">{this.getPageTitle()}</h5>
+            <h5 className="card-header">
+              {this.getPageTitle()}
+              <PopOver
+                title="Tags wp-veritas"
+                placement="bottom"
+                description="Les tags permettent de regrouper plusieurs sites. Les tags sont séparés en 3 types : 
+                             Faculté, Institut et Domaine de recherche. Les tags sont visibles dans le `breadcrumb` des sites,
+                             par exemple sur https://www.epfl.ch/research/domains/bioengineering/."
+              />
+            </h5>
             {this.state.saveSuccess && msgSaveSuccess}
             <Formik
               onSubmit={this.submit}
@@ -344,7 +353,7 @@ class Tag extends Component {
                         >
                           <span
                             onClick={() => {
-                                this.handleClickOnDeleteButton(tag._id);
+                              this.handleClickOnDeleteButton(tag._id);
                             }}
                             aria-hidden="true"
                           >
