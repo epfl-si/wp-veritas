@@ -43,6 +43,13 @@ program
 })
 
 program
+  .command('load-tests-data-on-dev-db')
+  .description('Load tests data on dev MongoDB')
+  .action(function () {
+    commands.loadTestsDataOnDev();
+})
+
+program
   .command('load-tests-data-on-test-db')
   .description('Load tests data on test MongoDB')
   .action(function () {
