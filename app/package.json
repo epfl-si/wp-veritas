@@ -1,5 +1,11 @@
 {
   "name": "wp-veritas",
+  "version": "1.8.0",
+  "description": "https://wp-veritas.epfl.ch",
+  "bugs": {
+    "url": "https://github.com/epfl-si/wp-veritas/issues"
+  },
+  "homepage": "https://github.com/epfl-si/wp-veritas#readme",
   "private": true,
   "scripts": {
     "start": "meteor run",

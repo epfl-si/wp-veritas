@@ -1,20 +1,43 @@
+# wp-veritas' Makefile
 SHELL := /bin/bash
-VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_veritas_image_version: | cut -d' ' -f2 | tr -d \')
-
 
 .PHONY: help
 help:
-	@echo "make help:            Help"
-	@echo "make version:         Get the version number of wp-veritas"
-	@echo "make meteor:          Start application on localhost"
-	@echo "make publish:         To build, tag and push new Image"
-	@echo "make deploy-dev:      To deploy on dev environment"
-	@echo "make deploy-test:     To deploy on test environment"
-	@echo "make deploy-prod:     To deploy on prod environment"
+	@echo "make help               — Help"
+	@echo "make version            — Get the version number of wp-veritas"
+	@echo "make version-patch      — Bump wp-veritas version (patch)"
+	@echo "make version-minor      — Bump wp-veritas version (minor)"
+	@echo "make version-major      — Bump wp-veritas version (major)"
+	@echo "make version-special    — Bump wp-veritas to specified version"
+	@echo "make publish            — To build, tag and push new Image"
+	@echo "make deploy-test        — To deploy on test environment"
+	@echo "make deploy-prod        — To deploy on prod environment"
 
 .PHONY: version
 version:
-	@echo $(VERSION)
+	@./change-version.sh -d
+
+.PHONY: version-patch
+version-patch:
+	@./change-version.sh -a
+
+.PHONY: version-minor
+version-minor:
+	@./change-version.sh -a -v minor
+
+.PHONY: version-major
+version-major:
+	@./change-version.sh -a -v major
+
+.PHONY: version-special
+version-special:
+	@if test "$(WP_VERITAS_VERSION)" = "" ; then \
+		echo "Please set WP_VERITAS_VERSION, example:"; \
+		echo "  make version-special WP_VERITAS_VERSION=3.2.1"; \
+		exit 1; \
+	fi
+	@echo "Change version to $$WP_VERITAS_VERSION"
+	@./change-version.sh -a -v $$WP_VERITAS_VERSION
 
 .PHONY: meteor
 meteor:
@@ -84,3 +107,7 @@ publish:
 	$(MAKE) build
 	$(MAKE) tag
 	$(MAKE) push
+
+.PHONY: develop
+develop:
+	@docker-compose -f docker-compose-dev.yml up
