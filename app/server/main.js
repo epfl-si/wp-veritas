@@ -16,8 +16,10 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
+import { getEnvironment } from "../imports/api/utils";
+
 let importDatas = true;
-let disableTequila = false;
+let disableTequila = getEnvironment() === "LOCALHOST" ? true : false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
