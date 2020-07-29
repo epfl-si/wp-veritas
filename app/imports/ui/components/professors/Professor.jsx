@@ -179,6 +179,7 @@ class Professor extends Component {
             <h5 className="card-header">
               Ajouter un professeur
               <PopOver
+                popoverUniqID="professors"
                 title="Professeurs"
                 placement="bottom"
                 description="Les sites de l'EPFL peuvent être liés à un ou plusieurs Professeurs."
