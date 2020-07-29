@@ -170,6 +170,7 @@ class Tag extends Component {
             <h5 className="card-header">
               {this.getPageTitle()}
               <PopOver
+                popoverUniqID="tags"
                 title="Tags wp-veritas"
                 placement="bottom"
                 description="Les tags permettent de regrouper plusieurs sites. Les tags sont séparés en 3 types : 

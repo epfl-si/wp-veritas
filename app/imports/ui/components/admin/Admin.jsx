@@ -134,6 +134,7 @@ const OpenshiftEnvsList = (props) => (
     <h5 className="card-header">
       Liste des environnements openshift
       <PopOver
+        popoverUniqID="openshiftenv"
         title="Environnements Openshift"
         placement="bottom"
         description="Les environnements OpenShift permettent de définir sur quelles machines
@@ -170,6 +171,7 @@ class CategoriesList extends Component {
         <h5 className="card-header">
           Liste des catégories des sites WordPress
           <PopOver
+            popoverUniqID="categories"
             title="Catégories"
             placement="bottom"
             description="Les catégories permettent de définir quelles spécificités les sites
@@ -223,6 +225,7 @@ const ThemesList = (props) => (
     <h5 className="card-header">
       Liste des thèmes des sites WordPress
       <PopOver
+        popoverUniqID="themes"
         title="Thèmes WordPress"
         placement="bottom"
         description="Permet de définir quel thème installer sur le site. La majorité des sites utilisent le thème `wp-theme-2018`."
