@@ -6,7 +6,7 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { Categories, OpenshiftEnvs, Themes } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading, DangerMessage } from "../Messages";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 const ThemesForm = (props) => (
   <div className="card-body">
@@ -163,51 +163,71 @@ const OpenshiftEnvsList = (props) => (
 );
 
 class CategoriesList extends Component {
-  render () {
+  render() {
     let haveError = this.props.categoriesError;
     return (
       <Fragment>
-      <h5 className="card-header">Liste des catégories des sites WordPress</h5>
-      <ul className="list-group">
-        {this.props.categories.map((category, index) => (
-          <li
-            key={category._id}
-            value={category.name}
-            className="list-group-item"
-          >
-            <div className="ListEntry">
-              {category.name}
-              <button type="button" className="close" aria-label="Close">
-                <span
-                  onClick={() => {
-                    this.props.handleClickOnDeleteCategoryButton(category._id);
-                  }}
-                  aria-hidden="true"
-                >
-                  &times;
-                </span>
-              </button>
+        <h5 className="card-header">
+          Liste des catégories des sites WordPress
+          <PopOver
+            title="Catégories"
+            placement="bottom"
+            description="Les catégories permettent de définir quelles spécificités les sites
+                     doivent avoir lors de leurs déploiements. Par exemple, la catégorie `inside`
+                     permet d'installer le nécessaire permettant l'authentification d'accès
+                     au site. De manière similaire, la catégorie `Restauration` permet
+                     l'installation du plugin `epfl-menu` lors du déploiement du site."
+          />
+        </h5>
+        <ul className="list-group">
+          {this.props.categories.map((category, index) => (
+            <li
+              key={category._id}
+              value={category.name}
+              className="list-group-item"
+            >
+              <div className="ListEntry">
+                {category.name}
+                <button type="button" className="close" aria-label="Close">
+                  <span
+                    onClick={() => {
+                      this.props.handleClickOnDeleteCategoryButton(
+                        category._id
+                      );
+                    }}
+                    aria-hidden="true"
+                  >
+                    &times;
+                  </span>
+                </button>
 
-              { (haveError.elementId === category._id) &&
-                <DangerMessage
+                {haveError.elementId === category._id && (
+                  <DangerMessage
                     elementId={"category-" + category._id}
                     title={haveError.title}
                     message={haveError.details}
                     additional={haveError.additional}
                   />
-              }
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Fragment>
-    )
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Fragment>
+    );
   }
 }
 
 const ThemesList = (props) => (
   <Fragment>
-    <h5 className="card-header">Liste des thèmes des sites WordPress</h5>
+    <h5 className="card-header">
+      Liste des thèmes des sites WordPress
+      <PopOver
+        title="Thèmes WordPress"
+        placement="bottom"
+        description="Permet de définir quel thème installer sur le site. La majorité des sites utilisent le thème `wp-theme-2018`."
+      />
+    </h5>
     <ul className="list-group">
       {props.themes.map((theme, index) => (
         <li key={theme._id} value={theme.name} className="list-group-item">
@@ -313,7 +333,7 @@ class Admin extends Component {
             elementId,
             details: error.details[0].message,
             title: error.name,
-            additional: error.details[0].additional
+            additional: error.details[0].additional,
           },
         });
         console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
@@ -335,21 +355,20 @@ class Admin extends Component {
     this.delete(Categories, categoryID);
   };
 
-  handleClickOnDeleteOpenshiftButton = (openshiftEnvID) => { 
+  handleClickOnDeleteOpenshiftButton = (openshiftEnvID) => {
     this.handleClickOnDeleteButton(OpenshiftEnvs, openshiftEnvID);
-  }
+  };
 
-  handleClickOnDeleteThemeButton = (themeID) => { 
+  handleClickOnDeleteThemeButton = (themeID) => {
     this.handleClickOnDeleteButton(Themes, themeID);
-  }
+  };
 
-  handleClickOnDeleteCategoryButton = (categoryID) => { 
+  handleClickOnDeleteCategoryButton = (categoryID) => {
     this.handleClickOnDeleteButton(Categories, categoryID);
-  }
+  };
 
   handleClickOnDeleteButton = (collection, elementId) => {
-
-    let element = collection.findOne({_id: elementId});
+    let element = collection.findOne({ _id: elementId });
     let label;
 
     if (collection._name === "openshiftenvs") {
@@ -361,16 +380,16 @@ class Admin extends Component {
     }
 
     Swal.fire({
-      title: `Voulez vous vraiment supprimer ${label}: ${ element.name } ?`,
-      text: 'Cette action est irréversible',
-      icon: 'warning',
+      title: `Voulez vous vraiment supprimer ${label}: ${element.name} ?`,
+      text: "Cette action est irréversible",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui',
-      cancelButtonText: 'Non'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Oui",
+      cancelButtonText: "Non",
     }).then((result) => {
-      if(result.value){
+      if (result.value) {
         if (collection._name === "openshiftenvs") {
           this.deleteOpenshiftEnv(elementId);
         } else if (collection._name === "themes") {
@@ -379,8 +398,8 @@ class Admin extends Component {
           this.deleteCategory(elementId);
         }
       }
-    })
-  }
+    });
+  };
 
   isLoading = () => {
     const isLoading =
@@ -412,7 +431,9 @@ class Admin extends Component {
           <div className="card my-2">
             <OpenshiftEnvsList
               openshiftenvs={this.props.openshiftenvs}
-              handleClickOnDeleteOpenshiftButton={this.handleClickOnDeleteOpenshiftButton}
+              handleClickOnDeleteOpenshiftButton={
+                this.handleClickOnDeleteOpenshiftButton
+              }
             />
             <OpenShiftEnvsForm
               submitOpenShiftEnv={this.submitOpenShiftEnv}
@@ -424,7 +445,9 @@ class Admin extends Component {
             <CategoriesList
               categoriesError={this.state.categoryError}
               categories={this.props.categories}
-              handleClickOnDeleteCategoryButton={this.handleClickOnDeleteCategoryButton}
+              handleClickOnDeleteCategoryButton={
+                this.handleClickOnDeleteCategoryButton
+              }
             />
             <CategoriesForm
               submitCategory={this.submitCategory}
@@ -435,7 +458,9 @@ class Admin extends Component {
           <div className="card my-2">
             <ThemesList
               themes={this.props.themes}
-              handleClickOnDeleteThemeButton={this.handleClickOnDeleteThemeButton}
+              handleClickOnDeleteThemeButton={
+                this.handleClickOnDeleteThemeButton
+              }
             />
             <ThemesForm
               submitTheme={this.submitTheme}
