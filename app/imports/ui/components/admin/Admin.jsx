@@ -137,7 +137,7 @@ const OpenshiftEnvsList = (props) => (
         title="Environnements Openshift"
         placement="bottom"
         description="Les environnements OpenShift permettent de définir sur quelles machines
-                     virtuelles seront déployés les site. Certaines conditions doivent être remplies, 
+                     virtuelles seront déployés les sites. Certaines conditions doivent être remplies, 
                      comme par exemple un site dans l'environnement `inside` doit avoir l'url
                      inside.epfl.ch."
       />
