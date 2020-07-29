@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_veritas_image_version: | cut -d' ' -f2 | tr -d \')
 
 
@@ -5,7 +6,9 @@ VERSION := $(shell cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep wp_ver
 help:
 	@echo "make help:            Help"
 	@echo "make version:         Get the version number of wp-veritas"
+	@echo "make meteor:          Start application on localhost"
 	@echo "make publish:         To build, tag and push new Image"
+	@echo "make deploy-dev:      To deploy on dev environment"
 	@echo "make deploy-test:     To deploy on test environment"
 	@echo "make deploy-prod:     To deploy on prod environment"
 
@@ -37,6 +40,19 @@ push:
 	docker push epflsi/wp-veritas:latest
 	@echo '**** End push: ****'
 
+.PHONY: deploy-dev
+deploy-dev:
+	@echo '**** Start deploy: ****'
+	if [ -z "$$(oc project)" ]; then \
+		echo "pas loggué"; \
+		oc login; \
+	else \
+		echo "loggué"; \
+	fi
+	cd ansible/; \
+	ansible-playbook playbook.yml -i hosts-dev -vvv
+	@echo '**** End deploy: ****'
+
 .PHONY: deploy-test
 deploy-test:
 	@echo '**** Start deploy: ****'
@@ -45,7 +61,7 @@ deploy-test:
 		oc login; \
 	else \
 		echo "loggué"; \
-	fi 
+	fi
 	cd ansible/; \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
