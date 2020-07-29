@@ -103,7 +103,7 @@ deploy-test:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
-	export $(xargs < /keybase/team/epfl_wpveritas/env); \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
 
@@ -117,7 +117,7 @@ deploy-prod:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
-	export $(xargs < /keybase/team/epfl_wpveritas/env); \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-prod
 	@echo '**** End deploy: ****'
 
