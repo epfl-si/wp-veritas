@@ -16,6 +16,19 @@ help:
 	@echo "make deploy-test        — To deploy on test environment"
 	@echo "make deploy-prod        — To deploy on prod environment"
 
+check-env:
+ifeq ($(wildcard /keybase/team/epfl_wpveritas/env),)
+  @echo "Be sure to have access to /keybase/team/epfl_wpveritas/env"
+  @exit 1
+else
+include /keybase/team/epfl_wpveritas/env
+# To add all variable to your shell, use
+#export $(xargs < /keybase/team/epfl_wpveritas/env)
+endif
+
+test: check-env
+	@echo ${TEST_GREG}
+
 .PHONY: version
 version:
 	@echo $(VERSION)
@@ -43,7 +56,7 @@ version-special:
 	@./change-version.sh -a -v $$WP_VERITAS_VERSION
 
 .PHONY: meteor
-meteor:
+meteor: check-env
 	@echo '**** Start meteor: ****'
 	cd app/; env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
 
@@ -76,6 +89,7 @@ deploy-dev:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-dev -vvv
 	@echo '**** End deploy: ****'
 
@@ -89,6 +103,7 @@ deploy-test:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
 
@@ -102,6 +117,7 @@ deploy-prod:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-prod
 	@echo '**** End deploy: ****'
 
