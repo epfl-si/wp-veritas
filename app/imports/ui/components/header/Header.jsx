@@ -149,7 +149,7 @@ class Header extends Component {
                     >
                       Voir les logs
                     </NavLink>
-                    <div className="dropdown-item">Version 1.8.2</div>
+                    <div className="dropdown-item">Version 1.8.3</div>
                   </div>
                 </li>
               ) : null}
