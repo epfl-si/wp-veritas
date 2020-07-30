@@ -4,7 +4,7 @@ import "../imports/api/methods/tests/openshift-env.test";
 import "../imports/api/methods/tests/professors.test";
 import "../imports/api/methods/tests/themes.test";
 import "../imports/api/methods/tests/tags.test";
-import "../server/api/rest-api.test";
+import "../server/api/tests/rest-api.test";
 
 describe("wp-veritas", function () {
   it("package.json has correct name", async function () {
