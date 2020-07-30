@@ -1,7 +1,13 @@
-import { Sites, Tags, Categories } from "../imports/api/collections";
+import {
+  Sites,
+  Tags,
+  Categories,
+  Professors,
+} from "../imports/api/collections";
 import { createUser } from "../tests/helpers";
 import { insertTag } from "../imports/api/methods/tags";
-import { insertSite } from "../imports/api/methods/sites";
+import { insertProfessor } from "../imports/api/methods/professors";
+import { createSite } from "../imports/api/methods/tests/helpers";
 
 createTag = (userId, args) => {
   const context = { userId };
@@ -9,9 +15,19 @@ createTag = (userId, args) => {
   return Tags.findOne({ _id: idTag });
 };
 
-loadSitesFixtures = () => {
-  let userId = createUser();
+loadCategoriesFixtures = () => {
+  Categories.insert({
+    name: "Inside",
+  });
 
+  Categories.insert({
+    name: "Restauration",
+  });
+};
+
+loadTagsFixtures = () => {
+  let userId = createUser();
+  
   const tagArgs1 = {
     name_fr: "Beaujolais",
     name_en: "Beaujolais",
@@ -28,46 +44,55 @@ loadSitesFixtures = () => {
     type: "field-of-research",
   };
 
-  let tag1 = createTag(userId, tagArgs1);
-  let tag2 = createTag(userId, tagArgs2);
+  createTag(userId, tagArgs1), createTag(userId, tagArgs2);
+};
 
-  Categories.insert({
-    name: "Inside",
-  });
-
-  Categories.insert({
-    name: "Restauration",
-  });
-
-  const url = "https://www.epfl.ch/beaujolais/madame-placard";
-  const title = "Ma meilleure découverte 2019";
+loadProfessorsFixtures = () => {
+  let userId = createUser();
 
   const context = { userId };
   const args = {
-    url: url,
-    tagline: "Yvon Métras",
-    title: title,
-    openshiftEnv: "www",
-    categories: Categories.find({ name: "Restauration" }).fetch(),
-    theme: "wp-theme-2018",
-    languages: ["en", "fr"],
-    unitId: "13030",
-    unitName: "IDEV-FSD",
-    unitNameLevel2: "SI",
-    snowNumber: "42",
-    comment: "Vin nature par excellence !",
-    createdDate: new Date(),
-    userExperience: false,
-    userExperienceUniqueLabel: "",
-    tags: [tag1, tag2],
-    professors: [],
-    wpInfra: true,
+    sciper: "188475",
+    displayName: "Charmier Grégory",
   };
 
-  insertSite._execute(context, args);
+  insertProfessor._execute(context, args);
+
+  Professors.findOne({ sciper: "188475" });
+};
+
+loadSitesFixtures = () => {
+  let userId = createUser();
+  let tags = Tags.find({}).fetch();
+  let categories = Categories.find({ name: "Restauration" }).fetch();
+  let professors = Professors.find({ sciper: "188475" }).fetch();
+
+  // Create site with this professor
+  createSite(userId, categories, tags, professors);
 };
 
 loadTestFixtures = () => {
+  if (Categories.find({}).count() == 0) {
+    console.log("    …importing categories");
+    loadCategoriesFixtures();
+  } else {
+    console.log("Categories already exist");
+  }
+
+  if (Tags.find({}).count() == 0) {
+    console.log("    …importing tags");
+    loadTagsFixtures();
+  } else {
+    console.log("Tags already exist");
+  }
+
+  if (Professors.find({}).count() == 0) {
+    console.log("    …importing professors");
+    loadProfessorsFixtures();
+  } else {
+    console.log("Professors already exist");
+  }
+
   if (Sites.find({}).count() == 0) {
     console.log("    …importing sites");
     loadSitesFixtures();

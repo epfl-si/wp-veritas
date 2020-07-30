@@ -32,7 +32,7 @@ endpointSites = () => {
         userExperience: false,
         userExperienceUniqueLabel: "",
         tags: site.tags,
-        professors: [],
+        professors: site.professors,
         wpInfra: true,
       },
     ];
