@@ -46,7 +46,7 @@ Api.addRoute(
     //        https://wp-veritas.epfl.ch/api/v1/professors/229105/tags vs https://wp-veritas.epfl.ch/api/v1/professors/toto/tags
     //        Error management
     get: function () {
-      let sciper = this.urlParams.id;
+      let sciper = this.urlParams.sciper;
       let sites = Sites.find({ "professors.sciper": sciper }).fetch();
       let tags = [];
       sites.forEach((site) => {
