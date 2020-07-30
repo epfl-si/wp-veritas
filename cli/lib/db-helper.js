@@ -6,12 +6,14 @@ const config = require("./config.js");
  * Get target
  */
 module.exports.getTarget = (source) => {
-  if (["test", "prod", "prod-on-test"].includes(source) === false) {
+  if (["test", "prod", "prod-on-dev", "prod-on-test"].includes(source) === false) {
     throw new Error("Source is unknown");
   }
   let target;
   if (source === "test" || source === "prod") {
     target = config.LOCAL_TARGET_TEST_DB_HOST;
+  } else if (source === "prod-on-dev") {
+    target = "dev";
   } else if (source === "prod-on-test") {
     target = "test";
   }

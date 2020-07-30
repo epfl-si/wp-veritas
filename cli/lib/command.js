@@ -6,7 +6,7 @@ const helpers = require("./helpers.js");
 const _restore = async function (source) {
 
   const target = dbHelpers.getTarget(source);
-  if (source === "prod-on-test") {
+  if (["prod-on-dev","prod-on-test"].includes(source)) {
     source = "prod";
   };
   const sourceConnectionString = dbHelpers.getConnectionString(source);
@@ -100,6 +100,12 @@ module.exports.restoreTestDatabase = async function () {
 module.exports.restoreProdDatabase = async function () {
   await _restore("prod");
   console.log("Restore prod database");
+  return true;
+};
+
+module.exports.restoreProdDatabaseOnDev = async function () {
+  await _restore("prod-on-dev");
+  console.log("Restore prod database on dev database");
   return true;
 };
 
