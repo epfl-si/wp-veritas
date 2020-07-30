@@ -5,7 +5,7 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-getExpectedResult = () => {
+getExpectedSiteResult = () => {
   let site = Sites.findOne({
     url: "https://www.epfl.ch/beaujolais/madame-placard",
   });
@@ -39,7 +39,7 @@ endpointSites = () => {
   let endpointGetSites = "/api/v1/sites";
   it(`GET ${endpointGetSites}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedResult();
+    let expectedResult = getExpectedSiteResult();
     chai
       .request(base_url)
       .get(endpointGetSites)
@@ -55,7 +55,7 @@ endpointSites = () => {
   let endpointGetSitesId = "/api/v1/sites/:id";
   it(`GET ${endpointGetSitesId}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedResult();
+    let expectedResult = getExpectedSiteResult();
     chai
       .request(base_url)
       .get("/api/v1/sites/" + expectedResult[0]._id)
@@ -73,7 +73,7 @@ endpointSites = () => {
   let endpointGetSitesSiteURL = "/api/v1/sites?site_url";
   it(`GET ${endpointGetSitesSiteURL}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedResult();
+    let expectedResult = getExpectedSiteResult();
     chai
       .request(base_url)
       .get(endpointGetSitesSiteURL + "=" + expectedResult[0].url)
