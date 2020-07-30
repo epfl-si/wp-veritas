@@ -1,5 +1,31 @@
-import { Sites } from "../../imports/api/collections";
+import { Sites, Professors } from "../../imports/api/collections";
 import { Api } from "./utils";
+
+/**
+ * @api {get} /professors  Get all professors
+ * @apiGroup Professors
+ *
+ * @apiSuccessExample Success-Response:
+ *
+ *     HTTP/1.1 200 OK
+ *     [
+ *       ...,
+ *       "_id": "iR6om6ryRuQLbWcyJ",
+ *       "sciper": "188475",
+ *       "displayName": "Charmier Grégory"
+ *       ...,
+ *     ]
+ */
+Api.addRoute(
+  "professors",
+  { authRequired: false },
+  {
+    get: function () {
+      return Professors.find({}).fetch();
+    },
+  }
+);
+
 
 /**
  * @api {get} /professors/:sciper/tags  Get all tags for a professor
