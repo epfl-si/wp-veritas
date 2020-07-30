@@ -27,7 +27,7 @@ loadCategoriesFixtures = () => {
 
 loadTagsFixtures = () => {
   let userId = createUser();
-  
+
   const tagArgs1 = {
     name_fr: "Beaujolais",
     name_en: "Beaujolais",
@@ -44,7 +44,8 @@ loadTagsFixtures = () => {
     type: "field-of-research",
   };
 
-  createTag(userId, tagArgs1), createTag(userId, tagArgs2);
+  createTag(userId, tagArgs1);
+  createTag(userId, tagArgs2);
 };
 
 loadProfessorsFixtures = () => {
