@@ -53,6 +53,14 @@ meteor: check-env
 	@echo '**** Start meteor: ****'
 	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
 
+.PHONY: version
+version:
+	@echo $(VERSION)
+
+.PHONY: version-patch
+version-patch:
+	@./change-version.sh -a
+
 .PHONY: version-minor
 version-minor:
 	@./change-version.sh -a -v minor
@@ -100,6 +108,7 @@ deploy-dev:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-dev -vvv
 	@echo '**** End deploy: ****'
 
@@ -113,6 +122,7 @@ deploy-test:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
 
@@ -126,6 +136,7 @@ deploy-prod:
 		echo "loggué"; \
 	fi
 	cd ansible/; \
+	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-prod
 	@echo '**** End deploy: ****'
 
