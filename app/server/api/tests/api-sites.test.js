@@ -87,21 +87,21 @@ endpointSites = () => {
       });
   });
 
-  // Get sites by URL pattern
+  // TODO: Get sites by URL pattern
   let endpointGetSitesSearchURL = "/api/v1/sites?search_url";
 
-  // Get sites by tag name en
+  // TODO: Get sites by tag name en
   let endpointGetSitesWithTagsEnTag1Tag2 =
     "/api/v1/sites-with-tags-en/:tag1/:tag2";
 
-  // Get sites by tag name fr
+  // TODO: Get sites by tag name fr
   let endpointGetSitesWithTagsFrTag1Tag2 =
     "/api/v1/sites-with-tags-fr/:tag1/:tag2";
 
-  // Get sites that a user is admin of
+  // TODO: Get sites that a user is admin of
   let endpointGetSitesWpAdminSciper = "/api/v1/sites/wp-admin/:sciper";
 
-  // Get tags by site ID
+  // TODO: Get tags by site ID
   let endpointGetSitesIdTags = "/api/v1/sites/:id/tags";
 };
 
