@@ -82,28 +82,24 @@ endpointSites = () => {
         expect(res).to.have.status(200);
         expect(res.headers["content-type"]).to.equal("application/json");
         expect(JSON.stringify(res.body)).to.eql(
-          JSON.stringify(expectedResult[0])
+          JSON.stringify(expectedResult)
         );
       });
   });
 
-    // Get a site by wrong URL
-    let endpointGetSitesSiteURL = "/api/v1/sites?site_url";
-    it(`GET wrong ${endpointGetSitesSiteURL}`, function () {
-      let base_url = "http://localhost:" + process.env.PORT;
-      let expectedResult = getExpectedResult();
-      chai
-        .request(base_url)
-        .get(endpointGetSitesSiteURL + "=http://perdu.com/")
-        .end(function (err, res) {
-          expect(err).to.be.null;
-          expect(res).to.have.status(200);
-          expect(res.headers["content-type"]).to.equal("application/json");
-          expect(JSON.stringify(res.body)).to.eql(
-            JSON.stringify(expectedResult[0])
-          );
-        });
-    });
+  // Get a site by wrong URL
+  it(`GET wrong ${endpointGetSitesSiteURL}`, function () {
+    let base_url = "http://localhost:" + process.env.PORT;
+    chai
+      .request(base_url)
+      .get(endpointGetSitesSiteURL + "=http://perdu.com/")
+      .end(function (err, res) {
+        expect(err).to.be.null;
+        expect(res).to.have.status(200);
+        expect(res.headers["content-type"]).to.equal("application/json");
+        expect(JSON.stringify(res.body)).to.eql(JSON.stringify([]));
+      });
+  });
 
   // TODO: Get sites by URL pattern
   let endpointGetSitesSearchURL = "/api/v1/sites?search_url";
