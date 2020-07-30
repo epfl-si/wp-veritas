@@ -6,7 +6,8 @@ let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 endpointSites = () => {
-  it("GET /api/v1/sites", function () {
+  let endpoint = "/api/v1/sites"
+  it(`GET ${endpoint}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;
 
     let site = Sites.findOne({
@@ -38,7 +39,7 @@ endpointSites = () => {
 
     chai
       .request(base_url)
-      .get("/api/v1/sites")
+      .get(endpoint)
       .end(function (err, res) {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
