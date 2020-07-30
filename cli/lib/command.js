@@ -6,12 +6,12 @@ const helpers = require("./helpers.js");
 const _restore = async function (source) {
 
   const target = dbHelpers.getTarget(source);
-  if (source === "prod-on-test") { 
-    source = "prod"; 
+  if (source === "prod-on-test") {
+    source = "prod";
   };
   const sourceConnectionString = dbHelpers.getConnectionString(source);
   const targetConnectionString = dbHelpers.getConnectionString(target);
-  
+
   console.log("STEP 0: PREPARE PARAMETERS");
   console.log(`DB Source ${ source } => DB Target ${ target }`);
   console.log(`ConnectionString of source: ${ sourceConnectionString }`);
@@ -42,7 +42,7 @@ const _restore = async function (source) {
 
   // wait few secondes
   await new Promise((resolve) => setTimeout(resolve, 8000));
-  
+
   // Move dump/wp-veritas
   console.log("STEP 4: NEED TO MOVE dump/wp-veritas ?");
   if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
@@ -73,7 +73,7 @@ const _loadTestData = async function (destination) {
 
   // Delete all documents of 'sites' collection
   await dbHelpers.deleteAllDocuments(connectionString, destination, "sites");
-  
+
   // parse data
   let data = helpers.parseData();
 
@@ -113,6 +113,13 @@ module.exports.loadTestsDataOnLocalhost = async function () {
   let destination = config.LOCAL_TARGET_TEST_DB_HOST;
   await _loadTestData(destination);
   console.log("Load tests data on localhost DB");
+  return true;
+};
+
+module.exports.loadTestsDataOnDev = async function () {
+  let destination = "dev";
+  await _loadTestData(destination);
+  console.log("Load tests data on dev DB");
   return true;
 };
 

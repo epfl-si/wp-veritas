@@ -16,8 +16,12 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
-let importDatas = true;
-let disableTequila = false;
+import { getEnvironment } from "../imports/api/utils";
+
+let importDatas = false;
+// Warning: Tequila is needed to create the DB entries the first time that
+// you run the app — afterwards you can disable it to have more dev comfort.
+let disableTequila = getEnvironment() === "LOCALHOST" ? true : false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {

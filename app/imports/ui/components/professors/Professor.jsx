@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 import React, { Component, Fragment } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -6,7 +6,11 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { Professors } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading } from "../Messages";
-import { insertProfessor, removeProfessor } from "../../../api/methods/professors";
+import {
+  insertProfessor,
+  removeProfessor,
+} from "../../../api/methods/professors";
+import PopOver from "../popover/PopOver";
 
 class ProfessorsList extends Component {
   render() {
@@ -70,24 +74,23 @@ class Professor extends Component {
   };
 
   handleClickOnDeleteButton = (professorId) => {
-
-    let professor = Professors.findOne({_id: professorId});
+    let professor = Professors.findOne({ _id: professorId });
 
     Swal.fire({
-      title: `Voulez vous vraiment supprimer le professeur: ${ professor.displayName } ?`,
-      text: 'Cette action est irréversible',
-      icon: 'warning',
+      title: `Voulez vous vraiment supprimer le professeur: ${professor.displayName} ?`,
+      text: "Cette action est irréversible",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Oui',
-      cancelButtonText: 'Non'
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Oui",
+      cancelButtonText: "Non",
     }).then((result) => {
-      if(result.value){
+      if (result.value) {
         this.deleteProfessor(professorId);
       }
-    })
-  }
+    });
+  };
 
   updateUserMsg = () => {
     this.setState({
@@ -173,7 +176,15 @@ class Professor extends Component {
       content = (
         <Fragment>
           <div className="card">
-            <h5 className="card-header">Ajouter un professeur</h5>
+            <h5 className="card-header">
+              Ajouter un professeur
+              <PopOver
+                popoverUniqID="professors"
+                title="Professeurs"
+                placement="bottom"
+                description="Les sites de l'EPFL peuvent être liés à un ou plusieurs Professeurs."
+              />
+            </h5>
             {this.state.addSuccess ? (
               <AlertSuccess
                 message={"Le nouveau professeur a été ajouté avec succès !"}
