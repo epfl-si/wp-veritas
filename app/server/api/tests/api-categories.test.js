@@ -4,7 +4,7 @@ let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 endpointCategories = () => {
-  let endpoint = "/api/v1/categories"
+  let endpoint = "/api/v1/categories";
   it(`GET ${endpoint}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;
 
