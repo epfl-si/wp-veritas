@@ -18,10 +18,6 @@ help:
 	@echo "make deploy-test        — To deploy on test environment"
 	@echo "make deploy-prod        — To deploy on prod environment"
 
-.PHONY: version
-version:
-	@echo $(VERSION)
-
 check-env:
 ifeq ($(wildcard /keybase/team/epfl_wpveritas/env),)
   @echo "Be sure to have access to /keybase/team/epfl_wpveritas/env"
@@ -31,6 +27,15 @@ include /keybase/team/epfl_wpveritas/env
 # To add all variable to your shell, use
 #export $(xargs < /keybase/team/epfl_wpveritas/env)
 endif
+
+.PHONY: meteor
+meteor: check-env
+	@echo '**** Start meteor: ****'
+	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
+
+.PHONY: version
+version:
+	@echo $(VERSION)
 
 .PHONY: apidoc
 apidoc:
@@ -47,15 +52,6 @@ apidoc:
 test: check-env
 	@echo '**** Run test: ****'
 	@cd app; env MOCHA_TIMEOUT=$$MOCHA_TIMEOUT WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3888
-
-.PHONY: meteor
-meteor: check-env
-	@echo '**** Start meteor: ****'
-	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
-
-.PHONY: version
-version:
-	@echo $(VERSION)
 
 .PHONY: version-patch
 version-patch:
