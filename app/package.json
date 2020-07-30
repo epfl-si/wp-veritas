@@ -16,7 +16,6 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "bcrypt": "^4.0.1",
-    "chai-http": "^4.3.0",
     "epfl-ldap": "^1.0.0",
     "formik": "^2.1.4",
     "helmet": "^3.22.0",
@@ -35,7 +34,6 @@
     "request": "^2.88.2",
     "simpl-schema": "^1.7.0",
     "simple-ldap-search": "^2.0.11",
-    "supertest": "^4.0.2",
     "sweetalert2": "^9.15.2",
     "underscore": "^1.10.2",
     "url-parse": "^1.4.7",
@@ -50,6 +48,7 @@
   },
   "devDependencies": {
     "babel-plugin-istanbul": "^6.0.0",
-    "chai": "^4.2.0"
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0"
   }
 }
