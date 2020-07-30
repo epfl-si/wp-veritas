@@ -69,7 +69,7 @@ loadSitesFixtures = () => {
 
 loadTestFixtures = () => {
   if (Sites.find({}).count() == 0) {
-    console.log("Import sites");
+    console.log("    …importing sites");
     loadSitesFixtures();
   } else {
     console.log("Sites already exist");

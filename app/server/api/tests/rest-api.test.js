@@ -12,6 +12,7 @@ import { endpointOpenshiftEnvs } from "./api-openshiftenvs.test";
 if (Meteor.isServer) {
   describe("API", () => {
     before(() => {
+      console.log("    …reseting database");
       resetDatabase();
       loadFixtures();
       loadTestFixtures();

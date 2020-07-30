@@ -9,7 +9,7 @@ loadRolesFixtures = () => {
 
 loadFixtures = () => {
   if (Meteor.roles.find({}).count() == 0) {
-      console.log("Import roles");
+      console.log("    …importing roles");
       loadRolesFixtures();
   } else {
       console.log("Roles already exist");
