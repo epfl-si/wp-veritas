@@ -143,6 +143,30 @@ publish:
 	$(MAKE) tag
 	$(MAKE) push
 
-.PHONY: develop
-develop:
+
+################################################################################
+# Targets for development purpose only                                         #
+################################################################################
+.PHONY: dev-up
+dev-up:
 	@docker-compose -f docker-compose-dev.yml up
+
+.PHONY: dev-build
+dev-build:
+	@docker-compose -f docker-compose-dev.yml build
+
+.PHONY: dev-build-force
+dev-build-force:
+	@docker-compose -f docker-compose-dev.yml build --force-rm --no-cache --pull
+
+.PHONY: dev-exec
+dev-exec:
+	@docker exec -it --user root wp-veritas_meteor bash
+
+.PHONY: dev-cli
+dev-cli:
+	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src/cli && npm install && npm install -g ./ && cd /src/ && veritas-cli --help"
+
+.PHONY: dev-data
+dev-data: dev-cli
+	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src && veritas-cli load-tests-data-on-localhost-db"
