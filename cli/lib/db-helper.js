@@ -83,9 +83,9 @@ getDB = function (target, client) {
   
   let dbName;
   if (target === "dev") {
-    dbName = "wp-veritas";
+    dbName = config.DEV_DB_NAME;
   } else if (target === "test") {
-    dbName = "wp-veritas-test";
+    dbName = config.TEST_DB_NAME;
   } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
     dbName = "meteor";
   }

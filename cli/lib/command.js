@@ -46,8 +46,11 @@ const _restore = async function (source) {
   // Move dump/wp-veritas
   console.log("STEP 4: NEED TO MOVE dump/wp-veritas ?");
   if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
-    await helpers.moveDumpFolder();
+    await helpers.moveDumpFolder("meteor");
     console.log("Move wp-veritas/ to meteor/");
+  } else if (target === "test") {
+    await helpers.moveDumpFolder(config.TEST_DB_NAME);
+    console.log("Move wp-veritas/ to wp-veritas-test/");
   } else {
     console.log("No");
   }
@@ -59,8 +62,10 @@ const _restore = async function (source) {
   // Restore source DB on target DB
   console.log("STEP 5: RESTORE SOURCE ON TARGET");
   let dbName = "wp-veritas";
-  if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
-    dbName = 'meteor';
+  if (target === "test") {
+    dbName = config.TEST_DB_NAME;
+  } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
+    dbName = "meteor";
   }
   await dbHelpers.restoreMongoDB(targetConnectionString, dbName);
   console.log("");
