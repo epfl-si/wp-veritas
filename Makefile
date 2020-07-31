@@ -1,6 +1,6 @@
 # wp-veritas' Makefile
 SHELL := /bin/bash
-VERSION=$(shell jq -r .version app/package.json)
+VERSION=$(shell ./change-version.sh -pv)
 
 .PHONY: help
 help:

@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
+# Need debug ? set -e -x
 
+# Test for jq
 if ! [[ "$(command -v jq)" ]]; then
   echo -e "\e[31mWARNING:\e[39m jq is not installed";
   echo -e "\e[34mCOMMAND:\e[39m sudo apt install jq";
   exit 1;
 fi
+# Test for npm
 if ! [[ "$(command -v npm)" ]]; then
   echo -e "\e[31mWARNING:\e[39m npm is not installed";
   echo -e "\e[34mCOMMAND:\e[39m sudo apt install npm";
   exit 1;
 fi
 
+# Print usage
 usage() {
   echo ""
   echo "Without arguments, this script will be run interactively and will change the"
@@ -20,19 +24,19 @@ usage() {
   echo "  -d, --display: display current versions and exit"
   echo "  -a, --auto: disable the interactive mode"
   echo "  -v, --version [patch|minor|major|userinput]: change the semver version"
+  echo "  -pv, --package-version: output only the package.json version"
   echo ""
   echo "Example: $0 -d"
   echo "Example: $0 -a -v major"
   echo "Example: $0 -a -v 3.2.1"
   echo ""
 }
-
+VERSION=$(jq -r .version app/package.json)
 summary() {
   if [ "$1" != "" ]; then
     echo ${1^^}
   fi
 
-  VERSION=$(jq -r .version app/package.json)
   echo "  package.json: $VERSION"
   ORIVERSION=$VERSION
 
@@ -46,20 +50,23 @@ summary() {
 VERSIONCHANGE=
 INTERACTIVE=1
 SHOW=0
+PACKAGEVERSION=0
 while [ "$1" != "" ]; do
   case $1 in
-    -v | --version )        shift
-                            VERSIONCHANGE=${1^^}
-                            ;;
-    -a | --auto )           INTERACTIVE=0
-                            ;;
-    -d | --display )        SHOW=1
-                            ;;
-    -h | --help )           usage
-                            exit
-                            ;;
-    * )                     usage
-                            exit 1
+    -v | --version )           shift
+                               VERSIONCHANGE=${1^^}
+                               ;;
+    -a | --auto )              INTERACTIVE=0
+                               ;;
+    -d | --display )           SHOW=1
+                               ;;
+    -pv | --package-version )  PACKAGEVERSION=1
+                               ;;
+    -h | --help )              usage
+                               exit
+                               ;;
+    * )                        usage
+                               exit 1
   esac
   shift
 done
@@ -112,6 +119,10 @@ change-version-header() {
 ################################################################################
 if [ $SHOW == "1" ]; then
   summary "Versions summary"
+  exit 0
+fi
+if [ $PACKAGEVERSION == "1" ]; then
+  echo -n $VERSION
   exit 0
 fi
 summary "Initial versions"
