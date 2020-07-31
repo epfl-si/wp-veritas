@@ -4,18 +4,17 @@ const dbHelpers = require("./db-helper.js");
 const helpers = require("./helpers.js");
 
 const _restore = async function (source) {
-
   const target = dbHelpers.getTarget(source);
-  if (["prod-on-dev","prod-on-test"].includes(source)) {
+  if (["prod-on-dev", "prod-on-test"].includes(source)) {
     source = "prod";
-  };
+  }
   const sourceConnectionString = dbHelpers.getConnectionString(source);
   const targetConnectionString = dbHelpers.getConnectionString(target);
 
   console.log("STEP 0: PREPARE PARAMETERS");
-  console.log(`DB Source ${ source } => DB Target ${ target }`);
-  console.log(`ConnectionString of source: ${ sourceConnectionString }`);
-  console.log(`ConnectionString of target: ${ targetConnectionString }`);
+  console.log(`DB Source ${source} => DB Target ${target}`);
+  console.log(`ConnectionString of source: ${sourceConnectionString}`);
+  console.log(`ConnectionString of target: ${targetConnectionString}`);
   console.log("");
 
   // Delete target DB
@@ -37,7 +36,7 @@ const _restore = async function (source) {
   // Dump source DB
   console.log("STEP 3: DUMP SOURCE DB");
   await dbHelpers.dumpMongoDB(sourceConnectionString);
-  console.log(`Dump ${ source } MongoDB`);
+  console.log(`Dump ${source} MongoDB`);
   console.log("");
 
   // wait few secondes
@@ -72,7 +71,6 @@ const _restore = async function (source) {
 };
 
 const _loadTestData = async function (destination) {
-
   let connectionString = dbHelpers.getConnectionString(destination);
   console.log(connectionString);
 

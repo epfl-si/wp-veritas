@@ -55,7 +55,8 @@ module.exports.loadData = async (destination, data) => {
       if (!stop) {
         url = `https://${currentSite.wp_hostname}/${currentSite.wp_path}`;
         title = currentSite.wp_path;
-        categoryName = currentSite["wp_details"]["options"]["epfl:site_category"];       
+        categoryName =
+          currentSite["wp_details"]["options"]["epfl:site_category"];
         if (categoryName == null) {
           categoryName = "GeneralPublic";
         }

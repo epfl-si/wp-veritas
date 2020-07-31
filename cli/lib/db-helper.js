@@ -6,7 +6,9 @@ const config = require("./config.js");
  * Get target
  */
 module.exports.getTarget = (source) => {
-  if (["test", "prod", "prod-on-dev", "prod-on-test"].includes(source) === false) {
+  if (
+    ["test", "prod", "prod-on-dev", "prod-on-test"].includes(source) === false
+  ) {
     throw new Error("Source is unknown");
   }
   let target;
@@ -24,7 +26,11 @@ module.exports.getTarget = (source) => {
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-  if ([config.LOCAL_TARGET_TEST_DB_HOST, "dev", "test", "prod"].includes(environment) === false) {
+  if (
+    [config.LOCAL_TARGET_TEST_DB_HOST, "dev", "test", "prod"].includes(
+      environment
+    ) === false
+  ) {
     throw new Error("Environment is unknown");
   }
 
@@ -36,7 +42,7 @@ module.exports.getConnectionString = (environment) => {
   let dbPwd;
   let dbHost;
   let dbName;
-  
+
   if (environment === "dev") {
     dbUsername = config.DEV_DB_USERNAME;
     dbPwd = config.DEV_DB_PWD;
@@ -73,14 +79,13 @@ createClient = async function (connectionString) {
   const client = await MongoClient.connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    connectTimeoutMS: 300000,
+    connectTimeoutMS: 30000,
   });
 
   return client;
 };
 
 getDB = function (target, client) {
-  
   let dbName;
   if (target === "dev") {
     dbName = config.DEV_DB_NAME;
@@ -119,11 +124,13 @@ module.exports.getCategory = async function (
 ) {
   const client = await createClient(connectionString);
   const db = getDB(target, client);
-  let category = await db.collection("categories").find({"name": categoryName}).toArray();
+  let category = await db
+    .collection("categories")
+    .find({ name: categoryName })
+    .toArray();
   client.close();
   return category;
 };
-
 
 /**
  * Delete all documents of collection.
