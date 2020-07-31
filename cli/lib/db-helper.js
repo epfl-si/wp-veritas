@@ -13,7 +13,7 @@ module.exports.getTarget = (source) => {
   }
   let target;
   if (source === "test" || source === "prod") {
-    target = config.LOCAL_TARGET_TEST_DB_HOST;
+    target = "localhost";
   } else if (source === "prod-on-dev") {
     target = "dev";
   } else if (source === "prod-on-test") {
@@ -26,16 +26,12 @@ module.exports.getTarget = (source) => {
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-  if (
-    [config.LOCAL_TARGET_TEST_DB_HOST, "dev", "test", "prod"].includes(
-      environment
-    ) === false
-  ) {
+  if (["localhost", "dev", "test", "prod"].includes(environment) === false) {
     throw new Error("Environment is unknown");
   }
 
-  if (environment === config.LOCAL_TARGET_TEST_DB_HOST) {
-    return `mongodb://${config.LOCAL_TARGET_TEST_DB_HOST}:${config.LOCAL_TARGET_TEST_DB_PORT}/`;
+  if (environment === "localhost") {
+    return `mongodb://${config.LOCAL_DB_HOST}:${config.LOCAL_DB_PORT}/`;
   }
 
   let dbUsername;
@@ -70,7 +66,7 @@ module.exports.getConnectionString = (environment) => {
 createClient = async function (connectionString) {
   // Check DB
   if (
-    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
+    !connectionString.includes(config.LOCAL_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");
@@ -91,7 +87,7 @@ getDB = function (target, client) {
     dbName = config.DEV_DB_NAME;
   } else if (target === "test") {
     dbName = config.TEST_DB_NAME;
-  } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
+  } else if (target === "localhost") {
     dbName = "meteor";
   }
   return client.db(dbName);
@@ -188,7 +184,7 @@ module.exports.dumpMongoDB = async function (connectionString) {
     // mongodump is a native executable, please install mongo-tools
     // and be sure to have a version with the --uri option avalaible.
     const command = `mongodump --forceTableScan --uri ${connectionString}`;
-    console.log(command)
+    console.log(command);
     resolve(exec(command));
   });
 };
@@ -199,7 +195,7 @@ module.exports.dumpMongoDB = async function (connectionString) {
 module.exports.restoreMongoDB = async function (connectionString, dbName) {
   // Check DB
   if (
-    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
+    !connectionString.includes(config.LOCAL_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");

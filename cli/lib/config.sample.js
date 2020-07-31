@@ -18,12 +18,12 @@ exports.DEV_DB_NAME = "wp-veritas";
 
 // Local target (configurable in case you are using another installation of
 // mongodb, e.g. inside a docker container)
-exports.LOCAL_TARGET_TEST_DB_HOST = "mongo";
-exports.LOCAL_TARGET_TEST_DB_PORT = "27017";
+exports.LOCAL_DB_HOST = "mongo";
+exports.LOCAL_DB_PORT = "27017";
 // If outside a Docker container (i.e. make meteor) you may want to use
 // something like below instead.
-//exports.LOCAL_TARGET_TEST_DB_HOST = "localhost";
-//exports.LOCAL_TARGET_TEST_DB_PORT = "3001";
+//exports.LOCAL_DB_HOST = "localhost";
+//exports.LOCAL_DB_PORT = "3001";
 
 // e.g. /home/user/wp-veritas
 exports.WORKSPACE_PATH = "/src";

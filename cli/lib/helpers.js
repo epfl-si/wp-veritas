@@ -18,9 +18,9 @@ module.exports.deleteDumpFolder = async function () {
 /**
  * Move wp-veritas/dump/wp-veritas/ to wp-veritas/dump/meteor/
  */
-module.exports.moveDumpFolder = async (dbName) => {
-  const source = `${config.WORKSPACE_PATH}/dump/wp-veritas/`;
-  const target = `${config.WORKSPACE_PATH}/dump/${dbName}/`;
+module.exports.moveDumpFolder = async (dbSource, dbTarget) => {
+  const source = `${config.WORKSPACE_PATH}/dump/${dbSource}/`;
+  const target = `${config.WORKSPACE_PATH}/dump/${dbTarget}/`;
   await mv(source, target);
 };
 
