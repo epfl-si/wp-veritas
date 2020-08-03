@@ -29,6 +29,13 @@ program
   })
 
 program
+  .command('restore-prod-db-on-dev')
+  .description('Restore the production MongoDB on dev MongoDB')
+  .action(function () {
+    commands.restoreProdDatabaseOnDev();
+  })
+
+program
   .command('restore-prod-db-on-test')
   .description('Restore the production MongoDB on test MongoDB')
   .action(function () {

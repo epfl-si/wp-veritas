@@ -1,6 +1,6 @@
 {
   "name": "wp-veritas",
-  "version": "1.8.4",
+  "version": "1.9.1",
   "description": "https://wp-veritas.epfl.ch",
   "bugs": {
     "url": "https://github.com/epfl-si/wp-veritas/issues"
@@ -9,7 +9,7 @@
   "private": true,
   "scripts": {
     "start": "meteor run",
-    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test": "meteor test --once --full-app --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
@@ -31,6 +31,7 @@
     "react-router-dom": "^5.1.2",
     "react-select": "^3.1.0",
     "reactstrap": "^8.5.1",
+    "request": "^2.88.2",
     "simpl-schema": "^1.7.0",
     "simple-ldap-search": "^2.0.11",
     "sweetalert2": "^9.15.2",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "babel-plugin-istanbul": "^6.0.0",
-    "chai": "^4.2.0"
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0"
   }
 }

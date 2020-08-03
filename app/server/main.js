@@ -21,7 +21,8 @@ import { getEnvironment } from "../imports/api/utils";
 let importDatas = false;
 // Warning: Tequila is needed to create the DB entries the first time that
 // you run the app — afterwards you can disable it to have more dev comfort.
-let disableTequila = getEnvironment() === "LOCALHOST" ? true : false;
+let forceTequila = false;
+let disableTequila = (forceTequila === false && getEnvironment() === "LOCALHOST") ? true : false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
@@ -54,7 +55,7 @@ if (Meteor.isServer) {
     if (!disableTequila) {
       import "./tequila-config";
     }
-    import "./rest-api";
+    import "./api/rest-api";
     import "./cron";
 
     SyncedCron.start();

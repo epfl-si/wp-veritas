@@ -33,8 +33,9 @@ services:
       MONGO_URL: mongodb://mongo:27017/meteor
       PORT: 3000
       METEOR_SETTINGS_FILE: /src/app/meteor-settings.json # See docker/entrypoint.sh
-      WP_VERITAS_BOT_TOKEN: ${WP_VERITAS_BOT_TOKEN}
-      WP_VERITAS_ALERTS_TELEGRAM_IDS: ${WP_VERITAS_ALERTS_TELEGRAM_IDS}
+    env_file:
+    - /keybase/team/epfl_wpveritas/env
+
 
   mongo:
     container_name: wp-veritas_mongo

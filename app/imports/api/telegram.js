@@ -23,7 +23,8 @@ class Telegram {
   static sendMessage(message) {
     if (
       Telegram.WP_VERITAS_BOT_TOKEN &&
-      Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS
+      Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS &&
+      !["TEST-SUITE", "LOCALHOST"].includes(getEnvironment())
     ) {
       // Be sure to URL encode the content of the message
       let urlEncodedMessage = encodeURIComponent(message);

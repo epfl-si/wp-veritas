@@ -18,9 +18,9 @@ module.exports.deleteDumpFolder = async function () {
 /**
  * Move wp-veritas/dump/wp-veritas/ to wp-veritas/dump/meteor/
  */
-module.exports.moveDumpFolder = async () => {
-  const source = `${config.WORKSPACE_PATH}/dump/wp-veritas/`;
-  const target = `${config.WORKSPACE_PATH}/dump/meteor/`;
+module.exports.moveDumpFolder = async (dbSource, dbTarget) => {
+  const source = `${config.WORKSPACE_PATH}/dump/${dbSource}/`;
+  const target = `${config.WORKSPACE_PATH}/dump/${dbTarget}/`;
   await mv(source, target);
 };
 
@@ -55,7 +55,8 @@ module.exports.loadData = async (destination, data) => {
       if (!stop) {
         url = `https://${currentSite.wp_hostname}/${currentSite.wp_path}`;
         title = currentSite.wp_path;
-        categoryName = currentSite["wp_details"]["options"]["epfl:site_category"];       
+        categoryName =
+          currentSite["wp_details"]["options"]["epfl:site_category"];
         if (categoryName == null) {
           categoryName = "GeneralPublic";
         }
