@@ -1,4 +1,3 @@
-import { Sites } from "../../../imports/api/collections";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { loadFixtures } from "../../fixtures";
 import { loadTestFixtures } from "../../fixtures-test";
