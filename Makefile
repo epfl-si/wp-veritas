@@ -4,38 +4,63 @@ VERSION=$(shell ./change-version.sh -pv)
 
 .PHONY: help
 help:
-	@echo "make help               — Display this help"
-	@echo "make meteor             — Run application wp-veritas on localhost"
-	@echo "make version            — Get the version number of wp-veritas"
-	@echo "make apidoc             — Refresh API documentation"
-	@echo "make test               — Run test suite"
-	@echo "make version-patch      — Bump wp-veritas version (patch)"
-	@echo "make version-minor      — Bump wp-veritas version (minor)"
-	@echo "make version-major      — Bump wp-veritas version (major)"
-	@echo "make version-special    — Bump wp-veritas to specified version"
-	@echo "make publish            — To build, tag and push new Image"
-	@echo "make deploy-dev         — To deploy on dev environment"
-	@echo "make deploy-test        — To deploy on test environment"
-	@echo "make deploy-prod        — To deploy on prod environment"
+	@echo "Main:"
+	@echo "  make help               — Display this help"
+	@echo "  make meteor             — Run application wp-veritas on localhost"
+	@echo "Utilities:"
+	@echo "  make print-env          — Print the environment variables"
+	@echo "  make test               — Run test suite"
+	@echo "  make apidoc             — Refresh API documentation"
+	@echo "  make prettier           — Prettier all the things"
+	@echo "  make prettier-check     — Check if prettier need to be run"
+	@echo "Release:"
+	@echo "  make version            — Get the version number of wp-veritas"
+	@echo "  make version-patch      — Bump wp-veritas version (patch)"
+	@echo "  make version-minor      — Bump wp-veritas version (minor)"
+	@echo "  make version-major      — Bump wp-veritas version (major)"
+	@echo "  make version-special    — Bump wp-veritas to specified version"
+	@echo "Publication and deployment:"
+	@echo "  make publish            — To build, tag and push new Image"
+	@echo "  make deploy-dev         — To deploy on dev environment"
+	@echo "  make deploy-test        — To deploy on test environment"
+	@echo "  make deploy-prod        — To deploy on prod environment"
+	@echo "Development:"
+	@echo "  make dev-up             — Brings up Docker services for development"
+	@echo "  make dev-build          — Build Docker services for development"
+	@echo "  make dev-build-force    — Force build Docker services for development"
+	@echo "  make dev-exec           — Enter the meteor container"
+	@echo "  make dev-cli            — Install veritas-cli in the meteor container"
+	@echo "  make dev-data           — load-tests-data-on-localhost-db"
 
+# To add all variable to your shell, use
+# export $(xargs < /keybase/team/epfl_wpveritas/env);
 check-env:
 ifeq ($(wildcard /keybase/team/epfl_wpveritas/env),)
-  @echo "Be sure to have access to /keybase/team/epfl_wpveritas/env"
-  @exit 1
+	@echo "Be sure to have access to /keybase/team/epfl_wpveritas/env"
+	@exit 1
 else
 include /keybase/team/epfl_wpveritas/env
-# To add all variable to your shell, use
-#export $(xargs < /keybase/team/epfl_wpveritas/env)
 endif
+
+print-env: check-env
+	@echo "WP_VERITAS_DB_PASSWORD_DEV=${WP_VERITAS_DB_PASSWORD_DEV}"
+	@echo "WP_VERITAS_DB_PASSWORD_TEST=${WP_VERITAS_DB_PASSWORD_TEST}"
+	@echo "WP_VERITAS_DB_PASSWORD_PROD=${WP_VERITAS_DB_PASSWORD_PROD}"
+	@echo "WP_VERITAS_BOT_TOKEN_TEST=${WP_VERITAS_BOT_TOKEN_TEST}"
+	@echo "WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST=${WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST}"
+	@echo "WP_VERITAS_BOT_TOKEN=${WP_VERITAS_BOT_TOKEN}"
+	@echo "WP_VERITAS_ALERTS_TELEGRAM_IDS=${WP_VERITAS_ALERTS_TELEGRAM_IDS}"
+	@echo "MOCHA_TIMEOUT=${MOCHA_TIMEOUT}"
 
 .PHONY: meteor
 meteor: check-env
 	@echo '**** Start meteor: ****'
 	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json
 
-.PHONY: version
-version:
-	@echo $(VERSION)
+.PHONY: test
+test: check-env
+	@echo '**** Run test: ****'
+	@cd app; env MOCHA_TIMEOUT=$$MOCHA_TIMEOUT WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3888
 
 .PHONY: apidoc
 apidoc:
@@ -48,10 +73,21 @@ apidoc:
 		xdg-open $$(pwd)/app/public/api/index.html; \
 	fi
 
-.PHONY: test
-test: check-env
-	@echo '**** Run test: ****'
-	@cd app; env MOCHA_TIMEOUT=$$MOCHA_TIMEOUT WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3888
+.PHONY: prettier-check
+prettier-check:
+	npx prettier --check "app/{client, private, server, tests}/**/*.js"
+	npx prettier --check "cli/**/*.js"
+	npx prettier --check "test/**/*.js"
+
+.PHONY: prettier
+prettier:
+	npx prettier --write "app/{client, private, server, tests}/**/*.js"
+	npx prettier --write "cli/**/*.js"
+	npx prettier --write "test/**/*.js"
+
+.PHONY: version
+version:
+	@echo $(VERSION)
 
 .PHONY: version-patch
 version-patch:
