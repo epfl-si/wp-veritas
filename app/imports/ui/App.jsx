@@ -15,37 +15,23 @@ import {
 } from "./components";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Loading } from "../ui/components/Messages";
+import { getEnvironment } from "../api/utils";
 
 class Apps extends Component {
-  getEnvironment() {
-    const absoluteUrl = Meteor.absoluteUrl();
-    let environment;
-    if (absoluteUrl.startsWith("http://localhost")) {
-      environment = "LOCALHOST";
-    } else if (
-      absoluteUrl.startsWith("https://wp-veritas.128.178.222.83.nip.io/")
-    ) {
-      environment = "TEST";
-    } else {
-      environment = "PROD";
-    }
-    return environment;
-  }
-
   render() {
     if (this.props.isLoading) {
       return <Loading />;
     } else {
       const ribbon = (
         <div className="ribbon-wrapper">
-          <div className="ribbon">{this.getEnvironment()}</div>
+          <div className="ribbon">{getEnvironment()}</div>
         </div>
       );
 
       return (
         <Router>
           <div className="App container">
-            {this.getEnvironment() === "PROD" ? null : ribbon}
+            {getEnvironment() === "PROD" ? null : ribbon}
             <Header />
             <Route path="/search" component={Search} />
             {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
@@ -71,6 +57,10 @@ class Apps extends Component {
             ) : null}
             <Footer />
           </div>
+          {/*  @TODO: refactor in a RedirectAPI.jsx component */}
+          <Route path="/api" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
+          <Route path="/api/v1" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
+          <Route path="/api/doc" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
         </Router>
       );
     }
@@ -78,7 +68,11 @@ class Apps extends Component {
 }
 export default withTracker(() => {
   let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
-  let isEditor = Roles.userIsInRole(Meteor.userId(), ["tags-editor"], "wp-veritas");
+  let isEditor = Roles.userIsInRole(
+    Meteor.userId(),
+    ["tags-editor"],
+    "wp-veritas"
+  );
   let isRole = isAdmin || isEditor;
   let isLoading;
 

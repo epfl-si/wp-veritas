@@ -62,7 +62,6 @@ if (Meteor.isServer) {
         tagline: "Yvon Métras",
         title: title,
         openshiftEnv: "www",
-        category: "GeneralPublic",
         categories: Categories.find({ name: "Restauration" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
@@ -78,8 +77,6 @@ if (Meteor.isServer) {
         professors: [],
         wpInfra: true,
       };
-
-      console.log(args);
 
       insertSite._execute(context, args);
 
@@ -106,7 +103,6 @@ if (Meteor.isServer) {
         tagline: site.tagline,
         title: title,
         openshiftEnv: "www",
-        category: "GeneralPublic",
         categories: Categories.find({ name: "Restauration" }).fetch(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],

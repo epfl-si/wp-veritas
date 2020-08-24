@@ -4,18 +4,17 @@ const dbHelpers = require("./db-helper.js");
 const helpers = require("./helpers.js");
 
 const _restore = async function (source) {
-
   const target = dbHelpers.getTarget(source);
-  if (source === "prod-on-test") { 
-    source = "prod"; 
-  };
+  if (["prod-on-dev", "prod-on-test"].includes(source)) {
+    source = "prod";
+  }
   const sourceConnectionString = dbHelpers.getConnectionString(source);
   const targetConnectionString = dbHelpers.getConnectionString(target);
-  
+
   console.log("STEP 0: PREPARE PARAMETERS");
-  console.log(`DB Source ${ source } => DB Target ${ target }`);
-  console.log(`ConnectionString of source: ${ sourceConnectionString }`);
-  console.log(`ConnectionString of target: ${ targetConnectionString }`);
+  console.log(`DB Source ${source} => DB Target ${target}`);
+  console.log(`ConnectionString of source: ${sourceConnectionString}`);
+  console.log(`ConnectionString of target: ${targetConnectionString}`);
   console.log("");
 
   // Delete target DB
@@ -37,17 +36,26 @@ const _restore = async function (source) {
   // Dump source DB
   console.log("STEP 3: DUMP SOURCE DB");
   await dbHelpers.dumpMongoDB(sourceConnectionString);
-  console.log(`Dump ${ source } MongoDB`);
+  console.log(`Dump ${source} MongoDB`);
   console.log("");
 
   // wait few secondes
   await new Promise((resolve) => setTimeout(resolve, 8000));
-  
+
   // Move dump/wp-veritas
   console.log("STEP 4: NEED TO MOVE dump/wp-veritas ?");
-  if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
-    await helpers.moveDumpFolder();
-    console.log("Move wp-veritas/ to meteor/");
+  let dbSource;
+  if (source === "test") {
+    dbSource = "wp-veritas-test";
+  } else {
+    dbSource = "wp-veritas";
+  }
+  if (target === "localhost") {
+    await helpers.moveDumpFolder(dbSource, "meteor");
+    console.log(`Move ${dbSource}/ to meteor/`);
+  } else if (target === "test") {
+    await helpers.moveDumpFolder(dbSource, config.TEST_DB_NAME);
+    console.log(`Move ${dbSource}/ to wp-veritas-test/`);
   } else {
     console.log("No");
   }
@@ -59,21 +67,22 @@ const _restore = async function (source) {
   // Restore source DB on target DB
   console.log("STEP 5: RESTORE SOURCE ON TARGET");
   let dbName = "wp-veritas";
-  if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
-    dbName = 'meteor';
+  if (target === "test") {
+    dbName = config.TEST_DB_NAME;
+  } else if (target === "localhost") {
+    dbName = "meteor";
   }
   await dbHelpers.restoreMongoDB(targetConnectionString, dbName);
   console.log("");
 };
 
 const _loadTestData = async function (destination) {
-
   let connectionString = dbHelpers.getConnectionString(destination);
   console.log(connectionString);
 
   // Delete all documents of 'sites' collection
   await dbHelpers.deleteAllDocuments(connectionString, destination, "sites");
-  
+
   // parse data
   let data = helpers.parseData();
 
@@ -84,7 +93,7 @@ const _loadTestData = async function (destination) {
 };
 
 module.exports.deleteAllDocuments = async function () {
-  const target = config.LOCAL_TARGET_TEST_DB_HOST;
+  const target = "localhost";
   const connectionString = dbHelpers.getConnectionString(target);
   console.log("Connection string of Target:", connectionString);
   await dbHelpers.deleteAllDocuments(connectionString, target);
@@ -103,6 +112,12 @@ module.exports.restoreProdDatabase = async function () {
   return true;
 };
 
+module.exports.restoreProdDatabaseOnDev = async function () {
+  await _restore("prod-on-dev");
+  console.log("Restore prod database on dev database");
+  return true;
+};
+
 module.exports.restoreProdDatabaseOnTest = async function () {
   await _restore("prod-on-test");
   console.log("Restore prod database on test database");
@@ -110,9 +125,16 @@ module.exports.restoreProdDatabaseOnTest = async function () {
 };
 
 module.exports.loadTestsDataOnLocalhost = async function () {
-  let destination = config.LOCAL_TARGET_TEST_DB_HOST;
+  let destination = "localhost";
   await _loadTestData(destination);
   console.log("Load tests data on localhost DB");
+  return true;
+};
+
+module.exports.loadTestsDataOnDev = async function () {
+  let destination = "dev";
+  await _loadTestData(destination);
+  console.log("Load tests data on dev DB");
   return true;
 };
 

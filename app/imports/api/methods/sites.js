@@ -6,6 +6,7 @@ import { throwMeteorError, throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
+import { Telegram } from "../telegram";
 
 import "../methods"; // without this line run test failed
 
@@ -142,7 +143,6 @@ const insertSite = new VeritasValidatedMethod({
       tagline: newSite.tagline,
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
-      category: newSite.category,
       categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
@@ -167,7 +167,13 @@ const insertSite = new VeritasValidatedMethod({
       { before: "", after: newSiteAfterInsert },
       this.userId
     );
-
+    
+    if (newSite.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+      Telegram.sendMessage(message);
+    }
+    
     return newSiteAfterInsert;
   },
 });
@@ -208,7 +214,6 @@ const updateSite = new VeritasValidatedMethod({
       tagline: newSite.tagline,
       title: newSite.title,
       openshiftEnv: newSite.openshiftEnv,
-      category: newSite.category,
       categories: newSite.categories,
       theme: newSite.theme,
       languages: newSite.languages,
@@ -256,6 +261,12 @@ const removeSite = new VeritasValidatedMethod({
       { before: site, after: "" },
       this.userId
     );
+    
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+      Telegram.sendMessage(message);
+    }
   },
 });
 

@@ -228,17 +228,48 @@ updateCategoryAdmin = () => {
   console.log("All sites with admin category are updated");
 };
 
+updateSitesWithoutProfessors = () => {
+  let sites = Sites.find().fetch();
+  console.log("Nb sites: ", sites.length);
+  let nb = 1;
+  sites.forEach((site) => {
+    if (!("professors" in site)) {
+      console.log("Site: ", site.url);
+      let siteDocument = {
+        professors: []
+      };
+      Sites.update({ _id: site._id }, { $set: siteDocument });
+      nb += 1;
+    }
+  });
+  console.log("Nb sites without professors: ", nb);
+  console.log("All sites are updated");
+}
+
+updateSitesDeleteCategory = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach((site) => {
+    let siteId = site._id;
+    console.log(site);
+    Sites.update({ _id: siteId }, { $unset: { category: "" } });
+  });
+  console.log("All sites are updated");
+}
+
 importData = () => {
-  const absoluteUrl = Meteor.absoluteUrl();
   /*
+  const absoluteUrl = Meteor.absoluteUrl();
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
     loadTestData();
   }
   */
-  updateCategoryAdmin();
-  updateCategoriesFromCategory();
+  //updateCategoryAdmin();
+  //updateCategoriesFromCategory();
+  //updateSitesWithoutProfessors();
+
+  updateSitesDeleteCategory();
 };
 
 export { importData };

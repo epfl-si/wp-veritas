@@ -6,3 +6,4 @@ cli/lib/config.js
 **/dump
 test/images
 
+app/public/api/index.html

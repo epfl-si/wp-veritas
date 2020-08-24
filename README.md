@@ -36,7 +36,7 @@ Se positionner dans le répertoire app/ et lancer la commande :
 
 `cd app/`
 
-`meteor --settings meteor-settings.json`
+`env WP_VERITAS_BOT_TOKEN=$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST meteor --settings meteor-settings.json`
 
 Ensuite aller à l'adresse http://localhost:3000
 
@@ -178,7 +178,7 @@ On a du utiliser node version 10 car avec la 12 on avait un prob avec Fiber
 FROM node:10.19-alpine
 
 ## Comment exécuter les tests
-TEST_WATCH=1 meteor test --driver-package meteortesting:mocha
+make test
 
 ## Mise à jour de paquet alanning:roles
 La mise à jour du paquet `alanning:roles` de la version 1 à la version 3 a necessité des changements en DB.

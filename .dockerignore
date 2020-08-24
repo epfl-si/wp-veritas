@@ -1,5 +1,5 @@
 .git
-.meteor/local
+**/.meteor/local
 **/node_modules
 **/dump
 cli

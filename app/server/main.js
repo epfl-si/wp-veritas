@@ -16,8 +16,14 @@ import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import "./indexes";
 
+import { getEnvironment } from "../imports/api/utils";
+
 let importDatas = false;
-let disableTequila = true;
+
+// Warning: Tequila is needed to create the DB entries the first time that
+// you run the app — afterwards you can disable it to have more dev comfort.
+let forceTequila = false;
+let disableTequila = (forceTequila === false && getEnvironment() === "LOCALHOST") ? true : false;
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
@@ -29,7 +35,7 @@ if (Meteor.isServer) {
       helmet.contentSecurityPolicy({
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
           connectSrc: ["*"],
           imgSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
@@ -50,7 +56,7 @@ if (Meteor.isServer) {
     if (!disableTequila) {
       import "./tequila-config";
     }
-    import "./rest-api";
+    import "./api/rest-api";
     import "./cron";
 
     SyncedCron.start();

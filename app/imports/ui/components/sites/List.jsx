@@ -245,7 +245,6 @@ class List extends Component {
         "title",
         "tagline",
         "openshiftEnv",
-        "category",
         "categories",
         "theme",
         "faculty",

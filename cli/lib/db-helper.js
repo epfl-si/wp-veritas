@@ -6,12 +6,16 @@ const config = require("./config.js");
  * Get target
  */
 module.exports.getTarget = (source) => {
-  if (["test", "prod", "prod-on-test"].includes(source) === false) {
+  if (
+    ["test", "prod", "prod-on-dev", "prod-on-test"].includes(source) === false
+  ) {
     throw new Error("Source is unknown");
   }
   let target;
   if (source === "test" || source === "prod") {
-    target = config.LOCAL_TARGET_TEST_DB_HOST;
+    target = "localhost";
+  } else if (source === "prod-on-dev") {
+    target = "dev";
   } else if (source === "prod-on-test") {
     target = "test";
   }
@@ -22,18 +26,32 @@ module.exports.getTarget = (source) => {
  * Get connection String
  */
 module.exports.getConnectionString = (environment) => {
-  if ([config.LOCAL_TARGET_TEST_DB_HOST, "test", "prod"].includes(environment) === false) {
+  if (["localhost", "dev", "test", "prod"].includes(environment) === false) {
     throw new Error("Environment is unknown");
   }
 
-  if (environment === config.LOCAL_TARGET_TEST_DB_HOST) {
-    return `mongodb://${config.LOCAL_TARGET_TEST_DB_HOST}:${config.LOCAL_TARGET_TEST_DB_PORT}/`;
+  if (environment === "localhost") {
+    return `mongodb://${config.LOCAL_DB_HOST}:${config.LOCAL_DB_PORT}/`;
   }
 
-  let dbUsername = config.TEST_DB_USERNAME;
-  let dbPwd = config.TEST_DB_PWD;
-  let dbHost = config.TEST_DB_HOST;
-  let dbName = config.TEST_DB_NAME;
+  let dbUsername;
+  let dbPwd;
+  let dbHost;
+  let dbName;
+
+  if (environment === "dev") {
+    dbUsername = config.DEV_DB_USERNAME;
+    dbPwd = config.DEV_DB_PWD;
+    dbHost = config.DEV_DB_HOST;
+    dbName = config.DEV_DB_NAME;
+  }
+
+  if (environment === "test") {
+    dbUsername = config.TEST_DB_USERNAME;
+    dbPwd = config.TEST_DB_PWD;
+    dbHost = config.TEST_DB_HOST;
+    dbName = config.TEST_DB_NAME;
+  }
 
   if (environment === "prod") {
     dbUsername = config.PROD_DB_USERNAME;
@@ -48,7 +66,7 @@ module.exports.getConnectionString = (environment) => {
 createClient = async function (connectionString) {
   // Check DB
   if (
-    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
+    !connectionString.includes(config.LOCAL_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");
@@ -57,7 +75,7 @@ createClient = async function (connectionString) {
   const client = await MongoClient.connect(connectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    connectTimeoutMS: 300000,
+    connectTimeoutMS: 30000,
   });
 
   return client;
@@ -65,9 +83,11 @@ createClient = async function (connectionString) {
 
 getDB = function (target, client) {
   let dbName;
-  if (target === "test") {
-    dbName = "wp-veritas";
-  } else if (target === config.LOCAL_TARGET_TEST_DB_HOST) {
+  if (target === "dev") {
+    dbName = config.DEV_DB_NAME;
+  } else if (target === "test") {
+    dbName = config.TEST_DB_NAME;
+  } else if (target === "localhost") {
     dbName = "meteor";
   }
   return client.db(dbName);
@@ -81,10 +101,31 @@ module.exports.insertOneSite = async function (
   target,
   siteDocument
 ) {
+  // Generate a new id
+  let id = Math.random().toString(36).substring(2);
+  siteDocument["_id"] = id;
   const client = await createClient(connectionString);
   const db = getDB(target, client);
   await db.collection("sites").insertOne(siteDocument);
   client.close();
+};
+
+/**
+ * Get category
+ */
+module.exports.getCategory = async function (
+  connectionString,
+  target,
+  categoryName
+) {
+  const client = await createClient(connectionString);
+  const db = getDB(target, client);
+  let category = await db
+    .collection("categories")
+    .find({ name: categoryName })
+    .toArray();
+  client.close();
+  return category;
 };
 
 /**
@@ -143,7 +184,7 @@ module.exports.dumpMongoDB = async function (connectionString) {
     // mongodump is a native executable, please install mongo-tools
     // and be sure to have a version with the --uri option avalaible.
     const command = `mongodump --forceTableScan --uri ${connectionString}`;
-    console.log(command)
+    console.log(command);
     resolve(exec(command));
   });
 };
@@ -154,7 +195,7 @@ module.exports.dumpMongoDB = async function (connectionString) {
 module.exports.restoreMongoDB = async function (connectionString, dbName) {
   // Check DB
   if (
-    !connectionString.includes(config.LOCAL_TARGET_TEST_DB_HOST) &&
+    !connectionString.includes(config.LOCAL_DB_HOST) &&
     !connectionString.includes("@test-mongodb-svc-1.epfl.ch/")
   ) {
     throw new Error("STOP don't TOUCH on this DB !");
