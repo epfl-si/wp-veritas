@@ -160,6 +160,7 @@ export const Sites = new Mongo.Collection('sites', {
 Sites.tagged_search = function (text="", tags=[]) {
     // build the query
     let finder = {
+       isDeleted: false,
        $and : []
     };
 
@@ -211,8 +212,6 @@ Sites.tagged_search = function (text="", tags=[]) {
             ]
         });
     }
-
-    console.log(finder);
 
     return Sites.find(finder,
         {

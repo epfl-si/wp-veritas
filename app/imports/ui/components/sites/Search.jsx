@@ -145,6 +145,6 @@ class Search extends React.Component {
 export default withTracker(() => {
   Meteor.subscribe('sites.list');
   return {
-    sites: Sites.find({}, {sort: {url: 1}}).fetch(),
+    sites: Sites.find({ siteDeleted: false }, {sort: {url: 1}}).fetch(),
   };
 })(Search);

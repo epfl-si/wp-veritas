@@ -262,7 +262,7 @@ Api.addRoute(
         let units = getUnits(this.urlParams.sciper);
   
         // Get all sites whose unit is present in 'units'
-        let sites = Sites.find({ unitId: { $in: units } }).fetch();
+        let sites = Sites.find({ isDeleted: false, unitId: { $in: units } }).fetch();
   
         // Create an array with only wp-admin URL
         admins = [];
@@ -327,6 +327,7 @@ Api.addRoute(
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
       let sites = Sites.find({
+        isDeleted: false,
         "tags.name_en": tag1,
         "tags.name_en": tag2,
       }).fetch();
@@ -387,6 +388,7 @@ Api.addRoute(
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
       let sites = Sites.find({
+        isDeleted: false,
         "tags.name_fr": tag1,
         "tags.name_fr": tag2,
       }).fetch();

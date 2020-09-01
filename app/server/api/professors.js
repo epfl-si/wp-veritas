@@ -73,7 +73,7 @@ Api.addRoute(
     //        Error management
     get: function () {
       let sciper = this.urlParams.sciper;
-      let sites = Sites.find({ "professors.sciper": sciper }).fetch();
+      let sites = Sites.find({ isDeleted: false, "professors.sciper": sciper }).fetch();
       let tags = [];
       sites.forEach((site) => {
         if (site.tags.length > 0) {
