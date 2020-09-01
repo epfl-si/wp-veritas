@@ -76,6 +76,7 @@ if (Meteor.isServer) {
         tags: [tag1, tag2],
         professors: [],
         wpInfra: true,
+        isDeleted: false
       };
 
       insertSite._execute(context, args);
@@ -117,6 +118,7 @@ if (Meteor.isServer) {
         tags: [],
         professors: [],
         wpInfra: true,
+        isDeleted: false
       };
 
       updateSite._execute(context, args);
