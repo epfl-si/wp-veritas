@@ -212,6 +212,8 @@ Sites.tagged_search = function (text="", tags=[]) {
         });
     }
 
+    console.log(finder);
+
     return Sites.find(finder,
         {
             sort: {

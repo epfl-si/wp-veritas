@@ -254,6 +254,6 @@ export default withTracker(() => {
   const handle = Meteor.subscribe("sites.list");
   return {
     loading: !handle.ready(),
-    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
+    sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
   };
 })(List);

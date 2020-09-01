@@ -118,6 +118,7 @@ const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
   validate(newSite) {
+    newSite.isDeleted = false;
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
     } else {
@@ -157,6 +158,7 @@ const insertSite = new VeritasValidatedMethod({
       tags: newSite.tags,
       professors: newSite.professors,
       wpInfra: newSite.wpInfra,
+      isDeleted: newSite.isDeleted,
     };
 
     let newSiteId = Sites.insert(newSiteDocument);
@@ -228,6 +230,7 @@ const updateSite = new VeritasValidatedMethod({
       tags: newSite.tags,
       professors: newSite.professors,
       wpInfra: newSite.wpInfra,
+      isDeleted: newSite.isDeleted,
     };
 
     let siteBeforeUpdate = Sites.findOne({ _id: newSite._id });
@@ -254,8 +257,7 @@ const removeSite = new VeritasValidatedMethod({
   }).validator(),
   run({ siteId }) {
     let site = Sites.findOne({ _id: siteId });
-    Sites.remove({ _id: siteId });
-
+    Sites.update({ _id: siteId }, { $set: { isDeleted: true } });
     AppLogger.getLog().info(
       `Delete site ID ${siteId}`,
       { before: site, after: "" },
@@ -265,6 +267,29 @@ const removeSite = new VeritasValidatedMethod({
     if (site.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
       const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+      Telegram.sendMessage(message);
+    }
+  },
+});
+
+const restoreSite = new VeritasValidatedMethod({
+  name: "restoreSite",
+  role: Admin,
+  validate: new SimpleSchema({
+    siteId: { type: String },
+  }).validator(),
+  run({ siteId }) {
+    let site = Sites.findOne({ _id: siteId });
+    Sites.update({ _id: siteId }, { $set: { isDeleted: false } });
+    AppLogger.getLog().info(
+      `Restore site ID ${siteId}`,
+      { before: site, after: "" },
+      this.userId
+    );
+    
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just restore ' + site.url + ' on wp-veritas! #wpSiteRestored';
       Telegram.sendMessage(message);
     }
   },
@@ -347,6 +372,7 @@ rateLimiter([
   insertSite,
   updateSite,
   removeSite,
+  restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
 ]);
@@ -355,6 +381,7 @@ export {
   insertSite,
   updateSite,
   removeSite,
+  restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
 };

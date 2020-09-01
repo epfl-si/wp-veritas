@@ -144,6 +144,14 @@ class Header extends Component {
                     </NavLink>
                     <NavLink
                       className="dropdown-item"
+                      exact
+                      to="/trash"
+                      activeClassName="active"
+                      >
+                        Corbeille
+                    </NavLink>
+                    <NavLink
+                      className="dropdown-item"
                       to="/admin/log/list"
                       activeClassName="active"
                     >

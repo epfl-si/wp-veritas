@@ -79,10 +79,11 @@ Api.addRoute(
         if (siteUrl.endsWith("/")) {
           siteUrl = siteUrl.slice(0, -1);
         }
-        return formatSiteCategories(Sites.find({ url: siteUrl }).fetch());
+        return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
       } else if (query && this.queryParams.search_url) {
         return formatSiteCategories(
           Sites.find({
+            isDeleted: false,
             url: { $regex: this.queryParams.search_url, $options: "-i" },
           }).fetch()
         );
@@ -100,7 +101,7 @@ Api.addRoute(
         return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({}).fetch();
+        let sites = Sites.find({ isDeleted: false }).fetch();
         return formatSiteCategories(sites);
       }
     },

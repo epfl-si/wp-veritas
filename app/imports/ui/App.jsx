@@ -12,6 +12,7 @@ import {
   Log,
   Professor,
   SiteProfessors,
+  Trash,
 } from "./components";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Loading } from "../ui/components/Messages";
@@ -53,6 +54,7 @@ class Apps extends Component {
                 <Route path="/add" component={Add} />
                 <Route path="/edit/:_id" component={Add} />
                 <Route exact path="/admin" component={Admin} />
+                <Route exact path="/trash" component={Trash} />
                 <Route path="/admin/log/list" component={Log} />
               </React.Fragment>
             ) : null}

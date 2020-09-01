@@ -125,6 +125,10 @@ export const sitesSchema = new SimpleSchema({
     optional: true,
     max: 50,
   },
+  isDeleted: {
+    type: Boolean,
+    defaultValue: false, 
+  },
   professors: {
     type: Array,
     label: "Professors",
