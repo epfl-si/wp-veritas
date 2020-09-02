@@ -101,7 +101,7 @@ Api.addRoute(
         return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({ isDeleted: false }).fetch();
+        let sites = Sites.find({}).fetch();
         return formatSiteCategories(sites);
       }
     },
