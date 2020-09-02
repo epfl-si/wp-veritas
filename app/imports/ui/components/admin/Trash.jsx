@@ -2,6 +2,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
+import { Sites } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { restoreSite, removePermanentlySite } from "../../../api/methods/sites";
 import Swal from 'sweetalert2'
