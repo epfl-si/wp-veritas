@@ -67,6 +67,7 @@ import getUnits from "../units";
 // and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
+// and to  /api/v1/sites?with_deleted_sites=true
 Api.addRoute(
   "sites",
   { authRequired: false },
@@ -99,9 +100,12 @@ Api.addRoute(
       } else if (query && this.queryParams.tagged) {
         let sites = Sites.tagged_search();
         return formatSiteCategories(sites);
+      } else if (query && this.queryParams.with_deleted_sites) {
+        let sites = Sites.find({}).fetch();
+        return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({}).fetch();
+        let sites = Sites.find({ isDeleted: false}).fetch();
         return formatSiteCategories(sites);
       }
     },
