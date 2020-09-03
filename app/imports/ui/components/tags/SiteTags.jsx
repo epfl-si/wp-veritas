@@ -189,7 +189,7 @@ export default withTracker(() => {
     facultyTags: facultyTags,
     instituteTags: instituteTags,
     fieldOfResearchTags: fieldOfResearchTags,
-    sites: Sites.find({}).fetch(),
+    sites: Sites.find({ isDeleted: false }).fetch(),
   };
 })(SiteTags);
 

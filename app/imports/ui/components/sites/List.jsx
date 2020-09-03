@@ -112,13 +112,14 @@ class List extends Component {
   search = (event) => {
     const keyword = event.target.value;
     const sites = Sites.find({
+      isDeleted: false,
       url: { $regex: ".*" + keyword + ".*", $options: "i" },
     }).fetch();
     this.setState({ searchValue: keyword, sites: sites });
   };
 
   export = () => {
-    let sites = Sites.find({}).fetch();
+    let sites = Sites.find({ isDeleted: false }).fetch();
 
     sites.forEach(function (site) {
       site.categories = site.categories
@@ -254,6 +255,6 @@ export default withTracker(() => {
   const handle = Meteor.subscribe("sites.list");
   return {
     loading: !handle.ready(),
-    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
+    sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
   };
 })(List);

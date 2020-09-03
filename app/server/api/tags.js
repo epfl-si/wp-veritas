@@ -80,7 +80,7 @@ Api.addRoute(
         let tagId = this.urlParams.id;
   
         // Récupère tous les sites qui ont le tag STI
-        let sites = Sites.find({ "tags._id": tagId }).fetch();
+        let sites = Sites.find({ isDeleted: false, "tags._id": tagId }).fetch();
   
         let tags = [];
         let scipers = [];

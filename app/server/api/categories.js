@@ -139,6 +139,7 @@ Api.addRoute(
       }
       return formatSiteCategories(
         Sites.find({
+          isDeleted: false,
           categories: { $elemMatch: { name: categoryName } },
         }).fetch()
       );

@@ -30,6 +30,10 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       min: 2,
       custom: isRequired
   },
+  isDeleted: {
+    type: Boolean,
+    defaultValue: false, 
+  },
   openshiftEnv: {
       type: String,
       label: "Environnement openshift",

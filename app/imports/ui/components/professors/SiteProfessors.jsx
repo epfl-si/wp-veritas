@@ -131,7 +131,7 @@ export default withTracker(() => {
 
   return {
     professors: Professors.find({}, { sort: { sciper: 1 } }).fetch(),
-    sites: Sites.find({}).fetch(),
+    sites: Sites.find({ isDeleted: false }).fetch(),
   };
 })(SiteProfessors);
 

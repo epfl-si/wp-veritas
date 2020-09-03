@@ -11,7 +11,11 @@ import { check } from "meteor/check";
 
 if (Meteor.isServer) {
   Meteor.publish("sites.list", function () {
-    return Sites.find({}, { sort: { url: 1 } });
+    return Sites.find({ isDeleted: false }, { sort: { url: 1 } });
+  });
+
+  Meteor.publish("deleteSites.list", function () {
+    return Sites.find({ isDeleted: true }, { sort: { url: 1 } });
   });
 
   Meteor.publish("siteById", function (siteId) {

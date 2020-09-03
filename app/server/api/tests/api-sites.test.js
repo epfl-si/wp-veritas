@@ -30,6 +30,7 @@ getExpectedSiteResult = () => {
       tags: site.tags,
       professors: site.professors,
       wpInfra: true,
+      isDeleted: false
     },
   ];
   return expectedResult;
