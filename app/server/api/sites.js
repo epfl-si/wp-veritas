@@ -3,7 +3,7 @@ import { Api, formatSiteCategories } from "./utils";
 import getUnits from "../units";
 
 /**
- * @api {get} /sites  Get all sites
+ * @api {get} /sites  Get all active sites (isDeleted: false)
  * @apiGroup Sites
  *
  * @apiSuccessExample Success-Response:
@@ -108,6 +108,50 @@ Api.addRoute(
   }
 );
 
+/**
+ * @api {get} /inventory/entries  Get all sites (active or deleted)
+ * @apiGroup Sites
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "f7CaxxouACbWiYjQY",
+ *         "url": "https://www.epfl.ch/campus/services/canari",
+ *         "slug": "",
+ *         "tagline": "Canari",
+ *         "title": "Test",
+ *         "openshiftEnv": "www",
+ *         "category": "GeneralPublic",
+ *         "theme": "wp-theme-2018",
+ *         "languages": [
+ *           "en",
+ *           "fr"
+ *         ],
+ *         "unitId": "13031",
+ *         "unitName": "idev-ing",
+ *         "unitNameLevel2": "si",
+ *         "snowNumber": "",
+ *         "comment": "Site canari pour tester l'image",
+ *         "createdDate": "2020-03-05T09:52:06.310Z",
+ *         "userExperience": false,
+ *         "tags": [],
+ *         "professors": [],
+ *         "wpInfra": true,
+ *         "userExperienceUniqueLabel": ""
+ *       },
+ *       ...,
+ *     ]
+ * @apiError SitesNotFound  No sites returned
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "SitesNotFound"
+ *     }
+ *
+ */
 Api.addRoute(
   "inventory/entries",
   { authRequired: false },
