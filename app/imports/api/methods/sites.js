@@ -338,7 +338,7 @@ const restoreSite = new VeritasValidatedMethod({
         user.username +
         " (#" +
         this.userId +
-        ") has just restore " +
+        ") has just restored " +
         site.url +
         " on wp-veritas! #wpSiteRestored";
       Telegram.sendMessage(message);
