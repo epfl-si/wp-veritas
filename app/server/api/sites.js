@@ -67,12 +67,11 @@ import getUnits from "../units";
 // and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
-// and to  /api/v1/sites?with_deleted_sites=true
 Api.addRoute(
   "sites",
   { authRequired: false },
   {
-    get: withFormatSiteCategories(function () {
+    get: function () {
       // is that a id request from an url ?
       var query = this.queryParams;
       if (query && this.queryParams.site_url) {
@@ -80,40 +79,42 @@ Api.addRoute(
         if (siteUrl.endsWith("/")) {
           siteUrl = siteUrl.slice(0, -1);
         }
-        return Sites.find({ isDeleted: false, url: siteUrl }).fetch();
+        return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
       } else if (query && this.queryParams.search_url) {
-        return Sites.find({
-          isDeleted: false,
-          url: { $regex: this.queryParams.search_url, $options: "-i" },
-        }).fetch();
+        return formatSiteCategories(
+          Sites.find({
+            isDeleted: false,
+            url: { $regex: this.queryParams.search_url, $options: "-i" },
+          }).fetch()
+        );
       } else if (query && (this.queryParams.text || this.queryParams.tags)) {
         if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
           this.queryParams.tags = [this.queryParams.tags];
         }
-        return Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
+        let sites = Sites.tagged_search(
+          this.queryParams.text,
+          this.queryParams.tags
+        );
+        return formatSiteCategories(sites);
       } else if (query && this.queryParams.tagged) {
-        return Sites.tagged_search();
+        let sites = Sites.tagged_search();
+        return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        return Sites.find({ isDeleted: false }).fetch();
+        let sites = Sites.find({ isDeleted: false }).fetch();
+        return formatSiteCategories(sites);
       }
-    }),
+    },
   }
 );
-
-function withFormatSiteCategories(f) {
-  return function (...args) {
-    return formatSiteCategories(f(...args));
-  };
-}
 
 Api.addRoute(
   "inventory/entries",
   { authRequired: false },
   {
-    get: withFormatSiteCategories(function () {
+    get: function () {
       return Sites.find({}).fetch();
-    }),
+    },
   }
 );
 
@@ -263,28 +264,28 @@ Api.addRoute(
  */
 // Maps to: /api/v1/sites/wp-admin/:sciper
 Api.addRoute(
-  "sites/wp-admin/:sciper",
-  { authRequired: false },
-  {
-    get: function () {
-      // Get units of sciper
-      let units = getUnits(this.urlParams.sciper);
+    "sites/wp-admin/:sciper",
+    { authRequired: false },
+    {
+      get: function () {
+        // Get units of sciper
+        let units = getUnits(this.urlParams.sciper);
+  
+        // Get all sites whose unit is present in 'units'
+        let sites = Sites.find({ unitId: { $in: units } }).fetch();
+  
+        // Create an array with only wp-admin URL
+        admins = [];
+        for (let index in sites) {
+          admins.push(sites[index].url + "/wp-admin");
+        }
+  
+        return admins;
+      },
+    }
+  );
 
-      // Get all sites whose unit is present in 'units'
-      let sites = Sites.find({ isDeleted: false, unitId: { $in: units } }).fetch();
-
-      // Create an array with only wp-admin URL
-      admins = [];
-      for (let index in sites) {
-        admins.push(sites[index].url + "/wp-admin");
-      }
-
-      return admins;
-    },
-  }
-);
-
-/**
+  /**
  * @api {get} /sites-with-tags-en/:tag1/:tag2  Get sites by tag name en
  * @apiGroup Sites
  *
