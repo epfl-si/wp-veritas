@@ -157,7 +157,7 @@ Api.addRoute(
   { authRequired: false },
   {
     get: function () {
-      return Sites.find({}).fetch();
+      return formatSiteCategories(Sites.find({}).fetch());
     },
   }
 );
