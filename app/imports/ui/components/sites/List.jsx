@@ -124,7 +124,6 @@ class List extends Component {
     });
   };
 
-<<<<<<< HEAD
   isChecked = (langIsChecked) => {
     let find = false;
     this.state.languages.forEach(lang => {
@@ -331,7 +330,7 @@ class List extends Component {
                 ref="keyword"
                 type="search"
                 className="form-control my-0 py-1 block"
-                style={{ width: "500px", height: "38px" }}
+                id="search"
                 className="form-control my-0 py-1"
                 value={this.state.searchValue}
                 onChange={this.search}
@@ -343,8 +342,8 @@ class List extends Component {
                 ref="openshiftEnv"
                 name="openshiftEnv"
                 className="form-control mt-0"
-                style={{ width: "300px" }}
                 onChange={this.search}
+                id="openshift-env-list"
               >
                 <option
                   key="0"
@@ -367,8 +366,8 @@ class List extends Component {
                 ref="theme"
                 name="theme"
                 className="form-control mt-0"
-                style={{ width: "300px" }}
                 onChange={this.search}
+                id="theme-list"
               >
                 <option
                   key="0"
@@ -383,13 +382,18 @@ class List extends Component {
                   </option>
                 ))}
               </select>
+              </div>
+
+              <div id="languages-checkbox">
+                <span>Filter par langues: </span>
               {languages.map((lang) => (
                 <label key={lang.key} >
-                  {lang.name}
+                  <span style={{ marginLeft: "15px" }}>{lang.label}&nbsp;</span>
                   <Checkbox ref={lang.key} name={lang.name} checked={ this.isChecked(lang) } onChange={this.search} />
                 </label>
               ))}
-            </div>
+              </div>
+            
           </form>
           <table className="table table-striped">
             <thead>
