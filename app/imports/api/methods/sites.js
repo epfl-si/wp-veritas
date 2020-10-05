@@ -10,7 +10,6 @@ import { Telegram } from "../telegram";
 
 import "../methods"; // without this line run test failed
 
-
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
   let unit = Meteor.apply("getUnitFromLDAP", [unitId], true);
@@ -46,15 +45,19 @@ function prepareUpdateInsert(site, action) {
     site.url = url.slice(0, -1);
   }
 
+  const URL_ALREADY_EXISTS_MSG =
+    "Cette URL existe déjà ! (il peut s'agir d'un site présent dans la corbeille).";
+  const LABEL_ALREADY_EXISTS_MSG = "Ce label existe déjà !";
+
   // Check if url is unique and if userExperienceUniqueLabel is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === "update") {
     let sites = Sites.find({ url: site.url });
     if (sites.count() > 1) {
-      throwMeteorError("url", "Cette URL existe déjà !");
+      throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
     } else if (sites.count() == 1) {
       if (sites.fetch()[0]._id != site._id) {
-        throwMeteorError("url", "Cette URL existe déjà !");
+        throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
       }
     }
     if (site.userExperienceUniqueLabel != "") {
@@ -62,19 +65,16 @@ function prepareUpdateInsert(site, action) {
         userExperienceUniqueLabel: site.userExperienceUniqueLabel,
       });
       if (sitesByUXUniqueLabel.count() > 1) {
-        throwMeteorError("userExperienceUniqueLabel", "Ce label existe déjà !");
+        throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
       } else if (sitesByUXUniqueLabel.count() == 1) {
         if (sitesByUXUniqueLabel.fetch()[0]._id != site._id) {
-          throwMeteorError(
-            "userExperienceUniqueLabel",
-            "Ce label existe déjà !"
-          );
+          throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
         }
       }
     }
   } else {
     if (Sites.find({ url: site.url }).count() > 0) {
-      throwMeteorError("url", "Cette URL existe déjà !");
+      throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
     }
 
     if (
@@ -83,7 +83,7 @@ function prepareUpdateInsert(site, action) {
         userExperienceUniqueLabel: site.userExperienceUniqueLabel,
       }).count() > 0
     ) {
-      throwMeteorError("userExperienceUniqueLabel", "Ce label existe déjà !");
+      throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
     }
   }
 
@@ -100,24 +100,51 @@ function prepareUpdateInsert(site, action) {
 
 const validateConsistencyOfFields = (newSite) => {
   // Check if inside site datas are OK
-  if (newSite.url.includes('inside.epfl.ch') || newSite.openshiftEnv === 'inside' || newSite.categories.find(category => category.name === 'Inside')) {
-    if (!(newSite.url.includes('inside.epfl.ch') && newSite.openshiftEnv === 'inside' && newSite.categories.find(category => category.name === 'Inside'))) {
-      throwMeteorErrors(["url", "categories", "openshiftEnv"], "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents");
+  if (
+    newSite.url.includes("inside.epfl.ch") ||
+    newSite.openshiftEnv === "inside" ||
+    newSite.categories.find((category) => category.name === "Inside")
+  ) {
+    if (
+      !(
+        newSite.url.includes("inside.epfl.ch") &&
+        newSite.openshiftEnv === "inside" &&
+        newSite.categories.find((category) => category.name === "Inside")
+      )
+    ) {
+      throwMeteorErrors(
+        ["url", "categories", "openshiftEnv"],
+        "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents"
+      );
     }
   }
 
   // Check if subdomains-lite site datas are OK
-  if ((newSite.openshiftEnv === 'subdomains-lite' || newSite.openshiftEnv.startsWith("unm-")) || newSite.theme === 'wp-theme-light') {
-    if (!((newSite.openshiftEnv === 'subdomains-lite' || newSite.openshiftEnv.startsWith("unm-")) && newSite.theme === 'wp-theme-light')) {
-      throwMeteorErrors(["theme", "openshiftEnv"], "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents");
+  if (
+    newSite.openshiftEnv === "subdomains-lite" ||
+    newSite.openshiftEnv.startsWith("unm-") ||
+    newSite.theme === "wp-theme-light"
+  ) {
+    if (
+      !(
+        (newSite.openshiftEnv === "subdomains-lite" || newSite.openshiftEnv.startsWith("unm-")) &&
+        newSite.theme === "wp-theme-light"
+      )
+    ) {
+      throwMeteorErrors(
+        ["theme", "openshiftEnv"],
+        "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents"
+      );
     }
   }
-}
+};
 
 const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
   validate(newSite) {
+    // TODO: Default values should not be subject to data validation.
+    newSite.isDeleted = false;
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
     } else {
@@ -157,6 +184,7 @@ const insertSite = new VeritasValidatedMethod({
       tags: newSite.tags,
       professors: newSite.professors,
       wpInfra: newSite.wpInfra,
+      isDeleted: newSite.isDeleted,
     };
 
     let newSiteId = Sites.insert(newSiteDocument);
@@ -167,13 +195,20 @@ const insertSite = new VeritasValidatedMethod({
       { before: "", after: newSiteAfterInsert },
       this.userId
     );
-    
+
     if (newSite.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
-      const message = '👀 Pssst! ' + user.username + ' (#' + this.userId + ') has just created ' + newSite.url + ' on wp-veritas! #wpSiteCreated';
+      const message =
+        "👀 Pssst! " +
+        user.username +
+        " (#" +
+        this.userId +
+        ") has just created " +
+        newSite.url +
+        " on wp-veritas! #wpSiteCreated";
       Telegram.sendMessage(message);
     }
-    
+
     return newSiteAfterInsert;
   },
 });
@@ -182,7 +217,6 @@ const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   validate(newSite) {
-
     // TODO: Ajouter un champ professors: [] à tous les sites qui n'ont pas de prof
     if (!("professors" in newSite)) {
       newSite.professors = [];
@@ -228,6 +262,7 @@ const updateSite = new VeritasValidatedMethod({
       tags: newSite.tags,
       professors: newSite.professors,
       wpInfra: newSite.wpInfra,
+      isDeleted: newSite.isDeleted,
     };
 
     let siteBeforeUpdate = Sites.findOne({ _id: newSite._id });
@@ -254,17 +289,58 @@ const removeSite = new VeritasValidatedMethod({
   }).validator(),
   run({ siteId }) {
     let site = Sites.findOne({ _id: siteId });
-    Sites.remove({ _id: siteId });
+    Sites.update({ _id: siteId }, { $set: { isDeleted: true } });
+    AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
-    AppLogger.getLog().info(
-      `Delete site ID ${siteId}`,
-      { before: site, after: "" },
-      this.userId
-    );
-    
     if (site.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
-      const message = '⚠️ Heads up! ' + user.username + ' (#' + this.userId + ') has just delete ' + site.url + ' on wp-veritas! #wpSiteDeleted';
+      const message =
+        "⚠️ Heads up! " +
+        user.username +
+        " (#" +
+        this.userId +
+        ") has just delete " +
+        site.url +
+        " on wp-veritas! #wpSiteDeleted";
+      Telegram.sendMessage(message);
+    }
+  },
+});
+
+const removePermanentlySite = new VeritasValidatedMethod({
+  name: "removePermanentlySite",
+  role: Admin,
+  validate: new SimpleSchema({
+    siteId: { type: String },
+  }).validator(),
+  run({ siteId }) {
+    let site = Sites.findOne({ _id: siteId });
+    Sites.remove({ _id: siteId });
+    AppLogger.getLog().info(`Delete permanently site ID ${siteId}`, { before: site, after: "" }, this.userId);
+  },
+});
+
+const restoreSite = new VeritasValidatedMethod({
+  name: "restoreSite",
+  role: Admin,
+  validate: new SimpleSchema({
+    siteId: { type: String },
+  }).validator(),
+  run({ siteId }) {
+    let site = Sites.findOne({ _id: siteId });
+    Sites.update({ _id: siteId }, { $set: { isDeleted: false } });
+    AppLogger.getLog().info(`Restore site ID ${siteId}`, { before: site, after: "" }, this.userId);
+
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message =
+        "⚠️ Heads up! " +
+        user.username +
+        " (#" +
+        this.userId +
+        ") has just restored " +
+        site.url +
+        " on wp-veritas! #wpSiteRestored";
       Telegram.sendMessage(message);
     }
   },
@@ -347,6 +423,8 @@ rateLimiter([
   insertSite,
   updateSite,
   removeSite,
+  removePermanentlySite,
+  restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
 ]);
@@ -355,6 +433,8 @@ export {
   insertSite,
   updateSite,
   removeSite,
+  removePermanentlySite,
+  restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
 };

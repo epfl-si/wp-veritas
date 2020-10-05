@@ -256,6 +256,24 @@ updateSitesDeleteCategory = () => {
   console.log("All sites are updated");
 }
 
+updateSitesWithoutIsDeletedField = () => {
+  let sites = Sites.find().fetch();
+  console.log("Nb sites: ", sites.length);
+  let nb = 1;
+  sites.forEach((site) => {
+    if (!("isDeleted" in site)) {
+      console.log("Site: ", site.url);
+      let siteDocument = {
+        isDeleted: false
+      };
+      Sites.update({ _id: site._id }, { $set: siteDocument });
+      nb += 1;
+    }
+  });
+  console.log("Nb sites without 'isDeleted' Field: ", nb);
+  console.log("All sites are updated");
+}
+
 importData = () => {
   /*
   const absoluteUrl = Meteor.absoluteUrl();
@@ -269,7 +287,9 @@ importData = () => {
   //updateCategoriesFromCategory();
   //updateSitesWithoutProfessors();
 
-  updateSitesDeleteCategory();
+  //updateSitesDeleteCategory();
+
+  updateSitesWithoutIsDeletedField();
 };
 
 export { importData };

@@ -124,6 +124,7 @@ class List extends Component {
     });
   };
 
+<<<<<<< HEAD
   isChecked = (langIsChecked) => {
     let find = false;
     this.state.languages.forEach(lang => {
@@ -188,7 +189,7 @@ class List extends Component {
   };
 
   export = () => {
-    let sites = Sites.find({}).fetch();
+    let sites = Sites.find({ isDeleted: false }).fetch();
 
     sites.forEach(function (site) {
       site.categories = site.categories

@@ -3,7 +3,7 @@ import { Api, formatSiteCategories } from "./utils";
 import getUnits from "../units";
 
 /**
- * @api {get} /sites  Get all sites
+ * @api {get} /sites  Get all active sites (isDeleted: false)
  * @apiGroup Sites
  *
  * @apiSuccessExample Success-Response:
@@ -79,10 +79,11 @@ Api.addRoute(
         if (siteUrl.endsWith("/")) {
           siteUrl = siteUrl.slice(0, -1);
         }
-        return formatSiteCategories(Sites.find({ url: siteUrl }).fetch());
+        return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
       } else if (query && this.queryParams.search_url) {
         return formatSiteCategories(
           Sites.find({
+            isDeleted: false,
             url: { $regex: this.queryParams.search_url, $options: "-i" },
           }).fetch()
         );
@@ -100,9 +101,63 @@ Api.addRoute(
         return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({}).fetch();
+        let sites = Sites.find({ isDeleted: false }).fetch();
         return formatSiteCategories(sites);
       }
+    },
+  }
+);
+
+/**
+ * @api {get} /inventory/entries  Get all sites (active or deleted)
+ * @apiGroup Sites
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       ...,
+ *       {
+ *         "_id": "f7CaxxouACbWiYjQY",
+ *         "url": "https://www.epfl.ch/campus/services/canari",
+ *         "slug": "",
+ *         "tagline": "Canari",
+ *         "title": "Test",
+ *         "openshiftEnv": "www",
+ *         "category": "GeneralPublic",
+ *         "theme": "wp-theme-2018",
+ *         "languages": [
+ *           "en",
+ *           "fr"
+ *         ],
+ *         "unitId": "13031",
+ *         "unitName": "idev-ing",
+ *         "unitNameLevel2": "si",
+ *         "snowNumber": "",
+ *         "comment": "Site canari pour tester l'image",
+ *         "createdDate": "2020-03-05T09:52:06.310Z",
+ *         "userExperience": false,
+ *         "tags": [],
+ *         "professors": [],
+ *         "wpInfra": true,
+ *         "userExperienceUniqueLabel": ""
+ *       },
+ *       ...,
+ *     ]
+ * @apiError SitesNotFound  No sites returned
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "SitesNotFound"
+ *     }
+ *
+ */
+Api.addRoute(
+  "inventory/entries",
+  { authRequired: false },
+  {
+    get: function () {
+      return formatSiteCategories(Sites.find({}).fetch());
     },
   }
 );
@@ -326,6 +381,7 @@ Api.addRoute(
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
       let sites = Sites.find({
+        isDeleted: false,
         "tags.name_en": tag1,
         "tags.name_en": tag2,
       }).fetch();
@@ -386,6 +442,7 @@ Api.addRoute(
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
       let sites = Sites.find({
+        isDeleted: false,
         "tags.name_fr": tag1,
         "tags.name_fr": tag2,
       }).fetch();
