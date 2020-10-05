@@ -73,9 +73,6 @@ class List extends Component {
 
   // More information here: https://alligator.io/react/get-derived-state/
   static getDerivedStateFromProps(props, state) {
-    console.log("props nb sites :", props.sites.length);
-    console.log("state nb sites :", state.sites.length);
-
     if (
       state.searchValue === "" &&
       state.openshiftEnv === "no-filter" &&
