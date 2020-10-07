@@ -23,7 +23,6 @@ class Apps extends Component {
     if (this.props.isLoading) {
       return <Loading />;
     } else {
-      console.log(this.props);
       const ribbon = (
         <div className="ribbon-wrapper">
           <div className="ribbon">{getEnvironment()}</div>
