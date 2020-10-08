@@ -1,6 +1,6 @@
 {
   "name": "wp-veritas",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "https://wp-veritas.epfl.ch",
   "bugs": {
     "url": "https://github.com/epfl-si/wp-veritas/issues"
@@ -11,7 +11,8 @@
     "start": "meteor run",
     "test": "meteor test --once --full-app --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
-    "visualize": "meteor --production --extra-packages bundle-visualizer"
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "debug": "meteor run --inspect-brk=9229"
   },
   "dependencies": {
     "@babel/runtime": "^7.9.2",
