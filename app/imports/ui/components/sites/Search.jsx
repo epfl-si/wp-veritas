@@ -4,7 +4,6 @@ import { Sites } from "../../../api/collections";
 import { Formik, Field, ErrorMessage } from "formik";
 import { CustomError, CustomInput } from "../CustomFields";
 import * as yup from "yup";
-import ReactHtmlParser from "react-html-parser";
 import { Loading } from "../Messages";
 
 class Search extends React.Component {
@@ -26,53 +25,96 @@ class Search extends React.Component {
     super(props);
 
     this.state = {
-      unitName: "",
       site: {},
-      urlSearched: "",
+      found: false,
+      queryURL: '',
     };
   }
 
-  getUnitName = (unitId) => {
-    Meteor.call("getUnitFromLDAP", unitId, (error, unitLDAPinformations) => {
-      if (error) {
-        console.log(`ERROR ${error}`);
-      } else {
-        let unitName = unitLDAPinformations.cn + " (" + unitId + ")";
-        this.setState({ unitName: unitName });
-      }
-    });
-  };
-
-  submit = (values, actions) => {
-    let res = "";
+  /**
+   * Cette méthode prend en entrée une URL d'une page WordPress et
+   * retourne l'URL de l'instance WordPress.
+   *
+   * Example de base:
+   * URL saisi par l'utilisateur: https://www.epfl.ch/campus/events/events/campus-events/scientific-and-educational-days/
+   * URL de l'instance: https://www.epfl.ch/campus/events
+   *
+   * Mais attention! Il existe des exemples plus complexes
+   * Par exemple:
+   *
+   * Existing WordPress instance:
+   * - https://www.epfl.ch/campus/services/ressources
+   * - https://www.epfl.ch/campus/services
+   * User URL: https://www.epfl.ch/campus/services/ressources-informatiques/support-informatique/linux
+   * Expected result: https://www.epfl.ch/campus/services/wp-admin
+   * And not https://www.epfl.ch/campus/services/ressources/wp-admin
+   */
+  search = (queryURL) => {
+    let result = {
+      url: ''
+    }
     this.props.sites.forEach((currentSite) => {
-      if (values.url.startsWith(currentSite.url)) {
-        if (currentSite.url.length > res.length) {
-          // Example:
-          // Existing WordPress instance :
-          // - https://www.epfl.ch/campus/services/ressources
-          // - https://www.epfl.ch/campus/services
-          // User URL: https://www.epfl.ch/campus/services/ressources-informatiques/support-informatique/linux
-          // Expected result: https://www.epfl.ch/campus/services/wp-admin
-          // And not https://www.epfl.ch/campus/services/ressources/wp-admin
-
-          let check = currentSite.url + "/";
-          if (values.url.startsWith(check) || values.url == currentSite.url) {
-            res = currentSite.url;
-            this.getUnitName(currentSite.unitId);
-            this.setState({ site: currentSite, urlSearched: values.url });
+      if (queryURL.startsWith(currentSite.url)) {
+        if (currentSite.url.length > result.url.length) {
+          if (queryURL.startsWith(currentSite.url + "/") || queryURL == currentSite.url) {
+            result = currentSite;
           }
         }
       }
     });
-    if (res == "") {
-      this.setState({ site: {}, urlSearched: values.url });
+    if (result.url.length > 0) {
+      this.setState({ found: true, site: result, queryURL: queryURL });
+    } else {
+      this.setState({ queryURL: queryURL });
     }
+  };
+
+  submit = (values, actions) => {
+    this.setState({ found: false, site: {}, queryURL: '' });
+    let urlSearched = values.url;
+    this.search(urlSearched)
     actions.setSubmitting(false);
+    actions.resetForm();
   };
 
   loading = () => {
     return this.props.sites === undefined;
+  };
+
+  displayResult = () => {
+    let result;
+    if (this.state.queryURL) {
+      if (this.state.found && this.state.site.wpInfra) {
+        result = (
+          <div className="card my-2">
+            <div className="card-header">Résultat</div>
+            <div className="card-body">
+              <div className="py-1">
+                L'URL <a target="_blank" href={ this.state.queryURL }>{ this.state.queryURL }</a> a pour:
+              </div>
+              <div className="py-1">
+                - Instance WordPress: <a target="_blank" href={ this.state.site.url }>{this.state.site.url}</a>
+              </div>
+              <div className="py-1">
+                - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
+              </div>
+            </div>
+          </div>
+        );
+      } else {
+          result = (
+            <div className="card my-2">
+              <div className="card-header">Résultat</div>
+              <div className="card-body">
+                <div className="py-1">
+                  L'URL <a href={ this.state.queryURL }>{ this.state.queryURL }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI
+                </div>
+              </div>
+            </div> 
+          )
+      }
+    }
+    return result;
   };
 
   render() {
@@ -81,24 +123,6 @@ class Search extends React.Component {
     if (this.loading()) {
       content = <Loading />;
     } else {
-      let res = "";
-      if (this.state.site == {}) {
-        res = `Le site <a href='${this.state.urlSearched}' target="_blank">${this.state.urlSearched}</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
-      } else {
-        if (this.state.site.wpInfra) {
-          res = this.state.site.url + "/wp-admin";
-          res = `L'instance WordPress est : <a href='${res}' target="_blank">${res}</a>`;
-          res += ` <br />Unité de rattachement <strong>${this.state.unitName}</strong>`;
-        } else {
-          res = `Le site <a href='${this.state.urlSearched}' target="_blank">${this.state.urlSearched}</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI`;
-        }
-      }
-
-      let displayResult;
-      if (this.state.urlSearched !== "") {
-        displayResult = <h4 className="py-4">{ReactHtmlParser(res)}</h4>;
-      }
-
       content = (
         <div className="">
           <h4 className="py-4">Quelle est l'instance WordPress de cette URL ?</h4>
@@ -112,7 +136,7 @@ class Search extends React.Component {
             {({ handleSubmit, isSubmitting, values }) => (
               <form method="GET" onSubmit={handleSubmit} className="bg-white border p-4">
                 <Field
-                  placeholder="URL du site"
+                  placeholder="Merci de saisir une URL"
                   label="URL"
                   name="url"
                   type="text"
@@ -128,7 +152,7 @@ class Search extends React.Component {
             )}
           </Formik>
 
-          {displayResult}
+          {this.displayResult()}
         </div>
       );
     }
