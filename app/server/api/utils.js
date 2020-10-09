@@ -25,11 +25,38 @@ const formatSiteCategories = (sites) => {
       }
     }
   } else {
+    console.log(sites)
     if (sites.categories) {
       sites.categories = sites.categories.map((category) => category.name);
     }
   }
   return sites;
+};
+
+/**
+ * This function returns the ansible host pattern from the url of a site.
+ *
+ * Example:
+ * URL:  https://www.epfl.ch/research/facilities/hydraulic-machines-platform
+ * Ansible host: www__research__facilities__hydraulic_machines_platform
+ */
+const generateAnsibleHostPattern = (site) => {
+  console.log("URL: ", site.url);
+
+  const currentURL = new URL(site.url);
+  let result = currentURL.host.replace(".epfl.ch", "");
+
+  // Delete the first '/' and replace all '/' by '__'
+  let pathName = currentURL.pathname.slice(1).replace(/\//g, "__");
+
+  if (pathName) {
+    result += "__" + pathName;
+  }
+
+  // Replace all '-' by '_'
+  result = result.replace(/-/g, "_");
+
+  return result;
 };
 
 // Global API configuration
@@ -39,8 +66,4 @@ const Api = new Restivus({
   version: "v1",
 });
 
-export {
-  Api,
-  APIError,
-  formatSiteCategories
-}
+export { Api, APIError, formatSiteCategories, generateAnsibleHostPattern };
