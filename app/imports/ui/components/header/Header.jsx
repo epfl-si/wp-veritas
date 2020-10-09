@@ -157,7 +157,25 @@ class Header extends Component {
                     >
                       Voir les logs
                     </NavLink>
-                    <div className="dropdown-item">Version 1.11.1</div>
+                    <div className="dropdown-item">Version 1.11.2</div>
+                  </div>
+                </li>
+              ) : null}
+              {this.props.currentUserIsAdmin ? (
+                <li className="nav-item dropdown">
+                  <a
+                    className="nav-link dropdown-toggle"
+                    id="navbarDropdown"
+                    role="button"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    API
+                  </a>
+                  <div className="dropdown-menu">
+                    <a className="dropdown-item" target="_blank" href="/api">Documentation de l'API</a>
+                    <a className="dropdown-item" target="_blank" href="/api/v1/sites">Voir tous les sites</a>
                   </div>
                 </li>
               ) : null}
