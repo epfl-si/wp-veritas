@@ -25,7 +25,6 @@ const formatSiteCategories = (sites) => {
       }
     }
   } else {
-    console.log(sites)
     if (sites.categories) {
       sites.categories = sites.categories.map((category) => category.name);
     }
