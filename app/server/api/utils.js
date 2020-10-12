@@ -40,7 +40,6 @@ const formatSiteCategories = (sites) => {
  * Ansible host: www__research__facilities__hydraulic_machines_platform
  */
 const generateAnsibleHostPattern = (site) => {
-  console.log("URL: ", site.url);
 
   const currentURL = new URL(site.url);
   let result = currentURL.host.replace(".epfl.ch", "");
