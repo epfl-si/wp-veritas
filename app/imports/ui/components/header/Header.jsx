@@ -175,7 +175,7 @@ class Header extends Component {
                   </a>
                   <div className="dropdown-menu">
                     <a className="dropdown-item" target="_blank" href="/api">Documentation de l'API</a>
-                    <a className="dropdown-item" target="_blank" href="/api/v1/sites">Voir tous les sites</a>
+                    <a className="dropdown-item" target="_blank" href="/api/v1/inventory/entries">Voir tous les sites</a>
                   </div>
                 </li>
               ) : null}
