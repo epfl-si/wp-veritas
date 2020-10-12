@@ -1,9 +1,11 @@
 import { Sites } from "../../../imports/api/collections";
+import { generateAnsibleHostPattern } from "../utils"
 
 let chai = require("chai");
 let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
+
 
 getExpectedSiteResult = () => {
   let site = Sites.findOne({
@@ -30,7 +32,8 @@ getExpectedSiteResult = () => {
       tags: site.tags,
       professors: site.professors,
       wpInfra: true,
-      isDeleted: false
+      isDeleted: false,
+      ansibleHost: "www__beaujolais__madame_placard",
     },
   ];
   return expectedResult;
@@ -64,7 +67,9 @@ endpointSites = () => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
         expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(
+        let result = res.body
+        result["ansibleHost"] = generateAnsibleHostPattern(res.body);
+        expect(JSON.stringify(result)).to.eql(
           JSON.stringify(expectedResult[0])
         );
       });
@@ -82,7 +87,9 @@ endpointSites = () => {
         expect(err).to.be.null;
         expect(res).to.have.status(200);
         expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(
+        let result = res.body
+        result[0]["ansibleHost"] = generateAnsibleHostPattern(res.body[0]);
+        expect(JSON.stringify(result)).to.eql(
           JSON.stringify(expectedResult)
         );
       });
