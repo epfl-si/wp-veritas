@@ -51,38 +51,34 @@ module.exports.loadData = async (destination, data) => {
       ) {
         stop = true;
       }
-      let url, title, categories, categoryName, theme, languages;
+
+      let site, url, title, categories, categoryName, theme, languages;
       if (!stop) {
         url = `https://${currentSite.wp_hostname}/${currentSite.wp_path}`;
         title = currentSite.wp_path;
-        categoryName =
-          currentSite["wp_details"]["options"]["epfl:site_category"];
-        if (categoryName == null) {
-          categoryName = "GeneralPublic";
-        }
+
+        site = JSON.parse(currentSite.wpveritas_site)
 
         // Get category object by category name
         let connectionString = dbHelpers.getConnectionString(destination);
 
         // Return a empty list if category is GeneralPublic
-        categories = await dbHelpers.getCategory(
+        categories = await dbHelpers.getCategories(
           connectionString,
           destination,
-          categoryName
+          site.categories
         );
 
-        theme = currentSite["wp_details"]["options"]["stylesheet"];
-        languages = currentSite["wp_details"]["polylang"]["langs"];
-
+        theme = site.theme
+        languages = site.languages
         if (!languages) {
           stop = true;
         }
       }
+
       if (!stop) {
-        let unitId =
-          currentSite["wp_details"]["options"]["plugin:epfl_accred:unit_id"];
-        let unitName =
-          currentSite["wp_details"]["options"]["plugin:epfl_accred:unit"];
+        let unitId = site.unit_id
+        let unitName = site.unit_name
 
         let siteDocument = {
           url: url,
@@ -102,15 +98,19 @@ module.exports.loadData = async (destination, data) => {
           slug: "",
           professors: [],
           tags: [],
+          isDeleted: false,
         };
 
-        let connectionString = dbHelpers.getConnectionString(destination);
+        console.log(siteDocument)
 
+        let connectionString = dbHelpers.getConnectionString(destination);
+        console.log(connectionString)
         await dbHelpers.insertOneSite(
           connectionString,
           destination,
           siteDocument
         );
+
       }
     });
   } catch (error) {
