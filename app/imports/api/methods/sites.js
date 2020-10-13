@@ -319,7 +319,11 @@ const removePermanentlySite = new VeritasValidatedMethod({
   run({ siteId }) {
     let site = Sites.findOne({ _id: siteId });
     Sites.remove({ _id: siteId });
-    AppLogger.getLog().info(`Delete permanently site ID ${siteId}`, { before: site, after: "" }, this.userId);
+    AppLogger.getLog().info(
+      `Delete permanently site ID ${siteId}`,
+      { before: site, after: "" },
+      this.userId
+    );
   },
 });
 
