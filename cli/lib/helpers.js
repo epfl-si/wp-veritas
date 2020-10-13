@@ -101,10 +101,8 @@ module.exports.loadData = async (destination, data) => {
           isDeleted: false,
         };
 
-        console.log(siteDocument)
-
         let connectionString = dbHelpers.getConnectionString(destination);
-        console.log(connectionString)
+        
         await dbHelpers.insertOneSite(
           connectionString,
           destination,

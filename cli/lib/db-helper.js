@@ -110,8 +110,6 @@ module.exports.insertOneSite = async function (
   client.close();
 };
 
-
-
 /**
  * Get category
  */
