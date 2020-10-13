@@ -1,5 +1,5 @@
 import { Sites } from "../../imports/api/collections";
-import { Api, formatSiteCategories } from "./utils";
+import { Api, formatSiteCategories, generateAnsibleHostPattern } from "./utils";
 import getUnits from "../units";
 
 /**
@@ -91,10 +91,7 @@ Api.addRoute(
         if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
           this.queryParams.tags = [this.queryParams.tags];
         }
-        let sites = Sites.tagged_search(
-          this.queryParams.text,
-          this.queryParams.tags
-        );
+        let sites = Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
         return formatSiteCategories(sites);
       } else if (query && this.queryParams.tagged) {
         let sites = Sites.tagged_search();
@@ -102,6 +99,9 @@ Api.addRoute(
       } else {
         // nope, we are here for all the sites data
         let sites = Sites.find({ isDeleted: false }).fetch();
+        for (let site of sites) {
+          site["ansibleHost"] = generateAnsibleHostPattern(site);
+        }
         return formatSiteCategories(sites);
       }
     },
@@ -157,7 +157,100 @@ Api.addRoute(
   { authRequired: false },
   {
     get: function () {
-      return formatSiteCategories(Sites.find({}).fetch());
+      let sites = Sites.find({}).fetch();
+      for (let site of sites) {
+        site["ansibleHost"] = generateAnsibleHostPattern(site);
+      }
+      return formatSiteCategories(sites);
+    },
+  }
+);
+
+/**
+ * @api {get} /inventory/entries:ansibleHost  Get site by ansibleHost
+ * @apiGroup Sites
+ *
+ * @apiParam   {Number} id                        Site unique ID.
+ *
+ * @apiSuccess {String} _id                       Site unique ID.
+ * @apiSuccess {String} url                       Site URL.
+ * @apiSuccess {String} slug                      Site slug.
+ * @apiSuccess {String} tagline                   Site tagline.
+ * @apiSuccess {String} title                     Site title.
+ * @apiSuccess {String} openshiftEnv              Site openshiftEnv.
+ * @apiSuccess {String} category                  Site category. — DEPRECATED
+ * @apiSuccess {Array}  categories                Site categories.
+ * @apiSuccess {String} theme                     Site theme.
+ * @apiSuccess {Array}  languages                 Site languages.
+ * @apiSuccess {Array}  tags                      Site tags.
+ * @apiSuccess {Array}  professors                Site professors.
+ * @apiSuccess {String} unitId                    Site unitId.
+ * @apiSuccess {String} unitName                  Site unitName.
+ * @apiSuccess {String} unitNameLevel2            Site unitNameLevel2.
+ * @apiSuccess {String} snowNumber                Site snowNumber.
+ * @apiSuccess {String} comment                   Site comment.
+ * @apiSuccess {String} createdDate               Site createdDate.
+ * @apiSuccess {String} userExperience            Site userExperience.
+ * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
+ * @apiSuccess {String} wpInfra                   Site wpInfra.
+ * @apiSuccess {String} ansibleHost               Site ansibleHost.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "_id": "f7CaxxouACbWiYjQY",
+ *       "url": "https://www.epfl.ch/campus/services/canari",
+ *       "slug": "",
+ *       "tagline": "Canari",
+ *       "title": "Test",
+ *       "openshiftEnv": "www",
+ *       "category": "GeneralPublic",
+ *       "theme": "wp-theme-2018",
+ *       "languages": [
+ *         "en",
+ *         "fr"
+ *       ],
+ *       "unitId": "13031",
+ *       "unitName": "idev-ing",
+ *       "unitNameLevel2": "si",
+ *       "snowNumber": "",
+ *       "comment": "Site canari pour tester l'image",
+ *       "createdDate": "2020-03-05T09:52:06.310Z",
+ *       "userExperience": false,
+ *       "tags": [],
+ *       "professors": [],
+ *       "wpInfra": true,
+ *       "userExperienceUniqueLabel": ""
+ *       "categories": [],
+ *       "isDeleted": false,
+ *       "ansibleHost": "www__campus_services_canari"
+ *     }
+ *
+ * @apiError SiteNotFound Site with this ID wasn't found.
+ *
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *       "message": "SiteNotFound"
+ *     }
+ */
+// Maps to: /api/v1/sites/:ansibleHost
+Api.addRoute(
+  "inventory/entries/:ansibleHost",
+  { authRequired: false },
+  {
+    get: function () {
+      let currentSite;
+      let sites = Sites.find({}).fetch();
+      for (let site of sites) {
+        let ansibleHost = generateAnsibleHostPattern(site);
+        if (ansibleHost === this.urlParams.ansibleHost) {
+          site.ansibleHost = ansibleHost;
+          currentSite = site;
+          break;
+        }
+      }
+      return formatSiteCategories(currentSite);
     },
   }
 );
@@ -308,28 +401,28 @@ Api.addRoute(
  */
 // Maps to: /api/v1/sites/wp-admin/:sciper
 Api.addRoute(
-    "sites/wp-admin/:sciper",
-    { authRequired: false },
-    {
-      get: function () {
-        // Get units of sciper
-        let units = getUnits(this.urlParams.sciper);
-  
-        // Get all sites whose unit is present in 'units'
-        let sites = Sites.find({ unitId: { $in: units } }).fetch();
-  
-        // Create an array with only wp-admin URL
-        admins = [];
-        for (let index in sites) {
-          admins.push(sites[index].url + "/wp-admin");
-        }
-  
-        return admins;
-      },
-    }
-  );
+  "sites/wp-admin/:sciper",
+  { authRequired: false },
+  {
+    get: function () {
+      // Get units of sciper
+      let units = getUnits(this.urlParams.sciper);
 
-  /**
+      // Get all sites whose unit is present in 'units'
+      let sites = Sites.find({ unitId: { $in: units } }).fetch();
+
+      // Create an array with only wp-admin URL
+      admins = [];
+      for (let index in sites) {
+        admins.push(sites[index].url + "/wp-admin");
+      }
+
+      return admins;
+    },
+  }
+);
+
+/**
  * @api {get} /sites-with-tags-en/:tag1/:tag2  Get sites by tag name en
  * @apiGroup Sites
  *
