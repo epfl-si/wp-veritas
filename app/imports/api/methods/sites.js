@@ -99,42 +99,45 @@ function prepareUpdateInsert(site, action) {
 }
 
 const validateConsistencyOfFields = (newSite) => {
-  // Check if inside site datas are OK
-  if (
-    newSite.url.includes("inside.epfl.ch") ||
-    newSite.openshiftEnv === "inside" ||
-    newSite.categories.find((category) => category.name === "Inside")
-  ) {
+  // For "int" openshiftEnv, we want test all cases
+  if (newSite.openshiftEnv !== "int") {
+    // Check if inside site datas are OK
     if (
-      !(
-        newSite.url.includes("inside.epfl.ch") &&
-        newSite.openshiftEnv === "inside" &&
-        newSite.categories.find((category) => category.name === "Inside")
-      )
+      newSite.url.includes("inside.epfl.ch") ||
+      newSite.openshiftEnv === "inside" ||
+      newSite.categories.find((category) => category.name === "Inside")
     ) {
-      throwMeteorErrors(
-        ["url", "categories", "openshiftEnv"],
-        "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents"
-      );
+      if (
+        !(
+          newSite.url.includes("inside.epfl.ch") &&
+          newSite.openshiftEnv === "inside" &&
+          newSite.categories.find((category) => category.name === "Inside")
+        )
+      ) {
+        throwMeteorErrors(
+          ["url", "categories", "openshiftEnv"],
+          "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents"
+        );
+      }
     }
-  }
 
-  // Check if subdomains-lite site datas are OK
-  if (
-    newSite.openshiftEnv === "subdomains-lite" ||
-    newSite.openshiftEnv.startsWith("unm-") ||
-    newSite.theme === "wp-theme-light"
-  ) {
+    // Check if subdomains-lite site datas are OK
     if (
-      !(
-        (newSite.openshiftEnv === "subdomains-lite" || newSite.openshiftEnv.startsWith("unm-")) &&
-        newSite.theme === "wp-theme-light"
-      )
+      newSite.openshiftEnv === "subdomains-lite" ||
+      newSite.openshiftEnv.startsWith("unm-") ||
+      newSite.theme === "wp-theme-light"
     ) {
-      throwMeteorErrors(
-        ["theme", "openshiftEnv"],
-        "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents"
-      );
+      if (
+        !(
+          (newSite.openshiftEnv === "subdomains-lite" || newSite.openshiftEnv.startsWith("unm-")) &&
+          newSite.theme === "wp-theme-light"
+        )
+      ) {
+        throwMeteorErrors(
+          ["theme", "openshiftEnv"],
+          "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents"
+        );
+      }
     }
   }
 };
