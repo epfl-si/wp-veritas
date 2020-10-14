@@ -113,19 +113,22 @@ module.exports.insertOneSite = async function (
 /**
  * Get category
  */
-module.exports.getCategory = async function (
+module.exports.getCategories = async function (
   connectionString,
   target,
-  categoryName
+  categoriesName
 ) {
-  const client = await createClient(connectionString);
-  const db = getDB(target, client);
-  let category = await db
-    .collection("categories")
-    .find({ name: categoryName })
-    .toArray();
-  client.close();
-  return category;
+  let categories = []
+  for (let categoryName of categoriesName) {
+    const client = await createClient(connectionString);
+    const db = getDB(target, client);
+    let category = await db
+      .collection("categories")
+      .find({ name: categoryName }).toArray();
+    categories.push(category[0])
+    client.close();
+  }
+  return categories;
 };
 
 /**
