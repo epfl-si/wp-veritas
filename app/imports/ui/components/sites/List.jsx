@@ -185,7 +185,9 @@ class List extends Component {
   };
 
   export = () => {
-    let sites = Sites.find({ isDeleted: false }).fetch();
+
+    // Export search result
+    let sites = this.state.sites;
 
     sites.forEach(function (site) {
       site.categories = site.categories
