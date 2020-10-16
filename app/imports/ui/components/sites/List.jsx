@@ -185,7 +185,9 @@ class List extends Component {
   };
 
   export = () => {
-    let sites = Sites.find({ isDeleted: false }).fetch();
+
+    // Export search result
+    let sites = this.state.sites;
 
     sites.forEach(function (site) {
       site.categories = site.categories
@@ -429,7 +431,7 @@ export default withTracker(() => {
   ];
   return {
     loading: handles.some((handle) => !handle.ready()),
-    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
+    sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
     openshiftEnvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
   };
