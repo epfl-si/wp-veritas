@@ -18,7 +18,7 @@ import "./indexes";
 
 import { getEnvironment } from "../imports/api/utils";
 
-let importDatas = false;
+let importDatas = true;
 
 // Warning: Tequila is needed to create the DB entries the first time that
 // you run the app — afterwards you can disable it to have more dev comfort.
