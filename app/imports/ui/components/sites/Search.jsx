@@ -56,7 +56,7 @@ class Search extends React.Component {
     this.props.sites.forEach((currentSite) => {
       if (queryURL.startsWith(currentSite.url)) {
         if (currentSite.url.length > result.url.length) {
-          if (queryURL.startsWith(currentSite.url + "/") || queryURL == currentSite.url) {
+          if (queryURL.startsWith(currentSite.url) || queryURL == currentSite.url) {
             result = currentSite;
           }
         }
