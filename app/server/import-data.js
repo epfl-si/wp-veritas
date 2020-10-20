@@ -253,9 +253,9 @@ updateSitesAddTrailingSlash = () => {
     console.log(site);
     let newURL = site.url
     if (!newURL.endsWith('/')) {
-        newUrl= site.url + '/'
+      newURL += '/'
     }
-    Sites.update({ _id: siteId }, { $set: { url: newUrl } });
+    Sites.update({ _id: siteId }, { $set: { url: newURL } });
   });
   console.log("All sites are updated");
 }
