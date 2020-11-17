@@ -302,7 +302,7 @@ const removeSite = new VeritasValidatedMethod({
         user.username +
         " (#" +
         this.userId +
-        ") has just delete " +
+        ") has just deleted " +
         site.url +
         " on wp-veritas! #wpSiteDeleted";
       Telegram.sendMessage(message);
