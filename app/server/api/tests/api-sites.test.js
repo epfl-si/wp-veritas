@@ -9,12 +9,12 @@ chai.use(chaiHttp);
 
 getExpectedSiteResult = () => {
   let site = Sites.findOne({
-    url: "https://www.epfl.ch/beaujolais/madame-placard",
+    url: "https://www.epfl.ch/beaujolais/madame-placard/",
   });
   let expectedResult = [
     {
       _id: site._id,
-      url: "https://www.epfl.ch/beaujolais/madame-placard",
+      url: "https://www.epfl.ch/beaujolais/madame-placard/",
       tagline: "Yvon Métras",
       title: "Ma meilleure découverte 2019",
       openshiftEnv: "www",

@@ -39,10 +39,9 @@ function prepareUpdateInsert(site, action) {
     site.userExperienceUniqueLabel = "";
   }
 
-  // Delete "/" at the end of URL
-  let url = site.url;
-  if (url.endsWith("/")) {
-    site.url = url.slice(0, -1);
+  // Ensures that site URL will end with a slash
+  if (!(site.url.endsWith("/"))) {
+    site.url += "/"
   }
 
   const URL_ALREADY_EXISTS_MSG =
@@ -302,7 +301,7 @@ const removeSite = new VeritasValidatedMethod({
         user.username +
         " (#" +
         this.userId +
-        ") has just delete " +
+        ") has just deleted " +
         site.url +
         " on wp-veritas! #wpSiteDeleted";
       Telegram.sendMessage(message);

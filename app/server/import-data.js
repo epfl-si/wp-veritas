@@ -246,6 +246,20 @@ updateSitesWithoutProfessors = () => {
   console.log("All sites are updated");
 }
 
+updateSitesAddTrailingSlash = () => {
+  let sites = Sites.find().fetch();
+  sites.forEach((site) => {
+    let siteId = site._id;
+    console.log(site);
+    let newURL = site.url
+    if (!newURL.endsWith('/')) {
+      newURL += '/'
+    }
+    Sites.update({ _id: siteId }, { $set: { url: newURL } });
+  });
+  console.log("All sites are updated");
+}
+
 updateSitesDeleteCategory = () => {
   let sites = Sites.find().fetch();
   sites.forEach((site) => {
@@ -283,13 +297,7 @@ importData = () => {
     loadTestData();
   }
   */
-  //updateCategoryAdmin();
-  //updateCategoriesFromCategory();
-  //updateSitesWithoutProfessors();
-
-  //updateSitesDeleteCategory();
-
-  updateSitesWithoutIsDeletedField();
+  updateSitesAddTrailingSlash()
 };
 
 export { importData };

@@ -53,7 +53,7 @@ if (Meteor.isServer) {
       let tagsNumber = Tags.find({}).count();
       assert.strictEqual(tagsNumber, 2);
 
-      const url = "https://www.epfl.ch/beaujolais/madame-placard";
+      const url = "https://www.epfl.ch/beaujolais/madame-placard/";
       const title = "Ma meilleure découverte 2019";
 
       const context = { userId };
@@ -93,7 +93,7 @@ if (Meteor.isServer) {
 
     it("update site", () => {
       let userId = createUser();
-      const url = "https://www.epfl.ch/beaujolais/madame-placard";
+      const url = "https://www.epfl.ch/beaujolais/madame-placard/";
       const title = "Ma meilleure découverte 2019";
       let site = Sites.findOne({ url: url });
 
@@ -136,7 +136,7 @@ if (Meteor.isServer) {
 
     it("remove site", () => {
       let userId = createUser();
-      const url = "https://www.epfl.ch/beaujolais/madame-placard";
+      const url = "https://www.epfl.ch/beaujolais/madame-placard/";
       let site = Sites.findOne({ url: url });
 
       const context = { userId };
