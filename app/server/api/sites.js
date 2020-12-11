@@ -76,8 +76,8 @@ Api.addRoute(
       var query = this.queryParams;
       if (query && this.queryParams.site_url) {
         let siteUrl = this.queryParams.site_url;
-        if (siteUrl.endsWith("/")) {
-          siteUrl = siteUrl.slice(0, -1);
+        if (!(siteUrl.endsWith("/"))) {
+          siteUrl = siteUrl + "/"
         }
         return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
       } else if (query && this.queryParams.search_url) {
