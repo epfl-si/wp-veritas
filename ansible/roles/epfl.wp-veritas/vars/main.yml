@@ -24,7 +24,6 @@ wp_veritas_secrets: "{{ lookup('file', '/keybase/team/epfl_wpveritas/ansible_wpv
 wp_veritas_db_password: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_PROD if server_name == 'prod' else (
   wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_TEST if server_name == 'test' else (
   wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_DEV)) }}"
-meteor_settings_env: " {{ wp_veritas_secrets.frontend.credentials.METEOR_SETTINGS }}"
 db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
-wp_veritas_bot_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN }} if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN_TEST }}"
-wp_veritas_alerts_telegram_ids: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS }} if openshift_namespace == 'wwp' else {{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST }}"
+wp_veritas_bot_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN_TEST }}"
+wp_veritas_alerts_telegram_ids: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST }}"
