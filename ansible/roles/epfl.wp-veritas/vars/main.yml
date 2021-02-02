@@ -16,14 +16,14 @@ wp_veritas_cname: "{{ 'wp-veritas.epfl.ch' if server_name == 'prod' else (
 wp_veritas_deploy_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
   'wp-veritas-test' if server_name == 'test' else (
   'wp-veritas-dev')) }}"
-wp_veritas_image_version: '1.11.8'
+wp_veritas_image_version: '1.11.10'
 wp_veritas_image_tag: 'epflsi/wp-veritas:{{ wp_veritas_image_version }}'
 wp_veritas_db_name: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
 wp_veritas_db_user: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
-wp_veritas_db_password: "{{ lookup('env','WP_VERITAS_DB_PASSWORD_PROD') if server_name == 'prod' else (
-  lookup('env','WP_VERITAS_DB_PASSWORD_TEST') if server_name == 'test' else (
-  lookup('env','WP_VERITAS_DB_PASSWORD_DEV'))) }}"
-meteor_settings_env: " {{ lookup('env','METEOR_SETTINGS') }}"
+wp_veritas_secrets: "{{ lookup('file', '/keybase/team/epfl_wpveritas/ansible_wpveritas_secrets.yml') | from_yaml }}"
+wp_veritas_db_password: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_PROD if server_name == 'prod' else (
+  wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_TEST if server_name == 'test' else (
+  wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_DEV)) }}"
 db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
-wp_veritas_bot_token: "{{ lookup('env', 'WP_VERITAS_BOT_TOKEN') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_BOT_TOKEN_TEST') }}"
-wp_veritas_alerts_telegram_ids: "{{ lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS') if openshift_namespace == 'wwp' else lookup('env', 'WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST') }}"
+wp_veritas_bot_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN_TEST }}"
+wp_veritas_alerts_telegram_ids: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST }}"

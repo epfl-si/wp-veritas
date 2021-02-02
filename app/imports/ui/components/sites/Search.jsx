@@ -93,7 +93,7 @@ class Search extends React.Component {
                 L'URL <a target="_blank" href={ this.state.queryURL }>{ this.state.queryURL }</a> a pour:
               </div>
               <div className="py-1">
-                - Instance WordPress: <a target="_blank" href={ this.state.site.url }>{this.state.site.url}</a>
+                - Login (pour les ayants droit): <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
               </div>
               <div className="py-1">
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
