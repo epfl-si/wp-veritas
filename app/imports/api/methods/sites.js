@@ -283,6 +283,65 @@ const updateSite = new VeritasValidatedMethod({
   },
 });
 
+const generateSite = new VeritasValidatedMethod({
+  name: "generateSite",
+  role: Admin,
+  validate: new SimpleSchema({
+    siteId: { type: String },
+  }).validator(),
+
+  run({ siteId }) {
+
+    let site = Sites.findOne({ _id: siteId });
+    const url = "https://awx-wwp-infra.epfl.ch/api/v2/job_templates/11/launch/";
+   
+    let options = {
+      headers:
+        { 'Authorization': 'Bearer 6uBnLG5UGq8uLdOz4GWcd7viGhqV1f',
+          'Content-Type': 'application/json'
+        },
+      data: {
+        'name': "BackupCanari",
+        'description': "Backup",
+        'job_type': "run",
+        'inventory': 1,
+        'project': 6,
+        'playbook': "ansible/playbooks/wordpress-main.yml",
+        'forks': 0,
+        'limit': "www__campus__services__website__canari8",
+        'verbosity': 0
+      }
+    };
+
+    HTTP.call('POST', url, options, (error, result) => {
+      if (error) {
+            console.log("error",error);
+            //cb && cb(new Meteor.Error(500, 'There was an error processing your request.', error));
+      } else {
+            console.log("result",result);
+            //cb && cb(null, result);
+      }
+    });
+
+    console.log("GREG !!!! ça marche !");
+
+    AppLogger.getLog().info(`Generate site ID ${siteId}`, { before: site, after: site }, this.userId);
+
+    if (site.wpInfra) {
+      const user = Meteor.users.findOne({ _id: this.userId });
+      const message =
+        "⚠️ Heads up! " +
+        user.username +
+        " (#" +
+        this.userId +
+        ") has just generated " +
+        site.url +
+        " on wp-veritas! #wpSiteGenerated";
+      Telegram.sendMessage(message);
+    }
+  },
+});
+
 const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
   role: Admin,
@@ -433,6 +492,7 @@ rateLimiter([
   restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
+  generateSite,
 ]);
 
 export {
@@ -443,4 +503,5 @@ export {
   restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
+  generateSite,
 };

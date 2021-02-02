@@ -5,6 +5,7 @@ import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collectio
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
 import { Loading, AlertSiteSuccess } from '../Messages';
 import Select from "react-select";
+import { generateSite } from "../../../api/methods/sites";
 
 class Add extends Component {
 
@@ -140,6 +141,15 @@ class Add extends Component {
     return title;
   }
 
+  generate = (siteId) => {
+    console.log("generate ", siteId);
+    generateSite.call({ siteId }, function (error, siteId) {
+      if (error) {
+        console.log(`ERROR generateSite ${error}`);
+      }
+    });
+  }
+
   render() {
     let content;
     let initialValues = this.getInitialValues();
@@ -190,6 +200,13 @@ class Add extends Component {
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
                 <div className="my-1 text-right">
                   <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                  &nbsp;
+                  <button 
+                    type="button" 
+                    className="btn btn-primary"
+                    onClick={() => {
+                      this.generate(initialValues._id);
+                  }}>Générer le site</button>
                 </div>
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
