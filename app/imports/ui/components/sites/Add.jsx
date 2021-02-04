@@ -173,6 +173,17 @@ class Add extends Component {
     });
   };
 
+  displayGenerateButton = (initialValues) => {
+    
+    // Display 'Normalize button' if
+    // - user edit current site (no when user add a new site)
+    // - the current site belongs to WordPress Infra
+    // - the current site is not an unmanaged
+    return this.state.action === 'edit' && 
+      initialValues.wpInfra && 
+      !initialValues.openshiftEnv.startsWith("unm-")
+  }
+
   render() {
     let content;
     let initialValues = this.getInitialValues();
@@ -228,7 +239,7 @@ class Add extends Component {
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
                   <div className="my-1 text-right">
                     <button type="submit" disabled={ isSubmitting } className="btn btn-primary mx-2">Enregistrer</button>
-                  { this.state.action === 'edit' ?
+                  { this.displayGenerateButton(initialValues) ?
                     (<>
                       <button
                         type="button"
