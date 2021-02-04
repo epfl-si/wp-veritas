@@ -326,12 +326,9 @@ const generateSite = new VeritasValidatedMethod({
       if (ansibleHost === '') {
         return false;
       }
-      if (getEnvironment() === "DEV" && !site.url.includes('canari')) {
-        return false;
-      }
-      if (getEnvironment() != "PROD") {
-        return false;
-      } else {
+
+      if ((getEnvironment() === "DEV" && site.url.includes('canari')) || getEnvironment() === "PROD") {
+
         const AWX_URL = "https://awx-wwp-infra.epfl.ch/api/v2/job_templates/13/launch/";
         const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
 
