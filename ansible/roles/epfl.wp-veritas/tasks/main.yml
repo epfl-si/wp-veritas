@@ -56,6 +56,11 @@
                       secretKeyRef:
                         name: '{{ wp_veritas_secret_name }}'
                         key: alert-telegram-ids
+                  - name: WP_VERITAS_AWX_TOKEN
+                    valueFrom:
+                      secretKeyRef:
+                        name: '{{ wp_veritas_secret_name }}'
+                        key: awx-token
                 image: "{{ wp_veritas_image_tag }}"
                 imagePullPolicy: Always
                 name: pod-wp-veritas

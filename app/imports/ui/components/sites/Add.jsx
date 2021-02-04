@@ -3,9 +3,11 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
-import { Loading, AlertSiteSuccess } from '../Messages';
+import { Loading, AlertSiteSuccess, AlertSuccess } from '../Messages';
 import Select from "react-select";
 import { generateSite } from "../../../api/methods/sites";
+import PopOver from "../popover/PopOver";
+import Swal from "sweetalert2";
 
 class Add extends Component {
 
@@ -28,6 +30,7 @@ class Add extends Component {
       addSuccess: false,
       editSuccess: false,
       saveSuccess: false,
+      generateSuccess: false,
       unitName: unitName
     }
   }
@@ -46,7 +49,7 @@ class Add extends Component {
   }
 
   updateUserMsg = () => {
-    this.setState({addSuccess: false, editSuccess: false});
+    this.setState({addSuccess: false, editSuccess: false, generateSuccess: false});
   }
 
   updateSaveSuccess = (newValue) => {
@@ -77,7 +80,7 @@ class Add extends Component {
           console.log(errors);
           let formErrors = {};
           errors.details.forEach(function(error) {
-            formErrors[error.name] = error.message;                        
+            formErrors[error.name] = error.message;
           });
           actions.setErrors(formErrors);
           actions.setSubmitting(false);
@@ -142,13 +145,33 @@ class Add extends Component {
   }
 
   generate = (siteId) => {
-    console.log("generate ", siteId);
-    generateSite.call({ siteId }, function (error, siteId) {
+    generateSite.call({ siteId }, (error, result) => {
       if (error) {
         console.log(`ERROR generateSite ${error}`);
+      } else {
+        this.setState({generateSuccess: result});
       }
     });
   }
+
+  handleClickOnGenerateButton = (siteId) => {
+    let site = Sites.findOne({ _id: siteId });
+
+    Swal.fire({
+      title: `Voulez vous vraiment normaliser le site ci-dessous ?`,
+      text: `${site.url}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Oui",
+      cancelButtonText: "Non",
+    }).then((result) => {
+      if (result.value) {
+        this.generate(siteId);
+      }
+    });
+  };
 
   render() {
     let content;
@@ -178,6 +201,11 @@ class Add extends Component {
                 title={this.state.previousSite.title}
               />
             ) : null} 
+            { this.state.generateSuccess ? (
+              <AlertSuccess
+                message={`La normalisation du site a démarré avec succès !`}
+              />
+            ) : null}
             { this.state.editSuccess && msgEditSuccess }
             <Formik
             onSubmit={ this.submit }
@@ -198,16 +226,25 @@ class Add extends Component {
             }) => (
               
                 <form onSubmit={ handleSubmit } className="bg-white border p-4">
-                <div className="my-1 text-right">
-                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
-                  &nbsp;
-                  <button 
-                    type="button" 
-                    className="btn btn-primary"
-                    onClick={() => {
-                      this.generate(initialValues._id);
-                  }}>Générer le site</button>
-                </div>
+                  <div className="my-1 text-right">
+                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary mx-2">Enregistrer</button>
+                  { this.state.action === 'edit' ?
+                    (<>
+                      <button
+                        type="button"
+                        className="btn btn-primary mx-1"
+                        onClick={() => {
+                          this.handleClickOnGenerateButton(initialValues._id);
+                        }}>Normaliser le site</button>
+                      <PopOver
+                        popoverUniqID="alignSite"
+                        title="Normaliser le site"
+                        placement="bottom"
+                        description="Grâce à ce bouton, vous allez soit remettre le site en conformité, soit le créer (si ce dernier n'existe pas) "
+                      />
+                    </>)
+                  : null }
+                  </div>
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg(); }}
                   onBlur={ e => {
@@ -297,7 +334,7 @@ class Add extends Component {
 
                 <ErrorMessage name="theme" component={ CustomError } />
 
-                <h6>Langues</h6>                  
+                <h6>Langues</h6>
                 <Field 
                   onChange={e => { handleChange(e); this.updateUserMsg();}} 
                   onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
@@ -449,7 +486,6 @@ export default withTracker((props) => {
 
 class MyCategorySelect extends React.Component {
   handleChange = (value) => {
-    console.log(value)
     // this is going to call setFieldValue and manually update values.topcis
     this.props.onChange(this.props.name, value);
     this.props.saveSuccess(!this.props.saveSuccess);

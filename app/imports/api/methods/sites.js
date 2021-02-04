@@ -7,8 +7,32 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
 import { Telegram } from "../telegram";
+import { getEnvironment } from "../../api/utils";
 
 import "../methods"; // without this line run test failed
+
+const generateAnsibleHostPattern = (site) => {
+  const currentURL = new URL(site.url);
+  let result = currentURL.host.replace(".epfl.ch", "");
+
+  // Delete the first '/'
+  let pathName = currentURL.pathname.slice(1);
+
+  // Delete the last '/'
+  pathName = pathName.slice(0, pathName.length - 1);
+
+  // Replace all '/' by '__'
+  pathName = pathName.replace(/\//g, "__");
+
+  if (pathName) {
+    result += "__" + pathName;
+  }
+
+  // Replace all '-' by '_'
+  result = result.replace(/-/g, "_");
+
+  return result;
+};
 
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
@@ -292,53 +316,65 @@ const generateSite = new VeritasValidatedMethod({
 
   run({ siteId }) {
 
-    let site = Sites.findOne({ _id: siteId });
-    const url = "https://awx-wwp-infra.epfl.ch/api/v2/job_templates/11/launch/";
-   
-    let options = {
-      headers:
-        { 'Authorization': 'Bearer 6uBnLG5UGq8uLdOz4GWcd7viGhqV1f',
-          'Content-Type': 'application/json'
-        },
-      data: {
-        'name': "BackupCanari",
-        'description': "Backup",
-        'job_type': "run",
-        'inventory': 1,
-        'project': 6,
-        'playbook': "ansible/playbooks/wordpress-main.yml",
-        'forks': 0,
-        'limit': "www__campus__services__website__canari8",
-        'verbosity': 0
-      }
-    };
+    let awxJobCalled = true;
 
-    HTTP.call('POST', url, options, (error, result) => {
-      if (error) {
-            console.log("error",error);
-            //cb && cb(new Meteor.Error(500, 'There was an error processing your request.', error));
+    if (Meteor.isServer) {
+      let site = Sites.findOne({ _id: siteId });
+      ansibleHost = generateAnsibleHostPattern(site);
+      console.log(getEnvironment());
+
+      if (ansibleHost === '') {
+        return false;
+      }
+      if (getEnvironment() === "DEV" && !site.url.includes('canari')) {
+        return false;
+      }
+      if (getEnvironment() != "PROD") {
+        return false;
       } else {
+        const AWX_URL = "https://awx-wwp-infra.epfl.ch/api/v2/job_templates/13/launch/";
+        const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
+
+        console.log(`AWX_URL: ${AWX_URL}`);
+        console.log(`AWX_TOKEN: ${WP_VERITAS_AWX_TOKEN}`);
+        console.log(`ansibleHost: ${ansibleHost}`);
+
+        let options = {
+          headers:
+            { 'Authorization': `Bearer ${WP_VERITAS_AWX_TOKEN}`,
+              'Content-Type': 'application/json'
+            },
+          data: {
+            'limit': ansibleHost,
+          }
+        };
+
+        HTTP.call('POST', AWX_URL, options, (error, result) => {
+          if (error) {
+            console.log("error",error);
+            awxJobCalled = false;
+          } else {
             console.log("result",result);
-            //cb && cb(null, result);
+          }
+        });
+
+        AppLogger.getLog().info(`Generate site ID ${siteId}`, { before: site, after: site }, this.userId);
+
+        if (site.wpInfra) {
+          const user = Meteor.users.findOne({ _id: this.userId });
+          const message =
+            "⚠️ Heads up! " +
+            user.username +
+            " (#" +
+            this.userId +
+            ") has just generated " +
+            site.url +
+            " on wp-veritas! #wpSiteGenerated";
+          Telegram.sendMessage(message);
+        }
       }
-    });
-
-    console.log("GREG !!!! ça marche !");
-
-    AppLogger.getLog().info(`Generate site ID ${siteId}`, { before: site, after: site }, this.userId);
-
-    if (site.wpInfra) {
-      const user = Meteor.users.findOne({ _id: this.userId });
-      const message =
-        "⚠️ Heads up! " +
-        user.username +
-        " (#" +
-        this.userId +
-        ") has just generated " +
-        site.url +
-        " on wp-veritas! #wpSiteGenerated";
-      Telegram.sendMessage(message);
     }
+    return awxJobCalled;
   },
 });
 
