@@ -26,5 +26,5 @@ wp_veritas_db_password: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_D
   wp_veritas_secrets.frontend.credentials.WP_VERITAS_DB_PASSWORD_DEV)) }}"
 db_host: "{{ 'mongodb-svc-1' if openshift_namespace == 'wwp' else 'test-mongodb-svc-1' }}"
 wp_veritas_bot_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_BOT_TOKEN_TEST }}"
-wp_veritas_awx_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_AWX_TOKEN if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_AWX_TOKEN_TEST }}"
+wp_veritas_awx_token: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_AWX_TOKEN if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_AWX_TOKEN }}"
 wp_veritas_alerts_telegram_ids: "{{ wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS if openshift_namespace == 'wwp' else wp_veritas_secrets.frontend.credentials.WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST }}"

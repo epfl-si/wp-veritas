@@ -320,8 +320,12 @@ const generateSite = new VeritasValidatedMethod({
 
     if (Meteor.isServer) {
       let site = Sites.findOne({ _id: siteId });
+
+      if (!site.wpInfra) {
+        return false
+      }
+
       ansibleHost = generateAnsibleHostPattern(site);
-      console.log(getEnvironment());
 
       if (ansibleHost === '') {
         return false;
@@ -359,14 +363,17 @@ const generateSite = new VeritasValidatedMethod({
 
         if (site.wpInfra) {
           const user = Meteor.users.findOne({ _id: this.userId });
-          const message =
+          let message =
             "⚠️ Heads up! " +
             user.username +
             " (#" +
             this.userId +
-            ") has just generated " +
+            ") has just normalized " +
             site.url +
-            " on wp-veritas! #wpSiteGenerated";
+            " on wp-veritas! #wpSiteNormalized";
+            if (site.openshiftEnv === 'subdomains-lite') {
+              message += "\n Don't forget to change the varnish configuration!"
+            }
           Telegram.sendMessage(message);
         }
       }
