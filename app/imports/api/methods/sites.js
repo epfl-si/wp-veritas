@@ -333,7 +333,7 @@ const generateSite = new VeritasValidatedMethod({
 
       if ((getEnvironment() === "DEV" && site.url.includes('canari')) || getEnvironment() === "PROD") {
 
-        const AWX_URL = "https://awx-wwp-infra.epfl.ch/api/v2/job_templates/13/launch/";
+        const AWX_URL = "https://awx-wwp.epfl.ch/api/v2/job_templates/32/launch/";
         const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
 
         console.log(`AWX_URL: ${AWX_URL}`);
