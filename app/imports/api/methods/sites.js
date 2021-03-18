@@ -7,8 +7,32 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
 import { Telegram } from "../telegram";
+import { getEnvironment } from "../../api/utils";
 
 import "../methods"; // without this line run test failed
+
+const generateAnsibleHostPattern = (site) => {
+  const currentURL = new URL(site.url);
+  let result = currentURL.host.replace(".epfl.ch", "");
+
+  // Delete the first '/'
+  let pathName = currentURL.pathname.slice(1);
+
+  // Delete the last '/'
+  pathName = pathName.slice(0, pathName.length - 1);
+
+  // Replace all '/' by '__'
+  pathName = pathName.replace(/\//g, "__");
+
+  if (pathName) {
+    result += "__" + pathName;
+  }
+
+  // Replace all '-' by '_'
+  result = result.replace(/-/g, "_");
+
+  return result;
+};
 
 function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
@@ -283,6 +307,81 @@ const updateSite = new VeritasValidatedMethod({
   },
 });
 
+const generateSite = new VeritasValidatedMethod({
+  name: "generateSite",
+  role: Admin,
+  validate: new SimpleSchema({
+    siteId: { type: String },
+  }).validator(),
+
+  run({ siteId }) {
+
+    let awxJobCalled = true;
+
+    if (Meteor.isServer) {
+      let site = Sites.findOne({ _id: siteId });
+
+      if (!site.wpInfra) {
+        return false
+      }
+
+      ansibleHost = generateAnsibleHostPattern(site);
+
+      if (ansibleHost === '') {
+        return false;
+      }
+
+      if ((getEnvironment() === "DEV" && site.url.includes('canari')) || getEnvironment() === "PROD") {
+
+        const AWX_URL = "https://awx-wwp.epfl.ch/api/v2/job_templates/32/launch/";
+        const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
+
+        console.log(`AWX_URL: ${AWX_URL}`);
+        console.log(`AWX_TOKEN: ${WP_VERITAS_AWX_TOKEN}`);
+        console.log(`ansibleHost: ${ansibleHost}`);
+
+        let options = {
+          headers:
+            { 'Authorization': `Bearer ${WP_VERITAS_AWX_TOKEN}`,
+              'Content-Type': 'application/json'
+            },
+          data: {
+            'limit': ansibleHost,
+          }
+        };
+
+        HTTP.call('POST', AWX_URL, options, (error, result) => {
+          if (error) {
+            console.log("error",error);
+            awxJobCalled = false;
+          } else {
+            console.log("result",result);
+          }
+        });
+
+        AppLogger.getLog().info(`Generate site ID ${siteId}`, { before: site, after: site }, this.userId);
+
+        if (site.wpInfra) {
+          const user = Meteor.users.findOne({ _id: this.userId });
+          let message =
+            "⚠️ Heads up! " +
+            user.username +
+            " (#" +
+            this.userId +
+            ") has just normalized " +
+            site.url +
+            " on wp-veritas! #wpSiteNormalized";
+            if (site.openshiftEnv === 'subdomains-lite') {
+              message += "\n Don't forget to change the varnish configuration!"
+            }
+          Telegram.sendMessage(message);
+        }
+      }
+    }
+    return awxJobCalled;
+  },
+});
+
 const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
   role: Admin,
@@ -433,6 +532,7 @@ rateLimiter([
   restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
+  generateSite,
 ]);
 
 export {
@@ -443,4 +543,5 @@ export {
   restoreSite,
   associateProfessorsToSite,
   associateTagsToSite,
+  generateSite,
 };
