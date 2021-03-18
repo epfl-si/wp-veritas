@@ -194,16 +194,16 @@ class List extends Component {
         .map((category) => category.name)
         .join(",");
 
-      let facutyTags = "";
+      let facultyTags = "";
       let instituteTags = "";
       let clusterTags = "";
 
       site.tags.forEach(function (tag) {
         if (tag.type === "faculty") {
-          if (facutyTags === "") {
-            facutyTags += tag.name_en;
+          if (facultyTags === "") {
+            facultyTags += tag.name_en;
           } else {
-            facutyTags += "," + tag.name_en;
+            facultyTags += "," + tag.name_en;
           }
         } else if (tag.type === "institute") {
           if (instituteTags === "") {
@@ -220,7 +220,7 @@ class List extends Component {
         }
       });
 
-      site.facutyTags = facutyTags;
+      site.facultyTags = facultyTags;
       site.instituteTags = instituteTags;
       site.clusterTags = clusterTags;
     });
@@ -253,7 +253,7 @@ class List extends Component {
         "unitNameLevel2",
         "snowNumber",
         "status",
-        "facutyTags",
+        "facultyTags",
         "instituteTags",
         "clusterTags",
         "scipers",
