@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from 'formik';
 import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
 import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
@@ -92,6 +93,9 @@ class Add extends Component {
           }
           state.unitName = site.unitName;
           this.setState(state);
+          if (this.state.action === 'add') {
+            this.props.history.push("/edit/" + site._id);
+          }
         }
       }
     );
@@ -469,7 +473,7 @@ class Add extends Component {
     return content;
   }
 }
-export default withTracker((props) => {
+export default withRouter(withTracker((props) => {
 
   Meteor.subscribe('openshiftEnv.list');
   Meteor.subscribe('theme.list');
@@ -493,7 +497,8 @@ export default withTracker((props) => {
       categories: Categories.find({}, {sort: {name:1 }}).fetch(),
     };
   }
-})(Add);
+})(Add)
+);
 
 class MyCategorySelect extends React.Component {
   handleChange = (value) => {
