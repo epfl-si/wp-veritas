@@ -53,6 +53,10 @@ class Search extends React.Component {
     let result = {
       url: ''
     }
+    // queryURL must have an end slash
+    if (!queryURL.endsWith('/')) {
+      queryURL = queryURL + '/';
+    }
     this.props.sites.forEach((currentSite) => {
       if (queryURL.startsWith(currentSite.url)) {
         if (currentSite.url.length > result.url.length) {
