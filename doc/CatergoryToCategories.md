@@ -4,8 +4,8 @@
 
 Les catégories de wp-veritas sont utilisées pour l'installation de plugins
 particuliers sur certains sites, par exemple la catégorie restauration permet
-d'indiquer aux différents scripts dans `jahia2wp` et `ansible` d'installer le
-plugin "EPFL-menu" (ref?).
+d'indiquer au système de configuration-as-code (`ansible` + AWX) d'installer le
+plugin "EPFL-menu".
 
 La problématique a été mise en exergue lors de la demande d'ajout des plugins
 "WPForms" et "Payonline" : dans certains cas, une catégorie unique n'est pas
@@ -36,7 +36,7 @@ Lors du daily du 10 juin 2020, nous avons disucté de cette problématique.
    - Quels pourraient être les effets de bord d'un changement de catégorie à 
      catégories multiples ?  
      Il est nécessaire d'adapter les scripts de déploiement qui utilisent cette 
-     information, c'est à dire `jahia2wp` et `ansible`.
+     information, c'est à dire `ansible`.
 
 ### Conclusion
 
@@ -59,7 +59,6 @@ Dès lors, un site pourra avoir de 1 à N catégories.
    - [x] Modifier l'API de wp-veritas (à priori rien à faire si la DB change)
    - [x] Importer la catégorie de la version initiale dans les catégories.
    - [ ] GeneralPublic valeur par défaut ?
-   - [ ] Modifier `jahia2wp`
    - [ ] Modifier `ansible`
    - [ ] Tester
    - [ ] Penser à supprimer l'ancien champ category dans la collection site.
