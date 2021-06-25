@@ -1,6 +1,6 @@
 # Category to categories
 
-## Prolématique
+## Problématique
 
 Les catégories de wp-veritas sont utilisées pour l'installation de plugins
 particuliers sur certains sites, par exemple la catégorie restauration permet
