@@ -147,14 +147,11 @@ const validateConsistencyOfFields = (newSite) => {
     // Check if subdomains-lite site datas are OK
     if (
       newSite.openshiftEnv === "subdomains-lite" ||
-      newSite.openshiftEnv.startsWith("unm-") ||
       newSite.theme === "wp-theme-light"
     ) {
       if (
-        !(
-          (newSite.openshiftEnv === "subdomains-lite" || newSite.openshiftEnv.startsWith("unm-")) &&
-          newSite.theme === "wp-theme-light"
-        )
+        !(newSite.openshiftEnv === "subdomains-lite" &&
+          newSite.theme === "wp-theme-light")
       ) {
         throwMeteorErrors(
           ["theme", "openshiftEnv"],
