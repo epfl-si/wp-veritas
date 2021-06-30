@@ -64,8 +64,8 @@ function prepareUpdateInsert(site, action) {
   }
 
   // Ensures that site URL will end with a slash
-  if (!(site.url.endsWith("/"))) {
-    site.url += "/"
+  if (!site.url.endsWith("/")) {
+    site.url += "/";
   }
 
   const URL_ALREADY_EXISTS_MSG =
@@ -304,6 +304,11 @@ const updateSite = new VeritasValidatedMethod({
   },
 });
 
+async function delay(ms) {
+  // return await for better async stack trace support in case of errors.
+  return await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const generateSite = new VeritasValidatedMethod({
   name: "generateSite",
   role: Admin,
@@ -311,52 +316,62 @@ const generateSite = new VeritasValidatedMethod({
     siteId: { type: String },
   }).validator(),
 
-  run({ siteId }) {
-
-    let awxJobCalled = true;
+  async run({ siteId }) {
+    let job_id = "";
+    let status = "";
 
     if (Meteor.isServer) {
       let site = Sites.findOne({ _id: siteId });
 
       if (!site.wpInfra) {
-        return false
+        return false;
       }
 
       ansibleHost = generateAnsibleHostPattern(site);
 
-      if (ansibleHost === '') {
+      if (ansibleHost === "") {
         return false;
       }
 
-      if ((getEnvironment() === "DEV" && site.url.includes('canari')) || getEnvironment() === "PROD") {
-
+      if (
+        (getEnvironment() === "DEV" && site.url.includes("canari")) ||
+        getEnvironment() === "PROD"
+      ) {
         const AWX_URL = "https://awx-wwp.epfl.ch/api/v2/job_templates/32/launch/";
         const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
 
-        console.log(`AWX_URL: ${AWX_URL}`);
-        console.log(`AWX_TOKEN: ${WP_VERITAS_AWX_TOKEN}`);
-        console.log(`ansibleHost: ${ansibleHost}`);
-
         let options = {
-          headers:
-            { 'Authorization': `Bearer ${WP_VERITAS_AWX_TOKEN}`,
-              'Content-Type': 'application/json'
-            },
+          headers: {
+            Authorization: `Bearer ${WP_VERITAS_AWX_TOKEN}`,
+            "Content-Type": "application/json",
+          },
           data: {
-            'limit': ansibleHost,
-          }
+            limit: ansibleHost,
+          },
         };
 
-        HTTP.call('POST', AWX_URL, options, (error, result) => {
-          if (error) {
-            console.log("error",error);
-            awxJobCalled = false;
-          } else {
-            console.log("result",result);
-          }
-        });
+        // Run AWX Job
+        let callResponse = HTTP.call("POST", AWX_URL, options);
+        job_id = callResponse.data.job;
 
-        AppLogger.getLog().info(`Generate site ID ${siteId}`, { before: site, after: site }, this.userId);
+        // GET the status every 10 secondes
+        let continueAgain = true;
+        let index = 1;
+        while (continueAgain) {
+          await delay(10000);
+          response = HTTP.call("GET", "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id, options);
+          status = response.data.status;
+          if (status == "successful" || status == "failed" || index > 150) {
+            continueAgain = false;
+          }
+          index += 1;
+        }
+
+        AppLogger.getLog().info(
+          `Generate site ID ${siteId}`,
+          { before: site, after: site },
+          this.userId
+        );
 
         if (site.wpInfra) {
           const user = Meteor.users.findOne({ _id: this.userId });
@@ -368,14 +383,14 @@ const generateSite = new VeritasValidatedMethod({
             ") has just normalized " +
             site.url +
             " on wp-veritas! #wpSiteNormalized";
-            if (site.openshiftEnv === 'subdomains-lite') {
-              message += "\n Don't forget to change the varnish configuration!"
-            }
+          if (site.openshiftEnv === "subdomains-lite") {
+            message += "\n Don't forget to change the varnish configuration!";
+          }
           Telegram.sendMessage(message);
         }
       }
     }
-    return awxJobCalled;
+    return status;
   },
 });
 
