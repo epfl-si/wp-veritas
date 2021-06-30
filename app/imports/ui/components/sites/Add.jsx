@@ -1,29 +1,35 @@
-import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { Component } from "react";
+import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
-import { Formik, Field, ErrorMessage } from 'formik';
-import { Sites, OpenshiftEnvs, Themes, Categories } from '../../../api/collections';
-import { CustomSingleCheckbox, CustomCheckbox, CustomError, CustomInput, CustomSelect, CustomTextarea } from '../CustomFields';
-import { Loading, AlertSiteSuccess, AlertSuccess } from '../Messages';
+import { Formik, Field, ErrorMessage } from "formik";
+import { Sites, OpenshiftEnvs, Themes, Categories } from "../../../api/collections";
+import {
+  CustomSingleCheckbox,
+  CustomCheckbox,
+  CustomError,
+  CustomInput,
+  CustomSelect,
+  CustomTextarea,
+} from "../CustomFields";
+import { Loading, AlertSiteSuccess, AlertSuccess, AlertDanger } from "../Messages";
 import Select from "react-select";
 import { generateSite } from "../../../api/methods/sites";
 import PopOver from "../popover/PopOver";
 import Swal from "sweetalert2";
 
 class Add extends Component {
-
-  constructor(props){
+  constructor(props) {
     super(props);
 
     let action;
-    let unitName = '';
-    if (this.props.match.path.startsWith('/edit')) {
-      action = 'edit';
-      if ('site' in props && props.site) {
+    let unitName = "";
+    if (this.props.match.path.startsWith("/edit")) {
+      action = "edit";
+      if ("site" in props && props.site) {
         unitName = props.site.unitName;
       }
     } else {
-      action = 'add';
+      action = "add";
     }
 
     this.state = {
@@ -32,8 +38,9 @@ class Add extends Component {
       editSuccess: false,
       saveSuccess: false,
       generateSuccess: false,
-      unitName: unitName
-    }
+      generateRunning: false,
+      unitName: unitName,
+    };
   }
 
   updateFields = (event, values) => {
@@ -47,116 +54,116 @@ class Add extends Component {
       values.openshiftEnv = "www";
       values.theme = "wp-theme-2018";
     }
-  }
+  };
 
   updateUserMsg = () => {
-    this.setState({addSuccess: false, editSuccess: false, generateSuccess: false});
-  }
+    this.setState({ addSuccess: false, editSuccess: false, generateSuccess: false });
+  };
 
   updateSaveSuccess = (newValue) => {
     this.setState({ saveSuccess: newValue });
-  }
+  };
 
   submit = (values, actions) => {
-
     let methodName;
     let state;
 
-    if (this.state.action === 'add') {
-      methodName = 'insertSite';
-      state = {addSuccess: true, editSuccess: false, action: 'add'};
-    } else if (this.state.action === 'edit') {
-      methodName = 'updateSite';
+    if (this.state.action === "add") {
+      methodName = "insertSite";
+      state = { addSuccess: true, editSuccess: false, action: "add" };
+    } else if (this.state.action === "edit") {
+      methodName = "updateSite";
       if (values.categories === null) {
         values.categories = [];
       }
-      state = {addSuccess: false, editSuccess: true, action: 'edit'};
+      state = { addSuccess: false, editSuccess: true, action: "edit" };
     }
 
-    Meteor.call(
-      methodName,
-      values, 
-      (errors, site) => {
-        if (errors) {
-          console.log(errors);
-          let formErrors = {};
-          errors.details.forEach(function(error) {
-            formErrors[error.name] = error.message;
-          });
-          actions.setErrors(formErrors);
-          actions.setSubmitting(false);
-        } else {
-          actions.setSubmitting(false);
-          if (this.state.action === 'add') {
-            state.previousSite = site;
-            actions.resetForm();
-          }
-          state.unitName = site.unitName;
-          this.setState(state);
-          if (this.state.action === 'add') {
-            this.props.history.push("/edit/" + site._id);
-          }
+    Meteor.call(methodName, values, (errors, site) => {
+      if (errors) {
+        console.log(errors);
+        let formErrors = {};
+        errors.details.forEach(function (error) {
+          formErrors[error.name] = error.message;
+        });
+        actions.setErrors(formErrors);
+        actions.setSubmitting(false);
+      } else {
+        actions.setSubmitting(false);
+        if (this.state.action === "add") {
+          state.previousSite = site;
+          actions.resetForm();
+        }
+        state.unitName = site.unitName;
+        this.setState(state);
+        if (this.state.action === "add") {
+          this.props.history.push("/edit/" + site._id);
         }
       }
-    );
-  }
+    });
+  };
 
   getInitialValues = () => {
     let initialValues;
-    
-    if (this.state.action == 'add') {
-      initialValues = { 
-        url: '',
-        userExperienceUniqueLabel: '',
-        tagline: '', 
-        title: '', 
-        openshiftEnv: 'www', 
-        theme: 'wp-theme-2018',
+
+    if (this.state.action == "add") {
+      initialValues = {
+        url: "",
+        userExperienceUniqueLabel: "",
+        tagline: "",
+        title: "",
+        openshiftEnv: "www",
+        theme: "wp-theme-2018",
         categories: [],
-        languages: [], 
-        unitId: '', 
-        snowNumber: '',
-        comment: '',
+        languages: [],
+        unitId: "",
+        snowNumber: "",
+        comment: "",
         tags: [],
         professors: [],
         wpInfra: true,
-      }
-    } else if (this.state.action == 'edit') {
+      };
+    } else if (this.state.action == "edit") {
       initialValues = this.props.site;
     }
     return initialValues;
-  }
+  };
 
   isLoading = (initialValues) => {
-
-    const isLoading = (
-      this.props.openshiftenvs === undefined || 
+    const isLoading =
+      this.props.openshiftenvs === undefined ||
       this.props.themes === undefined ||
       this.props.categories === undefined ||
-      initialValues === undefined
-    )
+      initialValues === undefined;
     return isLoading;
-  }
+  };
 
   getPageTitle = () => {
     let title;
-    if (this.state.action === 'edit') {
-      title = 'Modifier le site ci-dessous';
-    } else { 
-      title = 'Ajouter un nouveau site';
+    if (this.state.action === "edit") {
+      title = "Modifier le site ci-dessous";
+    } else {
+      title = "Ajouter un nouveau site";
     }
     return title;
-  }
+  };
 
   generate = (siteId) => {
     generateSite.call({ siteId }, (error, result) => {
       if (error) {
         console.log(`ERROR generateSite ${error}`);
       } else {
-        this.setState({generateSuccess: result});
+        console.log(result);
+        let state;
+        if (result == "successful") {
+          state = { generateFailed: false, generateSuccess: true, generateRunning: false };
+        } else {
+          state = { generateFailed: true, generateSuccess: false, generateRunning: false };
+        }
+        this.setState(state);
       }
     });
-  }
+  };
 
   handleClickOnGenerateButton = (siteId) => {
     let site = Sites.findOne({ _id: siteId });
@@ -172,332 +179,501 @@ class Add extends Component {
       cancelButtonText: "Non",
     }).then((result) => {
       if (result.value) {
+        this.setState({ generateRunning: true });
         this.generate(siteId);
       }
     });
   };
 
   displayGenerateButton = (initialValues) => {
-    
     // Display 'Normalize button' if
     // - user edit current site (no when user add a new site)
     // - the current site belongs to WordPress Infra
     // - the current site is not an unmanaged
-    return this.state.action === 'edit' && 
-      initialValues.wpInfra && 
+    return (
+      this.state.action === "edit" &&
+      initialValues.wpInfra &&
       !initialValues.openshiftEnv.startsWith("unm-")
-  }
+    );
+  };
 
   render() {
     let content;
     let initialValues = this.getInitialValues();
 
     if (this.isLoading(initialValues)) {
-      content = <Loading />
+      content = <Loading />;
     } else {
-
-      if (this.action === 'edit' && this.state.unitName === '') {
-        this.setState({"unitName": this.props.site.unitName})
+      if (this.action === "edit" && this.state.unitName === "") {
+        this.setState({ unitName: this.props.site.unitName });
       }
 
       let msgEditSuccess = (
         <div className="alert alert-success" role="alert">
-          Le site a été modifié avec succès ! 
-        </div> 
-      )
+          Le site a été modifié avec succès !
+        </div>
+      );
 
       content = (
-          
         <div className="card my-2">
-            <h5 className="card-header">{ this.getPageTitle() }</h5> 
-            { this.state.addSuccess ? (
-              <AlertSiteSuccess
-                id={this.state.previousSite._id}
-                title={this.state.previousSite.title}
-              />
-            ) : null} 
-            { this.state.generateSuccess ? (
-              <AlertSuccess
-                message={`La normalisation du site a démarré avec succès !`}
-              />
-            ) : null}
-            { this.state.editSuccess && msgEditSuccess }
-            <Formik
-            onSubmit={ this.submit }
-            initialValues={ initialValues }
-            validateOnBlur={ false }
-            validateOnChange={ false }
-            >
-            { ({
-                handleSubmit,
-                handleChange,
-                handleBlur,
-                isSubmitting,
-                values,
-                touched,
-                errors,
-                setFieldValue,
-                setFieldTouched
+          <h5 className="card-header">{this.getPageTitle()}</h5>
+          {this.state.addSuccess ? (
+            <AlertSiteSuccess
+              id={this.state.previousSite._id}
+              title={this.state.previousSite.title}
+            />
+          ) : null}
+          {this.state.generateRunning ? (
+            <AlertSuccess message={"La normalisation du site a commencé !"} />
+          ) : null}
+          {this.state.generateSuccess ? (
+            <AlertSuccess message={"Le site a été normalisé avec succès !"} />
+          ) : null}
+          {this.state.generateFailed ? (
+            <AlertDanger message={"La normalisaton du site a échoué !"} />
+          ) : null}
+          {this.state.editSuccess && msgEditSuccess}
+          <Formik
+            onSubmit={this.submit}
+            initialValues={initialValues}
+            validateOnBlur={false}
+            validateOnChange={false}
+          >
+            {({
+              handleSubmit,
+              handleChange,
+              handleBlur,
+              isSubmitting,
+              values,
+              touched,
+              errors,
+              setFieldValue,
+              setFieldTouched,
             }) => (
-              
-                <form onSubmit={ handleSubmit } className="bg-white border p-4">
-                  <div className="my-1 text-right">
-                    <button type="submit" disabled={ isSubmitting } className="btn btn-primary mx-2">Enregistrer</button>
-                  { this.displayGenerateButton(initialValues) ?
-                    (<>
+              <form onSubmit={handleSubmit} className="bg-white border p-4">
+                <div className="my-1 text-right">
+                  <button type="submit" disabled={isSubmitting} className="btn btn-primary mx-2">
+                    Enregistrer
+                  </button>
+                  {this.displayGenerateButton(initialValues) ? (
+                    <>
                       <button
                         type="button"
                         className="btn btn-primary mx-1"
                         onClick={() => {
                           this.handleClickOnGenerateButton(initialValues._id);
-                        }}>Normaliser le site</button>
+                        }}
+                      >
+                        Normaliser le site
+                      </button>
                       <PopOver
                         popoverUniqID="alignSite"
                         title="Normaliser le site"
                         placement="bottom"
                         description="Grâce à ce bouton, vous allez soit remettre le site en conformité, soit le créer (si ce dernier n'existe pas) "
                       />
-                    </>)
-                  : null }
-                  </div>
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={ e => {
+                    </>
+                  ) : null}
+                </div>
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="URL du site à ajouter" label="URL" name="url" type="text" component={ CustomInput } />
-                <ErrorMessage name="url" component={ CustomError } />
-                
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={ e => {
+                    this.updateUserMsg();
+                  }}
+                  placeholder="URL du site à ajouter"
+                  label="URL"
+                  name="url"
+                  type="text"
+                  component={CustomInput}
+                />
+                <ErrorMessage name="url" component={CustomError} />
+
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="Tagline du site à ajouter" label="Tagline" name="tagline" type="text" component={ CustomInput } />
-                <ErrorMessage name="tagline" component={ CustomError } />
+                    this.updateUserMsg();
+                  }}
+                  placeholder="Tagline du site à ajouter"
+                  label="Tagline"
+                  name="tagline"
+                  type="text"
+                  component={CustomInput}
+                />
+                <ErrorMessage name="tagline" component={CustomError} />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={ e => {
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="Titre du site à ajouter" label="Titre" name="title" type="text" component={ CustomInput } />
-                <ErrorMessage name="title" component={ CustomError } />
+                    this.updateUserMsg();
+                  }}
+                  placeholder="Titre du site à ajouter"
+                  label="Titre"
+                  name="title"
+                  type="text"
+                  component={CustomInput}
+                />
+                <ErrorMessage name="title" component={CustomError} />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateFields(e, values); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Site dans l'infrastructure WordPress VPSI ?" name="wpInfra" type="checkbox"
-                  checked={ values.wpInfra }
-                  component={ CustomSingleCheckbox }
-                  />
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateFields(e, values);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Site dans l'infrastructure WordPress VPSI ?"
+                  name="wpInfra"
+                  type="checkbox"
+                  checked={values.wpInfra}
+                  component={CustomSingleCheckbox}
+                />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
                   label="Environnement Openshift"
                   name="openshiftEnv"
-                  component={ CustomSelect }
-                  disabled = { values.wpInfra === false } >
-                  { values.wpInfra === false ?
-                  <option key="blank" value="blank" label=""></option>
-                  : null }
-                  {this.props.openshiftenvs.map( (env, index) => (
-                  <option key={env._id} value={env.name} label={env.name} >{env.name}</option>
+                  component={CustomSelect}
+                  disabled={values.wpInfra === false}
+                >
+                  {values.wpInfra === false ? (
+                    <option key="blank" value="blank" label=""></option>
+                  ) : null}
+                  {this.props.openshiftenvs.map((env, index) => (
+                    <option key={env._id} value={env.name} label={env.name}>
+                      {env.name}
+                    </option>
                   ))}
                 </Field>
-                <ErrorMessage name="openshiftEnv" component={ CustomError } />
-                
+                <ErrorMessage name="openshiftEnv" component={CustomError} />
+
                 <div className="form-group">
-                Catégories
-                <MyCategorySelect
-                  id="categories"
-                  value={values.categories}
-                  onChange={setFieldValue}
-                  onBlur={setFieldTouched}
-                  error={errors.categories}
-                  touched={touched.categories}
-                  options={this.props.categories}
-                  saveSuccess={this.updateSaveSuccess}
-                  placeholder="Sélectionner les catégories"
-                  name="categories"
-                  isDisabled={values.wpInfra === false}
-                />
+                  Catégories
+                  <MyCategorySelect
+                    id="categories"
+                    value={values.categories}
+                    onChange={setFieldValue}
+                    onBlur={setFieldTouched}
+                    error={errors.categories}
+                    touched={touched.categories}
+                    options={this.props.categories}
+                    saveSuccess={this.updateSaveSuccess}
+                    placeholder="Sélectionner les catégories"
+                    name="categories"
+                    isDisabled={values.wpInfra === false}
+                  />
                 </div>
 
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg(); }}
-                  onBlur={e => { handleBlur(e);this.updateUserMsg(); }}
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
                   label="Thème"
                   name="theme"
-                  component={ CustomSelect }
-                  disabled = { values.wpInfra === false }
-                  >
-                  { values.wpInfra === false ?
-                  <option key="blank" value="blank" label=""></option>
-                  : null }
-                  {this.props.themes.map( (theme, index) => (
-                  <option key={theme._id} value={theme.name} label={theme.name}>{theme.name}</option>
+                  component={CustomSelect}
+                  disabled={values.wpInfra === false}
+                >
+                  {values.wpInfra === false ? (
+                    <option key="blank" value="blank" label=""></option>
+                  ) : null}
+                  {this.props.themes.map((theme, index) => (
+                    <option key={theme._id} value={theme.name} label={theme.name}>
+                      {theme.name}
+                    </option>
                   ))}
                 </Field>
 
-                <ErrorMessage name="theme" component={ CustomError } />
+                <ErrorMessage name="theme" component={CustomError} />
 
                 <h6>Langues</h6>
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Français" name="languages" type="checkbox" value="fr" 
-                  component={ CustomCheckbox } 
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Anglais" name="languages" type="checkbox" value="en" 
-                  component={ CustomCheckbox } 
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Allemand" name="languages" type="checkbox" value="de" 
-                  component={ CustomCheckbox } 
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Italien" name="languages" type="checkbox" value="it" 
-                  component={ CustomCheckbox }
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Espagnol" name="languages" type="checkbox" value="es" 
-                  component={ CustomCheckbox }
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Grec" name="languages" type="checkbox" value="el" 
-                  component={ CustomCheckbox }
-                  disabled = { values.wpInfra === false } />
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="Roumain" name="languages" type="checkbox" value="ro" 
-                  component={ CustomCheckbox }
-                  disabled = { values.wpInfra === false } />
-                <ErrorMessage name="languages" component={ CustomError } />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Français"
+                  name="languages"
+                  type="checkbox"
+                  value="fr"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Anglais"
+                  name="languages"
+                  type="checkbox"
+                  value="en"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Allemand"
+                  name="languages"
+                  type="checkbox"
+                  value="de"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Italien"
+                  name="languages"
+                  type="checkbox"
+                  value="it"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Espagnol"
+                  name="languages"
+                  type="checkbox"
+                  value="es"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Grec"
+                  name="languages"
+                  type="checkbox"
+                  value="el"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Roumain"
+                  name="languages"
+                  type="checkbox"
+                  value="ro"
+                  component={CustomCheckbox}
+                  disabled={values.wpInfra === false}
+                />
+                <ErrorMessage name="languages" component={CustomError} />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={ e => {
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="ID de l'unité du site à ajouter" label="Unit ID" name="unitId" type="text"
-                  component={ CustomInput }
-                  disabled = { values.wpInfra === false } />
-                <ErrorMessage name="unitId" component={ CustomError } />
-                
-                { this.state.action === 'edit' && this.state.unitName ?
-                (<div className="form-group">
-                  <label htmlFor="unitName">Nom de l'unité :</label>
-                  <input
-                    className="form-control"
-                    id="unitName"
-                    type="text"
-                    disabled
-                    value={ this.state.unitName }
-                  />
-                </div>) : null }
+                    this.updateUserMsg();
+                  }}
+                  placeholder="ID de l'unité du site à ajouter"
+                  label="Unit ID"
+                  name="unitId"
+                  type="text"
+                  component={CustomInput}
+                  disabled={values.wpInfra === false}
+                />
+                <ErrorMessage name="unitId" component={CustomError} />
+
+                {this.state.action === "edit" && this.state.unitName ? (
+                  <div className="form-group">
+                    <label htmlFor="unitName">Nom de l'unité :</label>
+                    <input
+                      className="form-control"
+                      id="unitName"
+                      type="text"
+                      disabled
+                      value={this.state.unitName}
+                    />
+                  </div>
+                ) : null}
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}}
-                  onBlur={ e => {
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="N° du ticket du site à ajouter" label="N°ticket SNOW" name="snowNumber" type="text"
-                  component={ CustomInput } />
-                <ErrorMessage name="snowNumber" component={ CustomError } />
-
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}} 
-                  label="À observer avec ressenti" name="userExperience" type="checkbox"
-                  checked={ values.userExperience }
-                  component={ CustomSingleCheckbox } />
+                    this.updateUserMsg();
+                  }}
+                  placeholder="N° du ticket du site à ajouter"
+                  label="N°ticket SNOW"
+                  name="snowNumber"
+                  type="text"
+                  component={CustomInput}
+                />
+                <ErrorMessage name="snowNumber" component={CustomError} />
 
                 <Field
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={ e => {
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="À observer avec ressenti"
+                  name="userExperience"
+                  type="checkbox"
+                  checked={values.userExperience}
+                  component={CustomSingleCheckbox}
+                />
+
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
                     handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg(); }
-                  }
-                  placeholder="Libellé doit être unique" label="Libellé pour le ressenti" name="userExperienceUniqueLabel" type="text"
-                  component={ CustomInput } />
-                <ErrorMessage name="userExperienceUniqueLabel" component={ CustomError } />
-                
-                <Field 
-                  onChange={e => { handleChange(e); this.updateUserMsg();}} 
-                  onBlur={e => { handleBlur(e); this.updateUserMsg();}}
-                  label="Commentaire" name="comment" component={CustomTextarea} />
-                <ErrorMessage name="comment" component={ CustomError } />
+                    this.updateUserMsg();
+                  }}
+                  placeholder="Libellé doit être unique"
+                  label="Libellé pour le ressenti"
+                  name="userExperienceUniqueLabel"
+                  type="text"
+                  component={CustomInput}
+                />
+                <ErrorMessage name="userExperienceUniqueLabel" component={CustomError} />
+
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Commentaire"
+                  name="comment"
+                  component={CustomTextarea}
+                />
+                <ErrorMessage name="comment" component={CustomError} />
                 <div className="my-1 text-right">
-                  <button type="submit" disabled={ isSubmitting } className="btn btn-primary">Enregistrer</button>
+                  <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+                    Enregistrer
+                  </button>
                 </div>
                 {/* <pre>{JSON.stringify(values, null, 2)}</pre> */}
-                </form>
-                
+              </form>
             )}
-            </Formik>
-            { this.state.addSuccess ? (
-              <AlertSiteSuccess
-                id={this.state.previousSite._id}
-                title={this.state.previousSite.title}
-              />
-            ) : null}
-            { this.state.editSuccess && msgEditSuccess }
+          </Formik>
+          {this.state.addSuccess ? (
+            <AlertSiteSuccess
+              id={this.state.previousSite._id}
+              title={this.state.previousSite.title}
+            />
+          ) : null}
+          {this.state.editSuccess && msgEditSuccess}
         </div>
-      )
+      );
     }
     return content;
   }
 }
-export default withRouter(withTracker((props) => {
+export default withRouter(
+  withTracker((props) => {
+    Meteor.subscribe("openshiftEnv.list");
+    Meteor.subscribe("theme.list");
+    Meteor.subscribe("category.list");
 
-  Meteor.subscribe('openshiftEnv.list');
-  Meteor.subscribe('theme.list');
-  Meteor.subscribe('category.list');
+    let sites;
 
-  let sites;
-
-  if (props.match.path === "/edit/:_id") {
-    Meteor.subscribe('siteById', props.match.params._id);
-    sites = Sites.find({_id: props.match.params._id}).fetch();
-    return {
-      openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
-      themes: Themes.find({}, {sort: {name:1 }}).fetch(),
-      categories: Categories.find({}, {sort: {name:1 }}).fetch(),
-      site: sites[0]
-    };
-  } else {
-    return {
-      openshiftenvs: OpenshiftEnvs.find({}, {sort: {name: 1}}).fetch(),
-      themes: Themes.find({}, {sort: {name:1 }}).fetch(),
-      categories: Categories.find({}, {sort: {name:1 }}).fetch(),
-    };
-  }
-})(Add)
+    if (props.match.path === "/edit/:_id") {
+      Meteor.subscribe("siteById", props.match.params._id);
+      sites = Sites.find({ _id: props.match.params._id }).fetch();
+      return {
+        openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
+        themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
+        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+        site: sites[0],
+      };
+    } else {
+      return {
+        openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
+        themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
+        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+      };
+    }
+  })(Add)
 );
 
 class MyCategorySelect extends React.Component {
@@ -529,17 +705,15 @@ class MyCategorySelect extends React.Component {
           placeholder={this.props.placeholder}
           isDisabled={this.props.isDisabled}
           styles={{
-            control: styles => ({
+            control: (styles) => ({
               ...styles,
-              borderColor: this.props.error ? 'red' : styles.borderColor
-            })
+              borderColor: this.props.error ? "red" : styles.borderColor,
+            }),
           }}
           className="multiCategoriesSelect"
         />
         {!!this.props.error && (
-          <div style={{ color: "red", marginTop: ".5rem" }}>
-            {this.props.error}
-          </div>
+          <div style={{ color: "red", marginTop: ".5rem" }}>{this.props.error}</div>
         )}
       </div>
     );

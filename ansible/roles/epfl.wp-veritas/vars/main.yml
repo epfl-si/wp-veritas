@@ -16,7 +16,7 @@ wp_veritas_cname: "{{ 'wp-veritas.epfl.ch' if server_name == 'prod' else (
 wp_veritas_deploy_name: "{{ 'wp-veritas' if server_name == 'prod' else ( 
   'wp-veritas-test' if server_name == 'test' else (
   'wp-veritas-dev')) }}"
-wp_veritas_image_version: '1.12.5'
+wp_veritas_image_version: '1.12.6'
 wp_veritas_image_tag: 'epflsi/wp-veritas:{{ wp_veritas_image_version }}'
 wp_veritas_db_name: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
 wp_veritas_db_user: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
