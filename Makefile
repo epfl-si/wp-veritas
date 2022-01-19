@@ -65,8 +65,8 @@ test: check-env
 
 .PHONY: apidoc
 apidoc:
-	@echo Running: npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/
-	@npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/
+	@echo Running: npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
+	@npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
 	@read -p "Want to see the API Doc? [Yy]: " -n 1 -r; \
 	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
 		exit; \
