@@ -144,6 +144,7 @@ deploy-dev:
 	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-dev -vvv
 	@echo '**** End deploy: ****'
+	@echo 'https://wp-veritas.128.178.222.83.nip.io'
 
 .PHONY: deploy-test
 deploy-test:
@@ -158,6 +159,7 @@ deploy-test:
 	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-test
 	@echo '**** End deploy: ****'
+	@echo 'https://wp-veritas-test.epfl.ch'
 
 .PHONY: deploy-prod
 deploy-prod:
@@ -172,6 +174,7 @@ deploy-prod:
 	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
 	ansible-playbook playbook.yml -i hosts-prod
 	@echo '**** End deploy: ****'
+	@echo 'https://wp-veritas.epfl.ch'
 
 .PHONY: publish
 publish:
