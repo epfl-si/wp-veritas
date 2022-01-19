@@ -185,15 +185,15 @@ publish:
 # Targets for development purpose only                                         #
 ################################################################################
 .PHONY: dev-up
-dev-up:
+dev-up: check-env
 	@docker-compose -f docker-compose-dev.yml up
 
 .PHONY: dev-build
-dev-build:
+dev-build: check-env
 	@docker-compose -f docker-compose-dev.yml build
 
 .PHONY: dev-build-force
-dev-build-force:
+dev-build-force: check-env
 	@docker-compose -f docker-compose-dev.yml build --force-rm --no-cache --pull
 
 .PHONY: dev-exec
