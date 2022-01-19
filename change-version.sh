@@ -39,12 +39,6 @@ summary() {
 
   echo "  package.json: $VERSION"
   ORIVERSION=$VERSION
-
-  ANSIBLEVERSION=$(cat ansible/roles/epfl.wp-veritas/vars/main.yml | grep 'wp_veritas_image_version:' | cut -d' ' -f2 | tr -d \')
-  echo "  main.yml:     $ANSIBLEVERSION"
-
-  HEADERVERSION=$(cat app/imports/ui/components/header/Header.jsx | grep -o 'Version [[:digit:]]\.[[:digit:]]\.[[:digit:]]' | cut -d' ' -f2)
-  echo "  Header.jsx:   $HEADERVERSION"
 }
 
 VERSIONCHANGE=
@@ -73,8 +67,6 @@ done
 
 change-versions() {
   change-version-package
-  change-version-main
-  change-version-header
 }
 
 change-version-package() {
@@ -99,23 +91,6 @@ change-version-package() {
   VERSION=$(jq -r .version app/package.json)
   echo "Version in package.json is now $VERSION"
 }
-
-change-version-main() {
-  echo "Changing version in ansible/roles/epfl.wp-veritas/vars/main.yml"
-  # As the variable contains dots, sed interprate them as widlcard...
-  # → https://stackoverflow.com/a/39660183/960623
-  #sed -i "s/$ORIVERSION/$VERSION/g" ansible/roles/epfl.wp-veritas/vars/main.yml
-  sed -i "s@$(echo $ORIVERSION | sed 's/\./\\./g')@$VERSION@g" ansible/roles/epfl.wp-veritas/vars/main.yml
-}
-
-change-version-header() {
-  echo "Changing version in app/imports/ui/components/header/Header.jsx"
-  # As the variable contains dots, sed interprate them as widlcard...
-  # → https://stackoverflow.com/a/39660183/960623
-  #sed -i "s/$ORIVERSION/$VERSION/g" app/imports/ui/components/header/Header.jsx
-  sed -i "s@$(echo $ORIVERSION | sed 's/\./\\./g')@$VERSION@g" app/imports/ui/components/header/Header.jsx
-}
-
 ################################################################################
 if [ $SHOW == "1" ]; then
   summary "Versions summary"

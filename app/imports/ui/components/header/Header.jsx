@@ -3,6 +3,7 @@ import { Link, NavLink, withRouter } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import logo from "./Logo_EPFL.svg";
 import { Loading } from "../Messages";
+import { version } from "../../../../package.json";
 
 class Header extends Component {
   getRole() {
@@ -157,7 +158,7 @@ class Header extends Component {
                     >
                       Voir les logs
                     </NavLink>
-                    <div className="dropdown-item">Version 1.12.6</div>
+                    <div className="dropdown-item">Version {version}</div>
                   </div>
                 </li>
               ) : null}
