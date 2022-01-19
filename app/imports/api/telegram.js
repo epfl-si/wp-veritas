@@ -32,7 +32,7 @@ class Telegram {
       // Note: they will only receive the messsage if they have alreay chatted
       // with the bot, otherwise the bot won't be able to send message.
       Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS.split(",").forEach((id) => {
-        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}`;
+        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}&parse_mode=markdown`;
         https
           .get(url, (res) => {
             // TODO: there's no need for noise here, check the status code
