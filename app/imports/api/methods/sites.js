@@ -353,6 +353,10 @@ const generateSite = new VeritasValidatedMethod({
           },
         };
 
+        const user = Meteor.users.findOne({ _id: this.userId });
+        let message = `⚠️ Heads up! ${user.username} (#${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
+        Telegram.sendMessage(message);
+
         // Run AWX Job
         let callResponse = HTTP.call("POST", AWX_URL, options);
         job_id = callResponse.data.job;
@@ -376,20 +380,16 @@ const generateSite = new VeritasValidatedMethod({
           this.userId
         );
 
-        if (site.wpInfra) {
-          const user = Meteor.users.findOne({ _id: this.userId });
-          let message = `⚠️ Heads up! ${user.username} (#${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!`;
-          if (status == "successful") {
-            message += `It was successful 🤘 #wpSiteNormalized`;
-          } else {
-            message += `⚠️ It failed ❌\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
-          }
-          message += `\n#wpSiteNormalized`;
-          if (site.openshiftEnv === "subdomains-lite") {
-            message += "\n Don't forget to change the varnish configuration!";
-          }
-          Telegram.sendMessage(message);
+        let message = `The normalization for the site ${site.url} on wp-veritas`;
+        if (status == "successful") {
+          message += ` was successful 🤘 #wpSiteNormalized`;
+        } else {
+          message += ` failed ❌`;
         }
+        if (site.openshiftEnv === "subdomains-lite") {
+          message += "\n⚠️ Don't forget to change the varnish configuration!";
+        }
+        Telegram.sendMessage(message);
       }
     }
     return status;
