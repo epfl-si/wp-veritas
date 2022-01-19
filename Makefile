@@ -177,12 +177,17 @@ git-tag:
 
 .PHONY: publish
 publish:
-	$(MAKE) version-minor
+	@read -p "Want to bump the version? [Yy]: " -n 1 -r; \
+	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
+		exit; \
+	else \
+		make version-minor; \
+	fi
 	$(MAKE) apidoc
 	$(MAKE) docker-build
 	$(MAKE) docker-tag
 	$(MAKE) docker-push
-
+	$(MAKE) git-tag
 
 ################################################################################
 # Targets for development purpose only                                         #
