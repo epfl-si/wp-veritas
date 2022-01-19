@@ -67,12 +67,7 @@ test: check-env
 apidoc:
 	@echo Running: npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
 	@npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
-	@read -p "Want to see the API Doc? [Yy]: " -n 1 -r; \
-	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
-		exit; \
-	else \
-		xdg-open $$(pwd)/app/public/api/index.html; \
-	fi
+	xdg-open $$(pwd)/app/public/api/index.html;
 
 .PHONY: prettier-check
 prettier-check:
@@ -112,20 +107,20 @@ version-special:
 	@echo "Change version to $$WP_VERITAS_VERSION"
 	@./change-version.sh -a -v $$WP_VERITAS_VERSION
 
-.PHONY: build
-build:
+.PHONY: docker-build
+docker-build:
 	@echo '**** Start build: ****'
 	docker build -t epflsi/wp-veritas .
 	@echo '**** End build: ****'
 
-.PHONY: tag
-tag:
+.PHONY: docker-tag
+docker-tag:
 	@echo '**** Start tag: ****'
 	docker tag epflsi/wp-veritas:latest epflsi/wp-veritas:$(VERSION)
 	@echo '**** End tag: ****'
 
-.PHONY: push
-push:
+.PHONY: docker-push
+docker-push:
 	@echo '**** Start push: ****'
 	docker push epflsi/wp-veritas:$(VERSION)
 	docker push epflsi/wp-veritas:latest
@@ -176,12 +171,17 @@ deploy-prod:
 	@echo '**** End deploy: ****'
 	@echo 'https://wp-veritas.epfl.ch'
 
+.PHONY: git-tag
+git-tag:
+	git tag -a v$(VERSION) -m v$(VERSION)
+
 .PHONY: publish
 publish:
+	$(MAKE) version-minor
 	$(MAKE) apidoc
-	$(MAKE) build
-	$(MAKE) tag
-	$(MAKE) push
+	$(MAKE) docker-build
+	$(MAKE) docker-tag
+	$(MAKE) docker-push
 
 
 ################################################################################
