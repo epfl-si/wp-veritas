@@ -364,7 +364,7 @@ const generateSite = new VeritasValidatedMethod({
           await delay(10000);
           response = HTTP.call("GET", "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id, options);
           status = response.data.status;
-          if (status == "successful" || status == "failed" || index > 150) {
+          if (status == "successful" || status == "failed" || index > 150) { // 25 minutes
             continueAgain = false;
           }
           index += 1;
@@ -378,14 +378,13 @@ const generateSite = new VeritasValidatedMethod({
 
         if (site.wpInfra) {
           const user = Meteor.users.findOne({ _id: this.userId });
-          let message =
-            "⚠️ Heads up! " +
-            user.username +
-            " (#" +
-            this.userId +
-            ") has just normalized " +
-            site.url +
-            " on wp-veritas! #wpSiteNormalized";
+          let message = `⚠️ Heads up! ${user.username} (#${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!`;
+          if (status == "successful") {
+            message += `It was successful 🤘 #wpSiteNormalized`;
+          } else {
+            message += `⚠️ It failed ❌\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
+          }
+          message += `\n#wpSiteNormalized`;
           if (site.openshiftEnv === "subdomains-lite") {
             message += "\n Don't forget to change the varnish configuration!";
           }
