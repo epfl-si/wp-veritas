@@ -2,7 +2,10 @@
 
 [![Build Status](https://travis-ci.org/epfl-si/wp-veritas.svg?branch=master)](https://travis-ci.org/epfl-si/wp-veritas)
 
-Cette application a pour but de stocker la source de vérité des sites WordPress de l'EPFL.
+Cette application a pour but de stocker et permettre l'édition de la **source de vérité** des sites WordPress de l'EPFL :
+- la liste des sites, avec leurs attributs techniques et fonctionnels;
+- la liste des **environnements OpenShift**, des unités techniques d'allocation des ressources et de routage dans lesquelles se classent les sites,
+- et d'autres listes connexes (liste des professeurs, liste des *tags*).
 
 <!-- TOC titleSize:2 tabSpaces:3 depthFrom:1 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 skip:1 title:1 charForUnorderedList:* -->
 ## Table of Contents
@@ -13,8 +16,7 @@ Cette application a pour but de stocker la source de vérité des sites WordPres
       * [Commandes et informations supplémentaires](#commandes-et-informations-supplémentaires)
 * [veritas-cli](#veritas-cli)
 * [Déploiement](#déploiement)
-   * [Déployer une nouvelle version sur l'environnement de test d'openshift](#déployer-une-nouvelle-version-sur-lenvironnement-de-test-dopenshift)
-   * [Déployer une nouvelle version sur l'environnement de prod d'openshift](#déployer-une-nouvelle-version-sur-lenvironnement-de-prod-dopenshift)
+   * [Déployer une nouvelle version OpenShift](#déployer-une-nouvelle-version-openshift)
    * [Procédure de mise en prod](#procédure-de-mise-en-prod)
    * [Référence sur Dockerhub](#référence-sur-dockerhub)
 * [Manipulation des données](#manipulation-des-données)
@@ -109,26 +111,15 @@ Commands:
 
 # Déploiement
 
-## Déployer une nouvelle version sur l'environnement de test d'openshift
+## Déployer une nouvelle version OpenShift
 
-On se place à la racine du projet.
+On se place à la racine du projet :
 
-Ensuite, on commence par:
-- builder l'image
-- créer un nouveau tag en fonction de la valeur de la variable `wp_veritas_image_version` présente dans le fichier `ansible/roles/epfl.wp-veritas/vars/main.yml`
-- pousser l'image dans dockerhub
+1. Changer la version dans `package.json` (et lancer `npm i` pour mettre à jour `package-lock.json`). Le plus simple est d'utiliser la commande `make version-major`.
+2. La suite des opérations est regénérer l'API, de builder l'image, de la tagger, et de la pousser sur docker hub. Ces opérations sont faites avec la commande `make publish`,
+3. Les commande `make deploy-dev`, `make deploy-test`, `make deploy-prod` permettent de déployer l'application respectivement sur <wp-veritas.128.178.222.83.nip.io>, <wp-veritas-test.epfl.ch> et 
+<wp-veritas.epfl.ch>.
 
-Pour ce faire, on lance la commande:
-
-`make publish`
-
-Pour déployer sur l'environnement de test:
-
-`make deploy-test`
-
-## Déployer une nouvelle version sur l'environnement de prod d'openshift
-
-`ansible-playbook playbook.yml -i hosts-prod`
 
 ## Procédure de mise en prod
 Lancer le déploiement => ce qui va exécuter `updateRoles` qui supprime la
