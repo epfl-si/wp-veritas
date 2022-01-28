@@ -20,7 +20,7 @@ class Telegram {
   static WP_VERITAS_BOT_TOKEN = process.env.WP_VERITAS_BOT_TOKEN || "";
   static WP_VERITAS_ALERTS_TELEGRAM_IDS = process.env.WP_VERITAS_ALERTS_TELEGRAM_IDS || "";
 
-  static sendMessage(message) {
+  static sendMessage(message, preview=true, notification=true) {
     if (
       Telegram.WP_VERITAS_BOT_TOKEN &&
       Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS &&
@@ -32,7 +32,8 @@ class Telegram {
       // Note: they will only receive the messsage if they have alreay chatted
       // with the bot, otherwise the bot won't be able to send message.
       Telegram.WP_VERITAS_ALERTS_TELEGRAM_IDS.split(",").forEach((id) => {
-        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}&parse_mode=markdown`;
+        // https://core.telegram.org/bots/api
+        let url = `https://api.telegram.org/bot${Telegram.WP_VERITAS_BOT_TOKEN}/sendMessage?chat_id=${id}&text=${urlEncodedMessage}&parse_mode=markdown${ preview ? '':'&disable_web_page_preview=true' }${ notification ? '':'&disable_notification=true' }`;
         https
           .get(url, (res) => {
             // TODO: there's no need for noise here, check the status code

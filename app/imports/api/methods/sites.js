@@ -225,7 +225,7 @@ const insertSite = new VeritasValidatedMethod({
     if (newSite.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
       const message = `👀 Pssst! [${user.username}](https://people.epfl.ch/${this.userId}) created ${newSite.url} on wp-veritas! #wpSiteCreated`;
-      Telegram.sendMessage(message);
+      Telegram.sendMessage(message, /*preview=*/false);
     }
 
     return newSiteAfterInsert;
@@ -352,7 +352,7 @@ const generateSite = new VeritasValidatedMethod({
 
         const user = Meteor.users.findOne({ _id: this.userId });
         let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
-        Telegram.sendMessage(defaultMsgNormalization);
+        Telegram.sendMessage(defaultMsgNormalization, /*preview=*/false, /*notification=*/false);
 
         // GET the status every 10 secondes
         let continueAgain = true;
@@ -403,7 +403,7 @@ const removeSite = new VeritasValidatedMethod({
     if (site.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
       const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} on wp-veritas! #wpSiteDeleted`;
-      Telegram.sendMessage(message);
+      Telegram.sendMessage(message, /*preview=*/false);
     }
   },
 });
@@ -439,7 +439,7 @@ const restoreSite = new VeritasValidatedMethod({
     if (site.wpInfra) {
       const user = Meteor.users.findOne({ _id: this.userId });
       const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) restored ${site.url} on wp-veritas! #wpSiteRestored`;
-      Telegram.sendMessage(message);
+      Telegram.sendMessage(message, /*preview=*/false);
     }
   },
 });
