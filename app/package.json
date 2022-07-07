@@ -24,7 +24,7 @@
     "ldapjs": "^1.0.2",
     "message-box": "^0.2.5",
     "meteor-node-stubs": "^1.0.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "popper.js": "^1.16.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
