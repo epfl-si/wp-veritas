@@ -373,14 +373,15 @@ const generateSite = new VeritasValidatedMethod({
           this.userId
         );
 
+        // TODO: it would be nice to add the duration in the message.
         let statusMsgNormalization = `The normalization for the site ${site.url} on wp-veritas`;
         if (status == "successful") {
-          statusMsgNormalization += ` was successful 🤘 #wpSiteNormalized`;
+          statusMsgNormalization = `🤘 ${statusMsgNormalization} was successful #wpSiteNormalized`;
           if (site.openshiftEnv === "subdomains-lite") {
             statusMsgNormalization += "\n⚠️ Don't forget to change the varnish configuration!";
           }
         } else {
-          statusMsgNormalization += ` failed ❌`;
+          statusMsgNormalization = `❌ ${statusMsgNormalization} failed`;
         }
         Telegram.sendMessage(statusMsgNormalization);
       }
