@@ -7,3 +7,5 @@ cli/lib/config.js
 test/images
 
 app/public/api/index.html
+
+ansible/ansible-deps-cache
