@@ -12,9 +12,9 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       label: "URL",
       optional: false,
       max: 100,
-      min: 17, // https://x.epfl.ch is the minimum
+      min: 3, // https://x.epfl.ch is the minimum
       custom: isRequired,
-      regEx: SimpleSchema.RegEx.Url,
+      // regEx: SimpleSchema.RegEx.Url,
   },
   tagline: {
       type: String,

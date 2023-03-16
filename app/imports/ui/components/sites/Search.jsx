@@ -11,7 +11,7 @@ class Search extends React.Component {
     url: yup
       .string("Champ doit être un string")
       .url("URL non valide")
-      .min(17, "URL la plus courte est du genre https://x.epfl.ch")
+      .min(5, "URL la plus courte est du genre https://x.epfl.ch")
       .test("startsWithHttps", "URL doit commencer par https://", function (value) {
         if (value && !value.startsWith("https://")) {
           return false;
@@ -31,6 +31,14 @@ class Search extends React.Component {
     };
   }
 
+  // handleClick = () => {
+  // this.setState({ lastSeen: [{last_modified: "lastmodifieddate", username: "username"}]})
+  // }
+  
+  // componentDidUpdate(prevProps) {
+  //   // this.fetchData(this.state.site.url + 'wp-json/wp/v2/lastmodified');
+  //   // this.fetchData('https://wp-httpd/wp-json/wp/v2/lastmodified');
+  // }
   /**
    * Cette méthode prend en entrée une URL d'une page WordPress et
    * retourne l'URL de l'instance WordPress.
@@ -79,16 +87,28 @@ class Search extends React.Component {
     this.search(urlSearched)
     actions.setSubmitting(false);
     actions.resetForm();
+    // Récupère les informations de l'API
+    this.fetchData(this.state.site.url + 'wp-json/wp/v2/lastmodified?url=' + this.state.queryURL);
   };
 
   loading = () => {
     return this.props.sites === undefined;
   };
 
+  fetchData = (url) => {
+    fetch(url)
+      .then(response => {
+        return response.json()
+      })
+      .then(data => {
+        this.setState({lastSeen: data})
+      })
+  }
+
   displayResult = () => {
     let result;
     if (this.state.queryURL) {
-      if (this.state.found && this.state.site.wpInfra) {
+      if (true) {
         result = (
           <div className="card my-2">
             <div className="card-header">Résultat</div>
@@ -101,6 +121,9 @@ class Search extends React.Component {
               </div>
               <div className="py-1">
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
+              </div>
+              <div className="py-1">
+                - Dernière modification le : { this.state.lastSeen === undefined ? "loading" : this.state.lastSeen[0].last_modified + " par " + this.state.lastSeen[0].username }
               </div>
             </div>
           </div>
@@ -133,7 +156,7 @@ class Search extends React.Component {
           <Formik
             onSubmit={this.submit}
             initialValues={{ url: "" }}
-            validationSchema={this.urlSchema}
+            // validationSchema={this.urlSchema}
             validateOnBlur={false}
             validateOnChange={false}
           >

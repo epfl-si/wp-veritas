@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: Dockerfile-dev
     ports:
-      - '80:3000'
+      - '8081:3000'
     links:
       - mongo
     depends_on:
