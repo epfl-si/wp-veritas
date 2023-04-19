@@ -111,7 +111,7 @@ class Search extends React.Component {
               <div className="card-header">Résultat</div>
               <div className="card-body">
                 <div className="py-1">
-                  L'URL <a href={ this.state.queryURL }>{ this.state.queryURL }</a> n'est pas un site de l'infrastructure WordPress géré par la VPSI
+                  L'URL <a href={ this.state.queryURL }>{ this.state.queryURL }</a> n'est pas un site de l'infrastructure WordPress géré par la DSI
                 </div>
               </div>
             </div> 
