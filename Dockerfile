@@ -4,12 +4,12 @@ FROM geoffreybooth/meteor-base:1.10.2
 # Copy app package.json and package-lock.json into container
 COPY ./app/package*.json $APP_SOURCE_FOLDER/
 
-RUN bash $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
+RUN bash -x $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
 
 # Copy app source into container
 COPY ./app $APP_SOURCE_FOLDER/
 
-RUN bash $SCRIPTS_FOLDER/build-meteor-bundle.sh
+RUN bash -x $SCRIPTS_FOLDER/build-meteor-bundle.sh
 
 
 # Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
@@ -30,7 +30,7 @@ RUN chmod 750 -R $SCRIPTS_FOLDER/node_modules/
 # Copy in app bundle
 COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
 
-RUN bash $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
+RUN bash -x $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
 
 # Start app
 ENTRYPOINT ["/docker/entrypoint.sh"]
