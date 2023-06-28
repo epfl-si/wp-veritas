@@ -1,38 +1,19 @@
-# The tag here should match the Meteor version of your app, per .meteor/release
-FROM geoffreybooth/meteor-base:1.10.2
+FROM ubuntu:focal
 
-# Copy app package.json and package-lock.json into container
-COPY ./app/package*.json $APP_SOURCE_FOLDER/
+ENV METEOR_VERSION=1.10.2
 
-RUN bash -x $SCRIPTS_FOLDER/build-app-npm-dependencies.sh
+RUN apt -qy update && apt -qy install curl build-essential python3
+RUN curl https://install.meteor.com/?release=$METEOR_VERSION | bash -e -x
 
-# Copy app source into container
-COPY ./app $APP_SOURCE_FOLDER/
+COPY ./app /usr/src/app/
+WORKDIR /usr/src/app/
+RUN meteor npm i
+RUN BROWSERSLIST_IGNORE_OLD_DATA=1 meteor build --allow-superuser /usr --directory
+RUN cd /usr/bundle/programs/server && meteor npm install
 
-RUN bash -x $SCRIPTS_FOLDER/build-meteor-bundle.sh
+FROM ubuntu:focal
 
+COPY --from=0 /usr/bundle /usr/bundle/
+WORKDIR /usr/bundle
 
-# Use the specific version of Node expected by your Meteor release, per https://docs.meteor.com/changelog.html; this is expected for Meteor 1.10.2
-FROM node:12.16.1-alpine
-
-ENV APP_BUNDLE_FOLDER /opt/bundle
-ENV SCRIPTS_FOLDER /docker
-
-# Runtime dependencies; if your dependencies need compilation (native modules such as bcrypt) or you are using Meteor <1.8.1, use app-with-native-dependencies.dockerfile instead
-RUN apk --no-cache add \
-		bash \
-		ca-certificates
-
-# Copy in entrypoint
-COPY --from=0 $SCRIPTS_FOLDER $SCRIPTS_FOLDER/
-RUN chmod 750 -R $SCRIPTS_FOLDER/node_modules/
-
-# Copy in app bundle
-COPY --from=0 $APP_BUNDLE_FOLDER/bundle $APP_BUNDLE_FOLDER/bundle/
-
-RUN bash -x $SCRIPTS_FOLDER/build-meteor-npm-dependencies.sh
-
-# Start app
-ENTRYPOINT ["/docker/entrypoint.sh"]
-
-CMD ["node", "main.js"]
+CMD node main.js
