@@ -19,4 +19,4 @@ COPY --from=0 /usr/bundle /usr/bundle/
 COPY --from=0 /usr/local/bin/node /usr/local/bin/
 WORKDIR /usr/bundle
 
-CMD node main.js
+CMD /usr/local/bin/node main.js
