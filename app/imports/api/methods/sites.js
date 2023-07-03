@@ -320,79 +320,76 @@ const generateSite = new VeritasValidatedMethod({
     let job_id = "";
     let status = "";
 
-    if (Meteor.isServer) {
-      let site = Sites.findOne({ _id: siteId });
+    if (! Meteor.isServer) return;
 
-      if (!site.wpInfra) {
-        debug('generateSite(): !site.wpInfra');
-        return false;
-      }
+    let site = Sites.findOne({ _id: siteId });
 
-      ansibleHost = generateAnsibleHostPattern(site);
-
-      if (ansibleHost === "") {
-        debug('generateSite(): ansibleHost === ""');
-        return false;
-      }
-
-      if (
-        (getEnvironment() === "DEV" && site.url.includes("canari")) ||
-        getEnvironment() === "PROD"
-      ) {
-        const AWX_URL = "https://awx-wwp.epfl.ch/api/v2/job_templates/32/launch/";
-        const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
-
-        let options = {
-          headers: {
-            Authorization: `Bearer ${WP_VERITAS_AWX_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-          data: {
-            limit: ansibleHost,
-          },
-        };
-
-        // Run AWX Job
-        let callResponse = HTTP.call("POST", AWX_URL, options);
-        debug(`callResponse: ${JSON.stringify(callResponse)}`);
-        job_id = callResponse.data.job;
-
-        const user = Meteor.users.findOne({ _id: this.userId });
-        let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
-        Telegram.sendMessage(defaultMsgNormalization, /*preview=*/false, /*notification=*/false);
-
-        // GET the status every 10 secondes
-        let continueAgain = true;
-        let index = 1;
-        while (continueAgain) {
-          await delay(10000);
-          response = HTTP.call("GET", "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id, options);
-          status = response.data.status;
-          if (status == "successful" || status == "failed" || index > 150) { // 25 minutes
-            continueAgain = false;
-          }
-          index += 1;
-        }
-
-        AppLogger.getLog().info(
-          `Generate site ID ${siteId}`,
-          { before: site, after: site },
-          this.userId
-        );
-
-        // TODO: it would be nice to add the duration in the message.
-        let statusMsgNormalization = `The normalization for the site ${site.url} on wp-veritas`;
-        if (status == "successful") {
-          statusMsgNormalization = `🤘 ${statusMsgNormalization} was successful #wpSiteNormalized`;
-          if (site.openshiftEnv === "subdomains-lite") {
-            statusMsgNormalization += "\n⚠️ Don't forget to change the varnish configuration!";
-          }
-        } else {
-          statusMsgNormalization = `❌ ${statusMsgNormalization} failed`;
-        }
-        Telegram.sendMessage(statusMsgNormalization);
-      }
+    if (!site.wpInfra) {
+      debug('generateSite(): !site.wpInfra');
+      return false;
     }
+
+    ansibleHost = generateAnsibleHostPattern(site);
+
+    if (ansibleHost === "") {
+      debug('generateSite(): ansibleHost === ""');
+      return false;
+    }
+
+    const AWX_URL = process.env.WP_VERITAS_AWX_URL;
+    const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
+
+    let options = {
+      headers: {
+        Authorization: `Bearer ${WP_VERITAS_AWX_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      data: {
+        limit: ansibleHost,
+      },
+    };
+
+    // Run AWX Job
+    let callResponse = HTTP.call("POST", AWX_URL, options);
+    debug(`callResponse: ${JSON.stringify(callResponse)}`);
+    job_id = callResponse.data.job;
+
+    const user = Meteor.users.findOne({ _id: this.userId });
+    let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
+    Telegram.sendMessage(defaultMsgNormalization, /*preview=*/false, /*notification=*/false);
+
+    // GET the status every 10 secondes
+    let continueAgain = true;
+    let index = 1;
+    while (continueAgain) {
+      await delay(10000);
+      response = HTTP.call("GET", "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id, options);
+      status = response.data.status;
+      if (status == "successful" || status == "failed" || index > 150) { // 25 minutes
+        continueAgain = false;
+      }
+      index += 1;
+    }
+
+    AppLogger.getLog().info(
+      `Generate site ID ${siteId}`,
+      { before: site, after: site },
+      this.userId
+    );
+
+    // TODO: it would be nice to add the duration in the message.
+    let statusMsgNormalization = `The normalization for the site ${site.url} on wp-veritas`;
+    if (status == "successful") {
+      statusMsgNormalization = `🤘 ${statusMsgNormalization} was successful #wpSiteNormalized`;
+      if (site.openshiftEnv === "subdomains-lite") {
+        statusMsgNormalization += "\n⚠️ Don't forget to change the varnish configuration!";
+      }
+    } else {
+      statusMsgNormalization = `❌ ${statusMsgNormalization} failed`;
+    }
+    Telegram.sendMessage(statusMsgNormalization);
+
+
     debug(`generateSite(): status is ${status}`);
     return status;
   },
