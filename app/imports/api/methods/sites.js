@@ -8,8 +8,11 @@ import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin, Editor } from "./role";
 import { Telegram } from "../telegram";
 import { getEnvironment } from "../../api/utils";
+import Debug from "debug";
 
 import "../methods"; // without this line run test failed
+
+const debug = Debug("api/methods/sites");
 
 const generateAnsibleHostPattern = (site) => {
   const currentURL = new URL(site.url);
@@ -313,6 +316,7 @@ const generateSite = new VeritasValidatedMethod({
   }).validator(),
 
   async run({ siteId }) {
+    debug(`generateSite(siteId = ${siteId})`);
     let job_id = "";
     let status = "";
 
@@ -320,12 +324,14 @@ const generateSite = new VeritasValidatedMethod({
       let site = Sites.findOne({ _id: siteId });
 
       if (!site.wpInfra) {
+        debug('generateSite(): !site.wpInfra');
         return false;
       }
 
       ansibleHost = generateAnsibleHostPattern(site);
 
       if (ansibleHost === "") {
+        debug('generateSite(): ansibleHost === ""');
         return false;
       }
 
@@ -386,6 +392,7 @@ const generateSite = new VeritasValidatedMethod({
         Telegram.sendMessage(statusMsgNormalization);
       }
     }
+    debug(`generateSite(): status is ${status}`);
     return status;
   },
 });
