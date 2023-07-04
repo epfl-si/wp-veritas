@@ -34,6 +34,10 @@ const generateAnsibleHostPattern = (site) => {
   // Replace all '-' by '_'
   result = result.replace(/-/g, "_");
 
+  if (getEnvironment() === "TEST") {
+    result = `test_${result}`;
+  }
+
   return result;
 };
 
