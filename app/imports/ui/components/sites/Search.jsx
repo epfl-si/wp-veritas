@@ -79,7 +79,7 @@ class Search extends React.Component {
     this.search(urlSearched)
     actions.setSubmitting(false);
     actions.resetForm();
-    this.fetchData(this.state.site.url + 'wp-json/wp/v2/lastmodified?url=' + this.state.queryURL);
+    this.fetchData(this.state.site.url + 'wp-json/wp/v2/lastchange?url=' + this.state.queryURL);
   };
 
   loading = () => {
