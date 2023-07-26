@@ -97,6 +97,10 @@ class Search extends React.Component {
       .then(data => {
         this.setState({lastSeen: data[0]})
       })
+      .catch(error => {
+        console.log(error)
+        this.setState({lastSeen: {username: 'unexpected error: for unknown reasons no user was found, please contact 1234'}})
+      })
   }
 
   lastModification = () => <>
