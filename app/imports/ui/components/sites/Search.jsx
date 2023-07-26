@@ -28,6 +28,9 @@ class Search extends React.Component {
       site: {},
       found: false,
       queryURL: '',
+      lastSeen: {
+        username: ''
+      },
     };
   }
 
@@ -96,6 +99,12 @@ class Search extends React.Component {
       })
   }
 
+  lastModification = () => <>
+    <span>
+      {this.state.lastSeen === undefined ? "loading" : this.state.lastSeen.last_modified} par <a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a>
+    </span>
+  </>
+
   displayResult = () => {
     let result;
     if (this.state.queryURL) {
@@ -114,7 +123,7 @@ class Search extends React.Component {
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
               </div>
               <div className="py-1">
-                - Dernière modification le : { this.state.lastSeen === undefined ? "loading" : this.state.lastSeen.last_modified + " par " + this.state.lastSeen.username }
+                - Dernière modification le : {this.lastModification()}
               </div>
             </div>
           </div>
