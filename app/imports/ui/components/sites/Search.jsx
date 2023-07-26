@@ -95,7 +95,9 @@ class Search extends React.Component {
         return response.json()
       })
       .then(data => {
-        if (data.data && data.data.status === 404) {
+        if (data === 404) {
+          this.setState({lastSeen: {username: 'Error 404: This page does not exist'}})
+        } else if (data.data && data.data.status === 404) {
           this.setState({lastSeen: {username: 'unexpected error: no information available on the API, is the plugin enabled on the website?'}})
         } else {
           this.setState({lastSeen: data[0]})
