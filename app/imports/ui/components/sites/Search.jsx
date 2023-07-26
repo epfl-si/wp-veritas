@@ -95,7 +95,11 @@ class Search extends React.Component {
         return response.json()
       })
       .then(data => {
-        this.setState({lastSeen: data[0]})
+        if (data.data && data.data.status === 404) {
+          this.setState({lastSeen: {username: 'unexpected error: no information available on the API, is the plugin enabled on the website?'}})
+        } else {
+          this.setState({lastSeen: data[0]})
+        }
       })
       .catch(error => {
         console.log(error)
@@ -105,7 +109,7 @@ class Search extends React.Component {
 
   lastModification = () => <>
     <span>
-      {this.state.lastSeen === undefined ? "loading" : this.state.lastSeen.last_modified} par <a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a>
+      {this.state.lastSeen === undefined ? "loading" : <><span>{this.state.lastSeen.last_modified} par </span><a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a></>}  
     </span>
   </>
 
