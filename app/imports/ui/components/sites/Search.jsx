@@ -79,7 +79,7 @@ class Search extends React.Component {
     this.search(urlSearched)
     actions.setSubmitting(false);
     actions.resetForm();
-    this.fetchData(this.state.site.url + 'wp-json/wp/v2/lastchange?url=' + this.state.queryURL);
+    this.fetchData(this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL);
   };
 
   loading = () => {
@@ -92,7 +92,7 @@ class Search extends React.Component {
         return response.json()
       })
       .then(data => {
-        this.setState({lastSeen: data})
+        this.setState({lastSeen: data[0]})
       })
   }
 
@@ -114,7 +114,7 @@ class Search extends React.Component {
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
               </div>
               <div className="py-1">
-                - Dernière modification le : { this.state.lastSeen === undefined ? "loading" : this.state.lastSeen[0].last_modified + " par " + this.state.lastSeen[0].username }
+                - Dernière modification le : { this.state.lastSeen === undefined ? "loading" : this.state.lastSeen.last_modified + " par " + this.state.lastSeen.username }
               </div>
             </div>
           </div>
