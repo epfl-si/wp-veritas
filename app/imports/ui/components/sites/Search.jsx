@@ -5,6 +5,7 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { CustomError, CustomInput } from "../CustomFields";
 import * as yup from "yup";
 import { Loading } from "../Messages";
+import LastChange from "./LastChange";
 
 class Search extends React.Component {
   urlSchema = yup.object().shape({
@@ -28,10 +29,6 @@ class Search extends React.Component {
       site: {},
       found: false,
       queryURL: '',
-      lastSeen: {
-        username: '', 
-        last_modified: ''
-      },
     };
   }
 
@@ -78,38 +75,16 @@ class Search extends React.Component {
   };
 
   submit = (values, actions) => {
-    this.setState({lastSeen: {username: '', last_modified: ''}})
     this.setState({ found: false, site: {}, queryURL: '' });
     let urlSearched = values.url;
     this.search(urlSearched)
     actions.setSubmitting(false);
     actions.resetForm();
-    this.fetchData(this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL);
   };
 
   loading = () => {
     return this.props.sites === undefined;
   };
-
-  fetchData = (url) => {
-    fetch(url)
-      .then(response => {
-        return response.json()
-      })
-      .then(data => {
-        if (data === 404) {
-          this.setState({lastSeen: {username: 'Error 404: This page does not exist', last_modified: ''}})
-        } else if (data.data && data.data.status === 404) {
-          this.setState({lastSeen: {username: 'unexpected error: no information available on the API, is the plugin enabled on the website?'}})
-        } else {
-          this.setState({lastSeen: data[0]})
-        }
-      })
-      .catch(error => {
-        console.log(error)
-        this.setState({lastSeen: {username: 'unexpected error: for unknown reasons no user was found, please contact 1234'}})
-      })
-  }
 
   displayResult = () => {
     let result;
@@ -129,10 +104,7 @@ class Search extends React.Component {
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
               </div>
               <div className="py-1">
-                - Dernière modification le :
-                  <span>
-                    {this.state.lastSeen === undefined || this.state.lastSeen.username === '' ? " loading" : <><span>{this.state.lastSeen.last_modified} par </span><a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a></>}  
-                  </span>
+                <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
               </div>
             </div>
           </div>
