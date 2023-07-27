@@ -29,7 +29,8 @@ class Search extends React.Component {
       found: false,
       queryURL: '',
       lastSeen: {
-        username: ''
+        username: '', 
+        last_modified: ''
       },
     };
   }
@@ -77,6 +78,7 @@ class Search extends React.Component {
   };
 
   submit = (values, actions) => {
+    this.setState({lastSeen: {username: '', last_modified: ''}})
     this.setState({ found: false, site: {}, queryURL: '' });
     let urlSearched = values.url;
     this.search(urlSearched)
@@ -96,7 +98,7 @@ class Search extends React.Component {
       })
       .then(data => {
         if (data === 404) {
-          this.setState({lastSeen: {username: 'Error 404: This page does not exist'}})
+          this.setState({lastSeen: {username: 'Error 404: This page does not exist', last_modified: ''}})
         } else if (data.data && data.data.status === 404) {
           this.setState({lastSeen: {username: 'unexpected error: no information available on the API, is the plugin enabled on the website?'}})
         } else {
@@ -129,7 +131,7 @@ class Search extends React.Component {
               <div className="py-1">
                 - Dernière modification le :
                   <span>
-                    {this.state.lastSeen === undefined ? "loading" : <><span>{this.state.lastSeen.last_modified} par </span><a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a></>}  
+                    {this.state.lastSeen === undefined || this.state.lastSeen.username === '' ? " loading" : <><span>{this.state.lastSeen.last_modified} par </span><a href={`https://search.epfl.ch/?filter=people&q=${this.state.lastSeen.username}`}>{this.state.lastSeen.username}</a></>}  
                   </span>
               </div>
             </div>
