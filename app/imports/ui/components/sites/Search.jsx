@@ -5,6 +5,7 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { CustomError, CustomInput } from "../CustomFields";
 import * as yup from "yup";
 import { Loading } from "../Messages";
+import LastChange from "./LastChange";
 
 class Search extends React.Component {
   urlSchema = yup.object().shape({
@@ -101,6 +102,9 @@ class Search extends React.Component {
               </div>
               <div className="py-1">
                 - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
+              </div>
+              <div className="py-1">
+                <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
               </div>
             </div>
           </div>
