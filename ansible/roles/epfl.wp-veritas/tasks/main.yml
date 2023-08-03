@@ -1,4 +1,5 @@
 - name: wp-veritas deploy
+  tags: setup-openshift
   openshift:
     state: latest
     resource: Deployment
@@ -61,7 +62,7 @@
                       secretKeyRef:
                         name: '{{ wp_veritas_secret_name }}'
                         key: awx-token
-                image: "{{ wp_veritas_image_tag }}"
+                image: "{{ wp_veritas_image_tag_current }}"
                 imagePullPolicy: Always
                 name: pod-wp-veritas
                 ports:
@@ -72,6 +73,7 @@
             schedulerName: default-scheduler
             terminationGracePeriodSeconds: 30
 - name: wp-veritas service
+  tags: setup-openshift
   openshift:
     state: latest
     resource: Service
@@ -100,6 +102,7 @@
           deployment: "{{ wp_veritas_deploy_name }}"
         type: ClusterIP
 - name: wp-veritas route
+  tags: setup-openshift
   openshift:
     state: latest
     resource: Route
@@ -129,5 +132,9 @@
           weight: 100
         wildcardPolicy: None
 - name: wp-veritas secrets
+  tags: setup-openshift
   include_tasks: '{{ "secrets.yml" }}' 
 
+- name: wp-veritas promote from test to prod
+  tags: promote
+  include_tasks: '{{ "promote.yml" }}'

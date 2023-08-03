@@ -1,0 +1,8 @@
+- name: "Promote wwp-test images to wwp"
+  when: >-
+    openshift_namespace == 'wwp'
+  tags: promote
+  local_action:
+    module: shell
+    cmd: |
+      oc tag {{ wp_veritas_image_tag_test }} {{ wp_veritas_image_tag_prod }}

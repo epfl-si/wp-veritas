@@ -113,13 +113,16 @@ Commands:
 
 ## Déployer une nouvelle version OpenShift
 
+Les instances sont accessibles ici :
+- <wp-veritas.128.178.222.83.nip.io>
+- <wp-veritas-test.epfl.ch>
+- <wp-veritas.epfl.ch>
+- 
 On se place à la racine du projet :
 
 1. Changer la version dans `package.json` (et lancer `npm i` pour mettre à jour `package-lock.json`). Le plus simple est d'utiliser la commande `make version-major`.
-2. La suite des opérations est regénérer l'API, de builder l'image, de la tagger, et de la pousser sur docker hub. Ces opérations sont faites avec la commande `make publish`,
-3. Les commande `make deploy-dev`, `make deploy-test`, `make deploy-prod` permettent de déployer l'application respectivement sur <wp-veritas.128.178.222.83.nip.io>, <wp-veritas-test.epfl.ch> et 
-<wp-veritas.epfl.ch>.
-
+2. Une fois le commit effectué et pushé dans github, allez dans build de l'image sur l'environment de test et lancer le build.
+3. Une fois le build terminé, promouvoire l'image en production avec `./ansible/wpveritasible -t promote --prod`. Automatiquement wp-veritas.epfl.ch redémarrera. 
 
 ## Procédure de mise en prod
 Lancer le déploiement => ce qui va exécuter `updateRoles` qui supprime la

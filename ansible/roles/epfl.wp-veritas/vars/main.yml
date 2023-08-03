@@ -17,7 +17,9 @@ wp_veritas_deploy_name: "{{ 'wp-veritas' if server_name == 'prod' else (
   'wp-veritas-test' if server_name == 'test' else (
   'wp-veritas-dev')) }}"
 wp_veritas_image_version: "{{ lookup('pipe', 'jq -r .version ../app/package.json') }}"
-wp_veritas_image_tag: 'epflsi/wp-veritas:{{ wp_veritas_image_version }}'
+wp_veritas_image_tag_test: 'docker-registry.default.svc:5000/wwp-test/wp-veritas:latest'
+wp_veritas_image_tag_prod: 'docker-registry.default.svc:5000/wwp/wp-veritas:prod'
+wp_veritas_image_tag_current: "{{ wp_veritas_image_tag_prod if openshift_namespace == 'wwp' else wp_veritas_image_tag_test }}"
 wp_veritas_db_name: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
 wp_veritas_db_user: "{{ 'wp-veritas-test' if server_name == 'test' else 'wp-veritas' }}"
 wp_veritas_secrets: "{{ lookup('file', '/keybase/team/epfl_wpveritas/ansible_wpveritas_secrets.yml') | from_yaml }}"
