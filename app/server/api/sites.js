@@ -331,15 +331,6 @@ Api.addRoute(
   }
 );
 
-/*
-  // Maps to: /api/v1/sites/:title/tags
-  Api.addRoute('sites-by-title/:title/tags', {authRequired: false}, {
-    get: function () {
-      let site = Sites.findOne({title: this.urlParams.title});
-      return site.tags;
-    }
-  });
-  */
 /**
  * @api {get} /sites/:id/tags    Get tags by site ID
  * @apiGroup Sites
