@@ -7,8 +7,8 @@ let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 
-const getExpectedSiteResult = () => {
-  let site = Sites.findOne({
+const getExpectedSiteResult = async () => {
+  let site = await Sites.findOneAsync({
     url: "https://www.epfl.ch/beaujolais/madame-placard/",
   });
   let expectedResult = [

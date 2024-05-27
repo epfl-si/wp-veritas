@@ -11,12 +11,12 @@ Api.addRoute(
     "tags",
     { authRequired: false },
     {
-      get: function () {
+      get: async function() {
         var query = this.queryParams;
         if (query && this.queryParams.type) {
-          return Tags.find({ type: this.queryParams.type }).fetch();
+          return await Tags.find({ type: this.queryParams.type }).fetchAsync();
         }
-        return Tags.find({}).fetch();
+        return await Tags.find({}).fetchAsync();
       },
     }
   );
@@ -75,12 +75,12 @@ Api.addRoute(
     "tags/:id/clusters-and-professors",
     { authRequired: false },
     {
-      get: function () {
+      get: async function() {
         // Récupère le tag passé en paramètre. Par exemple: STI
         let tagId = this.urlParams.id;
   
         // Récupère tous les sites qui ont le tag STI
-        let sites = Sites.find({ isDeleted: false, "tags._id": tagId }).fetch();
+        let sites = await Sites.find({ isDeleted: false, "tags._id": tagId }).fetchAsync();
   
         let tags = [];
         let scipers = [];

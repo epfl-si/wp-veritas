@@ -62,39 +62,39 @@ const loadProfessorsFixtures = () => {
   Professors.findOne({ sciper: "188475" });
 };
 
-const loadSitesFixtures = () => {
+const loadSitesFixtures = async () => {
   let userId = createUser();
-  let tags = Tags.find({}).fetch();
-  let categories = Categories.find({ name: "Restauration" }).fetch();
-  let professors = Professors.find({ sciper: "188475" }).fetch();
+  let tags = await Tags.find({}).fetchAsync();
+  let categories = await Categories.find({ name: "Restauration" }).fetchAsync();
+  let professors = await Professors.find({ sciper: "188475" }).fetchAsync();
 
   // Create site with this professor
   createSite(userId, categories, tags, professors);
 };
 
-const loadTestFixtures = () => {
-  if (Categories.find({}).count() == 0) {
+const loadTestFixtures = async () => {
+  if ((await Categories.find({}).countAsync()) == 0) {
     console.log("    …importing categories");
     loadCategoriesFixtures();
   } else {
     console.log("Categories already exist");
   }
 
-  if (Tags.find({}).count() == 0) {
+  if ((await Tags.find({}).countAsync()) == 0) {
     console.log("    …importing tags");
     loadTagsFixtures();
   } else {
     console.log("Tags already exist");
   }
 
-  if (Professors.find({}).count() == 0) {
+  if ((await Professors.find({}).countAsync()) == 0) {
     console.log("    …importing professors");
     loadProfessorsFixtures();
   } else {
     console.log("Professors already exist");
   }
 
-  if (Sites.find({}).count() == 0) {
+  if ((await Sites.find({}).countAsync()) == 0) {
     console.log("    …importing sites");
     loadSitesFixtures();
   } else {

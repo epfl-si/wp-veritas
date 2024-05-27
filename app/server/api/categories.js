@@ -21,8 +21,8 @@ Api.addRoute(
   "categories",
   { authRequired: false },
   {
-    get: function () {
-      return Categories.find({}).fetch();
+    get: async function() {
+      return await Categories.find({}).fetchAsync();
     },
   }
 );
@@ -128,7 +128,7 @@ Api.addRoute(
   "categories/:name/sites",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       let categoryName;
       try {
         categoryName = Categories.findOne({ name: this.urlParams.name }).name;
@@ -138,10 +138,10 @@ Api.addRoute(
         return APIError("CategoryNotFound", msg);
       }
       return formatSiteCategories(
-        Sites.find({
+        await Sites.find({
           isDeleted: false,
           categories: { $elemMatch: { name: categoryName } },
-        }).fetch()
+        }).fetchAsync()
       );
     },
   }

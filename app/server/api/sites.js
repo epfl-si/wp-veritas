@@ -71,7 +71,7 @@ Api.addRoute(
   "sites",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       // is that a id request from an url ?
       var query = this.queryParams;
       if (query && this.queryParams.site_url) {
@@ -79,13 +79,13 @@ Api.addRoute(
         if (!(siteUrl.endsWith("/"))) {
           siteUrl = siteUrl + "/"
         }
-        return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
+        return formatSiteCategories(await Sites.find({ isDeleted: false, url: siteUrl }).fetchAsync());
       } else if (query && this.queryParams.search_url) {
         return formatSiteCategories(
-          Sites.find({
+          await Sites.find({
             isDeleted: false,
             url: { $regex: this.queryParams.search_url, $options: "-i" },
-          }).fetch()
+          }).fetchAsync()
         );
       } else if (query && (this.queryParams.text || this.queryParams.tags)) {
         if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
@@ -98,7 +98,7 @@ Api.addRoute(
         return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({ isDeleted: false }).fetch();
+        let sites = await Sites.find({ isDeleted: false }).fetchAsync();
         for (let site of sites) {
           site["ansibleHost"] = generateAnsibleHostPattern(site);
         }
@@ -156,8 +156,8 @@ Api.addRoute(
   "inventory/entries",
   { authRequired: false },
   {
-    get: function () {
-      let sites = Sites.find({}).fetch();
+    get: async function() {
+      let sites = await Sites.find({}).fetchAsync();
       for (let site of sites) {
         site["ansibleHost"] = generateAnsibleHostPattern(site);
       }
@@ -239,9 +239,9 @@ Api.addRoute(
   "inventory/entries/:ansibleHost",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       let currentSite;
-      let sites = Sites.find({}).fetch();
+      let sites = await Sites.find({}).fetchAsync();
       for (let site of sites) {
         let ansibleHost = generateAnsibleHostPattern(site);
         if (ansibleHost === this.urlParams.ansibleHost) {
@@ -324,9 +324,9 @@ Api.addRoute(
   "sites/:id",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       // @TODO: error if ID Not Found
-      return formatSiteCategories(Sites.findOne(this.urlParams.id));
+      return formatSiteCategories(await Sites.findOneAsync(this.urlParams.id));
     },
   }
 );
@@ -378,9 +378,9 @@ Api.addRoute(
   "sites/:id/tags",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       // @TODO: SiteNotFound
-      let site = Sites.findOne(this.urlParams.id);
+      let site = await Sites.findOneAsync(this.urlParams.id);
       return site.tags;
     },
   }
@@ -395,12 +395,12 @@ Api.addRoute(
   "sites/wp-admin/:sciper",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       // Get units of sciper
       let units = getUnits(this.urlParams.sciper);
 
       // Get all sites whose unit is present in 'units'
-      let sites = Sites.find({ unitId: { $in: units } }).fetch();
+      let sites = await Sites.find({ unitId: { $in: units } }).fetchAsync();
 
       // Create an array with only wp-admin URL
       admins = [];
@@ -461,14 +461,14 @@ Api.addRoute(
   "sites-with-tags-en/:tag1/:tag2",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
-      let sites = Sites.find({
+      let sites = await Sites.find({
         isDeleted: false,
         "tags.name_en": tag1,
         "tags.name_en": tag2,
-      }).fetch();
+      }).fetchAsync();
       return formatSiteCategories(sites);
     },
   }
@@ -522,14 +522,14 @@ Api.addRoute(
   "sites-with-tags-fr/:tag1/:tag2",
   { authRequired: false },
   {
-    get: function () {
+    get: async function() {
       let tag1 = this.urlParams.tag1.toUpperCase();
       let tag2 = this.urlParams.tag2.toUpperCase();
-      let sites = Sites.find({
+      let sites = await Sites.find({
         isDeleted: false,
         "tags.name_fr": tag1,
         "tags.name_fr": tag2,
-      }).fetch();
+      }).fetchAsync();
       return formatSiteCategories(sites);
     },
   }

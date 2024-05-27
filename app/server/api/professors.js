@@ -20,8 +20,8 @@ Api.addRoute(
   "professors",
   { authRequired: false },
   {
-    get: function () {
-      return Professors.find({}).fetch();
+    get: async function() {
+      return await Professors.find({}).fetchAsync();
     },
   }
 );
@@ -71,9 +71,9 @@ Api.addRoute(
     // @TODO: See https://github.com/epfl-si/wp-veritas/issues/99
     //        https://wp-veritas.epfl.ch/api/v1/professors/229105/tags vs https://wp-veritas.epfl.ch/api/v1/professors/toto/tags
     //        Error management
-    get: function () {
+    get: async function() {
       let sciper = this.urlParams.sciper;
-      let sites = Sites.find({ isDeleted: false, "professors.sciper": sciper }).fetch();
+      let sites = await Sites.find({ isDeleted: false, "professors.sciper": sciper }).fetchAsync();
       let tags = [];
       sites.forEach((site) => {
         if (site.tags.length > 0) {

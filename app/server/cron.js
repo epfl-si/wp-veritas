@@ -5,12 +5,12 @@ SyncedCron.add({
   schedule: function(parser) {
     return parser.text('every 24 hours');
   },
-  job: function(intendedAt) {
+  job: async function(intendedAt) {
     console.log("Update professors ...");
 
     const publicLdapContext = require('epfl-ldap')();
     
-    let professors = Professors.find({}).fetch();
+    let professors = await Professors.find({}).fetchAsync();
     professors.forEach(prof => {
       publicLdapContext.users.getUserBySciper(prof.sciper, function(err, user) {
 
@@ -38,19 +38,19 @@ SyncedCron.add({
     // Charles François said, "Changes in unit structure are currently only made once a night."
     return parser.text('every 24 hours');
   },
-  job: function(intendedAt) {
+  job: async function(intendedAt) {
     console.log("Update unitName and unitNameLevel2 of each site starting ...");
     
     const fullLdapContext = require('epfl-ldap')();
     fullLdapContext.options.modelsMapper = fullLdapContext.viewModelsMappers.full;
 
     // Update all sites
-    let sites = Sites.find({}).fetch();
+    let sites = await Sites.find({}).fetchAsync();
     sites.forEach(site => {
 
       if ('wpInfra' in site && site.wpInfra) {
 
-        fullLdapContext.units.getUnitByUniqueIdentifier(site.unitId, function(err, unit) {
+        fullLdapContext.units.getUnitByUniqueIdentifier(site.unitId, async function(err, unit) {
 
           let unitName = '';
           let unitNameLevel2 = '';
@@ -66,7 +66,7 @@ SyncedCron.add({
             }
           }
 
-          Sites.update(
+          await Sites.updateAsync(
             { _id: site._id },
             { $set: {
             'unitName': unitName,
@@ -74,7 +74,7 @@ SyncedCron.add({
             }},
           );
 
-          let newSite = Sites.findOne(site._id);
+          let newSite = await Sites.findOneAsync(site._id);
           console.log(`Site: ${newSite.url} after update => unitName: ${newSite.unitName} UnitNameLevel2: ${newSite.unitNameLevel2}`);
         
         });

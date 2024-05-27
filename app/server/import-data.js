@@ -1,7 +1,7 @@
 import { sitesSchema } from "../imports/api/schemas/sitesSchema";
 import { Sites, Categories } from "../imports/api/collections";
 
-const loadTestData = () => {
+const loadTestData = async () => {
   // delete all data
   const absoluteUrl = Meteor.absoluteUrl();
 
@@ -9,7 +9,7 @@ const loadTestData = () => {
     absoluteUrlabsoluteUrl.startsWith("http://localhost") ||
     absoluteUrl.startsWith("https://wp-veritas.128.178.222.83.nip.io/")
   ) {
-    Sites.remove({});
+    await Sites.removeAsync({});
   }
 
   var myjson = {};
@@ -72,20 +72,20 @@ const loadTestData = () => {
 
     sitesSchema.validate(siteDocument);
 
-    let newSiteId = Sites.insert(siteDocument);
+    let newSiteId = await Sites.insertAsync(siteDocument);
   }
 };
 
-const updateSitesAddTrailingSlash = () => {
-  let sites = Sites.find().fetch();
-  sites.forEach((site) => {
+const updateSitesAddTrailingSlash = async () => {
+  let sites = await Sites.find().fetchAsync();
+  sites.forEach(async site => {
     let siteId = site._id;
     console.log(site);
     let newURL = site.url
     if (!newURL.endsWith('/')) {
       newURL += '/'
     }
-    Sites.update({ _id: siteId }, { $set: { url: newURL } });
+    await Sites.updateAsync({ _id: siteId }, { $set: { url: newURL } });
   });
   console.log("All sites are updated");
 }

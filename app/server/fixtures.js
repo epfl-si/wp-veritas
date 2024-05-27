@@ -8,7 +8,7 @@ const loadRolesFixtures = () => {
 }
 
 const loadFixtures = async () => {
-  if (Meteor.roles.find({}).count() == 0) {
+  if ((await Meteor.roles.find({}).countAsync()) == 0) {
       console.log("    …importing roles");
       loadRolesFixtures();
   } else {
