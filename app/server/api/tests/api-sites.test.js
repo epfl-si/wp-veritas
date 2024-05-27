@@ -41,9 +41,9 @@ const getExpectedSiteResult = async () => {
 
 const endpointSites = () => {
   let endpointGetSites = "/api/v1/sites";
-  it(`GET ${endpointGetSites}`, function () {
+  it(`GET ${endpointGetSites}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedSiteResult();
+    let expectedResult = await getExpectedSiteResult();
     chai
       .request(base_url)
       .get(endpointGetSites)
@@ -57,9 +57,9 @@ const endpointSites = () => {
 
   // Get site by ID
   let endpointGetSitesId = "/api/v1/sites/:id";
-  it(`GET ${endpointGetSitesId}`, function () {
+  it(`GET ${endpointGetSitesId}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedSiteResult();
+    let expectedResult = await getExpectedSiteResult();
     chai
       .request(base_url)
       .get("/api/v1/sites/" + expectedResult[0]._id)
@@ -77,9 +77,9 @@ const endpointSites = () => {
 
   // Get a site by URL
   let endpointGetSitesSiteURL = "/api/v1/sites?site_url";
-  it(`GET ${endpointGetSitesSiteURL}`, function () {
+  it(`GET ${endpointGetSitesSiteURL}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedSiteResult();
+    let expectedResult = await getExpectedSiteResult();
     chai
       .request(base_url)
       .get(endpointGetSitesSiteURL + "=" + expectedResult[0].url)
@@ -96,7 +96,7 @@ const endpointSites = () => {
   });
 
   // Get a site by wrong URL
-  it(`GET wrong ${endpointGetSitesSiteURL}`, function () {
+  it(`GET wrong ${endpointGetSitesSiteURL}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     chai
       .request(base_url)

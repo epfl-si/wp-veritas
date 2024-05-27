@@ -5,9 +5,9 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const getExpectedTagResult = () => {
-  let tag1Id = Tags.findOne({name_fr:"Beaujolais"})._id;
-  let tag2Id = Tags.findOne({name_fr:"Vin nature"})._id;
+const getExpectedTagResult = async () => {
+  let tag1Id = (await Tags.findOneAsync({name_fr:"Beaujolais"}))._id;
+  let tag2Id = (await Tags.findOneAsync({name_fr:"Vin nature"}))._id;
 
   let expectedResult = [
     {
@@ -33,9 +33,9 @@ const getExpectedTagResult = () => {
 
 const endpointTags = () => {
   let endpointGetTags = "/api/v1/tags";
-  it(`GET ${endpointGetTags}`, function () {
+  it(`GET ${endpointGetTags}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedTagResult();
+    let expectedResult = await getExpectedTagResult();
     chai
       .request(base_url)
       .get(endpointGetTags)
@@ -49,9 +49,9 @@ const endpointTags = () => {
   });
 
   let endpointGetTagsId = "/api/v1/tags/:id";
-  it(`GET ${endpointGetTagsId}`, function () {
+  it(`GET ${endpointGetTagsId}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let expectedResult = getExpectedTagResult();
+    let expectedResult = await getExpectedTagResult();
     chai
       .request(base_url)
       .get("/api/v1/tags/" + expectedResult[0]._id)

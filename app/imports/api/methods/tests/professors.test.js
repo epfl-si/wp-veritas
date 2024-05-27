@@ -8,13 +8,13 @@ import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods professor", function () {
-    before(function () {
+    before(async function () {
       resetDatabase();
-      loadFixtures();
+      await loadFixtures();
     });
 
-    it("insert professor", () => {
-      let userId = createUser();
+    it("insert professor", async () => {
+      let userId = await createUser();
 
       const context = { userId };
       const args = { 
@@ -22,37 +22,37 @@ if (Meteor.isServer) {
         displayName: "Charmier Grégory",
       };
 
-      insertProfessor._execute(context, args);
+      await insertProfessor._execute(context, args);
 
-      let nb = Professors.find({}).count();
-      let professor = Professors.findOne({ sciper: "188475" });
+      let nb = await Professors.find({}).countAsync();
+      let professor = await Professors.findOneAsync({ sciper: "188475" });
       
       // Create site with this professor
-      createSite(userId, [], [], [professor]);
+      await createSite(userId, [], [], [professor]);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(professor.displayName, "Charmier Grégory");
     });
 
-    it("remove professor", () => {
-      let userId = createUser();
-      let professor = Professors.findOne({ sciper: "188475" });
+    it("remove professor", async () => {
+      let userId = await createUser();
+      let professor = await Professors.findOneAsync({ sciper: "188475" });
 
       const context = { userId };
       const args = { professorId: professor._id };
 
-      let nbBefore = Professors.find({}).count();
+      let nbBefore = await Professors.find({}).countAsync();
       assert.strictEqual(nbBefore, 1);
 
-      let siteNumbersBefore = getSitesByProfessor(professor).length;
+      let siteNumbersBefore = (await getSitesByProfessor(professor)).length;
       assert.strictEqual(siteNumbersBefore, 1);
 
-      removeProfessor._execute(context, args);
+      await removeProfessor._execute(context, args);
 
-      let siteNumbersAfter = getSitesByProfessor(professor).length;
+      let siteNumbersAfter = (await getSitesByProfessor(professor)).length;
       assert.strictEqual(siteNumbersAfter, 0);
 
-      let nbAfter = Professors.find({}).count();
+      let nbAfter = await Professors.find({}).countAsync();
       assert.strictEqual(nbAfter, 0);
     });
   });

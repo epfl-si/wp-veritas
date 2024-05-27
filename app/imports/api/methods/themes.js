@@ -5,8 +5,8 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin } from "./role";
 
-const checkUniqueThemeName = (theme) => {
-  if (Themes.find({ name: theme.name }).count() > 0) {
+const checkUniqueThemeName = async (theme) => {
+  if (await Themes.find({ name: theme.name }).countAsync() > 0) {
     throwMeteorError("name", "Nom du thème existe déjà !");
   }
 };
@@ -14,8 +14,8 @@ const checkUniqueThemeName = (theme) => {
 const insertTheme = new VeritasValidatedMethod({
   name: "insertTheme",
   role: Admin,
-  validate(newTheme) {
-    checkUniqueThemeName(newTheme);
+  async validate(newTheme) {
+    await checkUniqueThemeName(newTheme);
     themesSchema.validate(newTheme);
   },
   run(newTheme) {

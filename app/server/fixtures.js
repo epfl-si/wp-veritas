@@ -1,16 +1,14 @@
-const loadRolesFixtures = () => {
+const loadRolesFixtures = async () => {
   const roles = ['admin', 'tags-editor', 'epfl-member'];
-  roles.forEach(
-    role => {
-      Roles.createRole(role);
-    }
-  )
+  for (const role of roles) {
+      await Roles.createRoleAsync(role);
+  }
 }
 
 const loadFixtures = async () => {
-  if ((await Meteor.roles.find({}).countAsync()) == 0) {
+  if ((await Roles.getAllRoles().countAsync()) == 0) {
       console.log("    …importing roles");
-      loadRolesFixtures();
+      await loadRolesFixtures();
   } else {
       console.log("Roles already exist");
   }

@@ -8,13 +8,13 @@ import { loadFixtures } from "../../../../server/fixtures";
 
 if (Meteor.isServer) {
   describe("meteor methods tag", function () {
-    before(function () {
+    before(async function () {
       resetDatabase();
-      loadFixtures();
+      await loadFixtures();
     });
 
-    it("insert tag", () => {
-      let userId = createUser();
+    it("insert tag", async () => {
+      let userId = await createUser();
 
       const context = { userId };
       const args = {
@@ -27,13 +27,13 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      insertTag._execute(context, args);
+      await insertTag._execute(context, args);
 
-      let nb = Tags.find({}).count();
-      let tag = Tags.findOne({ name_en: "Algebra" });
+      let nb = await Tags.find({}).countAsync();
+      let tag = await Tags.findOneAsync({ name_en: "Algebra" });
     
       // Create site with this tag
-      createSite(userId, [], [tag], []);
+      await createSite(userId, [], [tag], []);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tag.name_fr, "Algèbre");
@@ -48,11 +48,11 @@ if (Meteor.isServer) {
       assert.strictEqual(tag.type, "field-of-research");
     });
 
-    it("update tag", () => {
-      let userId = createUser();
-      let tag = Tags.findOne({ name_en: "Algebra" });
+    it("update tag", async () => {
+      let userId = await createUser();
+      let tag = await Tags.findOneAsync({ name_en: "Algebra" });
 
-      let site = getSitesByTag(tag)[0];
+      let site = (await getSitesByTag(tag))[0];
       assert.strictEqual(site.tags[0].name_en, "Algebra");
 
       const context = { userId };
@@ -67,38 +67,38 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      updateTag._execute(context, args);
+      await updateTag._execute(context, args);
 
-      let nb = Tags.find({}).count();
-      let tagAfterUpdate = Tags.findOne({ _id: tag._id });
+      let nb = await Tags.find({}).countAsync();
+      let tagAfterUpdate = await Tags.findOneAsync({ _id: tag._id });
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tagAfterUpdate.name_fr, "Mathématiques");
       assert.strictEqual(tagAfterUpdate.name_en, "Maths");
 
-      let siteAfterUpdate = getSitesByTag(tag)[0];
+      let siteAfterUpdate = (await getSitesByTag(tag))[0];
       assert.strictEqual(siteAfterUpdate.tags[0].name_en, "Maths");
     });
 
-    it("remove tag", () => {
-      let userId = createUser();
-      let tag = Tags.findOne({ name_en: "Maths" });
+    it("remove tag", async () => {
+      let userId = await createUser();
+      let tag = await Tags.findOneAsync({ name_en: "Maths" });
 
       const context = { userId };
       const args = { tagId: tag._id };
 
-      let nbBefore = Tags.find({}).count();
+      let nbBefore = await Tags.find({}).countAsync();
       assert.strictEqual(nbBefore, 1);
 
-      let siteNumbersBefore = getSitesByTag(tag).length;
+      let siteNumbersBefore = (await getSitesByTag(tag)).length;
       assert.strictEqual(siteNumbersBefore, 1);
 
-      removeTag._execute(context, args);
+      await removeTag._execute(context, args);
 
-      let siteNumbersAfter = getSitesByTag(tag).length;
+      let siteNumbersAfter = (await getSitesByTag(tag)).length;
       assert.strictEqual(siteNumbersAfter, 0);
 
-      let nbAfter = Tags.find({}).count();
+      let nbAfter = await Tags.find({}).countAsync();
       assert.strictEqual(nbAfter, 0);
     });
   });

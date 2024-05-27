@@ -58,9 +58,9 @@ Api.addRoute(
     "tags/:id",
     { authRequired: false },
     {
-      get: function () {
+      get: async function () {
         // @TODO: TagNotFound
-        return Tags.findOne(this.urlParams.id);
+        return await Tags.findOneAsync(this.urlParams.id);
       },
     }
   );

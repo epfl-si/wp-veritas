@@ -7,9 +7,9 @@ chai.use(chaiHttp);
 
 const endpointProfessors = () => {
   let endpoint = "/api/v1/professors";
-  it(`GET ${endpoint}`, function () {
+  it(`GET ${endpoint}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let professorId = Professors.findOne({ sciper: "188475" })._id;
+    let professorId = (await Professors.findOneAsync({ sciper: "188475" }))._id;
     let expectedResult = [
       {
         _id: professorId,
@@ -30,10 +30,10 @@ const endpointProfessors = () => {
   });
 
   let endpointTags = "/api/v1/professors/188475/tags";
-  it(`GET ${endpointTags}`, function () {
+  it(`GET ${endpointTags}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let tag1Id = Tags.findOne({ name_fr: "Beaujolais" })._id;
-    let tag2Id = Tags.findOne({ name_fr: "Vin nature" })._id;
+    let tag1Id = (await Tags.findOneAsync({ name_fr: "Beaujolais" }))._id;
+    let tag2Id = (await Tags.findOneAsync({ name_fr: "Vin nature" }))._id;
     let expectedResult = [
       {
         _id: tag1Id,

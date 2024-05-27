@@ -56,9 +56,9 @@ Api.addRoute(
   "categories/:name",
   { authRequired: false },
   {
-    get: function () {
+    get: async function () {
       try {
-        result = Categories.findOne({ name: this.urlParams.name });
+        result = await Categories.findOneAsync({ name: this.urlParams.name });
         if (!result) {
           throw "result undefined";
         }
@@ -131,7 +131,7 @@ Api.addRoute(
     get: async function() {
       let categoryName;
       try {
-        categoryName = Categories.findOne({ name: this.urlParams.name }).name;
+        categoryName = (await Categories.findOneAsync({ name: this.urlParams.name })).name;
       } catch (error) {
         console.log(error);
         let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;

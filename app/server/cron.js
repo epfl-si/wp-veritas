@@ -11,22 +11,30 @@ SyncedCron.add({
     const publicLdapContext = require('epfl-ldap')();
     
     let professors = await Professors.find({}).fetchAsync();
-    professors.forEach(prof => {
-      publicLdapContext.users.getUserBySciper(prof.sciper, function(err, user) {
+    for (let prof of professors) {
+      const user = await new Promise((resolve, reject) => {
+        publicLdapContext.users.getUserBySciper(prof.sciper, function(err, user) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(user);
+          }
+        });
+      });
 
-        let professorDocument = {
-          displayName: user.displayName,
-        }
-        Professors.update(
-          { _id: prof._id }, 
-          { $set: professorDocument }
-        );
 
-        let profAfter = Professors.findOne(prof._id);
-        console.log(`Prof: ${profAfter.sciper} after update => DisplayName: ${profAfter.displayName}`);
-        
-      })
-    });
+      let professorDocument = {
+        displayName: user.displayName,
+      }
+      await Professors.updateAsync(
+        { _id: prof._id },
+        { $set: professorDocument }
+      );
+
+      let profAfter = await Professors.findOneAsync(prof._id);
+      console.log(`Prof: ${profAfter.sciper} after update => DisplayName: ${profAfter.displayName}`);
+
+    }
     console.log('All professors updated:', intendedAt);
   }
 });
@@ -46,7 +54,7 @@ SyncedCron.add({
 
     // Update all sites
     let sites = await Sites.find({}).fetchAsync();
-    sites.forEach(site => {
+    for (const site of sites) {
 
       if ('wpInfra' in site && site.wpInfra) {
 
@@ -80,7 +88,7 @@ SyncedCron.add({
         });
         
       }
-    });
+    }
     console.log('All sites updated:', intendedAt);
   }
 });

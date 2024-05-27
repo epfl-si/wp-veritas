@@ -61,9 +61,9 @@ Api.addRoute(
     "openshiftenvs/:id",
     { authRequired: false },
     {
-      get: function () {
+      get: async function () {
         // @TODO: OpenShiftEnvNotFound
-        return OpenshiftEnvs.findOne(this.urlParams.id);
+        return await OpenshiftEnvs.findOneAsync(this.urlParams.id);
       },
     }
   );

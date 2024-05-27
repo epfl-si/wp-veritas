@@ -10,11 +10,11 @@ import { endpointOpenshiftEnvs } from "./api-openshiftenvs.test";
 
 if (Meteor.isServer) {
   describe("API", () => {
-    before(() => {
+    before(async () => {
       console.log("    …reseting database");
       resetDatabase();
-      loadFixtures();
-      loadTestFixtures();
+      await loadFixtures();
+      await loadTestFixtures();
     });
 
     // Thanks to https://www.alxolr.com/articles/how-to-separate-mocha-tests-in-multiple-files

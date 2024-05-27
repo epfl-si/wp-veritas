@@ -52,10 +52,6 @@ if (Meteor.isServer) {
     return Meteor.users.find({});
   });
 
-  Meteor.publish("user.roles", function () {
-    return Meteor.roles.find({});
-  });
-
   Meteor.publish("log.list", function () {
     return AppLogs.find({});
   });

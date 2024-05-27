@@ -5,8 +5,8 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Editor } from "./role";
 
-checkUniqueSciper = (professor) => {
-  if (Professors.find({ sciper: professor.sciper }).count() > 0) {
+const checkUniqueSciper = async (professor) => {
+  if (Professors.find({ sciper: professor.sciper }).countAsync() > 0) {
     throwMeteorError(
       "sciper",
       "Un professeur avec le même sciper existe déjà !"
@@ -17,8 +17,8 @@ checkUniqueSciper = (professor) => {
 const insertProfessor = new VeritasValidatedMethod({
   name: "insertProfessor",
   role: Editor,
-  validate(newProfessor) {
-    checkUniqueSciper(newProfessor, "insert");
+  async validate(newProfessor) {
+    await checkUniqueSciper(newProfessor, "insert");
     professorSchema.validate(newProfessor);
   },
   run(newProfessor) {

@@ -9,24 +9,24 @@ import { insertTag } from "../imports/api/methods/tags";
 import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
 
-const createTag = (userId, args) => {
+const createTag = async (userId, args) => {
   const context = { userId };
-  idTag = insertTag._execute(context, args);
-  return Tags.findOne({ _id: idTag });
+  const idTag = await insertTag._execute(context, args);
+  return await Tags.findOneAsync({ _id: idTag });
 };
 
-const loadCategoriesFixtures = () => {
-  Categories.insert({
+const loadCategoriesFixtures = async () => {
+  await Categories.insertAsync({
     name: "Inside",
   });
 
-  Categories.insert({
+  await Categories.insertAsync({
     name: "Restauration",
   });
 };
 
-const loadTagsFixtures = () => {
-  let userId = createUser();
+const loadTagsFixtures = async () => {
+  let userId = await createUser();
 
   const tagArgs1 = {
     name_fr: "Beaujolais",
@@ -44,12 +44,12 @@ const loadTagsFixtures = () => {
     type: "field-of-research",
   };
 
-  createTag(userId, tagArgs1);
-  createTag(userId, tagArgs2);
+  await createTag(userId, tagArgs1);
+  await createTag(userId, tagArgs2);
 };
 
-const loadProfessorsFixtures = () => {
-  let userId = createUser();
+const loadProfessorsFixtures = async () => {
+  let userId = await createUser();
 
   const context = { userId };
   const args = {
@@ -57,46 +57,46 @@ const loadProfessorsFixtures = () => {
     displayName: "Charmier Grégory",
   };
 
-  insertProfessor._execute(context, args);
+  await insertProfessor._execute(context, args);
 
-  Professors.findOne({ sciper: "188475" });
+  await Professors.findOneAsync({ sciper: "188475" });
 };
 
 const loadSitesFixtures = async () => {
-  let userId = createUser();
+  let userId = await createUser();
   let tags = await Tags.find({}).fetchAsync();
   let categories = await Categories.find({ name: "Restauration" }).fetchAsync();
   let professors = await Professors.find({ sciper: "188475" }).fetchAsync();
 
   // Create site with this professor
-  createSite(userId, categories, tags, professors);
+  await createSite(userId, categories, tags, professors);
 };
 
 const loadTestFixtures = async () => {
   if ((await Categories.find({}).countAsync()) == 0) {
     console.log("    …importing categories");
-    loadCategoriesFixtures();
+    await loadCategoriesFixtures();
   } else {
     console.log("Categories already exist");
   }
 
   if ((await Tags.find({}).countAsync()) == 0) {
     console.log("    …importing tags");
-    loadTagsFixtures();
+    await loadTagsFixtures();
   } else {
     console.log("Tags already exist");
   }
 
   if ((await Professors.find({}).countAsync()) == 0) {
     console.log("    …importing professors");
-    loadProfessorsFixtures();
+    await loadProfessorsFixtures();
   } else {
     console.log("Professors already exist");
   }
 
   if ((await Sites.find({}).countAsync()) == 0) {
     console.log("    …importing sites");
-    loadSitesFixtures();
+    await loadSitesFixtures();
   } else {
     console.log("Sites already exist");
   }

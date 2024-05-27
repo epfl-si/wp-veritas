@@ -7,8 +7,8 @@ import { VeritasValidatedMethod, Admin } from "./role";
 import { Sites } from "../collections";
 
 
-checkUniqueCategoryName = (category) => {
-  if (Categories.find({ name: category.name }).count() > 0) {
+const checkUniqueCategoryName = async (category) => {
+  if (await Categories.find({ name: category.name }).countAsync() > 0) {
     throwMeteorError("name", "Nom de la catégorie existe déjà !");
   }
 };
@@ -16,17 +16,17 @@ checkUniqueCategoryName = (category) => {
 const insertCategory = new VeritasValidatedMethod({
   name: "insertCategory",
   role: Admin,
-  validate(newCategory) {
-    checkUniqueCategoryName(newCategory);
+  async validate(newCategory) {
+    await checkUniqueCategoryName(newCategory);
     categoriesSchema.validate(newCategory);
   },
-  run(newCategory) {
+  async run(newCategory) {
 
     let categoryDocument = {
       name: newCategory.name,
     };
 
-    let newCategoryId = Categories.insert(categoryDocument);
+    let newCategoryId = await Categories.insertAsync(categoryDocument);
     let newCategoryAfterInsert = Categories.findOne({ _id: newCategoryId });
 
     AppLogger.getLog().info(

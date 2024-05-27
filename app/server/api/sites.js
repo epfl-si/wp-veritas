@@ -397,7 +397,7 @@ Api.addRoute(
   {
     get: async function() {
       // Get units of sciper
-      let units = getUnits(this.urlParams.sciper);
+      let units = await getUnits(this.urlParams.sciper);
 
       // Get all sites whose unit is present in 'units'
       let sites = await Sites.find({ unitId: { $in: units } }).fetchAsync();

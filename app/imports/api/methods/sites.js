@@ -41,9 +41,9 @@ const generateAnsibleHostPattern = (site) => {
   return result;
 };
 
-function getUnitNames(unitId) {
+async function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
-  let unit = Meteor.apply("getUnitFromLDAP", [unitId], true);
+  let unit = await Meteor.applyAsync("getUnitFromLDAP", [unitId], true);
   let unitName = "";
   let unitNameLevel2 = "";
 
@@ -65,7 +65,7 @@ function getUnitNames(unitId) {
   };
 }
 
-function prepareUpdateInsert(site, action) {
+async function prepareUpdateInsert(site, action) {
   if (site.userExperienceUniqueLabel == undefined) {
     site.userExperienceUniqueLabel = "";
   }
@@ -185,8 +185,8 @@ const insertSite = new VeritasValidatedMethod({
     }
     validateConsistencyOfFields(newSite);
   },
-  run(newSite) {
-    newSite = prepareUpdateInsert(newSite, "insert");
+  async run(newSite) {
+    newSite = await prepareUpdateInsert(newSite, "insert");
 
     let unitName, unitNameLevel2;
     // TODO: Find a more elegant way to mock this for Travis CI
@@ -194,8 +194,8 @@ const insertSite = new VeritasValidatedMethod({
       unitName = "idev-fsd";
       unitNameLevel2 = "si";
     } else {
-      unitName = getUnitNames(newSite.unitId).unitName;
-      unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
+      unitName = (await getUnitNames(newSite.unitId)).unitName;
+      unitNameLevel2 = (await getUnitNames(newSite.unitId)).unitNameLevel2;
     }
 
     let newSiteDocument = {
@@ -256,8 +256,8 @@ const updateSite = new VeritasValidatedMethod({
 
     validateConsistencyOfFields(newSite);
   },
-  run(newSite) {
-    newSite = prepareUpdateInsert(newSite, "update");
+  async run(newSite) {
+    newSite = await prepareUpdateInsert(newSite, "update");
 
     let unitName, unitNameLevel2;
     // TODO: Find a more elegant way to mock this for Travis CI
@@ -265,8 +265,8 @@ const updateSite = new VeritasValidatedMethod({
       unitName = "idev-fsd";
       unitNameLevel2 = "si";
     } else {
-      unitName = getUnitNames(newSite.unitId).unitName;
-      unitNameLevel2 = getUnitNames(newSite.unitId).unitNameLevel2;
+      unitName = (await getUnitNames(newSite.unitId)).unitName;
+      unitNameLevel2 = (await getUnitNames(newSite.unitId)).unitNameLevel2;
     }
 
     let newSiteDocument = {
@@ -291,11 +291,11 @@ const updateSite = new VeritasValidatedMethod({
       isDeleted: newSite.isDeleted,
     };
 
-    let siteBeforeUpdate = Sites.findOne({ _id: newSite._id });
+    let siteBeforeUpdate = await Sites.findOneAsync({ _id: newSite._id });
 
-    Sites.update({ _id: newSite._id }, { $set: newSiteDocument });
+    await Sites.updateAsync({ _id: newSite._id }, { $set: newSiteDocument });
 
-    let updatedSite = Sites.findOne({ _id: newSite._id });
+    let updatedSite = await Sites.findOneAsync({ _id: newSite._id });
 
     AppLogger.getLog().info(
       `Update site ID ${newSite._id}`,
@@ -405,13 +405,13 @@ const removeSite = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     siteId: { type: String },
   }).validator(),
-  run({ siteId }) {
-    let site = Sites.findOne({ _id: siteId });
-    Sites.update({ _id: siteId }, { $set: { isDeleted: true } });
+  async run({ siteId }) {
+    let site = await Sites.findOneAsync({ _id: siteId });
+    await Sites.updateAsync({ _id: siteId }, { $set: { isDeleted: true } });
     AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
     if (site.wpInfra) {
-      const user = Meteor.users.findOne({ _id: this.userId });
+      const user = await Meteor.users.findOneAsync({ _id: this.userId });
       const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} on wp-veritas! #wpSiteDeleted`;
       Telegram.sendMessage(message, /*preview=*/false);
     }

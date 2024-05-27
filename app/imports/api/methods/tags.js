@@ -5,26 +5,28 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Editor } from "./role";
 
-const checkUniqueTagName = (newTag, action) => {
+const checkUniqueTagName = async (newTag, action) => {
   if (action === "insert") {
-    if (Tags.find({ name_fr: newTag.name_fr }).count() > 0) {
+    if (await Tags.find({ name_fr: newTag.name_fr }).countAsync() > 0) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
     }
-    if (Tags.find({ name_en: newTag.name_en }).count() > 0) {
+    if (await Tags.find({ name_en: newTag.name_en }).countAsync() > 0) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
   } else if (action === "update") {
-    let frTags = Tags.find({ name_fr: newTag.name_fr });
+    const frTags = Tags.find({ name_fr: newTag.name_fr });
+    const frTagsCount = await frTags.countAsync();
     if (
-      frTags.count() > 1 ||
-      (frTags.count() == 1 && frTags.fetch()[0]._id != newTag._id)
+      frTagsCount > 1 ||
+      (frTagsCount == 1 && (await frTags.fetchAsync())[0]._id != newTag._id)
     ) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
     }
-    let enTags = Tags.find({ name_en: newTag.name_en });
+    const enTags = await Tags.find({ name_en: newTag.name_en });
+    const enTagsCount = await enTags.countAsync();
     if (
-      enTags.count() > 1 ||
-      (enTags.count() == 1 && enTags.fetch()[0]._id != newTag._id)
+      enTagsCount > 1 ||
+      (enTagsCount == 1 && (await enTags.fetchAsync())[0]._id != newTag._id)
     ) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
@@ -34,8 +36,8 @@ const checkUniqueTagName = (newTag, action) => {
 const insertTag = new VeritasValidatedMethod({
   name: "insertTag",
   role: Editor,
-  validate(newTag) {
-    checkUniqueTagName(newTag, "insert");
+  async validate(newTag) {
+    await checkUniqueTagName(newTag, "insert");
     tagSchema.validate(newTag);
   },
   run(newTag) {
@@ -62,8 +64,8 @@ const insertTag = new VeritasValidatedMethod({
 const updateTag = new VeritasValidatedMethod({
   name: "updateTag",
   role: Editor,
-  validate(newTag) {
-    checkUniqueTagName(newTag, "update");
+  async validate(newTag) {
+    await checkUniqueTagName(newTag, "update");
     tagSchema.validate(newTag);
   },
   run(newTag) {

@@ -78,7 +78,7 @@ const loadTestData = async () => {
 
 const updateSitesAddTrailingSlash = async () => {
   let sites = await Sites.find().fetchAsync();
-  sites.forEach(async site => {
+  for (const site of sites) {
     let siteId = site._id;
     console.log(site);
     let newURL = site.url
@@ -86,20 +86,20 @@ const updateSitesAddTrailingSlash = async () => {
       newURL += '/'
     }
     await Sites.updateAsync({ _id: siteId }, { $set: { url: newURL } });
-  });
+  }
   console.log("All sites are updated");
 }
 
-const importData = () => {
+const importData = async () => {
   /*
   const absoluteUrl = Meteor.absoluteUrl();
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
-    loadTestData();
+    await loadTestData();
   }
   */
-  updateSitesAddTrailingSlash()
+  await updateSitesAddTrailingSlash()
 };
 
 export { importData };

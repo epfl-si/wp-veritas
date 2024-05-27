@@ -6,27 +6,27 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
 
-function createTag(userId, args) {
+async function createTag(userId, args) {
   const context = { userId };
-  idTag = insertTag._execute(context, args);
-  return Tags.findOne({_id: idTag});
+  const idTag = await insertTag._execute(context, args);
+  return await Tags.findOneAsync({_id: idTag});
 }
 
 if (Meteor.isServer) {
   describe("meteor methods site", function () {
-    before(function () {
+    before(async function () {
       resetDatabase();
-      loadFixtures();
-      Categories.insert({
+      await loadFixtures();
+      await Categories.insertAsync({
         name: "Inside",
       });
-      Categories.insert({
+      await Categories.insertAsync({
         name: "Restauration",
       });
     });
 
-    it("insert site", () => {
-      let userId = createUser();
+    it("insert site", async () => {
+      let userId = await createUser();
 
       const tagArgs1 = {
         name_fr: "Beaujolais",
@@ -44,13 +44,13 @@ if (Meteor.isServer) {
         type: "field-of-research",
       };
 
-      let tag1 = createTag(userId, tagArgs1);
-      let tag2 = createTag(userId, tagArgs2);
+      let tag1 = await createTag(userId, tagArgs1);
+      let tag2 = await createTag(userId, tagArgs2);
 
       console.log(tag1);
       console.log(tag2);
 
-      let tagsNumber = Tags.find({}).count();
+      let tagsNumber = await Tags.find({}).countAsync();
       assert.strictEqual(tagsNumber, 2);
 
       const url = "https://www.epfl.ch/beaujolais/madame-placard/";
@@ -62,7 +62,7 @@ if (Meteor.isServer) {
         tagline: "Yvon Métras",
         title: title,
         openshiftEnv: "www",
-        categories: Categories.find({ name: "Restauration" }).fetch(),
+        categories: await Categories.find({ name: "Restauration" }).fetchAsync(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -79,10 +79,10 @@ if (Meteor.isServer) {
         isDeleted: false
       };
 
-      insertSite._execute(context, args);
+      await insertSite._execute(context, args);
 
-      let sitesNumber = Sites.find({}).count();
-      let site = Sites.findOne({ url: url });
+      let sitesNumber = await Sites.find({}).countAsync();
+      let site = await Sites.findOneAsync({ url: url });
 
       assert.strictEqual(site.categories.length, 1);
       assert.strictEqual(site.categories[0].name, "Restauration");
@@ -91,11 +91,11 @@ if (Meteor.isServer) {
       assert.strictEqual(site.title, title);
     });
 
-    it("update site", () => {
-      let userId = createUser();
+    it("update site", async () => {
+      let userId = await createUser();
       const url = "https://www.epfl.ch/beaujolais/madame-placard/";
       const title = "Ma meilleure découverte 2019";
-      let site = Sites.findOne({ url: url });
+      let site = await Sites.findOneAsync({ url: url });
 
       const context = { userId };
       const args = {
@@ -104,7 +104,7 @@ if (Meteor.isServer) {
         tagline: site.tagline,
         title: title,
         openshiftEnv: "www",
-        categories: Categories.find({ name: "Restauration" }).fetch(),
+        categories: await Categories.find({ name: "Restauration" }).fetchAsync(),
         theme: "wp-theme-2018",
         languages: ["en", "fr"],
         unitId: "13030",
@@ -121,10 +121,10 @@ if (Meteor.isServer) {
         isDeleted: false
       };
 
-      updateSite._execute(context, args);
+      await updateSite._execute(context, args);
 
-      let nb = Sites.find({}).count();
-      let siteAfterUpdate = Sites.findOne({ _id: site._id });
+      let nb = await Sites.find({}).countAsync();
+      let siteAfterUpdate = await Sites.findOneAsync({ _id: site._id });
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(siteAfterUpdate.tagline, "Yvon Métras");
@@ -134,20 +134,20 @@ if (Meteor.isServer) {
       assert.strictEqual(site.categories[0].name, "Restauration");
     });
 
-    it("remove site", () => {
-      let userId = createUser();
+    it("remove site", async () => {
+      let userId = await createUser();
       const url = "https://www.epfl.ch/beaujolais/madame-placard/";
-      let site = Sites.findOne({ url: url });
+      let site = await Sites.findOneAsync({ url: url });
 
       const context = { userId };
       const args = { siteId: site._id };
 
-      let sitesNumberBeforeRemove = Sites.find({}).count();
+      let sitesNumberBeforeRemove = await Sites.find({}).countAsync();
       assert.strictEqual(sitesNumberBeforeRemove, 1);
 
-      removeSite._execute(context, args);
+      await removeSite._execute(context, args);
 
-      let sitesNumberAfterRemove = Sites.find({}).count();
+      let sitesNumberAfterRemove = await Sites.find({}).countAsync();
       assert.strictEqual(sitesNumberAfterRemove, 0);
     });
   });
