@@ -5,7 +5,7 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin } from "./role";
 
-checkUniqueThemeName = (theme) => {
+const checkUniqueThemeName = (theme) => {
   if (Themes.find({ name: theme.name }).count() > 0) {
     throwMeteorError("name", "Nom du thème existe déjà !");
   }

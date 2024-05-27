@@ -7,7 +7,7 @@ let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 
-getExpectedSiteResult = () => {
+const getExpectedSiteResult = () => {
   let site = Sites.findOne({
     url: "https://www.epfl.ch/beaujolais/madame-placard/",
   });
@@ -39,7 +39,7 @@ getExpectedSiteResult = () => {
   return expectedResult;
 };
 
-endpointSites = () => {
+const endpointSites = () => {
   let endpointGetSites = "/api/v1/sites";
   it(`GET ${endpointGetSites}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;

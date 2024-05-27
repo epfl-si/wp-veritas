@@ -5,7 +5,7 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-endpointProfessors = () => {
+const endpointProfessors = () => {
   let endpoint = "/api/v1/professors";
   it(`GET ${endpoint}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;

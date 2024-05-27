@@ -5,7 +5,7 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin } from "./role";
 
-checkUniqueOpenshiftEnvName = (openshiftEnv) => {
+const checkUniqueOpenshiftEnvName = (openshiftEnv) => {
   if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
     throwMeteorError("name", "Cet environnement openshift existe déjà !");
   }

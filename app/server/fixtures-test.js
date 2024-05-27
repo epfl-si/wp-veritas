@@ -9,13 +9,13 @@ import { insertTag } from "../imports/api/methods/tags";
 import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
 
-createTag = (userId, args) => {
+const createTag = (userId, args) => {
   const context = { userId };
   idTag = insertTag._execute(context, args);
   return Tags.findOne({ _id: idTag });
 };
 
-loadCategoriesFixtures = () => {
+const loadCategoriesFixtures = () => {
   Categories.insert({
     name: "Inside",
   });
@@ -25,7 +25,7 @@ loadCategoriesFixtures = () => {
   });
 };
 
-loadTagsFixtures = () => {
+const loadTagsFixtures = () => {
   let userId = createUser();
 
   const tagArgs1 = {
@@ -48,7 +48,7 @@ loadTagsFixtures = () => {
   createTag(userId, tagArgs2);
 };
 
-loadProfessorsFixtures = () => {
+const loadProfessorsFixtures = () => {
   let userId = createUser();
 
   const context = { userId };
@@ -62,7 +62,7 @@ loadProfessorsFixtures = () => {
   Professors.findOne({ sciper: "188475" });
 };
 
-loadSitesFixtures = () => {
+const loadSitesFixtures = () => {
   let userId = createUser();
   let tags = Tags.find({}).fetch();
   let categories = Categories.find({ name: "Restauration" }).fetch();
@@ -72,7 +72,7 @@ loadSitesFixtures = () => {
   createSite(userId, categories, tags, professors);
 };
 
-loadTestFixtures = () => {
+const loadTestFixtures = () => {
   if (Categories.find({}).count() == 0) {
     console.log("    …importing categories");
     loadCategoriesFixtures();

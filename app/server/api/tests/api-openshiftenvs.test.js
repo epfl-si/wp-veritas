@@ -3,7 +3,7 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-endpointOpenshiftEnvs = () => {
+const endpointOpenshiftEnvs = () => {
   let endpoint = "/api/v1/openshiftenvs";
   it(`GET ${endpoint}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;

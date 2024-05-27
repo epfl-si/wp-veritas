@@ -5,7 +5,7 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-getExpectedTagResult = () => {
+const getExpectedTagResult = () => {
   let tag1Id = Tags.findOne({name_fr:"Beaujolais"})._id;
   let tag2Id = Tags.findOne({name_fr:"Vin nature"})._id;
 
@@ -31,7 +31,7 @@ getExpectedTagResult = () => {
   return expectedResult;
 };
 
-endpointTags = () => {
+const endpointTags = () => {
   let endpointGetTags = "/api/v1/tags";
   it(`GET ${endpointGetTags}`, function () {
     let base_url = "http://localhost:" + process.env.PORT;

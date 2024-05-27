@@ -1,4 +1,4 @@
-loadRolesFixtures = () => {
+const loadRolesFixtures = () => {
   const roles = ['admin', 'tags-editor', 'epfl-member'];
   roles.forEach(
     role => {
@@ -7,7 +7,7 @@ loadRolesFixtures = () => {
   )
 }
 
-loadFixtures = () => {
+const loadFixtures = async () => {
   if (Meteor.roles.find({}).count() == 0) {
       console.log("    …importing roles");
       loadRolesFixtures();

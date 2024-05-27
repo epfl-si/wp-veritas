@@ -5,7 +5,7 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Editor } from "./role";
 
-checkUniqueTagName = (newTag, action) => {
+const checkUniqueTagName = (newTag, action) => {
   if (action === "insert") {
     if (Tags.find({ name_fr: newTag.name_fr }).count() > 0) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");

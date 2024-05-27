@@ -1,7 +1,7 @@
 import { sitesSchema } from "../imports/api/schemas/sitesSchema";
 import { Sites, Categories } from "../imports/api/collections";
 
-loadTestData = () => {
+const loadTestData = () => {
   // delete all data
   const absoluteUrl = Meteor.absoluteUrl();
 
@@ -76,7 +76,7 @@ loadTestData = () => {
   }
 };
 
-updateSitesAddTrailingSlash = () => {
+const updateSitesAddTrailingSlash = () => {
   let sites = Sites.find().fetch();
   sites.forEach((site) => {
     let siteId = site._id;
@@ -90,7 +90,7 @@ updateSitesAddTrailingSlash = () => {
   console.log("All sites are updated");
 }
 
-importData = () => {
+const importData = () => {
   /*
   const absoluteUrl = Meteor.absoluteUrl();
   if (
