@@ -17,4 +17,16 @@ checkUserAndRole = (userId, roles, msg) => {
   }
 };
 
-export { trimObjValues, checkUserAndRole };
+checkUserAndRoleAsync = async (userId, roles, msg) => {
+  if (!userId) {
+    throw new Meteor.Error("not connected");
+  }
+
+  const canDoAction = await Roles.userIsInRoleAsync(userId, roles, "wp-veritas");
+
+  if (!canDoAction) {
+    throw new Meteor.Error("unauthorized", msg);
+  }
+};
+
+export { trimObjValues, checkUserAndRole, checkUserAndRoleAsync };

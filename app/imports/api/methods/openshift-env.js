@@ -18,13 +18,13 @@ const insertOpenshiftEnv = new VeritasValidatedMethod({
     await checkUniqueOpenshiftEnvName(newOpenshiftEnv);
     openshiftEnvsSchema.validate(newOpenshiftEnv);
   },
-  run(newOpenshiftEnv) {
+  async run(newOpenshiftEnv) {
     let openshiftEnvDocument = {
       name: newOpenshiftEnv.name,
     };
 
-    let newOpenshiftEnvId = OpenshiftEnvs.insert(openshiftEnvDocument);
-    let newOpenshiftEnvAfterInsert = OpenshiftEnvs.findOne({
+    let newOpenshiftEnvId = await OpenshiftEnvs.insertAsync(openshiftEnvDocument);
+    let newOpenshiftEnvAfterInsert = await OpenshiftEnvs.findOneAsync({
       _id: newOpenshiftEnvId,
     });
 
@@ -44,9 +44,9 @@ const removeOpenshiftEnv = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     openshiftEnvId: { type: String },
   }).validator(),
-  run({ openshiftEnvId }) {
-    let openshiftEnv = OpenshiftEnvs.findOne({ _id: openshiftEnvId });
-    OpenshiftEnvs.remove({ _id: openshiftEnvId });
+  async run({ openshiftEnvId }) {
+    let openshiftEnv = await OpenshiftEnvs.findOneAsync({ _id: openshiftEnvId });
+    await OpenshiftEnvs.removeAsync({ _id: openshiftEnvId });
 
     AppLogger.getLog().info(
       `Delete openshiftEnv ID ${openshiftEnvId}`,

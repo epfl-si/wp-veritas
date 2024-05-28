@@ -18,13 +18,13 @@ const insertTheme = new VeritasValidatedMethod({
     await checkUniqueThemeName(newTheme);
     themesSchema.validate(newTheme);
   },
-  run(newTheme) {
+  async run(newTheme) {
     let themeDocument = {
       name: newTheme.name,
     };
 
-    let newThemeId = Themes.insert(themeDocument);
-    let newThemeAfterInsert = Themes.findOne({ _id: newThemeId });
+    let newThemeId = await Themes.insertAsync(themeDocument);
+    let newThemeAfterInsert = await Themes.findOneAsync({ _id: newThemeId });
 
     AppLogger.getLog().info(
       `Insert theme ID ${newThemeId}`,
@@ -42,9 +42,9 @@ const removeTheme = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     themeId: { type: String },
   }).validator(),
-  run({ themeId }) {
-    let theme = Themes.findOne({ _id: themeId });
-    Themes.remove({ _id: themeId });
+  async run({ themeId }) {
+    let theme = await Themes.findOneAsync({ _id: themeId });
+    await Themes.removeAsync({ _id: themeId });
 
     AppLogger.getLog().info(
       `Delete theme ID ${themeId}`,

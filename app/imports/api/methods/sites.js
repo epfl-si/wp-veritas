@@ -82,36 +82,38 @@ async function prepareUpdateInsert(site, action) {
   // Check if url is unique and if userExperienceUniqueLabel is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === "update") {
-    let sites = Sites.find({ url: site.url });
-    if (sites.count() > 1) {
+    const sites = Sites.find({ url: site.url });
+    const sitesCount = await sites.countAsync();
+    if (sitesCount > 1) {
       throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
-    } else if (sites.count() == 1) {
-      if (sites.fetch()[0]._id != site._id) {
+    } else if (sitesCount == 1) {
+      if ((await sites.fetchAsync())[0]._id != site._id) {
         throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
       }
     }
     if (site.userExperienceUniqueLabel != "") {
-      let sitesByUXUniqueLabel = Sites.find({
+      const sitesByUXUniqueLabel = Sites.find({
         userExperienceUniqueLabel: site.userExperienceUniqueLabel,
       });
-      if (sitesByUXUniqueLabel.count() > 1) {
+      const sitesByUXUniqueLabelCount = await sitesByUXUniqueLabel.countAsync();
+      if (sitesByUXUniqueLabelCount > 1) {
         throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
-      } else if (sitesByUXUniqueLabel.count() == 1) {
-        if (sitesByUXUniqueLabel.fetch()[0]._id != site._id) {
+      } else if (sitesByUXUniqueLabelCount == 1) {
+        if ((await sitesByUXUniqueLabel.fetch())[0]._id != site._id) {
           throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
         }
       }
     }
   } else {
-    if (Sites.find({ url: site.url }).count() > 0) {
+    if (await Sites.find({ url: site.url }).countAsync() > 0) {
       throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
     }
 
     if (
       site.userExperienceUniqueLabel != "" &&
-      Sites.find({
+      (await Sites.find({
         userExperienceUniqueLabel: site.userExperienceUniqueLabel,
-      }).count() > 0
+      }).countAsync ()) > 0
     ) {
       throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
     }
@@ -220,8 +222,8 @@ const insertSite = new VeritasValidatedMethod({
       isDeleted: newSite.isDeleted,
     };
 
-    let newSiteId = Sites.insert(newSiteDocument);
-    let newSiteAfterInsert = Sites.findOne({ _id: newSiteId });
+    let newSiteId = await Sites.insertAsync(newSiteDocument);
+    let newSiteAfterInsert = await Sites.findOneAsync({ _id: newSiteId });
 
     AppLogger.getLog().info(
       `Insert site ID ${newSiteId}`,
@@ -230,7 +232,7 @@ const insertSite = new VeritasValidatedMethod({
     );
 
     if (newSite.wpInfra) {
-      const user = Meteor.users.findOne({ _id: this.userId });
+      const user = await Meteor.users.findOneAsync({ _id: this.userId });
       const message = `👀 Pssst! [${user.username}](https://people.epfl.ch/${this.userId}) created ${newSite.url} on wp-veritas! #wpSiteCreated`;
       Telegram.sendMessage(message, /*preview=*/false);
     }
