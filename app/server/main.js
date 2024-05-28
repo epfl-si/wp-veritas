@@ -56,7 +56,12 @@ if (Meteor.isServer) {
     if (!disableTequila) {
       import "./tequila-config";
     }
-    import "./api/rest-api";
+    // Import each REST API endpoint in turn, to register them
+    import "./rest/categories";
+    import "./rest/professors";
+    import "./rest/sites";
+    import "./rest/tags";
+    import "./rest/openshiftenv";
     import "./cron";
 
     SyncedCron.start();

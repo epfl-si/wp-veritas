@@ -1,5 +1,6 @@
 import { Categories, Sites } from "../../imports/api/collections";
-import { Api, APIError, formatSiteCategories } from "./utils";
+import { formatSiteCategories } from "./utils";
+import { REST, RESTError } from "../../imports/rest";
 
 /**
  * @api {get} /categories  Get all categories
@@ -17,9 +18,8 @@ import { Api, APIError, formatSiteCategories } from "./utils";
  *       ...,
  *     ]
  */
-Api.addRoute(
+REST.addRoute(
   "categories",
-  { authRequired: false },
   {
     get: async function() {
       return await Categories.find({}).fetchAsync();
@@ -52,20 +52,19 @@ Api.addRoute(
  *       "message": "This category \"inside\" is unknown. Use api/v1/categories to list them."
  *     }
  */
-Api.addRoute(
+REST.addRoute(
   "categories/:name",
-  { authRequired: false },
   {
-    get: async function () {
+    get: async function ({ urlParams }) {
       try {
-        result = await Categories.findOneAsync({ name: this.urlParams.name });
+        result = await Categories.findOneAsync({ name: urlParams.name });
         if (!result) {
           throw "result undefined";
         }
       } catch (error) {
         console.log(error);
-        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
-        return APIError("CategoryNotFound", msg);
+        let msg = `This category "${urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return new RESTError("CategoryNotFound", msg);
       }
       return result;
     },
@@ -124,18 +123,17 @@ Api.addRoute(
  *       "message": "This category \"inside\" is unknown. Use api/v1/categories to list them."
  *     }
  */
-Api.addRoute(
+REST.addRoute(
   "categories/:name/sites",
-  { authRequired: false },
   {
-    get: async function() {
+    get: async function({ urlParams }) {
       let categoryName;
       try {
-        categoryName = (await Categories.findOneAsync({ name: this.urlParams.name })).name;
+        categoryName = (await Categories.findOneAsync({ name: urlParams.name })).name;
       } catch (error) {
         console.log(error);
-        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
-        return APIError("CategoryNotFound", msg);
+        let msg = `This category "${urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return new RESTError("CategoryNotFound", msg);
       }
       return formatSiteCategories(
         await Sites.find({

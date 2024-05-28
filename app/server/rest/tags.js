@@ -1,5 +1,5 @@
 import { Sites, Tags } from "../../imports/api/collections";
-import { Api } from "./utils";
+import { REST } from "../../imports/rest";
 
 /**
  * @api {get} /tags  Get all tags
@@ -7,14 +7,12 @@ import { Api } from "./utils";
  */
 // Maps to: /api/v1/tags/
 // Maps to: /api/v1/tags/?type=<type>
-Api.addRoute(
+REST.addRoute(
     "tags",
-    { authRequired: false },
     {
-      get: async function() {
-        var query = this.queryParams;
-        if (query && this.queryParams.type) {
-          return await Tags.find({ type: this.queryParams.type }).fetchAsync();
+      get: async function({ queryParams }) {
+        if (queryParams && queryParams.type) {
+          return await Tags.find({ type: queryParams.type }).fetchAsync();
         }
         return await Tags.find({}).fetchAsync();
       },
@@ -54,13 +52,12 @@ Api.addRoute(
    *     }
    */
   // Maps to: /api/v1/tags/:id
-  Api.addRoute(
+  REST.addRoute(
     "tags/:id",
-    { authRequired: false },
     {
-      get: async function () {
+      get: async function ({ urlParams }) {
         // @TODO: TagNotFound
-        return await Tags.findOneAsync(this.urlParams.id);
+        return await Tags.findOneAsync(urlParams.id);
       },
     }
   );
@@ -71,13 +68,12 @@ Api.addRoute(
    */
   // Maps to: /api/v1/tags/:id/field-of-research
   // Example: Return all tags of 'field-of-research' type of tag STI
-  Api.addRoute(
+  REST.addRoute(
     "tags/:id/clusters-and-professors",
-    { authRequired: false },
     {
-      get: async function() {
+      get: async function({ urlParams }) {
         // Récupère le tag passé en paramètre. Par exemple: STI
-        let tagId = this.urlParams.id;
+        let tagId = urlParams.id;
   
         // Récupère tous les sites qui ont le tag STI
         let sites = await Sites.find({ isDeleted: false, "tags._id": tagId }).fetchAsync();

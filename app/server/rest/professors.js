@@ -1,5 +1,5 @@
 import { Sites, Professors } from "../../imports/api/collections";
-import { Api } from "./utils";
+import { REST } from "../../imports/rest";
 
 /**
  * @api {get} /professors  Get all professors
@@ -16,9 +16,8 @@ import { Api } from "./utils";
  *       ...,
  *     ]
  */
-Api.addRoute(
+REST.addRoute(
   "professors",
-  { authRequired: false },
   {
     get: async function() {
       return await Professors.find({}).fetchAsync();
@@ -64,15 +63,14 @@ Api.addRoute(
  *
  * @apiSampleRequest https://wp-veritas.epfl.ch/api/v1/professors/229105/tags
  */
-Api.addRoute(
+REST.addRoute(
   "professors/:sciper/tags",
-  { authRequired: false },
   {
     // @TODO: See https://github.com/epfl-si/wp-veritas/issues/99
     //        https://wp-veritas.epfl.ch/api/v1/professors/229105/tags vs https://wp-veritas.epfl.ch/api/v1/professors/toto/tags
     //        Error management
-    get: async function() {
-      let sciper = this.urlParams.sciper;
+    get: async function({ urlParams }) {
+      let sciper = urlParams.sciper;
       let sites = await Sites.find({ isDeleted: false, "professors.sciper": sciper }).fetchAsync();
       let tags = [];
       sites.forEach((site) => {
