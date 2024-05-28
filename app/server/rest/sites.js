@@ -1,7 +1,7 @@
 import { Sites } from "../../imports/api/collections";
 import { REST }  from "../../imports/rest";
 import { formatSiteCategories, generateAnsibleHostPattern } from "./utils";
-import getUnits from "../units";
+import { getUnits } from "../units";
 
 /**
  * @api {get} /sites  Get all active sites (isDeleted: false)

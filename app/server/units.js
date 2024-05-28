@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 
-export default getUnits = async (sciper) => {
+export const getUnits = async (sciper) => {
   const url = `https://websrv.epfl.ch/cgi-bin/rwsaccred/getRights?app=wp-veritas&caller=000000&password=${Meteor.settings.accred_password}&persid=${sciper}`;
   
   const response = await fetch(url);
