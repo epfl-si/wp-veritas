@@ -3,7 +3,7 @@ import Tequila from "meteor/epfl:accounts-tequila";
 Tequila.start({
   service: "wp-veritas",
   request: ["uniqueid", "email", "group"],
-  bypass: ["/api"],
+  bypass: ["/api/"],
   async getUserId(tequila) {
     if (tequila.group.includes("wp-veritas-admins")) {
       await Roles.setUserRolesAsync(tequila.uniqueid, ["admin"], "wp-veritas");
