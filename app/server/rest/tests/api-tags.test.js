@@ -36,32 +36,26 @@ const endpointTags = () => {
   it(`GET ${endpointGetTags}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     let expectedResult = await getExpectedTagResult();
-    chai
+    const res = await chai
       .request(base_url)
-      .get(endpointGetTags)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res).to.be.ok;
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
-      });
+      .get(endpointGetTags);
+    expect(res).to.have.status(200);
+    expect(res).to.be.ok;
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
   });
 
   let endpointGetTagsId = "/api/v1/tags/:id";
   it(`GET ${endpointGetTagsId}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     let expectedResult = await getExpectedTagResult();
-    chai
+    const res = await chai
       .request(base_url)
-      .get("/api/v1/tags/" + expectedResult[0]._id)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res).to.be.ok;
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult[0]));
-      });
+      .get("/api/v1/tags/" + expectedResult[0]._id);
+    expect(res).to.have.status(200);
+    expect(res).to.be.ok;
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult[0]));
   });
 };
 

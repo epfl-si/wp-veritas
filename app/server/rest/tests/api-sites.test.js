@@ -44,15 +44,13 @@ const endpointSites = () => {
   it(`GET ${endpointGetSites}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     let expectedResult = await getExpectedSiteResult();
-    chai
+
+    const res = await chai
       .request(base_url)
-      .get(endpointGetSites)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
-      });
+      .get(endpointGetSites);
+    expect(res).to.have.status(200);
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
   });
 
   // Get site by ID
@@ -60,19 +58,16 @@ const endpointSites = () => {
   it(`GET ${endpointGetSitesId}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     let expectedResult = await getExpectedSiteResult();
-    chai
+    const res = await chai
       .request(base_url)
-      .get("/api/v1/sites/" + expectedResult[0]._id)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.headers["content-type"]).to.equal("application/json");
-        let result = res.body
-        result["ansibleHost"] = generateAnsibleHostPattern(res.body);
-        expect(JSON.stringify(result)).to.eql(
-          JSON.stringify(expectedResult[0])
-        );
-      });
+      .get("/api/v1/sites/" + expectedResult[0]._id);
+    expect(res).to.have.status(200);
+    expect(res.headers["content-type"]).to.equal("application/json");
+    let result = res.body
+    result["ansibleHost"] = generateAnsibleHostPattern(res.body);
+    expect(JSON.stringify(result)).to.eql(
+      JSON.stringify(expectedResult[0])
+    );
   });
 
   // Get a site by URL
@@ -80,33 +75,27 @@ const endpointSites = () => {
   it(`GET ${endpointGetSitesSiteURL}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
     let expectedResult = await getExpectedSiteResult();
-    chai
+    const res = await chai
       .request(base_url)
-      .get(endpointGetSitesSiteURL + "=" + expectedResult[0].url)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.headers["content-type"]).to.equal("application/json");
-        let result = res.body
-        result[0]["ansibleHost"] = generateAnsibleHostPattern(res.body[0]);
-        expect(JSON.stringify(result)).to.eql(
-          JSON.stringify(expectedResult)
-        );
-      });
+      .get(endpointGetSitesSiteURL + "=" + expectedResult[0].url);
+    expect(res).to.have.status(200);
+    expect(res.headers["content-type"]).to.equal("application/json");
+    let result = res.body;
+    result[0]["ansibleHost"] = generateAnsibleHostPattern(res.body[0]);
+    expect(JSON.stringify(result)).to.eql(
+      JSON.stringify(expectedResult)
+    );
   });
 
   // Get a site by wrong URL
   it(`GET wrong ${endpointGetSitesSiteURL}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    chai
+    const res = await chai
       .request(base_url)
-      .get(endpointGetSitesSiteURL + "=http://perdu.com/")
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify([]));
-      });
+      .get(endpointGetSitesSiteURL + "=http://perdu.com/");
+    expect(res).to.have.status(200);
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify([]));
   });
 
   // TODO: Get sites by URL pattern
