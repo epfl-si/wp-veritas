@@ -1,6 +1,5 @@
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { loadFixtures } from "../../fixtures";
-import { loadTestFixtures } from "../../fixtures-test";
+import { resetDatabase, loadTestFixtures } from "../../fixtures-test";
 
 import { endpointSites } from "./api-sites.test";
 import { endpointCategories } from "./api-categories.test";
@@ -12,7 +11,7 @@ if (Meteor.isServer) {
   describe("API", () => {
     before(async () => {
       console.log("    …reseting database");
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
       await loadTestFixtures();
     });

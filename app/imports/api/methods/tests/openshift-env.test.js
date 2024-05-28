@@ -1,14 +1,14 @@
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import assert from "assert";
 import { OpenshiftEnvs } from "../../collections";
 import { insertOpenshiftEnv, removeOpenshiftEnv } from "../openshift-env";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods openshiftEnv", function () {
     before(async function () {
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
     });
 

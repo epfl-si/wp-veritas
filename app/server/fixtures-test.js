@@ -1,13 +1,18 @@
 import {
   Sites,
-  Tags,
+  OpenshiftEnvs,
   Categories,
+  Themes,
+  Tags,
   Professors,
+  AppLogs,
 } from "../imports/api/collections";
 import { createUser } from "../tests/helpers";
 import { insertTag } from "../imports/api/methods/tags";
 import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
+import Meteor from "meteor/meteor";
+import MongoInternals from "meteor/mongo";
 
 const createTag = async (userId, args) => {
   const context = { userId };
@@ -102,4 +107,10 @@ const loadTestFixtures = async () => {
   }
 };
 
-export { loadTestFixtures };
+async function resetDatabase () {
+  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, Tags, Professors, AppLogs]) {
+    await c.dropCollectionAsync();
+  }
+}
+
+export { loadTestFixtures, resetDatabase };

@@ -1,14 +1,14 @@
 import assert from "assert";
 import { Categories } from "../../collections";
 import { insertCategory, removeCategory } from "../categories";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods category", function () {
     before(async function () {
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
     });
 

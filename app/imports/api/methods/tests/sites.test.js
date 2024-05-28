@@ -2,9 +2,9 @@ import assert from "assert";
 import { Sites, Tags, Categories } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 async function createTag(userId, args) {
   const context = { userId };
@@ -15,7 +15,7 @@ async function createTag(userId, args) {
 if (Meteor.isServer) {
   describe("meteor methods site", function () {
     before(async function () {
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
       await Categories.insertAsync({
         name: "Inside",

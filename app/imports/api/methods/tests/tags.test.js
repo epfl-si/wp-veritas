@@ -1,15 +1,15 @@
 import assert from "assert";
 import { Tags } from "../../collections";
 import { insertTag, updateTag, removeTag } from "../tags";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByTag } from "./helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods tag", function () {
     before(async function () {
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
     });
 

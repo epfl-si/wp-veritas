@@ -1,15 +1,15 @@
 import assert from "assert";
 import { Professors, Categories } from "../../collections";
 import { insertProfessor, removeProfessor } from "../professors";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByProfessor } from "./helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods professor", function () {
     before(async function () {
-      resetDatabase();
+      await resetDatabase();
       await loadFixtures();
     });
 
