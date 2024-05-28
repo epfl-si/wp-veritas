@@ -13,7 +13,7 @@ async function createUser() {
   let user = await Meteor.users.findOneAsync({ username: "toto" });
   let userId = user._id;
 
-  Roles.setUserRoles(userId, ["admin"], "wp-veritas");
+  await Roles.setUserRolesAsync(userId, ["admin"], "wp-veritas");
 
   return userId;
 }

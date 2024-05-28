@@ -1,3 +1,5 @@
+import { Roles } from "meteor/alanning:roles";
+
 const loadRolesFixtures = async () => {
   const roles = ['admin', 'tags-editor', 'epfl-member'];
   for (const role of roles) {

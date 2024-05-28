@@ -12,6 +12,7 @@ import { insertTag } from "../imports/api/methods/tags";
 import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
 import Meteor from "meteor/meteor";
+import { Roles } from "meteor/alanning:roles";
 import MongoInternals from "meteor/mongo";
 
 const createTag = async (userId, args) => {
@@ -110,6 +111,9 @@ const loadTestFixtures = async () => {
 async function resetDatabase () {
   for (const c of [Sites, OpenshiftEnvs, Categories, Themes, Tags, Professors, AppLogs]) {
     await c.dropCollectionAsync();
+  }
+  for (const r of await Roles.getAllRoles().fetchAsync()) {
+    await Roles.deleteRoleAsync(r._id);
   }
 }
 
