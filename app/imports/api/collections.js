@@ -135,7 +135,7 @@ professorSchema.messageBox = messageBox;
 class Site {
     
   constructor(doc) {
-        _.extend(this, doc);
+        Object.assign(this, doc);
     }
 
     getWpInfra() {
