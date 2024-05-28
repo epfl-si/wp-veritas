@@ -103,7 +103,7 @@ REST.addRoute(
  *        "tags": [],
  *        "userExperience": false,
  *        "unitName": "exheb",
- *        "unitNameLevel2": "si",
+ *        "unitNameLevel2": "vpo-si",
  *        "wpInfra": true,
  *        "userExperienceUniqueLabel": "",
  *        "categories": [
