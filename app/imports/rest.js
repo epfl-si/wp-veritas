@@ -1,4 +1,5 @@
 import MakaRest from 'meteor/maka:rest';
+import { match } from 'path-to-regexp';
 
 export const RESTError = (status, message, statusCode = 404) => {
   this.statusCode = statusCode;
@@ -14,9 +15,22 @@ export const REST = new MakaRest({
 
 const addRouteOrig = REST.addRoute.bind(REST);
 
-REST.addRoute = function(name, options) {
-  async function get (...args) {
-    const result = await options.get.apply(this, args);
+REST.addRoute = function(path, options) {
+  let matcher;
+  if (path.includes('/:')) {
+    matcher = match(`/api/v1/${path}`);
+  }
+  async function get (params) {
+    const matched = {};
+    if (matcher && params.request && params.request.originalUrl) {
+      const matched = matcher(params.request.originalUrl);
+      if (matched) {
+        params.urlParams = matched.params;
+      } else {
+        console.error(`Failed to match ${params.request.originalUrl} with ${path}`);
+      }
+    }
+    const result = await options.get.call(this, params);
     if (result instanceof RESTError) {
       return result;
     } else {
@@ -27,5 +41,5 @@ REST.addRoute = function(name, options) {
     }
   }
 
-  addRouteOrig(name, { authRequired: false }, { get });
+  addRouteOrig(path, { authRequired: false }, { get });
 };

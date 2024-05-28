@@ -57,7 +57,7 @@ REST.addRoute(
   {
     get: async function ({ urlParams }) {
       try {
-        result = await Categories.findOneAsync({ name: urlParams.name });
+        return await Categories.findOneAsync({ name: urlParams.name });
         if (!result) {
           throw "result undefined";
         }
@@ -66,7 +66,6 @@ REST.addRoute(
         let msg = `This category "${urlParams.name}" is unknown. Use api/v1/categories to list them.`;
         return new RESTError("CategoryNotFound", msg);
       }
-      return result;
     },
   }
 );
