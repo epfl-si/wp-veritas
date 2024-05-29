@@ -2,11 +2,13 @@ FROM ubuntu:focal
 
 ENV METEOR_VERSION=3.0-rc.2
 
-RUN apt -qy update && apt -qy install curl build-essential python3
+RUN apt -qy update && apt -qy install curl build-essential python3 git
 RUN curl https://install.meteor.com/?release=$METEOR_VERSION | bash -e -x
 
 COPY ./app /usr/src/app/
 WORKDIR /usr/src/app/
+RUN set -e -x; rm -rf packages/; mkdir packages; cd packages; \
+    git clone -b update-to-async https://@github.com/sebastianspiller/meteor-synced-cron
 RUN meteor npm i
 RUN BROWSERSLIST_IGNORE_OLD_DATA=1 meteor build --allow-superuser /usr --directory
 RUN cd /usr/bundle/programs/server && meteor npm install
