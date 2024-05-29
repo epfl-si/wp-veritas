@@ -26,6 +26,7 @@ alexwine:bootstrap-4          # bootstrap 4
 peppelg:bootstrap-3-modal     # bootstrap 3 modal but works with bootstrap 4
 react-meteor-data
 maka:rest                     # REST APIs
+jam:method
 check                         # Check mongoDB schema — Not just for tests
 epfl:accounts-tequila
 harrison:papa-parse       # Export CSV

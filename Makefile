@@ -54,12 +54,12 @@ print-env: check-env
 	@echo "MOCHA_TIMEOUT=${MOCHA_TIMEOUT}"
 
 .PHONY: meteor
-meteor: check-env app/packages/meteor-synced-cron
+meteor: check-env app/packages/meteor-synced-cron app/packages/method
 	@echo '**** Start meteor: ****'
 	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST WP_VERITAS_AWX_TOKEN=$$AWX_TOKEN meteor --settings meteor-settings.json
 
 .PHONY: test
-test: check-env app/packages/meteor-synced-cron
+test: check-env app/packages/meteor-synced-cron app/packages/method
 	@echo '**** Run test: ****'
 	@cd app; env MOCHA_TIMEOUT=$$MOCHA_TIMEOUT WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha --port 3888
 
@@ -192,6 +192,10 @@ publish:
 app/packages/meteor-synced-cron:
 	@mkdir -p $(dir $@) || true
 	cd $(dir $@); git clone -b update-to-async git@github.com:sebastianspiller/meteor-synced-cron.git
+
+app/packages/method:
+	@mkdir -p $(dir $@) || true
+	cd $(dir $@); git clone -b feature/meteor-3-0-compat git@github.com:epfl-si/meteor-method.git
 
 ################################################################################
 # Targets for development purpose only                                         #
