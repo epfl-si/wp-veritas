@@ -139,12 +139,12 @@ if (Meteor.isServer) {
       const context = { userId };
       const args = { siteId: site._id };
 
-      let sitesNumberBeforeRemove = await Sites.find({}).countAsync();
+      let sitesNumberBeforeRemove = await Sites.find({ isDeleted: false }).countAsync();
       assert.strictEqual(sitesNumberBeforeRemove, 1);
 
       await removeSite._execute(context, args);
 
-      let sitesNumberAfterRemove = await Sites.find({}).countAsync();
+      let sitesNumberAfterRemove = await Sites.find({ isDeleted: false }).countAsync();
       assert.strictEqual(sitesNumberAfterRemove, 0);
     });
   });
