@@ -47,9 +47,6 @@ if (Meteor.isServer) {
       let tag1 = await createTag(userId, tagArgs1);
       let tag2 = await createTag(userId, tagArgs2);
 
-      console.log(tag1);
-      console.log(tag2);
-
       let tagsNumber = await Tags.find({}).countAsync();
       assert.strictEqual(tagsNumber, 2);
 
