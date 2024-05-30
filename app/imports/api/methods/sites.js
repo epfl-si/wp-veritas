@@ -335,7 +335,7 @@ const generateSite = new VeritasValidatedMethod({
       return false;
     }
 
-    ansibleHost = generateAnsibleHostPattern(site);
+    const ansibleHost = generateAnsibleHostPattern(site);
 
     if (ansibleHost === "") {
       debug('generateSite(): ansibleHost === ""');
