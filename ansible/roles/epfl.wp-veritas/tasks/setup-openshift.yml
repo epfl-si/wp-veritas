@@ -109,3 +109,25 @@
           port: 80
           protocol: TCP
           targetPort: 3000
+
+- name: wp-veritas Route
+  openshift:
+    state: latest
+    apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      labels:
+        epfl.ch/visibility: public
+      name: wp-veritas
+      namespace: "{{ openshift_namespace }}"
+    spec:
+      host: "{{ twelvefactor[inventory_environment].hostname }}"
+      port:
+        targetPort: http
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wp-veritas
+        weight: 100
+      wildcardPolicy: None
