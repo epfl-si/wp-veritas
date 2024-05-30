@@ -91,3 +91,21 @@
       namespace=openshift_namespace, resource_name="wp-veritas") }}
     _existing_image: >-
       {{ _existing_deployment[0].spec.template.spec.containers[0].image | default(None) }}
+
+- name: wp-veritas Service
+  openshift:
+    state: latest
+    apiVersion: v1
+    kind: Service
+    metadata:
+      name: wp-veritas
+      namespace: "{{ openshift_namespace }}"
+    spec:
+      type: ClusterIP
+      selector:
+        app: wp-veritas
+      ports:
+        - name: http
+          port: 80
+          protocol: TCP
+          targetPort: 3000
