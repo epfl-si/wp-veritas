@@ -66,7 +66,7 @@
             - name: WP_VERITAS_AWX_URL
               value: "{{ twelvefactor[inventory_environment].WP_VERITAS_AWX_URL }}"
             - name: ROOT_URL
-              value: "{{ twelvefactor[inventory_environment].ROOT_URL }}"
+              value: "https://{{ twelvefactor[inventory_environment].hostname }}"
             - name: DEBUG
               value: >-
                 {{ "-" if inventory_environment == "prod" else "*" }}
