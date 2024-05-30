@@ -1,0 +1,49 @@
+- name: wp-veritas Deployment
+  openshift:
+    state: latest
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      annotations:
+        image.openshift.io/triggers: "{{ [ _trigger ] | to_json }}"
+      labels:
+        app: wp-veritas
+      name: wp-veritas
+      namespace: "{{ openshift_namespace }}"
+    spec:
+      replicas: >-
+        {{ 2 if openshift_namespace == "wwp" else 1 }}
+      selector:
+        matchLabels:
+          app: wp-veritas
+      template:
+        metadata:
+          labels:
+            app: wp-veritas
+        spec:
+          containers:
+          - name: meteor
+            image: "{{ wp_veritas_image_tag }}"
+            env:
+            - name: WP_VERITAS_AWX_URL
+              value: "{{ twelvefactor[openshift_namespace].WP_VERITAS_AWX_URL }}"
+            - name: ROOT_URL
+              value: "{{ twelvefactor[openshift_namespace].ROOT_URL }}"
+            - name: DEBUG
+              value: "{{ twelvefactor[openshift_namespace].DEBUG }}"
+            - name: PORT
+              value: "3000"
+            envFrom:
+            - secretRef:
+                name: wp-veritas
+            imagePullPolicy: Always
+            ports:
+            - containerPort: 3000
+              protocol: TCP
+  vars:
+    _trigger:
+      fieldPath: 'spec.template.spec.containers[?(@.name=="meteor")].image'
+      from:
+        kind: ImageStreamTag
+        name: >-
+          wp-veritas:{{ "prod" if openshift_namespace == "wwp" else "latest" }}
