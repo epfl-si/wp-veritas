@@ -328,7 +328,7 @@ const generateSite = new VeritasValidatedMethod({
 
     if (! Meteor.isServer) return;
 
-    let site = Sites.findOne({ _id: siteId });
+    let site = await Sites.findOneAsync({ _id: siteId });
 
     if (!site.wpInfra) {
       debug('generateSite(): !site.wpInfra');
@@ -360,7 +360,7 @@ const generateSite = new VeritasValidatedMethod({
     debug(`callResponse: ${JSON.stringify(callResponse)}`);
     job_id = callResponse.data.job;
 
-    const user = Meteor.users.findOne({ _id: this.userId });
+    const user = await Meteor.users.findOneAsync({ _id: this.userId });
     let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
     Telegram.sendMessage(defaultMsgNormalization, /*preview=*/false, /*notification=*/false);
 
@@ -426,9 +426,9 @@ const removePermanentlySite = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     siteId: { type: String },
   }).validator(),
-  run({ siteId }) {
-    let site = Sites.findOne({ _id: siteId });
-    Sites.remove({ _id: siteId });
+  async run({ siteId }) {
+    let site = await Sites.findOneAsync({ _id: siteId });
+    await Sites.removeAsync({ _id: siteId });
     AppLogger.getLog().info(
       `Delete permanently site ID ${siteId}`,
       { before: site, after: "" },
@@ -474,15 +474,15 @@ const associateProfessorsToSite = new VeritasValidatedMethod({
       sitesWPInfraOutsideSchema.validate(site);
     }
   },
-  run({ site, professors }) {
+  async run({ site, professors }) {
     let siteDocument = {
       professors: professors,
     };
 
-    let siteBeforeUpdate = Sites.findOne({ _id: site._id });
-    Sites.update({ _id: site._id }, { $set: siteDocument });
+    let siteBeforeUpdate = await Sites.findOneAsync({ _id: site._id });
+    await Sites.updateAsync({ _id: site._id }, { $set: siteDocument });
 
-    let updatedSite = Sites.findOne({ _id: site._id });
+    let updatedSite = await Sites.findOneAsync({ _id: site._id });
 
     AppLogger.getLog().info(
       `Associate professors to site with ID ${site._id}`,
