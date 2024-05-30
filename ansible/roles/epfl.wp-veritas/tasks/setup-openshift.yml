@@ -23,7 +23,8 @@
         spec:
           containers:
           - name: meteor
-            image: "{{ wp_veritas_image_tag }}"
+            image: "{{ _existing_image if _existing_image != None
+                       else wp_veritas_image_tag }}"
             env:
             - name: WP_VERITAS_AWX_URL
               value: "{{ twelvefactor[openshift_namespace].WP_VERITAS_AWX_URL }}"
@@ -47,3 +48,8 @@
         kind: ImageStreamTag
         name: >-
           wp-veritas:{{ "prod" if openshift_namespace == "wwp" else "latest" }}
+    _existing_deployment: >-
+      {{ query('kubernetes.core.k8s', kind="Deployment",
+      namespace=openshift_namespace, resource_name="wp-veritas") }}
+    _existing_image: >-
+      {{ _existing_deployment[0].spec.template.spec.containers[0].image | default(None) }}
