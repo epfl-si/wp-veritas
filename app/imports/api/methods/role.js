@@ -1,4 +1,5 @@
 import { checkUserAndRole } from "./utils";
+import { createMethod } from 'meteor/jam:method'
 
 /**
  * Cette classe a pour but de rendre obligatoire la vérification
@@ -6,26 +7,35 @@ import { checkUserAndRole } from "./utils";
  *
  * Pour cela, on ajoute à la méthode validate la vérification de l'utilisateur
  */
-class VeritasValidatedMethod extends ValidatedMethod {
+class VeritasValidatedMethod {
   constructor(args) {
-    const validateOrig = args.validate;
-    args.validate = function () {
-      args.role.check(this.userId, args.name);
-      return validateOrig.apply(this, arguments);
-    };
-    super(args);
+    const runOrig = args.run;
+
+    async function run (params) {
+      await args.role.check(this.userId, args.name);
+      return await runOrig.call(this, params);
+    }
+    const ret = createMethod({ ...args, run });
+
+    // For tests only:
+    ret._execute = async function(context, params) {
+      await args.validate.call(undefined, params);
+      return await run.call(context, params);
+    }
+
+    return ret;
   }
 }
 
 class Admin {
-  static check(userId, methodName) {
-    checkUserAndRole(userId, ["admin"], `Only admins can ${methodName}`);
+  static async check(userId, methodName) {
+    await checkUserAndRoleAsync(userId, ["admin"], `Only admins can ${methodName}`);
   }
 }
 
 class Editor {
-  static check(userId, methodName) {
-    checkUserAndRole(
+  static async check(userId, methodName) {
+    await checkUserAndRoleAsync(
       userId,
       ["admin", "tags-editor"],
       `Only admins or editors can ${methodName}.`

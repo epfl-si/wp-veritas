@@ -5,26 +5,28 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Editor } from "./role";
 
-checkUniqueTagName = (newTag, action) => {
+const checkUniqueTagName = async (newTag, action) => {
   if (action === "insert") {
-    if (Tags.find({ name_fr: newTag.name_fr }).count() > 0) {
+    if (await Tags.find({ name_fr: newTag.name_fr }).countAsync() > 0) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
     }
-    if (Tags.find({ name_en: newTag.name_en }).count() > 0) {
+    if (await Tags.find({ name_en: newTag.name_en }).countAsync() > 0) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
   } else if (action === "update") {
-    let frTags = Tags.find({ name_fr: newTag.name_fr });
+    const frTags = Tags.find({ name_fr: newTag.name_fr });
+    const frTagsCount = await frTags.countAsync();
     if (
-      frTags.count() > 1 ||
-      (frTags.count() == 1 && frTags.fetch()[0]._id != newTag._id)
+      frTagsCount > 1 ||
+      (frTagsCount == 1 && (await frTags.fetchAsync())[0]._id != newTag._id)
     ) {
       throwMeteorError("name_fr", "Nom [FR] du type existe déjà !");
     }
-    let enTags = Tags.find({ name_en: newTag.name_en });
+    const enTags = await Tags.find({ name_en: newTag.name_en });
+    const enTagsCount = await enTags.countAsync();
     if (
-      enTags.count() > 1 ||
-      (enTags.count() == 1 && enTags.fetch()[0]._id != newTag._id)
+      enTagsCount > 1 ||
+      (enTagsCount == 1 && (await enTags.fetchAsync())[0]._id != newTag._id)
     ) {
       throwMeteorError("name_en", "Nom [EN] du type existe déjà !");
     }
@@ -34,11 +36,11 @@ checkUniqueTagName = (newTag, action) => {
 const insertTag = new VeritasValidatedMethod({
   name: "insertTag",
   role: Editor,
-  validate(newTag) {
-    checkUniqueTagName(newTag, "insert");
+  async validate(newTag) {
+    await checkUniqueTagName(newTag, "insert");
     tagSchema.validate(newTag);
   },
-  run(newTag) {
+  async run(newTag) {
     let newTagDocument = {
       name_fr: newTag.name_fr,
       name_en: newTag.name_en,
@@ -47,7 +49,7 @@ const insertTag = new VeritasValidatedMethod({
       type: newTag.type,
     };
 
-    let newTagAfterInsert = Tags.insert(newTagDocument);
+    let newTagAfterInsert = await Tags.insertAsync(newTagDocument);
 
     AppLogger.getLog().info(
       `Insert tag ID ${newTagAfterInsert._id}`,
@@ -62,11 +64,11 @@ const insertTag = new VeritasValidatedMethod({
 const updateTag = new VeritasValidatedMethod({
   name: "updateTag",
   role: Editor,
-  validate(newTag) {
-    checkUniqueTagName(newTag, "update");
+  async validate(newTag) {
+    await checkUniqueTagName(newTag, "update");
     tagSchema.validate(newTag);
   },
-  run(newTag) {
+  async run(newTag) {
     let newTagDocument = {
       name_fr: newTag.name_fr,
       name_en: newTag.name_en,
@@ -75,11 +77,11 @@ const updateTag = new VeritasValidatedMethod({
       type: newTag.type,
     };
 
-    let tagBeforeUpdate = Tags.findOne({ _id: newTag._id });
+    let tagBeforeUpdate = await Tags.findOneAsync({ _id: newTag._id });
 
-    Tags.update({ _id: newTag._id }, { $set: newTagDocument });
+    await Tags.updateAsync({ _id: newTag._id }, { $set: newTagDocument });
 
-    let updatedTag = Tags.findOne({ _id: newTag._id });
+    let updatedTag = await Tags.findOneAsync({ _id: newTag._id });
 
     AppLogger.getLog().info(
       `Update tag ID ${newTag._id}`,
@@ -88,18 +90,18 @@ const updateTag = new VeritasValidatedMethod({
     );
 
     // we need update all sites that have this updated tag
-    let sites = Sites.find({}).fetch();
-    sites.forEach(function (site) {
-      newTags = [];
-      site.tags.forEach(function (currentTag) {
+    let sites = await Sites.find({}).fetchAsync();
+    for (const site of sites) {
+      const newTags = [];
+      for (const currentTag of site.tags) {
         if (currentTag._id === newTag._id) {
           // we want update this tag of current site
           newTags.push(newTag);
         } else {
           newTags.push(currentTag);
         }
-      });
-      Sites.update(
+      }
+      await Sites.updateAsync(
         { _id: site._id },
         {
           $set: {
@@ -107,7 +109,7 @@ const updateTag = new VeritasValidatedMethod({
           },
         }
       );
-    });
+    };
   },
 });
 
@@ -117,10 +119,10 @@ const removeTag = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     tagId: { type: String },
   }).validator(),
-  run({ tagId }) {
-    let tagBeforeDelete = Tags.findOne({ _id: tagId });
+  async run({ tagId }) {
+    let tagBeforeDelete = await Tags.findOneAsync({ _id: tagId });
 
-    Tags.remove({ _id: tagId });
+    await Tags.removeAsync({ _id: tagId });
 
     AppLogger.getLog().info(
       `Remove tag ID ${tagId}`,
@@ -129,17 +131,17 @@ const removeTag = new VeritasValidatedMethod({
     );
 
     // we need update all sites that have this deleted tag
-    let sites = Sites.find({}).fetch();
-    sites.forEach(function (site) {
-      newTags = [];
-      site.tags.forEach((tag) => {
+    let sites = await Sites.find({}).fetchAsync();
+    for (const site of sites) {
+      const newTags = [];
+      for (const tag of site.tags) {
         if (tag._id === tagId) {
           // we want delete this tag of current site
         } else {
           newTags.push(tag);
         }
-      });
-      Sites.update(
+      }
+      await Sites.updateAsync(
         { _id: site._id },
         {
           $set: {
@@ -147,7 +149,7 @@ const removeTag = new VeritasValidatedMethod({
           },
         }
       );
-    });
+    }
   },
 });
 

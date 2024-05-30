@@ -5,8 +5,8 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Admin } from "./role";
 
-checkUniqueOpenshiftEnvName = (openshiftEnv) => {
-  if (OpenshiftEnvs.find({ name: openshiftEnv.name }).count() > 0) {
+const checkUniqueOpenshiftEnvName = async (openshiftEnv) => {
+  if (await OpenshiftEnvs.find({ name: openshiftEnv.name }).countAsync() > 0) {
     throwMeteorError("name", "Cet environnement openshift existe déjà !");
   }
 };
@@ -14,17 +14,17 @@ checkUniqueOpenshiftEnvName = (openshiftEnv) => {
 const insertOpenshiftEnv = new VeritasValidatedMethod({
   name: "insertOpenshiftEnv",
   role: Admin,
-  validate(newOpenshiftEnv) {
-    checkUniqueOpenshiftEnvName(newOpenshiftEnv);
+  async validate(newOpenshiftEnv) {
+    await checkUniqueOpenshiftEnvName(newOpenshiftEnv);
     openshiftEnvsSchema.validate(newOpenshiftEnv);
   },
-  run(newOpenshiftEnv) {
+  async run(newOpenshiftEnv) {
     let openshiftEnvDocument = {
       name: newOpenshiftEnv.name,
     };
 
-    let newOpenshiftEnvId = OpenshiftEnvs.insert(openshiftEnvDocument);
-    let newOpenshiftEnvAfterInsert = OpenshiftEnvs.findOne({
+    let newOpenshiftEnvId = await OpenshiftEnvs.insertAsync(openshiftEnvDocument);
+    let newOpenshiftEnvAfterInsert = await OpenshiftEnvs.findOneAsync({
       _id: newOpenshiftEnvId,
     });
 
@@ -44,9 +44,9 @@ const removeOpenshiftEnv = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     openshiftEnvId: { type: String },
   }).validator(),
-  run({ openshiftEnvId }) {
-    let openshiftEnv = OpenshiftEnvs.findOne({ _id: openshiftEnvId });
-    OpenshiftEnvs.remove({ _id: openshiftEnvId });
+  async run({ openshiftEnvId }) {
+    let openshiftEnv = await OpenshiftEnvs.findOneAsync({ _id: openshiftEnvId });
+    await OpenshiftEnvs.removeAsync({ _id: openshiftEnvId });
 
     AppLogger.getLog().info(
       `Delete openshiftEnv ID ${openshiftEnvId}`,

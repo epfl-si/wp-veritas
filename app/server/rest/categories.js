@@ -1,5 +1,6 @@
 import { Categories, Sites } from "../../imports/api/collections";
-import { Api, APIError, formatSiteCategories } from "./utils";
+import { formatSiteCategories } from "./utils";
+import { REST, RESTError } from "../../imports/rest";
 
 /**
  * @api {get} /categories  Get all categories
@@ -17,12 +18,11 @@ import { Api, APIError, formatSiteCategories } from "./utils";
  *       ...,
  *     ]
  */
-Api.addRoute(
+REST.addRoute(
   "categories",
-  { authRequired: false },
   {
-    get: function () {
-      return Categories.find({}).fetch();
+    get: async function() {
+      return await Categories.find({}).fetchAsync();
     },
   }
 );
@@ -52,22 +52,20 @@ Api.addRoute(
  *       "message": "This category \"inside\" is unknown. Use api/v1/categories to list them."
  *     }
  */
-Api.addRoute(
+REST.addRoute(
   "categories/:name",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function ({ urlParams }) {
       try {
-        result = Categories.findOne({ name: this.urlParams.name });
+        return await Categories.findOneAsync({ name: urlParams.name });
         if (!result) {
           throw "result undefined";
         }
       } catch (error) {
         console.log(error);
-        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
-        return APIError("CategoryNotFound", msg);
+        let msg = `This category "${urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return new RESTError("CategoryNotFound", msg);
       }
-      return result;
     },
   }
 );
@@ -104,7 +102,7 @@ Api.addRoute(
  *        "tags": [],
  *        "userExperience": false,
  *        "unitName": "exheb",
- *        "unitNameLevel2": "si",
+ *        "unitNameLevel2": "vpo-si",
  *        "wpInfra": true,
  *        "userExperienceUniqueLabel": "",
  *        "categories": [
@@ -124,24 +122,23 @@ Api.addRoute(
  *       "message": "This category \"inside\" is unknown. Use api/v1/categories to list them."
  *     }
  */
-Api.addRoute(
+REST.addRoute(
   "categories/:name/sites",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ urlParams }) {
       let categoryName;
       try {
-        categoryName = Categories.findOne({ name: this.urlParams.name }).name;
+        categoryName = (await Categories.findOneAsync({ name: urlParams.name })).name;
       } catch (error) {
         console.log(error);
-        let msg = `This category "${this.urlParams.name}" is unknown. Use api/v1/categories to list them.`;
-        return APIError("CategoryNotFound", msg);
+        let msg = `This category "${urlParams.name}" is unknown. Use api/v1/categories to list them.`;
+        return new RESTError("CategoryNotFound", msg);
       }
       return formatSiteCategories(
-        Sites.find({
+        await Sites.find({
           isDeleted: false,
           categories: { $elemMatch: { name: categoryName } },
-        }).fetch()
+        }).fetchAsync()
       );
     },
   }

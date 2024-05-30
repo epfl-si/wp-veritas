@@ -1,6 +1,7 @@
 import { Sites } from "../../imports/api/collections";
-import { Api, formatSiteCategories, generateAnsibleHostPattern } from "./utils";
-import getUnits from "../units";
+import { REST }  from "../../imports/rest";
+import { formatSiteCategories, generateAnsibleHostPattern } from "./utils";
+import { getUnits } from "../units";
 
 /**
  * @api {get} /sites  Get all active sites (isDeleted: false)
@@ -25,7 +26,7 @@ import getUnits from "../units";
  *         ],
  *         "unitId": "13031",
  *         "unitName": "idev-ing",
- *         "unitNameLevel2": "si",
+ *         "unitNameLevel2": "vpo-si",
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
@@ -67,38 +68,36 @@ import getUnits from "../units";
 // and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
-Api.addRoute(
+REST.addRoute(
   "sites",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ queryParams }) {
       // is that a id request from an url ?
-      var query = this.queryParams;
-      if (query && this.queryParams.site_url) {
-        let siteUrl = this.queryParams.site_url;
+      if (queryParams && queryParams.site_url) {
+        let siteUrl = queryParams.site_url;
         if (!(siteUrl.endsWith("/"))) {
           siteUrl = siteUrl + "/"
         }
-        return formatSiteCategories(Sites.find({ isDeleted: false, url: siteUrl }).fetch());
-      } else if (query && this.queryParams.search_url) {
+        return formatSiteCategories(await Sites.find({ isDeleted: false, url: siteUrl }).fetchAsync());
+      } else if (queryParams && queryParams.search_url) {
         return formatSiteCategories(
-          Sites.find({
+          await Sites.find({
             isDeleted: false,
-            url: { $regex: this.queryParams.search_url, $options: "-i" },
-          }).fetch()
+            url: { $regex: queryParams.search_url, $options: "-i" },
+          }).fetchAsync()
         );
-      } else if (query && (this.queryParams.text || this.queryParams.tags)) {
-        if (this.queryParams.tags && !Array.isArray(this.queryParams.tags)) {
-          this.queryParams.tags = [this.queryParams.tags];
+      } else if (queryParams && (queryParams.text || queryParams.tags)) {
+        if (queryParams.tags && !Array.isArray(queryParams.tags)) {
+          queryParams.tags = [queryParams.tags];
         }
-        let sites = Sites.tagged_search(this.queryParams.text, this.queryParams.tags);
+        let sites = Sites.tagged_search(queryParams.text, queryParams.tags);
         return formatSiteCategories(sites);
-      } else if (query && this.queryParams.tagged) {
+      } else if (queryParams && queryParams.tagged) {
         let sites = Sites.tagged_search();
         return formatSiteCategories(sites);
       } else {
         // nope, we are here for all the sites data
-        let sites = Sites.find({ isDeleted: false }).fetch();
+        let sites = await Sites.find({ isDeleted: false }).fetchAsync();
         for (let site of sites) {
           site["ansibleHost"] = generateAnsibleHostPattern(site);
         }
@@ -131,7 +130,7 @@ Api.addRoute(
  *         ],
  *         "unitId": "13031",
  *         "unitName": "idev-ing",
- *         "unitNameLevel2": "si",
+ *         "unitNameLevel2": "vpo-si",
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
@@ -152,12 +151,11 @@ Api.addRoute(
  *     }
  *
  */
-Api.addRoute(
+REST.addRoute(
   "inventory/entries",
-  { authRequired: false },
   {
-    get: function () {
-      let sites = Sites.find({}).fetch();
+    get: async function() {
+      let sites = await Sites.find({}).fetchAsync();
       for (let site of sites) {
         site["ansibleHost"] = generateAnsibleHostPattern(site);
       }
@@ -212,7 +210,7 @@ Api.addRoute(
  *       ],
  *       "unitId": "13031",
  *       "unitName": "idev-ing",
- *       "unitNameLevel2": "si",
+ *       "unitNameLevel2": "vpo-si",
  *       "snowNumber": "",
  *       "comment": "Site canari pour tester l'image",
  *       "createdDate": "2020-03-05T09:52:06.310Z",
@@ -235,16 +233,15 @@ Api.addRoute(
  *     }
  */
 // Maps to: /api/v1/sites/:ansibleHost
-Api.addRoute(
+REST.addRoute(
   "inventory/entries/:ansibleHost",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ urlParams }) {
       let currentSite;
-      let sites = Sites.find({}).fetch();
+      let sites = await Sites.find({}).fetchAsync();
       for (let site of sites) {
         let ansibleHost = generateAnsibleHostPattern(site);
-        if (ansibleHost === this.urlParams.ansibleHost) {
+        if (ansibleHost === urlParams.ansibleHost) {
           site.ansibleHost = ansibleHost;
           currentSite = site;
           break;
@@ -300,7 +297,7 @@ Api.addRoute(
  *       ],
  *       "unitId": "13031",
  *       "unitName": "idev-ing",
- *       "unitNameLevel2": "si",
+ *       "unitNameLevel2": "vpo-si",
  *       "snowNumber": "",
  *       "comment": "Site canari pour tester l'image",
  *       "createdDate": "2020-03-05T09:52:06.310Z",
@@ -320,26 +317,16 @@ Api.addRoute(
  *     }
  */
 // Maps to: /api/v1/sites/:id
-Api.addRoute(
+REST.addRoute(
   "sites/:id",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ urlParams }) {
       // @TODO: error if ID Not Found
-      return formatSiteCategories(Sites.findOne(this.urlParams.id));
+      return formatSiteCategories(await Sites.findOneAsync(urlParams.id));
     },
   }
 );
 
-/*
-  // Maps to: /api/v1/sites/:title/tags
-  Api.addRoute('sites-by-title/:title/tags', {authRequired: false}, {
-    get: function () {
-      let site = Sites.findOne({title: this.urlParams.title});
-      return site.tags;
-    }
-  });
-  */
 /**
  * @api {get} /sites/:id/tags    Get tags by site ID
  * @apiGroup Sites
@@ -383,13 +370,12 @@ Api.addRoute(
  *     }
  */
 // Maps to: /api/v1/sites/:id/tags
-Api.addRoute(
+REST.addRoute(
   "sites/:id/tags",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ urlParams }) {
       // @TODO: SiteNotFound
-      let site = Sites.findOne(this.urlParams.id);
+      let site = await Sites.findOneAsync(urlParams.id);
       return site.tags;
     },
   }
@@ -400,16 +386,15 @@ Api.addRoute(
  * @apiGroup Sites
  */
 // Maps to: /api/v1/sites/wp-admin/:sciper
-Api.addRoute(
+REST.addRoute(
   "sites/wp-admin/:sciper",
-  { authRequired: false },
   {
-    get: function () {
+    get: async function({ urlParams }) {
       // Get units of sciper
-      let units = getUnits(this.urlParams.sciper);
+      let units = await getUnits(urlParams.sciper);
 
       // Get all sites whose unit is present in 'units'
-      let sites = Sites.find({ unitId: { $in: units } }).fetch();
+      let sites = await Sites.find({ unitId: { $in: units } }).fetchAsync();
 
       // Create an array with only wp-admin URL
       admins = [];
@@ -466,18 +451,17 @@ Api.addRoute(
  *     }
  */
 // Maps to: /api/v1/sites-with-tags-en/:tag1/:tag2
-Api.addRoute(
+REST.addRoute(
   "sites-with-tags-en/:tag1/:tag2",
-  { authRequired: false },
   {
-    get: function () {
-      let tag1 = this.urlParams.tag1.toUpperCase();
-      let tag2 = this.urlParams.tag2.toUpperCase();
-      let sites = Sites.find({
+    get: async function({ uriParams }) {
+      let tag1 = urlParams.tag1.toUpperCase();
+      let tag2 = urlParams.tag2.toUpperCase();
+      let sites = await Sites.find({
         isDeleted: false,
         "tags.name_en": tag1,
         "tags.name_en": tag2,
-      }).fetch();
+      }).fetchAsync();
       return formatSiteCategories(sites);
     },
   }
@@ -527,18 +511,17 @@ Api.addRoute(
  *     }
  */
 // Maps to: /api/v1/sites-with-tags-fr/:tag1/:tag2
-Api.addRoute(
+REST.addRoute(
   "sites-with-tags-fr/:tag1/:tag2",
-  { authRequired: false },
   {
-    get: function () {
-      let tag1 = this.urlParams.tag1.toUpperCase();
-      let tag2 = this.urlParams.tag2.toUpperCase();
-      let sites = Sites.find({
+    get: async function({ urlParams }) {
+      let tag1 = urlParams.tag1.toUpperCase();
+      let tag2 = urlParams.tag2.toUpperCase();
+      let sites = await Sites.find({
         isDeleted: false,
         "tags.name_fr": tag1,
         "tags.name_fr": tag2,
-      }).fetch();
+      }).fetchAsync();
       return formatSiteCategories(sites);
     },
   }

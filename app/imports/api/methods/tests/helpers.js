@@ -1,9 +1,9 @@
 import { Sites } from "../../collections";
 import { insertSite } from "../sites";
 
-function getSitesByTag(tag) {
+async function getSitesByTag(tag) {
   let sitesByTag = [];
-  let sites = Sites.find({}).fetch();
+  let sites = await Sites.find({}).fetchAsync();
   sites.forEach((site) => {
     site.tags.forEach((currentTag) => {
       if (currentTag._id === tag._id) {
@@ -14,9 +14,9 @@ function getSitesByTag(tag) {
   return sitesByTag;
 }
 
-function getSitesByProfessor(professor) {
+async function getSitesByProfessor(professor) {
   let sitesByProfessor = [];
-  let sites = Sites.find({}).fetch();
+  let sites = await Sites.find({}).fetchAsync();
   sites.forEach((site) => {
     site.professors.forEach((currentProfessor) => {
       if (currentProfessor._id === professor._id) {
@@ -27,7 +27,7 @@ function getSitesByProfessor(professor) {
   return sitesByProfessor;
 }
 
-function createSite(userId, categories, tags, professors) {
+async function createSite(userId, categories, tags, professors) {
   const context = { userId };
   const args = {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
@@ -38,8 +38,8 @@ function createSite(userId, categories, tags, professors) {
     theme: "wp-theme-2018",
     languages: ["en", "fr"],
     unitId: "13030",
-    unitName: "IDEV-FSD",
-    unitNameLevel2: "SI",
+    unitName: "ISAS-FSD",
+    unitNameLevel2: "VPO-SI",
     snowNumber: "42",
     comment: "Vin nature par excellence !",
     createdDate: new Date(),
@@ -49,7 +49,7 @@ function createSite(userId, categories, tags, professors) {
     professors: professors,
     wpInfra: true,
   };
-  insertSite._execute(context, args);
+  await insertSite._execute(context, args);
 }
 
 export { getSitesByTag, getSitesByProfessor, createSite };

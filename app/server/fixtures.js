@@ -1,16 +1,16 @@
-loadRolesFixtures = () => {
+import { Roles } from "meteor/alanning:roles";
+
+const loadRolesFixtures = async () => {
   const roles = ['admin', 'tags-editor', 'epfl-member'];
-  roles.forEach(
-    role => {
-      Roles.createRole(role);
-    }
-  )
+  for (const role of roles) {
+      await Roles.createRoleAsync(role);
+  }
 }
 
-loadFixtures = () => {
-  if (Meteor.roles.find({}).count() == 0) {
+const loadFixtures = async () => {
+  if ((await Roles.getAllRoles().countAsync()) == 0) {
       console.log("    …importing roles");
-      loadRolesFixtures();
+      await loadRolesFixtures();
   } else {
       console.log("Roles already exist");
   }

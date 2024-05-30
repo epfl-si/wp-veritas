@@ -5,8 +5,8 @@ import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
 import { VeritasValidatedMethod, Editor } from "./role";
 
-checkUniqueSciper = (professor) => {
-  if (Professors.find({ sciper: professor.sciper }).count() > 0) {
+const checkUniqueSciper = async (professor) => {
+  if (Professors.find({ sciper: professor.sciper }).countAsync() > 0) {
     throwMeteorError(
       "sciper",
       "Un professeur avec le même sciper existe déjà !"
@@ -17,17 +17,17 @@ checkUniqueSciper = (professor) => {
 const insertProfessor = new VeritasValidatedMethod({
   name: "insertProfessor",
   role: Editor,
-  validate(newProfessor) {
-    checkUniqueSciper(newProfessor, "insert");
+  async validate(newProfessor) {
+    await checkUniqueSciper(newProfessor, "insert");
     professorSchema.validate(newProfessor);
   },
-  run(newProfessor) {
+  async run(newProfessor) {
     let professorDocument = {
       sciper: newProfessor.sciper,
       displayName: newProfessor.displayName,
     };
-    let newProfessorId = Professors.insert(professorDocument);
-    let newProfessorAfterInsert = Professors.findOne({ _id: newProfessorId });
+    let newProfessorId = await Professors.insertAsync(professorDocument);
+    let newProfessorAfterInsert = await Professors.findOneAsync({ _id: newProfessorId });
     AppLogger.getLog().info(
       `Insert professor ID ${newProfessorId}`,
       { before: "", after: newProfessorAfterInsert },
@@ -43,10 +43,10 @@ const removeProfessor = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     professorId: { type: String },
   }).validator(),
-  run({ professorId }) {
-    let professor = Professors.findOne({ _id: professorId });
+  async run({ professorId }) {
+    let professor = await Professors.findOneAsync({ _id: professorId });
 
-    Professors.remove({ _id: professorId });
+    await Professors.removeAsync({ _id: professorId });
 
     AppLogger.getLog().info(
       `Delete professor ID ${professorId}`,
@@ -55,18 +55,19 @@ const removeProfessor = new VeritasValidatedMethod({
     );
 
     // we need update all sites that have this deleted professor
-    let sites = Sites.find({}).fetch();
-    sites.forEach(function (site) {
-      newProfessors = [];
+    let sites = await Sites.find({}).fetchAsync();
+
+    for (const site of sites) {
+      const newProfessors = [];
       if ("professors" in site) {
-        site.professors.forEach(function (professor) {
+        for (const professor of site.professors) {
           if (professor._id === professorId) {
             // we want delete this tag of current professor
           } else {
             newProfessors.push(professor);
           }
-        });
-        Sites.update(
+        }
+        await Sites.updateAsync(
           { _id: site._id },
           {
             $set: {
@@ -75,7 +76,7 @@ const removeProfessor = new VeritasValidatedMethod({
           }
         );
       }
-    });
+    }
   },
 });
 

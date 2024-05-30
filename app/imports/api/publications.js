@@ -8,6 +8,7 @@ import {
   Professors,
 } from "./collections";
 import { check } from "meteor/check";
+import { Roles } from "meteor/alanning:roles";
 
 if (Meteor.isServer) {
   Meteor.publish("sites.list", function () {
@@ -50,10 +51,6 @@ if (Meteor.isServer) {
 
   Meteor.publish("user.list", function () {
     return Meteor.users.find({});
-  });
-
-  Meteor.publish("user.roles", function () {
-    return Meteor.roles.find({});
   });
 
   Meteor.publish("log.list", function () {

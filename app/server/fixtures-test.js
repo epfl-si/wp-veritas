@@ -1,32 +1,38 @@
 import {
   Sites,
-  Tags,
+  OpenshiftEnvs,
   Categories,
+  Themes,
+  Tags,
   Professors,
+  AppLogs,
 } from "../imports/api/collections";
 import { createUser } from "../tests/helpers";
 import { insertTag } from "../imports/api/methods/tags";
 import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
+import Meteor from "meteor/meteor";
+import { Roles } from "meteor/alanning:roles";
+import MongoInternals from "meteor/mongo";
 
-createTag = (userId, args) => {
+const createTag = async (userId, args) => {
   const context = { userId };
-  idTag = insertTag._execute(context, args);
-  return Tags.findOne({ _id: idTag });
+  const idTag = await insertTag._execute(context, args);
+  return await Tags.findOneAsync({ _id: idTag });
 };
 
-loadCategoriesFixtures = () => {
-  Categories.insert({
+const loadCategoriesFixtures = async () => {
+  await Categories.insertAsync({
     name: "Inside",
   });
 
-  Categories.insert({
+  await Categories.insertAsync({
     name: "Restauration",
   });
 };
 
-loadTagsFixtures = () => {
-  let userId = createUser();
+const loadTagsFixtures = async () => {
+  let userId = await createUser();
 
   const tagArgs1 = {
     name_fr: "Beaujolais",
@@ -44,12 +50,12 @@ loadTagsFixtures = () => {
     type: "field-of-research",
   };
 
-  createTag(userId, tagArgs1);
-  createTag(userId, tagArgs2);
+  await createTag(userId, tagArgs1);
+  await createTag(userId, tagArgs2);
 };
 
-loadProfessorsFixtures = () => {
-  let userId = createUser();
+const loadProfessorsFixtures = async () => {
+  let userId = await createUser();
 
   const context = { userId };
   const args = {
@@ -57,49 +63,58 @@ loadProfessorsFixtures = () => {
     displayName: "Charmier Grégory",
   };
 
-  insertProfessor._execute(context, args);
+  await insertProfessor._execute(context, args);
 
-  Professors.findOne({ sciper: "188475" });
+  await Professors.findOneAsync({ sciper: "188475" });
 };
 
-loadSitesFixtures = () => {
-  let userId = createUser();
-  let tags = Tags.find({}).fetch();
-  let categories = Categories.find({ name: "Restauration" }).fetch();
-  let professors = Professors.find({ sciper: "188475" }).fetch();
+const loadSitesFixtures = async () => {
+  let userId = await createUser();
+  let tags = await Tags.find({}).fetchAsync();
+  let categories = await Categories.find({ name: "Restauration" }).fetchAsync();
+  let professors = await Professors.find({ sciper: "188475" }).fetchAsync();
 
   // Create site with this professor
-  createSite(userId, categories, tags, professors);
+  await createSite(userId, categories, tags, professors);
 };
 
-loadTestFixtures = () => {
-  if (Categories.find({}).count() == 0) {
+const loadTestFixtures = async () => {
+  if ((await Categories.find({}).countAsync()) == 0) {
     console.log("    …importing categories");
-    loadCategoriesFixtures();
+    await loadCategoriesFixtures();
   } else {
     console.log("Categories already exist");
   }
 
-  if (Tags.find({}).count() == 0) {
+  if ((await Tags.find({}).countAsync()) == 0) {
     console.log("    …importing tags");
-    loadTagsFixtures();
+    await loadTagsFixtures();
   } else {
     console.log("Tags already exist");
   }
 
-  if (Professors.find({}).count() == 0) {
+  if ((await Professors.find({}).countAsync()) == 0) {
     console.log("    …importing professors");
-    loadProfessorsFixtures();
+    await loadProfessorsFixtures();
   } else {
     console.log("Professors already exist");
   }
 
-  if (Sites.find({}).count() == 0) {
+  if ((await Sites.find({}).countAsync()) == 0) {
     console.log("    …importing sites");
-    loadSitesFixtures();
+    await loadSitesFixtures();
   } else {
     console.log("Sites already exist");
   }
 };
 
-export { loadTestFixtures };
+async function resetDatabase () {
+  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, Tags, Professors, AppLogs]) {
+    await c.dropCollectionAsync();
+  }
+  for (const r of await Roles.getAllRoles().fetchAsync()) {
+    await Roles.deleteRoleAsync(r._id);
+  }
+}
+
+export { loadTestFixtures, resetDatabase };

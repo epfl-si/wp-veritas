@@ -1,6 +1,5 @@
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { loadFixtures } from "../../fixtures";
-import { loadTestFixtures } from "../../fixtures-test";
+import { resetDatabase, loadTestFixtures } from "../../fixtures-test";
 
 import { endpointSites } from "./api-sites.test";
 import { endpointCategories } from "./api-categories.test";
@@ -10,11 +9,11 @@ import { endpointOpenshiftEnvs } from "./api-openshiftenvs.test";
 
 if (Meteor.isServer) {
   describe("API", () => {
-    before(() => {
+    before(async () => {
       console.log("    …reseting database");
-      resetDatabase();
-      loadFixtures();
-      loadTestFixtures();
+      await resetDatabase();
+      await loadFixtures();
+      await loadTestFixtures();
     });
 
     // Thanks to https://www.alxolr.com/articles/how-to-separate-mocha-tests-in-multiple-files

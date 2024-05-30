@@ -5,11 +5,11 @@ let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-endpointProfessors = () => {
+const endpointProfessors = () => {
   let endpoint = "/api/v1/professors";
-  it(`GET ${endpoint}`, function () {
+  it(`GET ${endpoint}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let professorId = Professors.findOne({ sciper: "188475" })._id;
+    let professorId = (await Professors.findOneAsync({ sciper: "188475" }))._id;
     let expectedResult = [
       {
         _id: professorId,
@@ -17,23 +17,20 @@ endpointProfessors = () => {
         displayName: "Charmier Grégory",
       },
     ];
-    chai
+    const res = await chai
       .request(base_url)
-      .get(endpoint)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res).to.be.ok;
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
-      });
+      .get(endpoint);
+    expect(res).to.have.status(200);
+    expect(res).to.be.ok;
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
   });
 
   let endpointTags = "/api/v1/professors/188475/tags";
-  it(`GET ${endpointTags}`, function () {
+  it(`GET ${endpointTags}`, async function () {
     let base_url = "http://localhost:" + process.env.PORT;
-    let tag1Id = Tags.findOne({ name_fr: "Beaujolais" })._id;
-    let tag2Id = Tags.findOne({ name_fr: "Vin nature" })._id;
+    let tag1Id = (await Tags.findOneAsync({ name_fr: "Beaujolais" }))._id;
+    let tag2Id = (await Tags.findOneAsync({ name_fr: "Vin nature" }))._id;
     let expectedResult = [
       {
         _id: tag1Id,
@@ -53,16 +50,13 @@ endpointProfessors = () => {
       },
     ];
 
-    chai
+    const res = await chai
       .request(base_url)
-      .get(endpointTags)
-      .end(function (err, res) {
-        expect(err).to.be.null;
-        expect(res).to.have.status(200);
-        expect(res).to.be.ok;
-        expect(res.headers["content-type"]).to.equal("application/json");
-        expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
-      });
+      .get(endpointTags);
+    expect(res).to.have.status(200);
+    expect(res).to.be.ok;
+    expect(res.headers["content-type"]).to.equal("application/json");
+    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
   });
 };
 

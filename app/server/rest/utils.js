@@ -1,14 +1,3 @@
-const APIError = (status, message, statusCode = 404) => {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Custom-Header": `${status}: ${message}`,
-    },
-    body: { status, message },
-  };
-};
-
 const _isIterable = (obj) => {
   // checks for null and undefined
   if (obj == null) {
@@ -62,11 +51,4 @@ const generateAnsibleHostPattern = (site) => {
   return result;
 };
 
-// Global API configuration
-const Api = new Restivus({
-  useDefaultAuth: true,
-  prettyJson: true,
-  version: "v1",
-});
-
-export { Api, APIError, formatSiteCategories, generateAnsibleHostPattern };
+export { formatSiteCategories, generateAnsibleHostPattern };

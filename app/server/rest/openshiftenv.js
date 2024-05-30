@@ -1,5 +1,5 @@
 import { OpenshiftEnvs } from "../../imports/api/collections";
-import { Api } from "./utils";
+import { REST } from "../../imports/rest";
 
 /**
  * @api {get} /openshiftenvs  Get all OpenShift environments
@@ -17,13 +17,12 @@ import { Api } from "./utils";
  *     ]
  */
 // Maps to: /api/v1/openshiftenvs/
-Api.addRoute(
+REST.addRoute(
     "openshiftenvs",
-    { authRequired: false },
     {
-      get: function () {
+      get: async function() {
         // @TODO: OpenShiftEnvNotFound
-        return OpenshiftEnvs.find({}).fetch();
+        return await OpenshiftEnvs.find({}).fetchAsync();
       },
     }
   );
@@ -57,13 +56,12 @@ Api.addRoute(
    *     }
    */
   // Maps to: /api/v1/openshiftenvs/:id
-  Api.addRoute(
+  REST.addRoute(
     "openshiftenvs/:id",
-    { authRequired: false },
     {
-      get: function () {
+      get: async function ({ urlParams }) {
         // @TODO: OpenShiftEnvNotFound
-        return OpenshiftEnvs.findOne(this.urlParams.id);
+        return await OpenshiftEnvs.findOneAsync(urlParams.id);
       },
     }
   );

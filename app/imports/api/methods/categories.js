@@ -7,8 +7,8 @@ import { VeritasValidatedMethod, Admin } from "./role";
 import { Sites } from "../collections";
 
 
-checkUniqueCategoryName = (category) => {
-  if (Categories.find({ name: category.name }).count() > 0) {
+const checkUniqueCategoryName = async (category) => {
+  if (await Categories.find({ name: category.name }).countAsync() > 0) {
     throwMeteorError("name", "Nom de la catégorie existe déjà !");
   }
 };
@@ -16,18 +16,18 @@ checkUniqueCategoryName = (category) => {
 const insertCategory = new VeritasValidatedMethod({
   name: "insertCategory",
   role: Admin,
-  validate(newCategory) {
-    checkUniqueCategoryName(newCategory);
+  async validate(newCategory) {
+    await checkUniqueCategoryName(newCategory);
     categoriesSchema.validate(newCategory);
   },
-  run(newCategory) {
+  async run(newCategory) {
 
     let categoryDocument = {
       name: newCategory.name,
     };
 
-    let newCategoryId = Categories.insert(categoryDocument);
-    let newCategoryAfterInsert = Categories.findOne({ _id: newCategoryId });
+    let newCategoryId = await Categories.insertAsync(categoryDocument);
+    let newCategoryAfterInsert = await Categories.findOneAsync({ _id: newCategoryId });
 
     AppLogger.getLog().info(
       `Insert category ID ${newCategory._id}`,
@@ -45,11 +45,11 @@ const removeCategory = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     categoryId: { type: String },
   }).validator(),
-  run({ categoryId }) {
+  async run({ categoryId }) {
     // Check that the category to be deleted is not used by any sites
     let sitesUsingThisCategory = Sites.find({ 'categories._id': categoryId });
-    if (0 < sitesUsingThisCategory.count()) { // if nothing found, we're happy because that means that there are no sites suing ths category !
-      let siteList = sitesUsingThisCategory.fetch(); 
+    if (0 < await sitesUsingThisCategory.countAsync()) { // if nothing found, we're happy because that means that there are no sites suing ths category !
+      let siteList = await sitesUsingThisCategory.fetchAsync();
       throwMeteorError(
         "userExperienceCategories",
         "Impossible de supprimer la catégorie, veuillez l'enlever des sites qui l'utilisent:",
@@ -57,8 +57,8 @@ const removeCategory = new VeritasValidatedMethod({
       );
     }
 
-    let category = Categories.findOne({ _id: categoryId });
-    Categories.remove({ _id: categoryId });
+    let category = await Categories.findOneAsync({ _id: categoryId });
+    await Categories.removeAsync({ _id: categoryId });
 
     AppLogger.getLog().info(
       `Delete category ID ${categoryId}`,

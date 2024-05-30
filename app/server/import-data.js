@@ -1,7 +1,7 @@
 import { sitesSchema } from "../imports/api/schemas/sitesSchema";
 import { Sites, Categories } from "../imports/api/collections";
 
-loadTestData = () => {
+const loadTestData = async () => {
   // delete all data
   const absoluteUrl = Meteor.absoluteUrl();
 
@@ -9,7 +9,7 @@ loadTestData = () => {
     absoluteUrlabsoluteUrl.startsWith("http://localhost") ||
     absoluteUrl.startsWith("https://wp-veritas.128.178.222.83.nip.io/")
   ) {
-    Sites.remove({});
+    await Sites.removeAsync({});
   }
 
   var myjson = {};
@@ -72,232 +72,34 @@ loadTestData = () => {
 
     sitesSchema.validate(siteDocument);
 
-    let newSiteId = Sites.insert(siteDocument);
+    let newSiteId = await Sites.insertAsync(siteDocument);
   }
 };
 
-deleteUnusedFields = () => {
-  let sites = Sites.find({}).fetch();
-
-  sites.forEach((site) => {
-    console.log(`Site ${site.url}`);
-    console.log("Site avant :", site);
-
-    Sites.update(
-      { _id: site._id },
-      {
-        $unset: {
-          type: "",
-          status: "",
-          plannedClosingDate: "",
-          requestedDate: "",
-          archivedDate: "",
-          trashedDate: "",
-          inPreparationDate: "",
-          noWordPressDate: "",
-        },
-      }
-    );
-
-    let siteAfter = Sites.findOne({ _id: site._id });
-    console.log("Site après : ", siteAfter);
-  });
-};
-
-cleanNoWPInfraSites = () => {
-  let sites = Sites.find({ wpInfra: false }).fetch();
-
-  sites.forEach((site) => {
-    console.log(`Site ${site.url}`);
-    console.log("Site avant :", site);
-
-    let siteDocument = {
-      openshiftEnv: "",
-      category: "",
-      theme: "",
-      languages: [],
-      unitId: "",
-    };
-
-    Sites.update({ _id: site._id }, { $set: siteDocument });
-
-    let siteAfter = Sites.findOne({ _id: site._id });
-    console.log("Site après : ", siteAfter);
-  });
-};
-
-renameSlugToUserExperienceUniqueLabel = () => {
-  let sites = Sites.find({}).fetch();
-
-  sites.forEach((site) => {
-    console.log(`Site ${site.url}`);
-    console.log("Site avant :", site);
-
-    let slug = "";
-    if ("slug" in site && site.slug) {
-      slug = site.slug;
-    }
-
-    let siteDocument = {
-      userExperienceUniqueLabel: slug,
-    };
-
-    Sites.update({ _id: site._id }, { $set: siteDocument });
-
-    let siteAfter = Sites.findOne({ _id: site._id });
-    console.log("Site après : ", siteAfter);
-  });
-};
-
-deleteSlug = () => {
-  let sites = Sites.find({}).fetch();
-
-  sites.forEach((site) => {
-    console.log(`Site ${site.url}`);
-    console.log("Site avant :", site);
-
-    Sites.update(
-      { _id: site._id },
-      {
-        $unset: {
-          slug: "",
-        },
-      }
-    );
-
-    let siteAfter = Sites.findOne({ _id: site._id });
-    console.log("Site après : ", siteAfter);
-  });
-};
-
-deleteUserProfile = () => {
-  let users = Meteor.users.find({}).fetch();
-  users.forEach((user) => {
-    Meteor.users.update({ _id: user._id }, { $unset: { profile: "" } });
-  });
-  console.log("All profiles are deleted");
-};
-
-updateRoles = () => {
-  // Drop 'roles' collection
-  Meteor.roles.rawCollection().drop();
-
-  // Delete 'roles' attribut of each user
-  let users = Meteor.users.find({}).fetch();
-  users.forEach((user) => {
-    Meteor.users.update({ _id: user._id }, { $unset: { roles: "" } });
-  });
-
-  console.log("All roles of users are deleted");
-};
-
-deleteRoleAssignmentScopeNull = () => {
-  Meteor.roleAssignment.rawCollection().drop();
-};
-
-updateCategoriesFromCategory = () => {
-  // Delete GeneralPublic entry
-  Categories.remove({ name: "GeneralPublic" });
-
-  let sites = Sites.find().fetch();
-  sites.forEach((site) => {
-    let category;
-    if (site.category === "GeneralPublic") {
-      category = [];
-    } else {
-      category = site.category;
-    }
-    let siteDocument = {
-      categories: Categories.find({ name: category }).fetch(),
-    };
-    Sites.update({ _id: site._id }, { $set: siteDocument });
-  });
-  console.log("All sites have now categories !");
-};
-
-updateCategoryAdmin = () => {
-  let sites = Sites.find().fetch();
-  sites.forEach((site) => {
-    if (site.category === "admin") {
-      let siteDocument = {
-        category: "Admin",
-      };
-      Sites.update({ _id: site._id }, { $set: siteDocument });
-    }
-  });
-  console.log("All sites with admin category are updated");
-};
-
-updateSitesWithoutProfessors = () => {
-  let sites = Sites.find().fetch();
-  console.log("Nb sites: ", sites.length);
-  let nb = 1;
-  sites.forEach((site) => {
-    if (!("professors" in site)) {
-      console.log("Site: ", site.url);
-      let siteDocument = {
-        professors: []
-      };
-      Sites.update({ _id: site._id }, { $set: siteDocument });
-      nb += 1;
-    }
-  });
-  console.log("Nb sites without professors: ", nb);
-  console.log("All sites are updated");
-}
-
-updateSitesAddTrailingSlash = () => {
-  let sites = Sites.find().fetch();
-  sites.forEach((site) => {
+const updateSitesAddTrailingSlash = async () => {
+  let sites = await Sites.find().fetchAsync();
+  for (const site of sites) {
     let siteId = site._id;
     console.log(site);
     let newURL = site.url
     if (!newURL.endsWith('/')) {
       newURL += '/'
     }
-    Sites.update({ _id: siteId }, { $set: { url: newURL } });
-  });
+    await Sites.updateAsync({ _id: siteId }, { $set: { url: newURL } });
+  }
   console.log("All sites are updated");
 }
 
-updateSitesDeleteCategory = () => {
-  let sites = Sites.find().fetch();
-  sites.forEach((site) => {
-    let siteId = site._id;
-    console.log(site);
-    Sites.update({ _id: siteId }, { $unset: { category: "" } });
-  });
-  console.log("All sites are updated");
-}
-
-updateSitesWithoutIsDeletedField = () => {
-  let sites = Sites.find().fetch();
-  console.log("Nb sites: ", sites.length);
-  let nb = 1;
-  sites.forEach((site) => {
-    if (!("isDeleted" in site)) {
-      console.log("Site: ", site.url);
-      let siteDocument = {
-        isDeleted: false
-      };
-      Sites.update({ _id: site._id }, { $set: siteDocument });
-      nb += 1;
-    }
-  });
-  console.log("Nb sites without 'isDeleted' Field: ", nb);
-  console.log("All sites are updated");
-}
-
-importData = () => {
+const importData = async () => {
   /*
   const absoluteUrl = Meteor.absoluteUrl();
   if (
     // absoluteUrl === "http://localhost:3000/" || 
     absoluteUrl.startsWith('https://wp-veritas.128.178.222.83.nip.io/')) {
-    loadTestData();
+    await loadTestData();
   }
   */
-  updateSitesAddTrailingSlash()
+  await updateSitesAddTrailingSlash()
 };
 
 export { importData };

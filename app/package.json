@@ -1,6 +1,6 @@
 {
   "name": "wp-veritas",
-  "version": "1.19.0",
+  "version": "2.0.0",
   "description": "https://wp-veritas.epfl.ch",
   "bugs": {
     "url": "https://github.com/epfl-si/wp-veritas/issues"
@@ -27,6 +27,7 @@
     "meteor-node-stubs": "^1.0.0",
     "moment": "^2.24.0",
     "node-fetch": "^3.3.0",
+    "path-to-regexp": "^6.2.2",
     "popper.js": "^1.16.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

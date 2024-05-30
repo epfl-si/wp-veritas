@@ -1,46 +1,46 @@
 import assert from "assert";
 import { Categories } from "../../collections";
 import { insertCategory, removeCategory } from "../categories";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods category", function () {
-    before(function () {
-      resetDatabase();
-      loadFixtures();
+    before(async function () {
+      await resetDatabase();
+      await loadFixtures();
     });
 
-    it("insert category", () => {
-      let userId = createUser();
+    it("insert category", async () => {
+      let userId = await createUser();
 
       // Set up method arguments and context
       const context = { userId };
       const args = { name: "Super nouvelle catégorie" };
 
-      insertCategory._execute(context, args);
+      await insertCategory._execute(context, args);
 
-      let nb = Categories.find({}).count();
-      let category = Categories.findOne({ name: "Super nouvelle catégorie" });
+      let nb = await Categories.find({}).countAsync();
+      let category = await Categories.findOneAsync({ name: "Super nouvelle catégorie" });
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(category.name, "Super nouvelle catégorie");
     });
 
-    it("remove category", () => {
-      let userId = createUser();
-      let category = Categories.findOne({ name: "Super nouvelle catégorie" });
+    it("remove category", async () => {
+      let userId = await createUser();
+      let category = await Categories.findOneAsync({ name: "Super nouvelle catégorie" });
 
       const context = { userId };
       const args = { categoryId: category._id };
 
-      let nbBefore = Categories.find({}).count();
+      let nbBefore = await Categories.find({}).countAsync();
       assert.strictEqual(nbBefore, 1);
 
-      removeCategory._execute(context, args);
+      await removeCategory._execute(context, args);
 
-      let nbAfter = Categories.find({}).count();
+      let nbAfter = await Categories.find({}).countAsync();
       assert.strictEqual(nbAfter, 0);
     });
   });

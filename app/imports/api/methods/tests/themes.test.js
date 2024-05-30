@@ -1,47 +1,47 @@
 import assert from "assert";
 import { Themes } from "../../collections";
 import { insertTheme, removeTheme } from "../themes";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
+import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods theme", function () {
-    before(function () {
-      resetDatabase();
-      loadFixtures();
+    before(async function () {
+      await resetDatabase();
+      await loadFixtures();
     });
 
-    it("insert theme", () => {
-      let userId = createUser();
+    it("insert theme", async () => {
+      let userId = await createUser();
 
       const context = { userId };
       const args = { 
         name: "Triton alpestre en montagne"
       };
 
-      insertTheme._execute(context, args);
+      await insertTheme._execute(context, args);
 
-      let nb = Themes.find({}).count();
-      let theme = Themes.findOne({ name: "Triton alpestre en montagne" });
+      let nb = await Themes.find({}).countAsync();
+      let theme = await Themes.findOneAsync({ name: "Triton alpestre en montagne" });
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(theme.name, "Triton alpestre en montagne");
     });
 
-    it("remove theme", () => {
-      let userId = createUser();
-      let theme = Themes.findOne({ name: "Triton alpestre en montagne" });
+    it("remove theme", async () => {
+      let userId = await createUser();
+      let theme = await Themes.findOneAsync({ name: "Triton alpestre en montagne" });
 
       const context = { userId };
       const args = { themeId: theme._id };
 
-      let nbBefore = Themes.find({}).count();
+      let nbBefore = await Themes.find({}).countAsync();
       assert.strictEqual(nbBefore, 1);
 
-      removeTheme._execute(context, args);
+      await removeTheme._execute(context, args);
 
-      let nbAfter = Themes.find({}).count();
+      let nbAfter = await Themes.find({}).countAsync();
       assert.strictEqual(nbAfter, 0);
     });
   });
