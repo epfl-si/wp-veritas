@@ -27,11 +27,12 @@
                        else wp_veritas_image_tag }}"
             env:
             - name: WP_VERITAS_AWX_URL
-              value: "{{ twelvefactor[openshift_namespace].WP_VERITAS_AWX_URL }}"
+              value: "{{ twelvefactor[inventory_environment].WP_VERITAS_AWX_URL }}"
             - name: ROOT_URL
-              value: "{{ twelvefactor[openshift_namespace].ROOT_URL }}"
+              value: "{{ twelvefactor[inventory_environment].ROOT_URL }}"
             - name: DEBUG
-              value: "{{ twelvefactor[openshift_namespace].DEBUG }}"
+              value: >-
+                {{ "-" if inventory_environment == "prod" else "*" }}
             - name: PORT
               value: "3000"
             envFrom:
