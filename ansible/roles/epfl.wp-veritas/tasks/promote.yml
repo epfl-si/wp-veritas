@@ -4,5 +4,6 @@
   tags: promote
   local_action:
     module: shell
-    cmd: |
-      oc tag {{ wp_veritas_image_tag_test }} {{ wp_veritas_image_tag_prod }}
+    cmd: >-
+      oc tag {{ wp_veritas_image_tag_test | regex_replace('^[^/]*/', '')  }}
+      {{ wp_veritas_image_tag_prod | regex_replace('^[^/]*/', '') }}
