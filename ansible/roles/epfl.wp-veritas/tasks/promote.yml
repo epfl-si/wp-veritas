@@ -1,7 +1,6 @@
 - name: "Promote wwp-test images to wwp"
   when: >-
     openshift_namespace == 'wwp'
-  tags: promote
   local_action:
     module: shell
     cmd: >-

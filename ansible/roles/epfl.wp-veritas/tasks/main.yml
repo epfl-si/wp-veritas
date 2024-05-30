@@ -4,4 +4,7 @@
 
 - name: wp-veritas promote from test to prod
   tags: promote
-  include_tasks: '{{ "promote.yml" }}'
+  include_tasks:
+    file: promote.yml
+    apply:
+      tags: promote
