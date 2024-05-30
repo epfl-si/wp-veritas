@@ -345,36 +345,42 @@ const generateSite = new VeritasValidatedMethod({
     const AWX_URL = process.env.WP_VERITAS_AWX_URL;
     const WP_VERITAS_AWX_TOKEN = process.env.WP_VERITAS_AWX_TOKEN;
 
-    let options = {
-      headers: {
-        Authorization: `Bearer ${WP_VERITAS_AWX_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-      data: {
-        limit: ansibleHost,
-      },
+    const headers = {
+      Authorization: `Bearer ${WP_VERITAS_AWX_TOKEN}`,
+      "Content-Type": "application/json",
     };
 
     // Run AWX Job
-    let callResponse = HTTP.call("POST", AWX_URL, options);
-    debug(`callResponse: ${JSON.stringify(callResponse)}`);
-    job_id = callResponse.data.job;
+    let callResponse = await fetch(AWX_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        limit: ansibleHost
+      }),
+      headers
+    });
+    if (callResponse.status !== 200 && callResponse.status !== 201) {
+      throw new Error(`${AWX_URL}: code ${callResponse.status} — ${await callResponse.text()}`);
+    }
+    const callData = await callResponse.json();
+    debug(`callResponse: ${JSON.stringify(callData)}`);
 
     const user = await Meteor.users.findOneAsync({ _id: this.userId });
-    let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${job_id} for details.`;
+    let defaultMsgNormalization = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) has just launched a normalization for ${site.url} on wp-veritas!\nPlease head to https://awx-wwp.epfl.ch/#/jobs/playbook/${callData.job} for details.`;
     Telegram.sendMessage(defaultMsgNormalization, /*preview=*/false, /*notification=*/false);
 
     // GET the status every 10 secondes
-    let continueAgain = true;
-    let index = 1;
-    while (continueAgain) {
-      await delay(10000);
-      response = HTTP.call("GET", "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id, options);
-      status = response.data.status;
-      if (status == "successful" || status == "failed" || index > 150) { // 25 minutes
-        continueAgain = false;
+
+    for(let i = 1; i < 150 /* which works out to 25 minutes */; i++) {
+      await delay(10 * 1000);
+      const pollUrl = "https://awx-wwp.epfl.ch/api/v2/jobs/" + job_id;
+      const pollResponse = await fetch(pollUrl, { method: "GET", headers });
+      if (pollResponse.status !== 200) {
+        throw new Error(`${pollUrl}: code ${pollResponse.status} — ${await pollResponse.text()}`);
       }
-      index += 1;
+      const pollData = await pollResponse.json();
+      if (pollData.status == "successful" || pollData.status == "failed") {
+        break;
+      }
     }
 
     AppLogger.getLog().info(
