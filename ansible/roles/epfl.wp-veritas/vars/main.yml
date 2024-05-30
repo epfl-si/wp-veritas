@@ -5,6 +5,11 @@ wp_veritas_image_tag_prod: 'docker-registry.default.svc:5000/wwp/wp-veritas:prod
 wp_veritas_image_tag: >-
   {{ wp_veritas_image_tag_prod if openshift_namespace == "prod" else wp_veritas_image_tag_test }}
 
+keybase_secrets: >-
+  {{ lookup('pipe',
+            'keybase fs read /keybase/team/epfl_wpveritas/ansible_wpveritas_secrets.yml')
+     | from_yaml }}
+
 twelvefactor:
   prod:
     ROOT_URL: https://wp-veritas.epfl.ch

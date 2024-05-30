@@ -1,3 +1,40 @@
+- name: wp-veritas Secret
+  openshift:
+    state: latest
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: wp-veritas
+      namespace: "{{ openshift_namespace }}"
+    type: Opaque
+    data:
+      # ROOT_URL is not a secret, and is managed in the Deployment below.
+      MONGO_URL:                      '{{ MONGO_URL                      | b64encode }}'
+      METEOR_SETTINGS:                '{{ METEOR_SETTINGS                | b64encode }}'
+
+      WP_VERITAS_ALERTS_TELEGRAM_IDS: '{{ WP_VERITAS_ALERTS_TELEGRAM_IDS | b64encode }}'
+      WP_VERITAS_BOT_TOKEN:           '{{ WP_VERITAS_BOT_TOKEN           | b64encode }}'
+
+      # WP_VERITAS_AWX_URL is not a secret, and is managed in the Deployment below.
+      WP_VERITAS_AWX_TOKEN:           '{{ WP_VERITAS_AWX_TOKEN           | b64encode }}'
+  vars:
+    _keybase: '{{ keybase_secrets[inventory_environment] }}'
+
+    MONGO_URL: >-
+      mongodb://{{ _keybase.mongodb.user }}:{{ _keybase.mongodb.password }}@{{ _keybase.mongodb.host }}.epfl.ch/{{ _keybase.mongodb.name }}
+    METEOR_SETTINGS: >-
+      {{ _meteor_settings_struct | to_json }}
+    _meteor_settings_struct:
+      accred_password: '{{ _keybase.accred.password }}'
+
+    WP_VERITAS_ALERTS_TELEGRAM_IDS: >-
+      {{ _keybase.telegram.channels | join(",") | string }}
+    WP_VERITAS_BOT_TOKEN: >-
+      {{ _keybase.telegram.token }}
+
+    WP_VERITAS_AWX_TOKEN: >-
+      {{ _keybase.awx.token }}
+
 - name: wp-veritas Deployment
   openshift:
     state: latest
