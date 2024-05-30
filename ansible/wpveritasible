@@ -21,7 +21,7 @@ ensure_ansible () {
     if ! test -f ansible-deps-cache/.versions 2>/dev/null; then
         curl https://raw.githubusercontent.com/epfl-si/ansible.suitcase/master/install.sh | \
             SUITCASE_DIR=$PWD/ansible-deps-cache \
-            SUITCASE_PIP_EXTRA="bcrypt passlib" \
+            SUITCASE_PIP_EXTRA="bcrypt passlib kubernetes" \
             SUITCASE_ANSIBLE_VERSION=5.6.0 \
             SUITCASE_ANSIBLE_REQUIREMENTS=requirements.yml \
             SUITCASE_WITH_HELM=1 \
