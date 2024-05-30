@@ -25,7 +25,7 @@ class SiteTags extends React.Component {
     ];
 
     let site = this.getSite();
-    associateTagsToSite.call(
+    associateTagsToSite(
       {
         site,
         tags,

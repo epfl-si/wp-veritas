@@ -114,7 +114,7 @@ class List extends Component {
   };
 
   deleteSite = (siteId) => {
-    removeSite.call({ siteId }, function (error, siteId) {
+    removeSite({ siteId }, function (error, siteId) {
       if (error) {
         console.log(`ERROR removeSite ${error}`);
       }

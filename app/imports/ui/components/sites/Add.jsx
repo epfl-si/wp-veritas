@@ -149,7 +149,7 @@ class Add extends Component {
   };
 
   generate = (siteId) => {
-    generateSite.call({ siteId }, (error, result) => {
+    generateSite({ siteId }, (error, result) => {
       if (error) {
         console.log(`ERROR generateSite ${error}`);
       } else {

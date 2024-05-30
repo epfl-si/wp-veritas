@@ -22,7 +22,7 @@ class SiteProfessors extends Component {
     let professors = values.professors;
     let site = this.getSite();
     console.log(professors);
-    associateProfessorsToSite.call({ site, professors }, (errors, siteId) => {
+    associateProfessorsToSite({ site, professors }, (errors, siteId) => {
       if (errors) {
         let formErrors = {};
         errors.details.forEach(function (error) {

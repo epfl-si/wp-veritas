@@ -64,7 +64,7 @@ class Professor extends Component {
   }
 
   deleteProfessor = (professorId) => {
-    removeProfessor.call({ professorId }, (error, professorID) => {
+    removeProfessor({ professorId }, (error, professorID) => {
       if (error) {
         console.log(`ERROR Professor removeProfessor ${error}`);
       } else {
@@ -114,7 +114,7 @@ class Professor extends Component {
     };
     const insertProfessorPromise = (values) => {
       return new Promise((resolve, reject) => {
-        insertProfessor.call(values, (errors, result) => {
+        insertProfessor(values, (errors, result) => {
           if (errors) {
             console.log(errors);
             let formErrors = {};

@@ -96,7 +96,7 @@ class Trash extends Component {
   }
 
   removePermanentlySite = (siteId) => {
-    removePermanentlySite.call({ siteId }, function (error, siteId) {
+    removePermanentlySite({ siteId }, function (error, siteId) {
       if (error) {
         console.log(`ERROR restoreSite ${error}`);
       }
@@ -104,7 +104,7 @@ class Trash extends Component {
   };
 
   restoreSite = (siteId) => {
-    restoreSite.call({ siteId }, function (error, siteId) {
+    restoreSite({ siteId }, function (error, siteId) {
       if (error) {
         console.log(`ERROR restoreSite ${error}`);
       }

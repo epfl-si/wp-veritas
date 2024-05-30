@@ -37,7 +37,7 @@ class Tag extends Component {
       values.url_en = `${firstPartUrl}${nameEn}`;
     }
     if (this.state.action === "add") {
-      insertTag.call(values, (errors, siteId) => {
+      insertTag(values, (errors, siteId) => {
         if (errors) {
           console.log(errors);
           let formErrors = {};
@@ -53,7 +53,7 @@ class Tag extends Component {
         }
       });
     } else if (this.state.action === "edit") {
-      updateTag.call(values, (errors, siteId) => {
+      updateTag(values, (errors, siteId) => {
         if (errors) {
           console.log(errors);
           let formErrors = {};
@@ -73,7 +73,7 @@ class Tag extends Component {
   };
 
   deleteTag(tagId) {
-    removeTag.call({ tagId }, function (error, tagId) {
+    removeTag({ tagId }, function (error, tagId) {
       if (error) {
         console.log(`ERROR deleteTag ${error}`);
       }
