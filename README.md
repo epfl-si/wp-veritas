@@ -129,11 +129,6 @@ Lancer le déploiement => ce qui va exécuter `updateRoles` qui supprime la
 collection `roles` et qui supprime l'attribut roles dans chaque user. La
 collection est re-créée par les fixtures.
 
-## Référence sur Dockerhub
-
-https://hub.docker.com/repository/docker/epflsi/wp-veritas
-
-
 # Manipulation des données
 
 ## Importer les informations de la source de vérité
@@ -164,12 +159,6 @@ Vous devez être positionné dans le répertoire app/ et avoir lancé l'applicat
 
 
 # Notes
-
-## Mise à jour de l'image
-ATTENTION :
-Pour mettre à jour l'image avec FROM node:10.19-alpine 
-On a du utiliser node version 10 car avec la 12 on avait un prob avec Fiber 
-FROM node:10.19-alpine
 
 ## Comment exécuter les tests
 make test
