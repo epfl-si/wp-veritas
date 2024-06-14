@@ -449,13 +449,13 @@ const restoreSite = new VeritasValidatedMethod({
   validate: new SimpleSchema({
     siteId: { type: String },
   }).validator(),
-  run({ siteId }) {
-    let site = Sites.findOne({ _id: siteId });
-    Sites.update({ _id: siteId }, { $set: { isDeleted: false } });
+  async run({ siteId }) {
+    let site = await Sites.findOneAsync({ _id: siteId });
+    await Sites.updateAsync({ _id: siteId }, { $set: { isDeleted: false } });
     AppLogger.getLog().info(`Restore site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
     if (site.wpInfra) {
-      const user = Meteor.users.findOne({ _id: this.userId });
+      const user = await Meteor.users.findOneAsync({ _id: this.userId });
       const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) restored ${site.url} on wp-veritas! #wpSiteRestored`;
       Telegram.sendMessage(message, /*preview=*/false);
     }
@@ -516,16 +516,16 @@ const associateTagsToSite = new VeritasValidatedMethod({
       sitesWPInfraOutsideSchema.validate(site);
     }
   },
-  run({ site, tags }) {
+  async run({ site, tags }) {
     let siteDocument = {
       tags: tags,
     };
 
-    let siteBeforeUpdate = Sites.findOne({ _id: site._id });
+    let siteBeforeUpdate = await Sites.findOneAsync({ _id: site._id });
 
-    Sites.update({ _id: site._id }, { $set: siteDocument });
+    await Sites.updateAsync({ _id: site._id }, { $set: siteDocument });
 
-    let updatedSite = Sites.findOne({ _id: site._id });
+    let updatedSite = await Sites.findOneAsync({ _id: site._id });
 
     AppLogger.getLog().info(
       `Associate tags to site with ID ${site._id}`,
