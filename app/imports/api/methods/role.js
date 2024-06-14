@@ -13,6 +13,7 @@ class VeritasValidatedMethod {
 
     async function run (params) {
       await args.role.check(this.userId, args.name);
+      if (Meteor.isClient) return undefined;
       return await runOrig.call(this, params);
     }
     const ret = createMethod({ ...args, run });
