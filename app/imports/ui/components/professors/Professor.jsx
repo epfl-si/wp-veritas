@@ -112,29 +112,27 @@ class Professor extends Component {
         });
       });
     };
-    const insertProfessorPromise = (values) => {
-      return new Promise((resolve, reject) => {
-        insertProfessor(values, (errors, result) => {
-          if (errors) {
-            console.log(errors);
-            let formErrors = {};
-            errors.details.forEach(function (error) {
-              formErrors[error.name] = error.message;
-            });
-            actions.setErrors(formErrors);
-            actions.setSubmitting(false);
-          } else {
-            actions.setSubmitting(false);
-            actions.resetForm();
-            this.setState({
-              addSuccess: true,
-              editSuccess: false,
-              deleteSuccess: false,
-              action: "add",
-            });
-          }
+    const insertProfessorPromise = async (values) => {
+      try {
+        await insertProfessor(values);
+        actions.resetForm();
+        this.setState({
+          addSuccess: true,
+          editSuccess: false,
+          deleteSuccess: false,
+          action: "add",
         });
-      });
+      } catch (errors) {
+        if (! errors.details) throw errors;
+        console.error(errors);
+        let formErrors = {};
+        errors.details.forEach(function (error) {
+          formErrors[error.name] = error.message;
+        });
+        actions.setErrors(formErrors);
+      } finally {
+        actions.setSubmitting(false);
+      }
     };
     const ldapInfo = await getUserFromLDAPPromise(
       "getUserFromLDAP",

@@ -27,7 +27,7 @@ class Tag extends Component {
     };
   }
 
-  submit = (values, actions) => {
+  submit = async (values, actions) => {
     if (values.type == "field-of-research") {
       let firstPartUrl =
         "https://www.epfl.ch/research/domains/cluster?field-of-research=";
@@ -37,38 +37,37 @@ class Tag extends Component {
       values.url_en = `${firstPartUrl}${nameEn}`;
     }
     if (this.state.action === "add") {
-      insertTag(values, (errors, siteId) => {
-        if (errors) {
-          console.log(errors);
-          let formErrors = {};
-          errors.details.forEach(function (error) {
-            formErrors[error.name] = error.message;
-          });
-          actions.setErrors(formErrors);
+      try {
+        await insertTag(values);
+        actions.resetForm();
+        this.setState({ saveSuccess: true });
+      } catch (errors) {
+        if (! errors.details) throw errors;
+        console.error(errors);
+        let formErrors = {};
+        errors.details.forEach(function (error) {
+          formErrors[error.name] = error.message;
+        });
+        actions.setErrors(formErrors);
+      } finally {
           actions.setSubmitting(false);
-        } else {
-          actions.setSubmitting(false);
-          actions.resetForm();
-          this.setState({ saveSuccess: true });
-        }
-      });
+      }
     } else if (this.state.action === "edit") {
-      updateTag(values, (errors, siteId) => {
-        if (errors) {
-          console.log(errors);
-          let formErrors = {};
-          errors.details.forEach(function (error) {
-            formErrors[error.name] = error.message;
-          });
-          actions.setErrors(formErrors);
+      try {
+        await updateTag(values);
+        this.props.history.push("/tags");
+        this.setState({ saveSuccess: true });
+      } catch (errors) {
+        if (! errors.details) throw errors;
+        console.error(errors);
+        let formErrors = {};
+        errors.details.forEach(function (error) {
+          formErrors[error.name] = error.message;
+        });
+        actions.setErrors(formErrors);
+      } finally {
           actions.setSubmitting(false);
-        } else {
-          actions.setSubmitting(false);
-          actions.resetForm();
-          this.props.history.push("/tags");
-          this.setState({ saveSuccess: true });
-        }
-      });
+      }
     }
   };
 

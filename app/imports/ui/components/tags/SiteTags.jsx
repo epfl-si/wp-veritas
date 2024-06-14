@@ -17,7 +17,7 @@ class SiteTags extends React.Component {
     this.setState({ saveSuccess: newValue });
   };
 
-  submit = (values, actions) => {
+  submit = async (values, actions) => {
     let tags = [
       ...(values.facultyTags || []),
       ...(values.instituteTags || []),
@@ -25,25 +25,20 @@ class SiteTags extends React.Component {
     ];
 
     let site = this.getSite();
-    associateTagsToSite(
-      {
-        site,
-        tags,
-      },
-      (errors, siteId) => {
-        if (errors) {
-          let formErrors = {};
-          errors.details.forEach(function (error) {
-            formErrors[error.name] = error.message;
-          });
-          actions.setErrors(formErrors);
-          actions.setSubmitting(false);
-        } else {
-          actions.setSubmitting(false);
-          this.setState({ saveSuccess: true });
-        }
-      }
-    );
+    try {
+      await associateTagsToSite({ site, tags });
+      this.setState({ saveSuccess: true });
+    } catch (errors) {
+      console.error(errors);
+      if (! errors.details) throw errors;
+      let formErrors = {};
+      errors.details.forEach(function (error) {
+        formErrors[error.name] = error.message;
+      });
+      actions.setErrors(formErrors);
+    } finally {
+      actions.setSubmitting(false);
+    }
   };
 
   isLoading(site) {

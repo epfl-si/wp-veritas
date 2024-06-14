@@ -18,23 +18,24 @@ class SiteProfessors extends Component {
     this.setState({ saveSuccess: newValue });
   };
 
-  submit = (values, actions) => {
+  submit = async (values, actions) => {
     let professors = values.professors;
     let site = this.getSite();
     console.log(professors);
-    associateProfessorsToSite({ site, professors }, (errors, siteId) => {
-      if (errors) {
-        let formErrors = {};
-        errors.details.forEach(function (error) {
-          formErrors[error.name] = error.message;
-        });
-        actions.setErrors(formErrors);
+    try {
+      await associateProfessorsToSite({ site, professors });
+      this.setState({ saveSuccess: true });
+    } catch (errors) {
+      if (! errors.details) throw errors;
+
+      let formErrors = {};
+      errors.details.forEach(function (error) {
+        formErrors[error.name] = error.message;
+      });
+      actions.setErrors(formErrors);
+    } finally {
         actions.setSubmitting(false);
-      } else {
-        actions.setSubmitting(false);
-        this.setState({ saveSuccess: true });
-      }
-    });
+    }
   };
 
   isLoading(site) {

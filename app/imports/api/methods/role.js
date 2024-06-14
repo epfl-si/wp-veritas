@@ -9,14 +9,23 @@ import { createMethod } from 'meteor/jam:method'
  */
 class VeritasValidatedMethod {
   constructor(args) {
-    const runOrig = args.run;
+    const runOrig = args.run,
+          validateOrig = args.validate;
 
     async function run (params) {
       await args.role.check(this.userId, args.name);
       if (Meteor.isClient) return undefined;
       return await runOrig.call(this, params);
     }
-    const ret = createMethod({ ...args, run });
+
+    async function validate (...args) {
+      console.log("validate", args);
+      return await validateOrig(...args);
+    }
+
+    const validateOpt = validateOrig ? { validate } : {};
+
+    const ret = createMethod({ ...args, run, ...validateOpt });
 
     // For tests only:
     ret._execute = async function(context, params) {
