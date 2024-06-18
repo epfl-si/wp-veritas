@@ -95,20 +95,20 @@ class Trash extends Component {
     })
   }
 
-  removePermanentlySite = (siteId) => {
-    removePermanentlySite({ siteId }, function (error, siteId) {
-      if (error) {
-        console.log(`ERROR restoreSite ${error}`);
-      }
-    });
+  removePermanentlySite = async (siteId) => {
+    try {
+      await removePermanentlySite({ siteId });
+    } catch (error) {
+      console.error("removePermanentlySite", error);
+    }
   };
 
-  restoreSite = (siteId) => {
-    restoreSite({ siteId }, function (error, siteId) {
-      if (error) {
-        console.log(`ERROR restoreSite ${error}`);
-      }
-    });
+  restoreSite = async (siteId) => {
+    try {
+      await restoreSite({ siteId });
+    } catch (error) {
+      console.error("restoreSite", error);
+    }
   };
 
   render() {

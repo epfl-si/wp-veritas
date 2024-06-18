@@ -71,12 +71,12 @@ class Tag extends Component {
     }
   };
 
-  deleteTag(tagId) {
-    removeTag({ tagId }, function (error, tagId) {
-      if (error) {
-        console.log(`ERROR deleteTag ${error}`);
-      }
-    });
+  async deleteTag(tagId) {
+    try {
+      removeTag({ tagId });
+    } catch (error) {
+      console.error("deleteTag", error);
+    }
   }
 
   handleClickOnDeleteButton = (tagId) => {
