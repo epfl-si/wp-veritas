@@ -113,12 +113,12 @@ class List extends Component {
     });
   };
 
-  deleteSite = (siteId) => {
-    removeSite({ siteId }, function (error, siteId) {
-      if (error) {
-        console.log(`ERROR removeSite ${error}`);
-      }
-    });
+  deleteSite = async (siteId) => {
+    try {
+      await removeSite({ siteId });
+    } catch (error) {
+      console.error("deleteSite", error);
+    }
   };
 
   isChecked = (langIsChecked) => {

@@ -148,21 +148,14 @@ class Add extends Component {
     return title;
   };
 
-  generate = (siteId) => {
-    generateSite({ siteId }, (error, result) => {
-      if (error) {
-        console.log(`ERROR generateSite ${error}`);
-      } else {
-        console.log(result);
-        let state;
-        if (result == "successful") {
-          state = { generateFailed: false, generateSuccess: true, generateRunning: false };
-        } else {
-          state = { generateFailed: true, generateSuccess: false, generateRunning: false };
-        }
-        this.setState(state);
-      }
-    });
+  generate = async (siteId) => {
+    try {
+      const result = await generateSite({ siteId });
+      this.setState({ generateFailed: result !== "successful", generateSuccess: result === "successful", generateRunning: false });
+    } catch (error) {
+      console.error("generateSite", error);
+      this.setState({ generateFailed: true, generateSuccess: false, generateRunning: false });
+    }
   };
 
   handleClickOnGenerateButton = (siteId) => {

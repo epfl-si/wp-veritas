@@ -63,14 +63,14 @@ class Professor extends Component {
     };
   }
 
-  deleteProfessor = (professorId) => {
-    removeProfessor({ professorId }, (error, professorID) => {
-      if (error) {
-        console.log(`ERROR Professor removeProfessor ${error}`);
-      } else {
-        this.setState({ deleteSuccess: true });
-      }
-    });
+  deleteProfessor = async (professorId) => {
+    try {
+      await removeProfessor({ professorId });
+      this.setState({ deleteSuccess: true });
+    } catch (error) {
+      console.error("deleteProfessor", error);
+      this.setState({ deleteSuccess: false });
+    }
   };
 
   handleClickOnDeleteButton = (professorId) => {
