@@ -11,6 +11,9 @@ RUN set -e -x; rm -rf packages/; mkdir packages; cd packages; \
     git clone -b update-to-async https://@github.com/sebastianspiller/meteor-synced-cron; \
     git clone -b feature/meteor-3-0-compat https://github.com/epfl-si/meteor-method
 
+# Compile the API's documentation in a single file
+RUN meteor npx apidoc --single -i server/ -o public/api/ -c apidoc.json
+
 RUN meteor npm i
 RUN BROWSERSLIST_IGNORE_OLD_DATA=1 meteor build --allow-superuser /usr --directory
 RUN cd /usr/bundle/programs/server && meteor npm install
