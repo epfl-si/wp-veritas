@@ -24,6 +24,7 @@ class Header extends Component {
       content = <Loading />;
     } else {
       let peopleUrl = "https://people.epfl.ch/" + this.props.currentUser._id;
+      let versionURL = "https://github.com/epfl-si/wp-veritas/releases/tag/v" + version;
       let role = this.getRole();
 
       content = (
@@ -158,7 +159,7 @@ class Header extends Component {
                     >
                       Voir les logs
                     </NavLink>
-                    <div className="dropdown-item">Version {version}</div>
+                    <a className="dropdown-item" target="_blank" href={versionURL}>Version {version}</a>
                   </div>
                 </li>
               ) : null}
