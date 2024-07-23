@@ -65,8 +65,8 @@ test: check-env app/packages/meteor-synced-cron app/packages/method
 
 .PHONY: apidoc
 apidoc:
-	@echo Running: npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
-	@npx apidoc@0.29.0 --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
+	@echo Running: npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
+	@npx apidoc --single -i $$(pwd)/app/server/ -o $$(pwd)/app/public/api/ -c $$(pwd)/app/apidoc.json
 	xdg-open $$(pwd)/app/public/api/index.html;
 
 .PHONY: prettier-check
@@ -202,15 +202,15 @@ app/packages/method:
 ################################################################################
 .PHONY: dev-up
 dev-up: check-env
-	@docker-compose -f docker-compose-dev.yml up
+	@docker compose -f docker-compose-dev.yml up
 
 .PHONY: dev-build
 dev-build: check-env
-	@docker-compose -f docker-compose-dev.yml build
+	@docker compose -f docker-compose-dev.yml build
 
 .PHONY: dev-build-force
 dev-build-force: check-env
-	@docker-compose -f docker-compose-dev.yml build --force-rm --no-cache --pull
+	@docker compose -f docker-compose-dev.yml build --force-rm --no-cache --pull
 
 .PHONY: dev-exec
 dev-exec:
