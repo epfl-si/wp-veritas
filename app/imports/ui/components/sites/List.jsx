@@ -299,7 +299,7 @@ class List extends Component {
           label: "Espagnol",
         },
         {
-          name: "gr",
+          name: "el",
           key: "langGr",
           label: "Grec",
         },
