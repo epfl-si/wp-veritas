@@ -328,7 +328,6 @@ class List extends Component {
               <input
                 ref="keyword"
                 type="search"
-                className="form-control my-0 py-1 block"
                 id="search"
                 className="form-control my-0 py-1"
                 value={this.state.searchValue}
