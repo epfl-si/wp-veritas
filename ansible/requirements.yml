@@ -1,2 +1,2 @@
 roles:
-- name: epfl_si.ansible_module_openshift
+- name: epfl_si.ansible-module-openshift
