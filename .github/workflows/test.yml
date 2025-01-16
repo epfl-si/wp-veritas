@@ -1,0 +1,28 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Install meteor
+        run: |
+          curl https://install.meteor.com | /bin/sh
+          export PATH=$HOME/.meteor:$PATH
+
+      - name: Test
+        run: |
+          cd app/
+          npm i
+          npm run test
