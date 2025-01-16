@@ -20,6 +20,8 @@ jobs:
         run: |
           curl https://install.meteor.com | /bin/sh
           export PATH=$HOME/.meteor:$PATH
+          make app/packages/meteor-synced-cron
+          make app/packages/method
 
       - name: Test
         run: |
