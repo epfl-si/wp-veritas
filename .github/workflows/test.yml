@@ -11,6 +11,13 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
+      - name: Clone meteor-synced-cron
+        uses: actions/checkout@v4
+        with:
+          repository: sebastianspiller/meteor-synced-cron
+          path: app/packages/meteor-synced-cron
+          ref: 'update-to-async'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -20,8 +27,6 @@ jobs:
         run: |
           curl https://install.meteor.com | /bin/sh
           export PATH=$HOME/.meteor:$PATH
-          make app/packages/meteor-synced-cron
-          make app/packages/method
 
       - name: Test
         run: |
