@@ -16,7 +16,7 @@ jobs:
         with:
           repository: sebastianspiller/meteor-synced-cron
           path: app/packages/meteor-synced-cron
-          ref: 'update-to-async'
+          ref: update-to-async
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
