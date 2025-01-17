@@ -1,7 +1,5 @@
 # wp-veritas
 
-[![Build Status](https://travis-ci.org/epfl-si/wp-veritas.svg?branch=master)](https://travis-ci.org/epfl-si/wp-veritas)
-
 Cette application a pour but de stocker et permettre l'édition de la **source de vérité** des sites WordPress de l'EPFL :
 - la liste des sites, avec leurs attributs techniques et fonctionnels;
 - la liste des **environnements OpenShift**, des unités techniques d'allocation des ressources et de routage dans lesquelles se classent les sites,
