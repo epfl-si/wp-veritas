@@ -26,7 +26,6 @@ jobs:
       - name: Install meteor
         run: |
           curl https://install.meteor.com | /bin/sh
-          export PATH=$HOME/.meteor:$PATH
 
       - name: Test
         run: |
