@@ -8,8 +8,7 @@ RUN curl https://install.meteor.com/?release=$METEOR_VERSION | bash -e -x
 COPY ./app /usr/src/app/
 WORKDIR /usr/src/app/
 RUN set -e -x; rm -rf packages/; mkdir packages; cd packages; \
-    git clone -b update-to-async https://@github.com/sebastianspiller/meteor-synced-cron; \
-    git clone -b feature/meteor-3-0-compat https://github.com/epfl-si/meteor-method
+    git clone -b update-to-async https://@github.com/sebastianspiller/meteor-synced-cron
 
 # Compile the API's documentation in a single file
 RUN meteor npx apidoc --single -i server/ -o public/api/ -c apidoc.json
