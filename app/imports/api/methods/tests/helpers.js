@@ -36,6 +36,7 @@ async function createSite(userId, categories, tags, professors) {
     openshiftEnv: "www",
     categories: categories,
     theme: "wp-theme-2018",
+    platformTarget: "OpenShift 4",
     languages: ["en", "fr"],
     unitId: "13030",
     unitName: "ISAS-FSD",

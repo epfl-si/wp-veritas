@@ -86,6 +86,13 @@ REST.addRoute(
             url: { $regex: queryParams.search_url, $options: "-i" },
           }).fetchAsync()
         );
+      } else if (queryParams && queryParams.platform_target) {
+        return formatSiteCategories(
+          await Sites.find({
+            isDeleted: false,
+            platformTarget: queryParams.platform_target,
+          }).fetchAsync()
+        );
       } else if (queryParams && (queryParams.text || queryParams.tags)) {
         if (queryParams.tags && !Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];

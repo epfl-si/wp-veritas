@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Sites, OpenshiftEnvs, Themes, Categories } from "../../../api/collections";
+import { Sites, OpenshiftEnvs, Themes, Categories, PlatformTargets } from "../../../api/collections";
 import {
   CustomSingleCheckbox,
   CustomCheckbox,
@@ -47,12 +47,14 @@ class Add extends Component {
     if (event.target.checked === false) {
       values.openshiftEnv = "";
       values.theme = "";
+      values.platformTarget = "";
       values.unitId = "";
       values.languages = [];
       values.categories = [];
     } else {
       values.openshiftEnv = "www";
       values.theme = "wp-theme-2018";
+      values.platformTarget = "OpenShift 4";
     }
   };
 
@@ -114,6 +116,7 @@ class Add extends Component {
         title: "",
         openshiftEnv: "www",
         theme: "wp-theme-2018",
+        platformTarget: "OpenShift 4",
         categories: [],
         languages: [],
         unitId: "",
@@ -133,6 +136,7 @@ class Add extends Component {
     const isLoading =
       this.props.openshiftenvs === undefined ||
       this.props.themes === undefined ||
+      this.props.platformtargets === undefined ||
       this.props.categories === undefined ||
       initialValues === undefined;
     return isLoading;
@@ -407,6 +411,32 @@ class Add extends Component {
 
                 <ErrorMessage name="theme" component={CustomError} />
 
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Plateforme cible"
+                  name="platformTarget"
+                  component={CustomSelect}
+                  disabled={values.wpInfra === false}
+                >
+                  {values.wpInfra === false ? (
+                    <option key="blank" value="blank" label=""></option>
+                  ) : null}
+                  {this.props.platformtargets.map((platformTarget, index) => (
+                    <option key={platformTarget._id} value={platformTarget.name} label={platformTarget.name}>
+                      {platformTarget.name}
+                    </option>
+                  ))}
+                </Field>
+
+                <ErrorMessage name="platformTarget" component={CustomError} />
+
                 <h6>Langues</h6>
                 <Field
                   onChange={(e) => {
@@ -646,6 +676,7 @@ export default withRouter(
   withTracker((props) => {
     Meteor.subscribe("openshiftEnv.list");
     Meteor.subscribe("theme.list");
+    Meteor.subscribe("platformTarget.list");
     Meteor.subscribe("category.list");
 
     let sites;
@@ -656,6 +687,7 @@ export default withRouter(
       return {
         openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
+        platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
         site: sites[0],
       };
@@ -663,6 +695,7 @@ export default withRouter(
       return {
         openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
+        platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
       };
     }

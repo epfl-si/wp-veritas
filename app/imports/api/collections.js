@@ -76,6 +76,16 @@ export const themesSchema = new SimpleSchema({
 
 themesSchema.messageBox = messageBox;
 
+export const platformTargetsSchema = new SimpleSchema({
+  name: {
+      type: String,
+      label: "Nom de la plateforme cible",
+      custom: isRequired,
+  }
+}, { check });
+
+platformTargetsSchema.messageBox = messageBox;
+
 export const professorSchema = new SimpleSchema({
   // _id use to update a tag
   _id: {
@@ -133,7 +143,7 @@ tagSchema.messageBox = messageBox;
 professorSchema.messageBox = messageBox;
 
 class Site {
-    
+
   constructor(doc) {
         Object.assign(this, doc);
     }
@@ -225,6 +235,7 @@ Sites.tagged_search = function (text="", tags=[]) {
 const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 const Categories = new Mongo.Collection('categories');
 const Themes = new Mongo.Collection('themes');
+const PlatformTargets = new Mongo.Collection('platformtargets');
 const Tags = new Mongo.Collection('tags');
 const Professors = new Mongo.Collection('professors');
 const AppLogs = new Mongo.Collection('AppLogs');
@@ -242,6 +253,12 @@ Categories.deny({
 });
 
 Themes.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
+PlatformTargets.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
@@ -275,6 +292,7 @@ export {
   OpenshiftEnvs,
   Categories,
   Themes,
+  PlatformTargets,
   Tags,
   Professors,
   AppLogs

@@ -32,7 +32,7 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
   },
   isDeleted: {
     type: Boolean,
-    defaultValue: false, 
+    defaultValue: false,
   },
   openshiftEnv: {
       type: String,
@@ -60,6 +60,11 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       type: String,
       label: "Thème",
       optional: true,
+  },
+  platformTarget: {
+    type: String,
+    label: "Plateforme cible",
+    optional: true,
   },
   languages: {
       type: Array,

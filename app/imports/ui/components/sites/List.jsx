@@ -1,7 +1,7 @@
 import { withTracker } from "meteor/react-meteor-data";
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Sites, OpenshiftEnvs, Themes } from "../../../api/collections";
+import { Sites, OpenshiftEnvs, Themes, PlatformTargets } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { removeSite } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
@@ -65,6 +65,7 @@ class List extends Component {
       searchValue: "",
       openshiftEnv: "no-filter",
       theme: "no-filter",
+      platformTarget: "no-filter",
       languagesFilter: false, // Filter language used ?
       languages: [],
       sites: props.sites,
@@ -77,6 +78,7 @@ class List extends Component {
       state.searchValue === "" &&
       state.openshiftEnv === "no-filter" &&
       state.theme === "no-filter" &&
+      state.platformTarget === "no-filter" &&
       state.languagesFilter === false &&
       props.sites != state.sites
     ) {
@@ -131,7 +133,7 @@ class List extends Component {
     return find;
   }
 
-  _createFilters = (keyword, languages, openshiftEnv, theme) => {
+  _createFilters = (keyword, languages, openshiftEnv, theme, platformTarget) => {
     let filters = {};
 
     if (keyword !== "") {
@@ -144,6 +146,9 @@ class List extends Component {
     if (theme !== "no-filter") {
       filters.theme = theme;
     }
+    if (platformTarget !== "no-filter") {
+      filters.platformTarget = platformTarget;
+    }
     if (languages.length > 0) {
       filters.languages = { $all: languages };
     }
@@ -155,6 +160,7 @@ class List extends Component {
 
     const openshiftEnv = this.refs.openshiftEnv.value;
     const theme = this.refs.theme.value;
+    const platformTarget = this.refs.platformTarget.value;
     const keyword = this.refs.keyword.value;
 
     let languages = [];
@@ -166,7 +172,7 @@ class List extends Component {
       }
     }
 
-    const filters = this._createFilters(keyword, languages, openshiftEnv, theme);
+    const filters = this._createFilters(keyword, languages, openshiftEnv, theme, platformTarget);
     const sites = Sites.find(filters).fetch();
 
     let languagesFilter = true;
@@ -178,6 +184,7 @@ class List extends Component {
       searchValue: keyword,
       openshiftEnv: openshiftEnv,
       theme: theme,
+      platformTarget: platformTarget,
       sites: sites,
       languages: languages,
       languagesFilter: languagesFilter,
@@ -246,6 +253,7 @@ class List extends Component {
         "openshiftEnv",
         "categories",
         "theme",
+        "platformTarget",
         "faculty",
         "languages",
         "unitId",
@@ -380,6 +388,26 @@ class List extends Component {
                   </option>
                 ))}
               </select>
+              <select
+                ref="platformTarget"
+                name="platformTarget"
+                className="form-control mt-0"
+                onChange={this.search}
+                id="platform-target-list"
+              >
+                <option
+                  key="0"
+                  value="no-filter"
+                  label="pas de filtre par host"
+                >
+                  No Filter
+                </option>
+                {this.props.platformTargets.map((platformTarget, index) => (
+                  <option key={platformTarget._id} value={platformTarget.name} label={platformTarget.name}>
+                    {platformTarget.name}
+                  </option>
+                ))}
+              </select>
               </div>
 
               <div id="languages-checkbox">
@@ -427,11 +455,13 @@ export default withTracker(() => {
     Meteor.subscribe("sites.list"),
     Meteor.subscribe("openshiftEnv.list"),
     Meteor.subscribe("theme.list"),
+    Meteor.subscribe("platformTarget.list"),
   ];
   return {
     loading: handles.some((handle) => !handle.ready()),
     sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
     openshiftEnvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
+    platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
   };
 })(List);
