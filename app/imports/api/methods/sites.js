@@ -191,8 +191,8 @@ const insertSite = new VeritasValidatedMethod({
     newSite = await prepareUpdateInsert(newSite, "insert");
 
     let unitName, unitNameLevel2;
-    // TODO: Find a more elegant way to mock this for Travis CI
-    if (process.env.TRAVIS) {
+    // TODO: Find a more elegant way to mock this for CI
+    if (process.env.CI) {
       unitName = "isas-fsd";
       unitNameLevel2 = "vpo-si";
     } else {
@@ -263,8 +263,8 @@ const updateSite = new VeritasValidatedMethod({
     newSite = await prepareUpdateInsert(newSite, "update");
 
     let unitName, unitNameLevel2;
-    // TODO: Find a more elegant way to mock this for Travis CI
-    if (process.env.TRAVIS) {
+    // TODO: Find a more elegant way to mock this for CI
+    if (process.env.CI) {
       unitName = "isas-fsd";
       unitNameLevel2 = "vpo-si";
     } else {
