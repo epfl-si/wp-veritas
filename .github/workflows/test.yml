@@ -31,4 +31,4 @@ jobs:
         run: |
           cd app/
           meteor npm i
-          npm run test
+          npm test
