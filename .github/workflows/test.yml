@@ -1,0 +1,34 @@
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Clone meteor-synced-cron
+        uses: actions/checkout@v4
+        with:
+          repository: sebastianspiller/meteor-synced-cron
+          path: app/packages/meteor-synced-cron
+          ref: update-to-async
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install meteor
+        run: |
+          curl https://install.meteor.com | /bin/sh
+
+      - name: Test
+        run: |
+          cd app/
+          meteor npm i
+          npm test
