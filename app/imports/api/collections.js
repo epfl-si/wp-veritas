@@ -143,7 +143,7 @@ tagSchema.messageBox = messageBox;
 professorSchema.messageBox = messageBox;
 
 class Site {
-
+    
   constructor(doc) {
         Object.assign(this, doc);
     }

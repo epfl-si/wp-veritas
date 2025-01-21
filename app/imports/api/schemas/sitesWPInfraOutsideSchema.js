@@ -32,7 +32,7 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
   },
   isDeleted: {
     type: Boolean,
-    defaultValue: false,
+    defaultValue: false, 
   },
   openshiftEnv: {
       type: String,

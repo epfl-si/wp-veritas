@@ -134,7 +134,7 @@ export const sitesSchema = new SimpleSchema({
   },
   isDeleted: {
     type: Boolean,
-    defaultValue: false,
+    defaultValue: false, 
   },
   professors: {
     type: Array,
