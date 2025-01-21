@@ -20,7 +20,7 @@ const getExpectedSiteResult = async () => {
       openshiftEnv: "www",
       categories: ["Restauration"],
       theme: "wp-theme-2018",
-      platformTarget: "OpenShift 4",
+      platformTarget: "openshift-4",
       languages: site.languages,
       unitId: "13030",
       unitName: "isas-fsd",

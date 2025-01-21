@@ -54,7 +54,7 @@ class Add extends Component {
     } else {
       values.openshiftEnv = "www";
       values.theme = "wp-theme-2018";
-      values.platformTarget = "OpenShift 4";
+      values.platformTarget = "openshift-4";
     }
   };
 
@@ -116,7 +116,7 @@ class Add extends Component {
         title: "",
         openshiftEnv: "www",
         theme: "wp-theme-2018",
-        platformTarget: "OpenShift 4",
+        platformTarget: "openshift-4",
         categories: [],
         languages: [],
         unitId: "",
