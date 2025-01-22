@@ -3,6 +3,7 @@ import {
   OpenshiftEnvs,
   Categories,
   Themes,
+  PlatformTargets,
   Tags,
   Professors,
   AppLogs,
@@ -109,7 +110,7 @@ const loadTestFixtures = async () => {
 };
 
 async function resetDatabase () {
-  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, Tags, Professors, AppLogs]) {
+  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, PlatformTargets, Tags, Professors, AppLogs]) {
     await c.dropCollectionAsync();
   }
   for (const r of await Roles.getAllRoles().fetchAsync()) {
