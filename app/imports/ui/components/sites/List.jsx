@@ -91,6 +91,10 @@ class List extends Component {
     return null;
   }
 
+  onSubmit = (e) => {
+    e.preventDefault();
+  }
+
   handleClickOnDeleteButton = (siteId) => {
     let site = Sites.findOne({ _id: siteId });
 
