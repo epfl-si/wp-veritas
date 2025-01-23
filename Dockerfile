@@ -3,7 +3,7 @@ FROM ubuntu:focal
 ENV METEOR_VERSION=3.0-rc.4
 
 RUN apt -qy update && apt -qy install curl build-essential python3 git
-RUN curl https://install.meteor.com/?release=$METEOR_VERSION | bash -e -x
+RUN curl https://install.meteor.com/?release=$METEOR_VERSION | sh
 
 COPY ./app /usr/src/app/
 WORKDIR /usr/src/app/
