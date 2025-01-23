@@ -2,6 +2,9 @@ name: Test
 
 on: [push, pull_request]
 
+env:
+  METEOR_VERSION: 3.0-rc.4
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,7 +28,7 @@ jobs:
 
       - name: Install meteor
         run: |
-          curl https://install.meteor.com | /bin/sh
+          curl https://install.meteor.com/?release=$METEOR_VERSION | sh
 
       - name: Test
         run: |
