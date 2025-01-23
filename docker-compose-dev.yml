@@ -10,8 +10,6 @@
 # especially on the /app/.meteor/local folder.
 #
 
-version: '3'
-
 services:
   app:
     container_name: wp-veritas_meteor
