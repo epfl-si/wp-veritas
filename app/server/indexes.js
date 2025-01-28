@@ -11,6 +11,15 @@ Sites.rawCollection().createIndex(
 
 Sites.rawCollection().createIndex(
     {
+        "platformTarget": 1
+    },
+    {
+        name: "SitesPlatformTargetsSearchIndex"
+    }
+);
+
+Sites.rawCollection().createIndex(
+    {
         "statut": 1,
         "tags.name_fr": 1
     },

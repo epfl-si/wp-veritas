@@ -2,6 +2,7 @@ import {
   Sites,
   OpenshiftEnvs,
   Themes,
+  PlatformTargets,
   Tags,
   Categories,
   AppLogs,
@@ -32,6 +33,11 @@ if (Meteor.isServer) {
   Meteor.publish("theme.list", function () {
     let themeCursor = Themes.find({}, { sort: { name: 1 } });
     return [themeCursor];
+  });
+
+  Meteor.publish("platformTarget.list", function () {
+    let platformTargetCursor = PlatformTargets.find({}, { sort: { name: 1 } });
+    return [platformTargetCursor];
   });
 
   Meteor.publish("category.list", function () {

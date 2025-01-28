@@ -61,6 +61,11 @@ export const sitesWPInfraOutsideSchema = new SimpleSchema({
       label: "Thème",
       optional: true,
   },
+  platformTarget: {
+    type: String,
+    label: "Plateforme cible",
+    optional: true,
+  },
   languages: {
       type: Array,
       label: "Langues",

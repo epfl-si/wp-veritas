@@ -7,6 +7,7 @@ import "../imports/api/publications"; // Call meteor publications backend
 import "../imports/api/methods"; // Call meteor methods backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
+import "../imports/api/methods/platform-target";
 import "../imports/api/methods/professors";
 import "../imports/api/methods/categories";
 import "../imports/api/methods/openshift-env";

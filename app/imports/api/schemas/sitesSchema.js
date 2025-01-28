@@ -61,6 +61,13 @@ export const sitesSchema = new SimpleSchema({
       max: 100,
       min: 3,
   },
+  platformTarget: {
+    type: String,
+    label: "Plateforme cible",
+    optional: false,
+    max: 100,
+    min: 3,
+},
   languages: {
       type: Array,
       label: "Langues",

@@ -110,7 +110,7 @@ table {
 }
 
 #openshift-env-list {
-  width: 395px;
+  width: 335px;
   height: 38px;
   margin-top: 5px !important; 
   margin-right: 5px;
@@ -118,7 +118,14 @@ table {
 
 #theme-list {
   margin-top: 5px !important;
-  width: 395px;
+  margin-right: 5px;
+  width: 225px;
+  height: 38px;
+}
+
+#platform-target-list {
+  margin-top: 5px !important;
+  width: 225px;
   height: 38px;
 }
 

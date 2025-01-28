@@ -34,6 +34,7 @@ import { getUnits } from "../units";
  *         "tags": [],
  *         "professors": [],
  *         "wpInfra": true,
+ *         "platformTarget": "openshift-4",
  *         "userExperienceUniqueLabel": ""
  *       },
  *       ...,
@@ -62,9 +63,17 @@ import { getUnits } from "../units";
  * @apiExample {http} Example usage:
  *     https://wp-veritas.epfl.ch/api/v1/sites?search_url=canari
  */
+/**
+ * @api {get}  /sites?platform_target={param} Get sites by platformTarget
+ * @apiGroup Sites
+ * @apiParam {String} platform_target Text present in platformTarget
+ * @apiExample {http} Example usage:
+ *     https://wp-veritas.epfl.ch/api/v1/sites?platform_target=openshift-4
+ */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
+// and to: /api/v1/sites?platform_target=... to filter sites based on platformTarget
 // and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
@@ -84,6 +93,13 @@ REST.addRoute(
           await Sites.find({
             isDeleted: false,
             url: { $regex: queryParams.search_url, $options: "-i" },
+          }).fetchAsync()
+        );
+      } else if (queryParams && queryParams.platform_target) {
+        return formatSiteCategories(
+          await Sites.find({
+            isDeleted: false,
+            platformTarget: queryParams.platform_target,
           }).fetchAsync()
         );
       } else if (queryParams && (queryParams.text || queryParams.tags)) {
@@ -138,6 +154,7 @@ REST.addRoute(
  *         "tags": [],
  *         "professors": [],
  *         "wpInfra": true,
+ *         "platformTarget": "openshift-4",
  *         "userExperienceUniqueLabel": ""
  *       },
  *       ...,
@@ -191,6 +208,7 @@ REST.addRoute(
  * @apiSuccess {String} userExperience            Site userExperience.
  * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
  * @apiSuccess {String} wpInfra                   Site wpInfra.
+ * @apiSuccess {String} platformTarget            Site platformTarget.
  * @apiSuccess {String} ansibleHost               Site ansibleHost.
  *
  * @apiSuccessExample Success-Response:
@@ -221,6 +239,7 @@ REST.addRoute(
  *       "userExperienceUniqueLabel": ""
  *       "categories": [],
  *       "isDeleted": false,
+ *       "platformTarget": "openshift-4",
  *       "ansibleHost": "www__campus_services_canari"
  *     }
  *
@@ -279,6 +298,7 @@ REST.addRoute(
  * @apiSuccess {String} userExperience            Site userExperience.
  * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
  * @apiSuccess {String} wpInfra                   Site wpInfra.
+ * @apiSuccess {String} platformTarget            Site platformTarget.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -305,6 +325,7 @@ REST.addRoute(
  *       "tags": [],
  *       "professors": [],
  *       "wpInfra": true,
+ *       "platformTarget": "openshift-4",
  *       "userExperienceUniqueLabel": ""
  *     }
  *

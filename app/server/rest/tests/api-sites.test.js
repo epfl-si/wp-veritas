@@ -20,6 +20,7 @@ const getExpectedSiteResult = async () => {
       openshiftEnv: "www",
       categories: ["Restauration"],
       theme: "wp-theme-2018",
+      platformTarget: "openshift-4",
       languages: site.languages,
       unitId: "13030",
       unitName: "isas-fsd",
@@ -96,6 +97,23 @@ const endpointSites = () => {
     expect(res).to.have.status(200);
     expect(res.headers["content-type"]).to.equal("application/json");
     expect(JSON.stringify(res.body)).to.eql(JSON.stringify([]));
+  });
+
+  // Get sites by platformTarget
+  let endpointGetSitesSitePlatformTarget = "/api/v1/sites?platform_target";
+  it(`GET ${endpointGetSitesSitePlatformTarget}`, async function () {
+    let base_url = "http://localhost:" + process.env.PORT;
+    let expectedResult = await getExpectedSiteResult();
+    const res = await chai
+      .request(base_url)
+      .get(endpointGetSitesSitePlatformTarget + "=" + expectedResult[0].platformTarget);
+    expect(res).to.have.status(200);
+    expect(res.headers["content-type"]).to.equal("application/json");
+    let result = res.body;
+    result[0]["ansibleHost"] = generateAnsibleHostPattern(res.body[0]);
+    expect(JSON.stringify(result)).to.eql(
+      JSON.stringify(expectedResult)
+    );
   });
 
   // TODO: Get sites by URL pattern
