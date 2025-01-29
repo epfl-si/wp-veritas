@@ -1,5 +1,4 @@
 import { DDPRateLimiter } from "meteor/ddp-rate-limiter";
-import { _ } from "meteor/underscore";
 
 const rateLimiter = (methods) => {
 
