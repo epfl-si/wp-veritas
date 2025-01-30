@@ -28,7 +28,7 @@ const loadCategoriesFixtures = async () => {
   });
 
   await Categories.insertAsync({
-    name: "Restauration",
+    name: "epfl-menus",
   });
 };
 
@@ -72,7 +72,7 @@ const loadProfessorsFixtures = async () => {
 const loadSitesFixtures = async () => {
   let userId = await createUser();
   let tags = await Tags.find({}).fetchAsync();
-  let categories = await Categories.find({ name: "Restauration" }).fetchAsync();
+  let categories = await Categories.find({ name: "epfl-menus" }).fetchAsync();
   let professors = await Professors.find({ sciper: "188475" }).fetchAsync();
 
   // Create site with this professor

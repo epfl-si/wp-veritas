@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Tags } from "../../collections";
+import { Tags, Categories } from "../../collections";
 import { insertTag, updateTag, removeTag } from "../tags";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByTag } from "./helpers";
@@ -11,6 +11,9 @@ if (Meteor.isServer) {
     before(async function () {
       await resetDatabase();
       await loadFixtures();
+      await Categories.insertAsync({
+        name: "epfl-menus",
+      });
     });
 
     it("insert tag", async () => {
@@ -31,9 +34,10 @@ if (Meteor.isServer) {
 
       let nb = await Tags.find({}).countAsync();
       let tag = await Tags.findOneAsync({ name_en: "Algebra" });
+      let category = await Categories.findOneAsync({ name: "epfl-menus" });
     
       // Create site with this tag
-      await createSite(userId, [], [tag], []);
+      await createSite(userId, [category], [tag], []);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tag.name_fr, "Algèbre");

@@ -11,6 +11,9 @@ if (Meteor.isServer) {
     before(async function () {
       await resetDatabase();
       await loadFixtures();
+      await Categories.insertAsync({
+        name: "epfl-menus",
+      });
     });
 
     it("insert professor", async () => {
@@ -26,9 +29,10 @@ if (Meteor.isServer) {
 
       let nb = await Professors.find({}).countAsync();
       let professor = await Professors.findOneAsync({ sciper: "188475" });
+      let category = await Categories.findOneAsync({ name: "epfl-menus" });
       
       // Create site with this professor
-      await createSite(userId, [], [], [professor]);
+      await createSite(userId, [category], [], [professor]);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(professor.displayName, "Charmier Grégory");
