@@ -186,11 +186,9 @@ class Add extends Component {
     // Display 'Normalize button' if
     // - user edit current site (no when user add a new site)
     // - the current site belongs to WordPress Infra
-    // - the current site is not an unmanaged
     return (
       this.state.action === "edit" &&
-      initialValues.wpInfra &&
-      !initialValues.openshiftEnv.startsWith("unm-")
+      initialValues.wpInfra
     );
   };
 

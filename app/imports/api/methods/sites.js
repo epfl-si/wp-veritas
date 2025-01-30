@@ -154,17 +154,8 @@ const validateConsistencyOfFields = (newSite) => {
     }
 
     // Check if subdomains-lite site datas are OK
-    if (
-      newSite.openshiftEnv === "subdomains-lite" ||
-      newSite.openshiftEnv.startsWith("unm-") ||
-      newSite.theme === "wp-theme-light"
-    ) {
-      if (
-        !(
-          (newSite.openshiftEnv === "subdomains-lite" || newSite.openshiftEnv.startsWith("unm-")) &&
-          newSite.theme === "wp-theme-light"
-        )
-      ) {
+    if (newSite.openshiftEnv === "subdomains-lite" || newSite.theme === "wp-theme-light") {
+      if (!(newSite.openshiftEnv === "subdomains-lite" && newSite.theme === "wp-theme-light")) {
         throwMeteorErrors(
           ["theme", "openshiftEnv"],
           "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents"
