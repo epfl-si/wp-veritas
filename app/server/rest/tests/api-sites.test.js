@@ -18,7 +18,7 @@ const getExpectedSiteResult = async () => {
       tagline: "Yvon Métras",
       title: "Ma meilleure découverte 2019",
       openshiftEnv: "www",
-      categories: ["Restauration"],
+      categories: ["epfl-menus"],
       theme: "wp-theme-2018",
       platformTarget: "openshift-4",
       languages: site.languages,
