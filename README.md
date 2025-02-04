@@ -114,10 +114,9 @@ Commands:
 ## Déployer une nouvelle version OpenShift
 
 Les instances sont accessibles ici :
-- <wp-veritas.128.178.222.83.nip.io>
 - <wp-veritas-test.epfl.ch>
 - <wp-veritas.epfl.ch>
-- 
+
 On se place à la racine du projet :
 
 1. Changer la version dans `package.json` (et lancer `npm i` pour mettre à jour `package-lock.json`). Le plus simple est d'utiliser la commande `make version-major`.
