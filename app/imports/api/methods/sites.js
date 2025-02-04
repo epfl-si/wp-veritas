@@ -163,7 +163,7 @@ const validateConsistencyOfFields = (newSite) => {
       ) {
         throwMeteorErrors(
           ["categories", "openshiftEnv"],
-          "Sites www et labs: Les champs catégorie et environnement OpenShift ne sont pas cohérents"
+          "Sites www et labs: La catégorie epfl-menus est obligatoire"
         );
       }
     }
