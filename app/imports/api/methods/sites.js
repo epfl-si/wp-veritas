@@ -153,6 +153,21 @@ const validateConsistencyOfFields = (newSite) => {
       }
     }
 
+    // Check if www and labs sites datas are OK
+    if (newSite.openshiftEnv === "www" || newSite.openshiftEnv === "labs") {
+      if (
+        !(
+          (newSite.openshiftEnv === "www" || newSite.openshiftEnv === "labs") &&
+          newSite.categories.find((category) => category.name === "epfl-menus")
+        )
+      ) {
+        throwMeteorErrors(
+          ["categories", "openshiftEnv"],
+          "Sites www et labs: La catégorie epfl-menus est obligatoire"
+        );
+      }
+    }
+
     // Check if subdomains-lite site datas are OK
     if (newSite.openshiftEnv === "subdomains-lite" || newSite.theme === "wp-theme-light") {
       if (!(newSite.openshiftEnv === "subdomains-lite" && newSite.theme === "wp-theme-light")) {

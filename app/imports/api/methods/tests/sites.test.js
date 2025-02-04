@@ -21,7 +21,7 @@ if (Meteor.isServer) {
         name: "Inside",
       });
       await Categories.insertAsync({
-        name: "Restauration",
+        name: "epfl-menus",
       });
     });
 
@@ -59,7 +59,7 @@ if (Meteor.isServer) {
         tagline: "Yvon Métras",
         title: title,
         openshiftEnv: "www",
-        categories: await Categories.find({ name: "Restauration" }).fetchAsync(),
+        categories: await Categories.find({ name: "epfl-menus" }).fetchAsync(),
         theme: "wp-theme-2018",
         platformTarget: "openshift-4",
         languages: ["en", "fr"],
@@ -83,7 +83,7 @@ if (Meteor.isServer) {
       let site = await Sites.findOneAsync({ url: url });
 
       assert.strictEqual(site.categories.length, 1);
-      assert.strictEqual(site.categories[0].name, "Restauration");
+      assert.strictEqual(site.categories[0].name, "epfl-menus");
 
       assert.strictEqual(sitesNumber, 1);
       assert.strictEqual(site.title, title);
@@ -102,7 +102,7 @@ if (Meteor.isServer) {
         tagline: site.tagline,
         title: title,
         openshiftEnv: "www",
-        categories: await Categories.find({ name: "Restauration" }).fetchAsync(),
+        categories: await Categories.find({ name: "epfl-menus" }).fetchAsync(),
         theme: "wp-theme-2018",
         platformTarget: "openshift-4",
         languages: ["en", "fr"],
@@ -130,7 +130,7 @@ if (Meteor.isServer) {
       assert.strictEqual(siteAfterUpdate.title, title);
 
       assert.strictEqual(site.categories.length, 1);
-      assert.strictEqual(site.categories[0].name, "Restauration");
+      assert.strictEqual(site.categories[0].name, "epfl-menus");
     });
 
     it("remove site", async () => {
