@@ -16,3 +16,21 @@ jobs:
           docker build . \
             --no-cache \
             --tag wp-veritas
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: quay-its.epfl.ch
+          username: ${{ secrets.QUAY_ROBOT_USERNAME }}
+          password: ${{ secrets.QUAY_ROBOT_PASSWORD }}
+
+      - name: Push image
+        run: |
+          IMAGE_ID="quay-its.epfl.ch/svc0041/wp-veritas"
+
+          GIT_SHORT_HASH=$(git rev-parse --short "$GITHUB_SHA")
+          DATE=$(date "+%Y%m%d%H%M%S")
+          VERSION="dev.$DATE.$GIT_SHORT_HASH.${{ github.run_number }}"
+
+          docker tag wp-veritas $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
