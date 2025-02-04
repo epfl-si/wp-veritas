@@ -34,3 +34,14 @@ jobs:
 
           docker tag wp-veritas $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
+
+      - name: Push image with the GitHub tag
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          IMAGE_ID="quay-its.epfl.ch/svc0041/wp-veritas"
+
+          docker tag wp-veritas $IMAGE_ID:latest
+          docker push $IMAGE_ID:latest
+
+          docker tag wp-veritas $IMAGE_ID:${GITHUB_REF_NAME#v}
+          docker push $IMAGE_ID:${GITHUB_REF_NAME#v}
