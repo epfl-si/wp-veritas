@@ -1,0 +1,23 @@
+- name: Route
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: '{{ route.host }}'
+        namespace: '{{ openshift_namespace }}'
+        labels:
+          app: '{{ app_name }}'
+          team: '{{ team }}'
+          route: '{{ route.availability }}'
+      spec:
+        host: '{{ route.host }}'
+        wildcardPolicy: None
+        port:
+          targetPort: '80'
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Redirect
+        to:
+          kind: Service
+          name: '{{ app_name }}'

@@ -1,0 +1,5 @@
+- name: WP Veritas
+  hosts: all
+  gather_facts: no   # Not yet
+  roles:
+    - role: roles/epfl.wp-veritas

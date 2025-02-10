@@ -57,7 +57,7 @@ ensure_oc4_login () {
 
 ensure_ansible
 
-inventory_mode="dev"
+inventory_mode="test"
 cluster_url="https://api.ocpitst0001.xaas.epfl.ch:6443"
 while [ "$#" -gt 0 ]; do
   case "$1" in

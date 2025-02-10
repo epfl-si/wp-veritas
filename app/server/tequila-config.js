@@ -4,6 +4,7 @@ Tequila.start({
   service: "wp-veritas",
   request: ["uniqueid", "email", "group"],
   bypass: ["/api/"],
+  allowedrequesthosts: process.env.WP_VERITAS_TEQUILA_ALLOWED_HOST,
   async getUserId(tequila) {
     if (tequila.group.includes("wp-veritas-admins")) {
       await Roles.setUserRolesAsync(tequila.uniqueid, ["admin"], "wp-veritas");
