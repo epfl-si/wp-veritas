@@ -26,6 +26,7 @@ Common options:
   --list-tasks     List all tasks that would be executed.
 
 Examples:
+  $0
   $0 --prod
 HELP_MSG
 }
