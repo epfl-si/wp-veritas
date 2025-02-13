@@ -40,7 +40,11 @@
         labels:
           app: '{{ app_name }}'
           team: '{{ team }}'
-          version: '{{ tag }}'
+          app.kubernetes.io/name: '{{ app_name }}'
+          app.kubernetes.io/managed-by: 'ansible'
+          app.kubernetes.io/version: '{{ tag }}'
+        annotations:
+          app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
       spec:
         replicas: 2
         strategy:
@@ -54,8 +58,6 @@
           metadata:
             labels:
               app: '{{ app_name }}'
-              team: '{{ team }}'
-              version: '{{ tag }}'
           spec:
             serviceAccountName: '{{ app_name }}'
             affinity:
@@ -72,7 +74,9 @@
                   - containerPort: 3000
                 env:
                   - name: WP_VERITAS_AWX_URL
-                    value: '{{ WP_VERITAS_AWX_URL }}'
+                    value: '{{ awx_url }}'
+                  - name: WP_VERITAS_TEQUILA_ALLOWED_HOSTS
+                    value: '{{ tequila_allowed_hosts }}'
                   - name: ROOT_URL
                     value: 'https://{{ route.host }}'
                   - name: DEBUG
@@ -84,9 +88,6 @@
                   - secretRef:
                       name: wp-veritas
                 resources:
-                  limits:
-                    cpu: 500m
-                    memory: 512Mi
                   requests:
                     cpu: 100m
                     memory: 256Mi

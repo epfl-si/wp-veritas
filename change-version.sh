@@ -7,6 +7,12 @@ if ! [[ "$(command -v jq)" ]]; then
   echo -e "\e[34mCOMMAND:\e[39m sudo apt install jq";
   exit 1;
 fi
+# Test for yq
+if ! [[ "$(command -v yq)" ]]; then
+  echo -e "\e[31mWARNING:\e[39m yq is not installed";
+  echo -e "\e[34mCOMMAND:\e[39m brew install yq";
+  exit 1;
+fi
 # Test for npm
 if ! [[ "$(command -v npm)" ]]; then
   echo -e "\e[31mWARNING:\e[39m npm is not installed";
@@ -67,6 +73,7 @@ done
 
 change-versions() {
   change-version-package
+  change-version-ansible
 }
 
 change-version-package() {
@@ -90,6 +97,14 @@ change-version-package() {
   esac
   VERSION=$(jq -r .version app/package.json)
   echo "Version in package.json is now $VERSION"
+}
+
+change-version-ansible() {
+  VERSION=$(jq -r .version app/package.json)
+  echo "Changing version in ansible/inventory/*.json"
+  tag="$VERSION" yq -e ".all.vars.tag = strenv(tag)" -i ansible/inventory/test.yml
+  tag="$VERSION" yq -e ".all.vars.tag = strenv(tag)" -i ansible/inventory/prod.yml
+  echo "Version in ansible/inventory/*.json is now $VERSION"
 }
 ################################################################################
 if [ $SHOW == "1" ]; then
