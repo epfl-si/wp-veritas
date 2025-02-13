@@ -27,4 +27,7 @@ Tequila.start({
       emails: [tequila.email],
     },
   }),
+  tequila_fetchattributes_options: {
+    allowedrequesthosts: process.env.WP_VERITAS_TEQUILA_ALLOWED_HOSTS,
+  }
 });

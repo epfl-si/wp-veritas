@@ -1,0 +1,93 @@
+- name: ServiceAccount
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: '{{ app_name }}'
+        namespace: '{{ openshift_namespace }}'
+      imagePullSecrets:
+        - name: '{{ app_name }}-pull-secret'
+
+- name: Service
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: '{{ app_name }}'
+        namespace: '{{ openshift_namespace }}'
+        labels:
+          app: '{{ app_name }}'
+          team: '{{ team }}'
+      spec:
+        type: ClusterIP
+        ports:
+          - name: '80'
+            port: 80
+            targetPort: 3000
+        selector:
+          app: '{{ app_name }}'
+
+- name: Deployment
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: '{{ app_name }}'
+        namespace: '{{ openshift_namespace }}'
+        labels:
+          app: '{{ app_name }}'
+          team: '{{ team }}'
+          app.kubernetes.io/name: '{{ app_name }}'
+          app.kubernetes.io/managed-by: 'Ansible'
+          app.kubernetes.io/version: '{{ tag }}'
+        annotations:
+          app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
+      spec:
+        replicas: 2
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 1
+        selector:
+          matchLabels:
+            app: '{{ app_name }}'
+        template:
+          metadata:
+            labels:
+              app: '{{ app_name }}'
+          spec:
+            serviceAccountName: '{{ app_name }}'
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchLabels:
+                        app: '{{ app_name }}'
+                    topologyKey: kubernetes.io/hostname
+            containers:
+              - name: '{{ app_name }}'
+                image: '{{ quay_registry }}/{{ app_name }}:{{ tag }}'
+                ports:
+                  - containerPort: 3000
+                env:
+                  - name: WP_VERITAS_AWX_URL
+                    value: '{{ awx_url }}'
+                  - name: WP_VERITAS_TEQUILA_ALLOWED_HOSTS
+                    value: '{{ tequila_allowed_hosts }}'
+                  - name: ROOT_URL
+                    value: 'https://{{ route.host }}'
+                  - name: DEBUG
+                    value: >-
+                      {{ '-' if inventory_environment == 'prod' else '*' }}
+                  - name: PORT
+                    value: '3000'
+                envFrom:
+                  - secretRef:
+                      name: wp-veritas
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 256Mi

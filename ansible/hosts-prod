@@ -1,2 +1,0 @@
-[wwp-prod-group]
-wwp               ansible_connection=local   openshift_namespace=wwp     inventory_environment=prod

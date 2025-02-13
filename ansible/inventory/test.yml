@@ -1,0 +1,15 @@
+all:
+  hosts:
+    wp-veritas-test-openshift:
+      ansible_connection: local
+      ansible_host: localhost
+      openshift_namespace: svc0041t-wordpress
+      inventory_environment: test
+      ansible_python_interpreter: '{{ ansible_playbook_python }}'
+  vars:
+    route:
+      host: wp-veritas-test.epfl.ch
+      availability: private
+    awx_url: https://awx-poc-vpsi.epfl.ch/api/v2/job_templates/148/launch/
+    tequila_allowed_hosts: 10.98.82.188|10.98.82.189|10.98.82.190
+    tag: 2.2.2

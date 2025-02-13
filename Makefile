@@ -19,11 +19,6 @@ help:
 	@echo "  make version-minor      — Bump wp-veritas version (minor)"
 	@echo "  make version-major      — Bump wp-veritas version (major)"
 	@echo "  make version-special    — Bump wp-veritas to specified version"
-	@echo "Publication and deployment:"
-	@echo "  make publish            — To build, tag and push new Image"
-	@echo "  make deploy-dev         — To deploy on dev environment"
-	@echo "  make deploy-test        — To deploy on test environment"
-	@echo "  make deploy-prod        — To deploy on prod environment"
 	@echo "Development:"
 	@echo "  make dev-up             — Brings up Docker services for development"
 	@echo "  make dev-build          — Build Docker services for development"
@@ -106,88 +101,6 @@ version-special:
 	fi
 	@echo "Change version to $$WP_VERITAS_VERSION"
 	@./change-version.sh -a -v $$WP_VERITAS_VERSION
-
-.PHONY: docker-build
-docker-build:
-	@echo '**** Start build: ****'
-	docker build -t epflsi/wp-veritas .
-	@echo '**** End build: ****'
-
-.PHONY: docker-tag
-docker-tag:
-	@echo '**** Start tag: ****'
-	docker tag epflsi/wp-veritas:latest epflsi/wp-veritas:$(VERSION)
-	@echo '**** End tag: ****'
-
-.PHONY: docker-push
-docker-push:
-	@echo '**** Start push: ****'
-	docker push epflsi/wp-veritas:$(VERSION)
-	docker push epflsi/wp-veritas:latest
-	@echo '**** End push: ****'
-
-.PHONY: deploy-dev
-deploy-dev:
-	@echo '**** Start deploy: ****'
-	if [ -z "$$(oc project)" ]; then \
-		echo "pas loggué"; \
-		oc login; \
-	else \
-		echo "loggué"; \
-	fi
-	cd ansible/; \
-	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
-	ansible-playbook playbook.yml -i hosts-dev -vvv
-	@echo '**** End deploy: ****'
-	@echo 'https://wp-veritas.128.178.222.83.nip.io'
-
-.PHONY: deploy-test
-deploy-test:
-	@echo '**** Start deploy: ****'
-	if [ -z "$$(oc project)" ]; then \
-		echo "pas loggué"; \
-		oc login; \
-	else \
-		echo "loggué"; \
-	fi
-	cd ansible/; \
-	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
-	ansible-playbook playbook.yml -i hosts-test
-	@echo '**** End deploy: ****'
-	@echo 'https://wp-veritas-test.epfl.ch'
-
-.PHONY: deploy-prod
-deploy-prod:
-	@echo '**** Start deploy: ****'
-	if [ -z "$$(oc project)" ]; then \
-		echo "pas loggué"; \
-		oc login; \
-	else \
-		echo "loggué"; \
-	fi
-	cd ansible/; \
-	export $$(xargs < /keybase/team/epfl_wpveritas/env); \
-	ansible-playbook playbook.yml -i hosts-prod
-	@echo '**** End deploy: ****'
-	@echo 'https://wp-veritas.epfl.ch'
-
-.PHONY: git-tag
-git-tag:
-	git tag -a v$(VERSION) -m v$(VERSION)
-
-.PHONY: publish
-publish:
-	@read -p "Want to bump the version? [Yy]: " -n 1 -r; \
-	if [[ ! $$REPLY =~ ^[Yy]$$ ]]; then \
-		exit; \
-	else \
-		make version-minor; \
-	fi
-	$(MAKE) apidoc
-	$(MAKE) docker-build
-	$(MAKE) docker-tag
-	$(MAKE) docker-push
-	$(MAKE) git-tag
 
 app/packages/meteor-synced-cron:
 	@mkdir -p $(dir $@) || true
