@@ -104,7 +104,7 @@ change-version-ansible() {
   echo "Changing version in ansible/inventory/*.json"
   tag="$VERSION" yq -e ".all.vars.tag = strenv(tag)" -i ansible/inventory/test.yml
   tag="$VERSION" yq -e ".all.vars.tag = strenv(tag)" -i ansible/inventory/prod.yml
-  echo "Version in ansible/inventory/*.json is now $VERSION"
+  echo "Version in ansible/inventory/*.json are now $VERSION"
 }
 ################################################################################
 if [ $SHOW == "1" ]; then
