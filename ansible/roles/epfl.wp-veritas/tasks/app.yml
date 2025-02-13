@@ -41,7 +41,7 @@
           app: '{{ app_name }}'
           team: '{{ team }}'
           app.kubernetes.io/name: '{{ app_name }}'
-          app.kubernetes.io/managed-by: 'ansible'
+          app.kubernetes.io/managed-by: 'Ansible'
           app.kubernetes.io/version: '{{ tag }}'
         annotations:
           app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
