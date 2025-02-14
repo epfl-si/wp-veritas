@@ -92,7 +92,7 @@ REST.addRoute(
         return formatSiteCategories(
           await Sites.find({
             isDeleted: false,
-            url: { $regex: queryParams.search_url, $options: "-i" },
+            url: { $regex: queryParams.search_url, $options: "i" },
           }).fetchAsync()
         );
       } else if (queryParams && queryParams.platform_target) {
