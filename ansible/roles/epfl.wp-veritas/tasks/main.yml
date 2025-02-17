@@ -1,17 +1,21 @@
-# TODO: write proper configuration-as-code here. (All objects previously
-# featured here have diverged from their state in the actual OpenShift
-# namespaces.)
-
-- name: Deploy wp-veritas to OpenShift
-  tags: setup-openshift
-  include_tasks:
-    file: setup-openshift.yml
+- name: Secrets tasks
+  ansible.builtin.include_tasks:
+    file: 'secrets.yml'
     apply:
-      tags: setup-openshift
+      tags: wpveritas.secrets
+  tags: wpveritas.secrets
 
-- name: wp-veritas promote from test to prod
-  tags: promote
-  include_tasks:
-    file: promote.yml
+- name: Route tasks
+  ansible.builtin.include_tasks:
+    file: 'route.yml'
     apply:
-      tags: promote
+      tags: wpveritas.route
+  tags: wpveritas.route
+
+- name: App tasks
+  ansible.builtin.include_tasks:
+    file: 'app.yml'
+    apply:
+      tags: wpveritas.app
+  tags:
+    - wpveritas.app

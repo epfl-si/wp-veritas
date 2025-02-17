@@ -1,7 +1,3 @@
-# To push this playbook to OpenShift, say
-#
-#   ansible-playbook playbook.yml -i hosts-test
-
 - name: WP Veritas
   hosts: all
   gather_facts: no   # Not yet
