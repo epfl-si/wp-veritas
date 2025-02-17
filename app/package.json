@@ -37,7 +37,7 @@
     "simpl-schema": "^1.7.0",
     "simple-ldap-search": "^2.0.11",
     "sweetalert2": "^9.15.2",
-    "url-parse": "^1.4.7",
+    "url-parse": "^1.5.9",
     "yup": "^0.28.4"
   },
   "meteor": {
