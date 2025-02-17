@@ -12,4 +12,4 @@ all:
       availability: public
     awx_url: https://awx-wwp.epfl.ch/api/v2/job_templates/32/launch/
     tequila_allowed_hosts: 10.98.72.143|10.98.72.144|10.98.72.145
-    tag: 2.2.2
+    tag: 2.3.0
