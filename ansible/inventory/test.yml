@@ -11,5 +11,5 @@ all:
       host: wp-veritas-test.epfl.ch
       availability: private
     awx_url: https://awx-poc-vpsi.epfl.ch/api/v2/job_templates/148/launch/
-    tequila_allowed_hosts: 10.98.82.188|10.98.82.189|10.98.82.190
+    tequila_allowed_hosts: 10.180.21.0/24
     tag: 2.3.0
