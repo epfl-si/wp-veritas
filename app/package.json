@@ -35,7 +35,6 @@
     "reactstrap": "^8.5.1",
     "request": "^2.88.2",
     "simpl-schema": "^1.10.2",
-    "simple-ldap-search": "^2.0.11",
     "sweetalert2": "^9.15.2",
     "yup": "^0.28.4"
   },
