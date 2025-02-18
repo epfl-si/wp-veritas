@@ -12,6 +12,7 @@ LABEL maintainer="IDEV-FSD <idev-fsd@groupes.epfl.ch>"
 ENV LC_ALL=POSIX
 ENV METEOR_VERSION=3.0-rc.4
 ENV METEOR_ALLOW_SUPERUSER=1
+ENV MONGODB_TOOLS_VERSION=debian12-x86_64-100.11.0
 
 RUN apt-get -yqq update \
     && DEBIAN_FRONTEND=noninteractive apt-get -yqq install \
@@ -20,6 +21,10 @@ RUN apt-get -yqq update \
         libstdc++6 \
         make \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSLO https://fastdl.mongodb.org/tools/db/mongodb-database-tools-$MONGODB_TOOLS_VERSION.deb \
+    && apt-get -yqq install -f ./mongodb-database-tools-$MONGODB_TOOLS_VERSION.deb \
+    && rm mongodb-database-tools-$MONGODB_TOOLS_VERSION.deb
 
 RUN curl https://install.meteor.com/?release=$METEOR_VERSION | sh
 ENV PATH=$PATH:/root/.meteor
