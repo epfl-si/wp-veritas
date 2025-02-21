@@ -13,7 +13,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "colors": "^1.4.0",
     "commander": "^4.1.1",
     "mongodb": "^3.5.8"
   }
