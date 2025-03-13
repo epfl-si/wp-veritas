@@ -46,7 +46,8 @@
         annotations:
           app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
       spec:
-        replicas: 2
+        replicas: >-
+          {{ 2 if inventory_environment == 'prod' else 1 }}
         strategy:
           type: RollingUpdate
           rollingUpdate:
