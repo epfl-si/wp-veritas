@@ -131,4 +131,4 @@ dev-cli:
 
 .PHONY: dev-data
 dev-data: dev-cli
-	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src && veritas-cli load-tests-data-on-localhost-db"
+	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src && veritas-cli restore-prod-db"
