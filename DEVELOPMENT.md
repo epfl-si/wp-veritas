@@ -19,7 +19,7 @@ Lancer les commandes :
 
 ```sh
 cd app/
-meteor install i
+meteor npm install
 cd ..
 make meteor
 ```
