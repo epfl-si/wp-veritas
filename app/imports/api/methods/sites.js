@@ -197,8 +197,12 @@ const insertSite = new VeritasValidatedMethod({
   async run(newSite) {
     import { createWPSite } from "/server/kubernetes.js";
 
-    return createWPSite(newSite);
-  },
+    const { k8sName } = await createWPSite(newSite);
+    return {
+      k8sName,
+      unitName: "TODO"
+    };
+  }
 });
 
 const updateSite = new VeritasValidatedMethod({

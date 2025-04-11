@@ -46,14 +46,14 @@ export async function createWPSite (site) {
       throw new Error('Site parameter is required');
     }
 
-    const k8sSiteName = makeK8sSiteName(site);
-    if (!k8sSiteName) {
-      throw new Error('k8sSiteName could not be generated');
+    const k8sName = makeK8sSiteName(site);
+    if (!k8sName) {
+      throw new Error('k8sName could not be generated');
     }
 
     const body = { // Define body according to required schema
       metadata: {
-        name: k8sSiteName,
+        name: k8sName,
       },
       kind: 'WordpressSite',
       apiVersion: 'wordpress.epfl.ch/v2',
@@ -86,7 +86,7 @@ export async function createWPSite (site) {
       body,
     );
 
-    return "ok";
+    return { k8sName };
   } catch (err) {
     console.error('Failed to create WP Site: ', err);
     throw err;
@@ -102,6 +102,7 @@ Meteor.startup( () => {
       debug("Site " + type);
       if (type === "ADDED") {
         await Sites.insertAsync({
+          k8sName: site.metadata.name,
           url: site.spec.hostname + site.spec.path,
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,

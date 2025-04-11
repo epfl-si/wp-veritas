@@ -66,7 +66,7 @@ class Add extends Component {
     this.setState({ saveSuccess: newValue });
   };
 
-  submit = (values, actions) => {
+  submit = async (values, actions) => {
     let methodName;
     let state;
 
@@ -81,28 +81,64 @@ class Add extends Component {
       state = { addSuccess: false, editSuccess: true, action: "edit" };
     }
 
-    Meteor.call(methodName, values, (errors, site) => {
-      if (errors) {
-        console.log(errors);
-        let formErrors = {};
-        errors.details.forEach(function (error) {
-          formErrors[error.name] = error.message;
-        });
-        actions.setErrors(formErrors);
-        actions.setSubmitting(false);
-      } else {
-        actions.setSubmitting(false);
-        if (this.state.action === "add") {
-          state.previousSite = site;
-          actions.resetForm();
-        }
-        state.unitName = site.unitName;
-        this.setState(state);
-        if (this.state.action === "add") {
-          this.props.history.push("/edit/" + site._id);
-        }
+    try {
+      const { k8sName } = (await Meteor.callAsync(methodName, values));
+
+      const site = await Promise.race([
+        new Promise(async (resolve, reject) => {
+          const mySiteCursor = Sites.find({ k8sName });
+          async function tryAgain() {
+            console.log(`Trying again... ${k8sName}`);
+
+            try {
+              const exists = await mySiteCursor.fetchAsync();
+              if (exists.length) resolve(exists[0]);
+              return !! exists.length;
+            } catch (e) {
+              reject(e);
+            }
+          }
+
+          try {
+            if (! await tryAgain()) {
+              let waiting;
+              waiting = await mySiteCursor.observeAsync({
+                async added(site) {
+                  if (await tryAgain()) {
+                    if (waiting) waiting.stop();
+                  }
+                }
+              })
+            }
+          } catch (e) {
+            reject(e);
+          }
+        }),
+        new Promise((resolve, reject) => {
+          setInterval(() => reject("Timeout"), 10000);
+        })]);
+
+      actions.setSubmitting(false);
+      if (this.state.action === "add") {
+        state.previousSite = site;
+        actions.resetForm();
       }
-    });
+      state.unitName = site.unitName;
+      this.setState(state);
+      if (this.state.action === "add") {
+        this.props.history.push("/edit/" + site._id);
+      }
+    } catch (error) {
+      console.log(error);
+      let formErrors = {};
+
+      (error.details || []).forEach(function (error) {
+        formErrors[error.name] = error.message;
+      });
+
+      actions.setErrors(formErrors);
+      actions.setSubmitting(false);
+    }
   };
 
   getInitialValues = () => {
