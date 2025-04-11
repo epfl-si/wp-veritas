@@ -15,7 +15,7 @@ import Debug from "debug";
 
 const debug = Debug("server/publications");
 
-Meteor.startup(async () => {
+Meteor.startup(() => {
   const namespace = getNamespace();
   k8sWatchApi.watch(
     "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
