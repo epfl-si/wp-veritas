@@ -19,7 +19,6 @@ class VeritasValidatedMethod {
     }
 
     async function validate (...args) {
-      console.log("validate", args);
       return await validateOrig(...args);
     }
 
