@@ -6,6 +6,7 @@ import {
   Categories,
   AppLogs,
   Professors,
+  Sites
 } from "../imports/api/collections";
 import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
@@ -14,14 +15,15 @@ import Debug from "debug";
 
 const debug = Debug("server/publications");
 
-Meteor.publish("sites.list", async function () {
+Meteor.startup(async () => {
   const namespace = getNamespace();
   k8sWatchApi.watch(
     "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
     {},
     async (type, site) => {
+      debug("Site " + type);
       if (type === "ADDED") {
-        this.added("sites", site.metadata.name, {
+        await Sites.insertAsync({
           url: site.spec.hostname + site.spec.path,
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
@@ -34,20 +36,41 @@ Meteor.publish("sites.list", async function () {
           createdDate: site.metadata.creationTimestamp,
         });
       } else if (type === "DELETED") {
-        this.removed("sites", site.metadata.name);
+        const toDelete = await Sites.find({url: site.spec.hostname + site.spec.path}).fetchAsync();
+        debug(`toDelete has ${toDelete.length} entries`);
+        if (toDelete.length == 1) {
+          await Sites.removeAsync({_id: toDelete[0]._id});
+        } else if (toDelete.length > 1) {
+          throw new Error(`Unexpected multiple matches on a search on ${site.metadata.name}: ${toDelete.length} items`)
+        }
       }
     },
     () => {
       debug("Stopping Kubernetes watch");
-    }
-  ).then((sitesWatcher) => {
-    this.onStop(() => {
-      debug("Client stopped subscription");
-      sitesWatcher.abort();
     });
-  });
+})
 
+Meteor.publish("sites.list", async function () {
+  debug("sites.list: subscribed");
+  const cursor = Sites.find({});
+  for (const site of await cursor.fetchAsync()) {
+    this.added("sites", site._id, site);
+    // TODO: turn into a live query
+  }
   this.ready();
+
+  const that = this;
+  cursor.observeChangesAsync({
+    added(id, fields) {
+      that.added("sites", id, fields);
+    },
+    changed(id, fields) {
+      that.changed("sites", id, fields);
+    },
+    removed(id) {
+      that.removed("sites", id);
+    }
+  })
 });
 
 Meteor.publish("deleteSites.list", async function () {
