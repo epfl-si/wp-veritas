@@ -10,10 +10,13 @@ import {
 import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
 import { getNamespace, k8sCustomApi, k8sWatchApi } from "./kubernetes";
+import Debug from "debug";
+
+const debug = Debug("server/publications");
 
 Meteor.publish("sites.list", async function () {
   const namespace = getNamespace();
-  const sitesWatcher = k8sWatchApi.watch(
+  k8sWatchApi.watch(
     "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
     {},
     async (type, site) => {
@@ -33,10 +36,15 @@ Meteor.publish("sites.list", async function () {
       } else if (type === "DELETED") {
         this.removed("sites", site.metadata.name);
       }
+    },
+    () => {
+      debug("Stopping Kubernetes watch");
     }
-  );
-  this.onStop(() => {
-    sitesWatcher.abort();
+  ).then((sitesWatcher) => {
+    this.onStop(() => {
+      debug("Client stopped subscription");
+      sitesWatcher.abort();
+    });
   });
 
   this.ready();
