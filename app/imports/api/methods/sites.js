@@ -183,6 +183,7 @@ const validateConsistencyOfFields = (newSite) => {
 const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
+  serverOnly: true,
   validate(newSite) {
     // TODO: Default values should not be subject to data validation.
     newSite.isDeleted = false;
@@ -195,8 +196,6 @@ const insertSite = new VeritasValidatedMethod({
   },
   async run(newSite) {
     import { createWPSite } from "/server/kubernetes.js";
-
-    if ( ! Meteor.isServer ) return;
 
     return createWPSite(newSite);
   },
