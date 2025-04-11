@@ -1,5 +1,4 @@
 import {
-  Sites,
   OpenshiftEnvs,
   Themes,
   PlatformTargets,
@@ -7,17 +6,50 @@ import {
   Categories,
   AppLogs,
   Professors,
-} from "./collections";
+} from "../imports/api/collections";
 import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
+import { getNamespace, k8sCustomApi, k8sWatchApi } from "./kubernetes";
 
 if (Meteor.isServer) {
-  Meteor.publish("sites.list", function () {
-    return Sites.find({ isDeleted: false }, { sort: { url: 1 } });
+  Meteor.publish("sites.list", async function () {
+    const namespace = getNamespace();
+    const sitesWatcher = k8sWatchApi.watch(
+      "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
+      {},
+      async (type, site) => {
+        if (type === "ADDED") {
+          this.added("sites", site.metadata.name, {
+            url: site.spec.hostname + site.spec.path,
+            title: site.spec.wordpress.title,
+            tagline: site.spec.wordpress.tagline,
+            openshiftEnv: "kubernetes",
+            categories: [],
+            theme: site.spec.wordpress.theme,
+            platformTarget: "kubernetes",
+            languages: site.spec.wordpress.languages,
+            unitId: site.spec.owner.epfl.unitId,
+            createdDate: site.metadata.creationTimestamp,
+          });
+        } else if (type === "DELETED") {
+          this.removed("sites", site.metadata.name);
+        }
+      }
+    );
+    this.onStop(() => {
+      sitesWatcher.abort();
+    });
+
+    this.ready();
   });
 
-  Meteor.publish("deleteSites.list", function () {
-    return Sites.find({ isDeleted: true }, { sort: { url: 1 } });
+  Meteor.publish("deleteSites.list", async function () {
+    const sites = await Sites.find({ isDeleted: true }, { sort: { url: 1 } }).fetchAsync();
+    sites.forEach((site) => {
+      this.added("sites", site._id, site);
+    });
+
+    this.ready();
   });
 
   Meteor.publish("siteById", function (siteId) {
