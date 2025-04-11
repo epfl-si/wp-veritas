@@ -46,11 +46,6 @@ Meteor.publish("deleteSites.list", async function () {
   this.ready();
 });
 
-Meteor.publish("siteById", function (siteId) {
-  check(siteId, String);
-  return Sites.find({ _id: siteId });
-});
-
 Meteor.publish("openshiftEnv.list", function () {
   let openshiftEnvCursor = OpenshiftEnvs.find({}, { sort: { name: 1 } });
   return [openshiftEnvCursor];

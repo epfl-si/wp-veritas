@@ -676,11 +676,11 @@ export default withRouter(
     Meteor.subscribe("theme.list");
     Meteor.subscribe("platformTarget.list");
     Meteor.subscribe("category.list");
+    Meteor.subscribe("sites.list");
 
     let sites;
 
     if (props.match.path === "/edit/:_id") {
-      Meteor.subscribe("siteById", props.match.params._id);
       sites = Sites.find({ _id: props.match.params._id }).fetch();
       return {
         openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
