@@ -51,7 +51,7 @@ print-env: check-env
 .PHONY: meteor
 meteor: check-env app/packages/meteor-synced-cron
 	@echo '**** Start meteor: ****'
-	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST WP_VERITAS_AWX_TOKEN=$$AWX_TOKEN meteor --settings meteor-settings.json
+	cd app/; env WP_VERITAS_BOT_TOKEN=$$WP_VERITAS_BOT_TOKEN_TEST WP_VERITAS_ALERTS_TELEGRAM_IDS=$$WP_VERITAS_ALERTS_TELEGRAM_IDS_TEST WP_VERITAS_AWX_TOKEN=$$AWX_TOKEN meteor --settings meteor-settings.json $(METEOR_ARGS)
 
 .PHONY: test
 test: check-env app/packages/meteor-synced-cron
