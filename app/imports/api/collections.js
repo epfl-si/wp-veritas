@@ -157,9 +157,12 @@ class Site {
     }
 }
 
-export const Sites = new Mongo.Collection('sites', {
-    transform: (doc) => new Site(doc)
-});
+export const Sites = Meteor.isServer
+  ? {}
+  : new Mongo.Collection("sites", {
+      transform: (doc) => new Site(doc),
+    });
+
 
 /**
  * Search for a specific text, or a list of tags, for element with at least a tag. Sort by title

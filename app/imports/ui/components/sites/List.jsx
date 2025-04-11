@@ -463,7 +463,7 @@ export default withTracker(() => {
   ];
   return {
     loading: handles.some((handle) => !handle.ready()),
-    sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
+    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
     openshiftEnvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
     platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),

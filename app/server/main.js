@@ -2,8 +2,9 @@ import helmet from "helmet";
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
 import { loadFixtures } from "./fixtures";
+import "./kubernetes";
 
-import "../imports/api/publications"; // Call meteor publications backend
+import "./publications"; // Call meteor publications backend
 import "../imports/api/methods"; // Call meteor methods backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
@@ -15,7 +16,6 @@ import "../imports/api/methods/sites";
 
 import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
-import "./indexes";
 
 import { getEnvironment } from "../imports/api/utils";
 
