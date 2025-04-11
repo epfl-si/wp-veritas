@@ -194,57 +194,11 @@ const insertSite = new VeritasValidatedMethod({
     validateConsistencyOfFields(newSite);
   },
   async run(newSite) {
-    newSite = await prepareUpdateInsert(newSite, "insert");
+    import { createWPSite } from "/server/kubernetes.js";
 
-    let unitName, unitNameLevel2;
-    // TODO: Find a more elegant way to mock this for CI
-    if (process.env.CI) {
-      unitName = "isas-fsd";
-      unitNameLevel2 = "vpo-si";
-    } else {
-      unitName = (await getUnitNames(newSite.unitId)).unitName;
-      unitNameLevel2 = (await getUnitNames(newSite.unitId)).unitNameLevel2;
-    }
+    if ( ! Meteor.isServer ) return;
 
-    let newSiteDocument = {
-      url: newSite.url,
-      tagline: newSite.tagline,
-      title: newSite.title,
-      openshiftEnv: newSite.openshiftEnv,
-      categories: newSite.categories,
-      theme: newSite.theme,
-      platformTarget: newSite.platformTarget,
-      languages: newSite.languages,
-      unitId: newSite.unitId,
-      unitName: unitName,
-      unitNameLevel2: unitNameLevel2,
-      snowNumber: newSite.snowNumber,
-      comment: newSite.comment,
-      createdDate: new Date(),
-      userExperience: newSite.userExperience,
-      userExperienceUniqueLabel: newSite.userExperienceUniqueLabel,
-      tags: newSite.tags,
-      professors: newSite.professors,
-      wpInfra: newSite.wpInfra,
-      isDeleted: newSite.isDeleted,
-    };
-
-    let newSiteId = await Sites.insertAsync(newSiteDocument);
-    let newSiteAfterInsert = await Sites.findOneAsync({ _id: newSiteId });
-
-    AppLogger.getLog().info(
-      `Insert site ID ${newSiteId}`,
-      { before: "", after: newSiteAfterInsert },
-      this.userId
-    );
-
-    if (newSite.wpInfra) {
-      const user = await Meteor.users.findOneAsync({ _id: this.userId });
-      const message = `👀 Pssst! [${user.username}](https://people.epfl.ch/${this.userId}) created ${newSite.url} on wp-veritas! #wpSiteCreated`;
-      Telegram.sendMessage(message, /*preview=*/false);
-    }
-
-    return newSiteAfterInsert;
+    return createWPSite(newSite);
   },
 });
 
@@ -266,54 +220,7 @@ const updateSite = new VeritasValidatedMethod({
     validateConsistencyOfFields(newSite);
   },
   async run(newSite) {
-    newSite = await prepareUpdateInsert(newSite, "update");
-
-    let unitName, unitNameLevel2;
-    // TODO: Find a more elegant way to mock this for CI
-    if (process.env.CI) {
-      unitName = "isas-fsd";
-      unitNameLevel2 = "vpo-si";
-    } else {
-      unitName = (await getUnitNames(newSite.unitId)).unitName;
-      unitNameLevel2 = (await getUnitNames(newSite.unitId)).unitNameLevel2;
-    }
-
-    let newSiteDocument = {
-      url: newSite.url,
-      tagline: newSite.tagline,
-      title: newSite.title,
-      openshiftEnv: newSite.openshiftEnv,
-      categories: newSite.categories,
-      theme: newSite.theme,
-      platformTarget: newSite.platformTarget,
-      languages: newSite.languages,
-      unitId: newSite.unitId,
-      unitName: unitName,
-      unitNameLevel2: unitNameLevel2,
-      snowNumber: newSite.snowNumber,
-      comment: newSite.comment,
-      createdDate: newSite.createdDate,
-      userExperience: newSite.userExperience,
-      userExperienceUniqueLabel: newSite.userExperienceUniqueLabel,
-      tags: newSite.tags,
-      professors: newSite.professors,
-      wpInfra: newSite.wpInfra,
-      isDeleted: newSite.isDeleted,
-    };
-
-    let siteBeforeUpdate = await Sites.findOneAsync({ _id: newSite._id });
-
-    await Sites.updateAsync({ _id: newSite._id }, { $set: newSiteDocument });
-
-    let updatedSite = await Sites.findOneAsync({ _id: newSite._id });
-
-    AppLogger.getLog().info(
-      `Update site ID ${newSite._id}`,
-      { before: siteBeforeUpdate, after: updatedSite },
-      this.userId
-    );
-
-    return updatedSite;
+    return createWPSite(newSite);
   },
 });
 

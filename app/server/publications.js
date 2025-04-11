@@ -10,45 +10,9 @@ import {
 } from "../imports/api/collections";
 import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
-import { getNamespace, k8sCustomApi, k8sWatchApi } from "./kubernetes";
 import Debug from "debug";
 
 const debug = Debug("server/publications");
-
-Meteor.startup(() => {
-  const namespace = getNamespace();
-  k8sWatchApi.watch(
-    "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
-    {},
-    async (type, site) => {
-      debug("Site " + type);
-      if (type === "ADDED") {
-        await Sites.insertAsync({
-          url: site.spec.hostname + site.spec.path,
-          title: site.spec.wordpress.title,
-          tagline: site.spec.wordpress.tagline,
-          openshiftEnv: "kubernetes",
-          categories: [],
-          theme: site.spec.wordpress.theme,
-          platformTarget: "kubernetes",
-          languages: site.spec.wordpress.languages,
-          unitId: site.spec.owner.epfl.unitId,
-          createdDate: site.metadata.creationTimestamp,
-        });
-      } else if (type === "DELETED") {
-        const toDelete = await Sites.find({url: site.spec.hostname + site.spec.path}).fetchAsync();
-        debug(`toDelete has ${toDelete.length} entries`);
-        if (toDelete.length == 1) {
-          await Sites.removeAsync({_id: toDelete[0]._id});
-        } else if (toDelete.length > 1) {
-          throw new Error(`Unexpected multiple matches on a search on ${site.metadata.name}: ${toDelete.length} items`)
-        }
-      }
-    },
-    () => {
-      debug("Stopping Kubernetes watch");
-    });
-})
 
 Meteor.publish("sites.list", async function () {
   debug("sites.list: subscribed");
