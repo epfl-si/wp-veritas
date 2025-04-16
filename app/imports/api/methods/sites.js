@@ -328,12 +328,14 @@ const generateSite = new VeritasValidatedMethod({
 const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
   role: Admin,
+  serverOnly: true,
   validate: new SimpleSchema({
     siteId: { type: String },
   }).validator(),
   async run({ siteId }) {
+    import { deleteWPSite } from "/server/kubernetes.js";
     let site = await Sites.findOneAsync({ _id: siteId });
-    await Sites.updateAsync({ _id: siteId }, { $set: { isDeleted: true } });
+    await deleteWPSite(site.k8sName);
     AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
     if (site.wpInfra) {

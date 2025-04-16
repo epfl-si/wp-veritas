@@ -93,6 +93,21 @@ export async function createWPSite (site) {
   }
 }
 
+export async function deleteWPSite (k8sName) {
+  try {
+    await k8sCustomApi.deleteNamespacedCustomObject(
+      'wordpress.epfl.ch',
+      'v2',
+      getNamespace(),
+      'wordpresssites',
+      k8sName
+    );
+  } catch (err) {
+    console.error('Failed to create WP Site: ', err);
+    throw err;
+  }
+}
+
 Meteor.startup( () => {
   const namespace = getNamespace();
   k8sWatchApi.watch(
