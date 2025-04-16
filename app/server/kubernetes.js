@@ -34,10 +34,26 @@ const getNamespace = () => {
 };
 
 function makeK8sSiteName (site) {
-  // TODO:
-  // - Check the k8s name's length (63)
-  // - Call another function to check that the WPSite doesn't exist
-  return "new-site";
+  const url = new URL(site.url);
+  let K8sWPObjectName = url.hostname;
+
+  if (K8sWPObjectName.endsWith("epfl.ch")) {
+    K8sWPObjectName = K8sWPObjectName.replace(".epfl.ch", "");
+  }
+
+  K8sWPObjectName = `${K8sWPObjectName}${url.pathname}`
+  if (K8sWPObjectName && K8sWPObjectName.endsWith('/')) {
+    K8sWPObjectName = K8sWPObjectName.slice(0, -1);
+  }
+
+  K8sWPObjectName = K8sWPObjectName.replaceAll("/","-");
+  let index = 1;
+  while (K8sWPObjectName.length >= 50) {
+    K8sWPObjectName = K8sWPObjectName.split("-").slice(0, index).map(e => e[0]).concat(K8sWPObjectName.split("-").slice(index)).join("-");
+    index++;
+  }
+
+  return K8sWPObjectName;
 }
 
 export async function createWPSite (site) {
@@ -51,6 +67,18 @@ export async function createWPSite (site) {
       throw new Error('k8sName could not be generated');
     }
 
+    const parsedPlugins = site.categories.reduce((acc, category) => {
+      acc[category.name] = {};
+      return acc;
+    }, {});
+
+    const url = new URL(site.url);
+    const hostname = url.hostname;
+    let path = url.pathname;
+    if (path && path.endsWith('/')) {
+      path = path.slice(0, -1);
+    }
+
     const body = { // Define body according to required schema
       metadata: {
         name: k8sName,
@@ -58,22 +86,20 @@ export async function createWPSite (site) {
       kind: 'WordpressSite',
       apiVersion: 'wordpress.epfl.ch/v2',
       spec: {
-        hostname: 'wpn-test.epfl.ch',
-        path: '/from-wp-veritas',
+        hostname,
+        path,
         owner: {
           epfl: {
-            unitId: 13030,
+            unitId: parseInt(site.unitId),
           },
         },
         wordpress: {
           debug: true,
-          languages: ['en', 'fr'],
-          plugins: {
-            'epfl-menus': {}
-          },
-          tagline: 'École polytechnique fédérale de Lausanne',
-          theme: 'wp-theme-2018',
-          title: 'from wp veritas',
+          languages: site.languages,
+          plugins: parsedPlugins,
+          tagline: site.tagline,
+          theme: site.theme,
+          title: site.title,
         },
       },
     };
