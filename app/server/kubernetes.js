@@ -12,7 +12,7 @@ const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 const k8sCustomApi = kc.makeApiClient(k8s.CustomObjectsApi);
 const k8sWatchApi = new k8s.Watch(kc);
 
-const getNamespace = () => {
+export const getNamespace = () => {
   try {
     if (process.env.K8S_NAMESPACE) {
       return process.env.K8S_NAMESPACE;
@@ -133,39 +133,3 @@ export async function deleteWPSite (k8sName) {
     throw err;
   }
 }
-
-Meteor.startup( () => {
-  const namespace = getNamespace();
-  k8sWatchApi.watch(
-    "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
-    {},
-    async (type, site) => {
-      debug("Site " + type);
-      if (type === "ADDED") {
-        await Sites.insertAsync({
-          k8sName: site.metadata.name,
-          url: site.spec.hostname + site.spec.path,
-          title: site.spec.wordpress.title,
-          tagline: site.spec.wordpress.tagline,
-          openshiftEnv: "kubernetes",
-          categories: [],
-          theme: site.spec.wordpress.theme,
-          platformTarget: "kubernetes",
-          languages: site.spec.wordpress.languages,
-          unitId: site.spec.owner.epfl.unitId,
-          createdDate: site.metadata.creationTimestamp,
-        });
-      } else if (type === "DELETED") {
-        const toDelete = await Sites.find({url: site.spec.hostname + site.spec.path}).fetchAsync();
-        debug(`toDelete has ${toDelete.length} entries`);
-        if (toDelete.length == 1) {
-          await Sites.removeAsync({_id: toDelete[0]._id});
-        } else if (toDelete.length > 1) {
-          throw new Error(`Unexpected multiple matches on a search on ${site.metadata.name}: ${toDelete.length} items`)
-        }
-      }
-    },
-    () => {
-      debug("Stopping Kubernetes watch");
-    });
-});
