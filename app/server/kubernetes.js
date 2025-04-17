@@ -133,3 +133,21 @@ export async function deleteWPSite (k8sName) {
     throw err;
   }
 }
+
+export function watchWPSites({added, removed}) {
+  const namespace = getNamespace();
+  k8sWatchApi.watch(
+    "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
+    {},
+    async (type, site) => {
+      debug("Site " + type);
+      if (type === "ADDED") {
+        await added(site);
+      } else if (type === "DELETED") {
+        await removed(site);
+      }
+    },
+    () => {
+      debug("Stopping Kubernetes watch");
+    });
+}
