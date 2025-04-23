@@ -1,11 +1,11 @@
 import { Types } from "../imports/api/collections";
 
 const types = [
-  { name: "kubernetes", description: "Site géré par la DSI et déployé sur Kubernetes", schema: "SiteBaseSchema" },
-  { name: "external", description: "Site hébergé en dehors de l'infrastructure interne", schema: "SiteBaseSchema" },
-  { name: "archived", description: "Site archivé, conservé à des fins de référence", schema: "SiteBaseSchema" },
-  { name: "deleted", description: "Site supprimé, hors de l'infrastructure active", schema: "SiteBaseSchema" },
-  { name: "temporary", description: "Site temporaire géré par wp-klneex", schema: "SiteBaseSchema" },
+  { name: "kubernetes", description: "Site géré par la DSI et déployé sur Kubernetes", schema: "siteWPKubernetes" },
+  { name: "external", description: "Site hébergé en dehors de l'infrastructure interne", schema: "siteExternal" },
+  { name: "archived", description: "Site archivé, conservé à des fins de référence", schema: "siteWPKubernetes" },
+  { name: "deleted", description: "Site supprimé, hors de l'infrastructure active", schema: null },
+  { name: "temporary", description: "Site temporaire géré par wp-klneex", schema: null },
 ];
 
 const loadData = async () => {
