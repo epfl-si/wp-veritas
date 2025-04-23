@@ -17,7 +17,11 @@ const Cells = (props) => (
             {site.url}
           </a>
         </td>
-        <td>{site.getWpInfra()}</td>
+        <td>
+          <span className={`badge p-2 type-${site.type} text-uppercase`}>
+            {site.type}
+          </span>
+        </td>
         <td>{site.openshiftEnv}</td>
         <td>
           <Link className="mr-2" to={`/edit/${site._id}`}>
