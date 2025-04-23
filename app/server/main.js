@@ -16,6 +16,7 @@ import "../imports/api/methods/sites";
 
 import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
+import { loadData } from "./load-value";
 
 import { getEnvironment } from "../imports/api/utils";
 
@@ -53,6 +54,7 @@ if (Meteor.isServer) {
     }
 
     loadFixtures();
+    loadData();
 
     if (!disableTequila) {
       import "./tequila-config";
