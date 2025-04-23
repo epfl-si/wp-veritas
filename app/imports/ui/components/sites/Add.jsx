@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Sites, Types, Themes, Categories, PlatformTargets } from "../../../api/collections";
+import { Sites, Types, Themes, Categories } from "../../../api/collections";
 import {
   CustomSingleCheckbox,
   CustomCheckbox,
@@ -664,17 +664,15 @@ export default withRouter(
     if (props.match.path === "/edit/:_id") {
       sites = Sites.find({ _id: props.match.params._id }).fetch();
       return {
-        types: Types.find({}, { sort: { name: 1 } }).fetch(),
+        types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
         site: sites[0],
       };
     } else {
       return {
-        types: Types.find({}, { sort: { name: 1 } }).fetch(),
+        types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
       };
     }
