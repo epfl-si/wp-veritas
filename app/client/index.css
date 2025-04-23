@@ -104,31 +104,6 @@ table {
   right: 0
 }
 
-#search {
-  width: 795px;
-  height: 38px;
-}
-
-#openshift-env-list {
-  width: 335px;
-  height: 38px;
-  margin-top: 5px !important; 
-  margin-right: 5px;
-}
-
-#theme-list {
-  margin-top: 5px !important;
-  margin-right: 5px;
-  width: 225px;
-  height: 38px;
-}
-
-#platform-target-list {
-  margin-top: 5px !important;
-  width: 225px;
-  height: 38px;
-}
-
 #languages-checkbox {
   width: 750px !important;
   margin-top: 5px !important; 

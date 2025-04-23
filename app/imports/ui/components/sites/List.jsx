@@ -1,7 +1,7 @@
 import { withTracker } from "meteor/react-meteor-data";
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
-import { Sites, OpenshiftEnvs, Themes, PlatformTargets } from "../../../api/collections";
+import { Sites, Themes, Types } from "../../../api/collections";
 import { Loading } from "../Messages";
 import { removeSite } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
@@ -10,52 +10,46 @@ import Checkbox from "./CheckBox";
 const Cells = (props) => (
   <tbody>
     {props.sites.map((site, index) => (
-      <tr key={site._id}>
-        <th scope="row">{index + 1}</th>
-        <td>
-          <a href={site.url} target="_blank">
+      <tr key={site._id} className="align-middle">
+        <th scope="row" className="align-middle text-center">{index + 1}</th>
+        <td className="align-middle pl-0">
+          <a href={site.url} target="_blank" className="text-break">
             {site.url}
           </a>
         </td>
-        <td>
+        <td className="align-middle text-center">
           <span className={`badge p-2 type-${site.type} text-uppercase`}>
             {site.type}
           </span>
         </td>
-        <td>{site.openshiftEnv}</td>
-        <td>
-          <Link className="mr-2" to={`/edit/${site._id}`}>
+        <td className="">
+          <div className="d-flex flex-wrap justify-content-center">
+            <Link to={`/edit/${site._id}`} className="mr-2">
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+              >
+                Éditer
+              </button>
+            </Link>
+            <Link to={`/site-tags/${site._id}`} className="mr-2">
+              <button
+                type="button"
+                className="btn btn-outline-primary btn-sm"
+              >
+                Associer des tags
+              </button>
+            </Link>
             <button
               type="button"
-              style={{ marginBottom: "3px" }}
-              className="btn btn-outline-primary"
+              className="btn btn-outline-danger btn-sm"
+              onClick={() => {
+                props.handleClickOnDeleteButton(site._id);
+              }}
             >
-              Éditer
+              Supprimer
             </button>
-          </Link>
-          <Link className="mr-2" to={`/site-tags/${site._id}`}>
-            <button
-              type="button"
-              style={{ marginBottom: "3px" }}
-              className="btn btn-outline-primary"
-            >
-              Associer des tags
-            </button>
-          </Link>
-          <Link className="mr-2" to={`/site-professors/${site._id}`}>
-            <button type="button" className="btn btn-outline-primary">
-              Associer des professeurs
-            </button>
-          </Link>
-          <button
-            type="button"
-            className="btn btn-outline-primary"
-            onClick={() => {
-              props.handleClickOnDeleteButton(site._id);
-            }}
-          >
-            Supprimer
-          </button>
+          </div>
         </td>
       </tr>
     ))}
@@ -67,12 +61,12 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
-      openshiftEnv: "no-filter",
+      type: "no-filter",
       theme: "no-filter",
-      platformTarget: "no-filter",
       languagesFilter: false, // Filter language used ?
       languages: [],
       sites: props.sites,
+      types: props.types,
     };
   }
 
@@ -80,9 +74,8 @@ class List extends Component {
   static getDerivedStateFromProps(props, state) {
     if (
       state.searchValue === "" &&
-      state.openshiftEnv === "no-filter" &&
+      state.type === "no-filter" &&
       state.theme === "no-filter" &&
-      state.platformTarget === "no-filter" &&
       state.languagesFilter === false &&
       props.sites != state.sites
     ) {
@@ -141,21 +134,18 @@ class List extends Component {
     return find;
   }
 
-  _createFilters = (keyword, languages, openshiftEnv, theme, platformTarget) => {
+  _createFilters = (keyword, languages, type, theme) => {
     let filters = {};
 
     if (keyword !== "") {
       filters.url = { $regex: ".*" + keyword + ".*", $options: "i" };
     }
 
-    if (openshiftEnv !== "no-filter") {
-      filters.openshiftEnv = openshiftEnv;
+    if (type !== "no-filter") {
+      filters.type = type;
     }
     if (theme !== "no-filter") {
       filters.theme = theme;
-    }
-    if (platformTarget !== "no-filter") {
-      filters.platformTarget = platformTarget;
     }
     if (languages.length > 0) {
       filters.languages = { $all: languages };
@@ -165,10 +155,8 @@ class List extends Component {
 
 
   search = () => {
-
-    const openshiftEnv = this.refs.openshiftEnv.value;
+    const type = this.refs.type.value;
     const theme = this.refs.theme.value;
-    const platformTarget = this.refs.platformTarget.value;
     const keyword = this.refs.keyword.value;
 
     let languages = [];
@@ -180,7 +168,7 @@ class List extends Component {
       }
     }
 
-    const filters = this._createFilters(keyword, languages, openshiftEnv, theme, platformTarget);
+    const filters = this._createFilters(keyword, languages, type, theme);
     const sites = Sites.find(filters).fetch();
 
     let languagesFilter = true;
@@ -190,9 +178,8 @@ class List extends Component {
 
     this.setState({
       searchValue: keyword,
-      openshiftEnv: openshiftEnv,
+      type: type,
       theme: theme,
-      platformTarget: platformTarget,
       sites: sites,
       languages: languages,
       languagesFilter: languagesFilter,
@@ -200,7 +187,6 @@ class List extends Component {
   };
 
   export = () => {
-
     // Export search result
     let sites = this.state.sites;
 
@@ -240,16 +226,6 @@ class List extends Component {
       site.clusterTags = clusterTags;
     });
 
-    sites.forEach(function (site) {
-      let scipers = [];
-      if ("professors" in site) {
-        site.professors.forEach(function (professor) {
-          scipers.push(professor.sciper);
-        });
-      }
-      site.scipers = scipers;
-    });
-
     const csv = Papa.unparse({
       // Define fields to export
       fields: [
@@ -258,10 +234,9 @@ class List extends Component {
         "wpInfra",
         "title",
         "tagline",
-        "openshiftEnv",
+        "type",
         "categories",
         "theme",
-        "platformTarget",
         "faculty",
         "languages",
         "unitId",
@@ -272,7 +247,6 @@ class List extends Component {
         "facultyTags",
         "instituteTags",
         "clusterTags",
-        "scipers",
         "createdDate",
       ],
       data: sites,
@@ -336,140 +310,120 @@ class List extends Component {
             </button>
           </div>
           <form
-            className="form-inline"
             onSubmit={this.onSubmit}
             style={{ marginTop: "40px", marginBottom: "20px" }}
           >
-            <div className="input-group md-form form-sm form-2 pl-0">
-              <input
-                ref="keyword"
-                type="search"
-                id="search"
-                className="form-control my-0 py-1"
-                value={this.state.searchValue}
-                onChange={this.search}
-                placeholder="Filter par mot-clé"
-              />
-            </div>
-            <div className="form-group">
-              <select
-                ref="openshiftEnv"
-                name="openshiftEnv"
-                className="form-control mt-0"
-                onChange={this.search}
-                id="openshift-env-list"
-              >
-                <option
-                  key="0"
-                  value="no-filter"
-                  label="pas de filtre par env openshift"
-                >
-                  No Filter
-                </option>
-                {this.props.openshiftEnvs.map((openshiftEnv, index) => (
-                  <option
-                    key={openshiftEnv._id}
-                    value={openshiftEnv.name}
-                    label={openshiftEnv.name}
+            <div className="d-flex w-100 align-items-center gap-3 mb-3">
+                <div style={{flex: 1}}>
+                  <label htmlFor="search">Mot-clé</label>
+                  <input
+                    ref="keyword"
+                    type="search"
+                    id="search"
+                    className="form-control"
+                    value={this.state.searchValue}
+                    onChange={this.search}
+                    placeholder="Filtrer par mot-clé"
+                  />
+                </div>
+                <div className="ml-2">
+                  <label htmlFor="type-list">Type</label>
+                  <select
+                    ref="type"
+                    name="type"
+                    className="form-control"
+                    onChange={this.search}
+                    id="type-list"
                   >
-                    {openshiftEnv.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                ref="theme"
-                name="theme"
-                className="form-control mt-0"
-                onChange={this.search}
-                id="theme-list"
-              >
-                <option
-                  key="0"
-                  value="no-filter"
-                  label="pas de filtre par thème"
-                >
-                  No Filter
-                </option>
-                {this.props.themes.map((theme, index) => (
-                  <option key={theme._id} value={theme.name} label={theme.name}>
-                    {theme.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                ref="platformTarget"
-                name="platformTarget"
-                className="form-control mt-0"
-                onChange={this.search}
-                id="platform-target-list"
-              >
-                <option
-                  key="0"
-                  value="no-filter"
-                  label="pas de filtre par host"
-                >
-                  No Filter
-                </option>
-                {this.props.platformTargets.map((platformTarget, index) => (
-                  <option key={platformTarget._id} value={platformTarget.name} label={platformTarget.name}>
-                    {platformTarget.name}
-                  </option>
-                ))}
-              </select>
+                    <option key="0" value="no-filter">Pas de filtre type</option>
+                    {this.props.types.map((type) => (
+                      <option key={type._id} value={type.name}>
+                        {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="ml-2">
+                  <label htmlFor="theme-list">Thème</label>
+                  <select
+                    ref="theme"
+                    name="theme"
+                    className="form-control"
+                    onChange={this.search}
+                    id="theme-list"
+                  >
+                    <option key="0" value="no-filter">Pas de filtre par thème</option>
+                    {this.props.themes.map((theme) => (
+                      <option key={theme._id} value={theme.name}>
+                        {theme.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-
-              <div id="languages-checkbox">
-                <span>Filter par langues: </span>
-              {languages.map((lang) => (
-                <label key={lang.key} >
-                  <span style={{ marginLeft: "15px" }}>{lang.label}&nbsp;</span>
-                  <Checkbox ref={lang.key} name={lang.name} checked={ this.isChecked(lang) } onChange={this.search} />
-                </label>
-              ))}
+            <div className="form-group">
+              <label className="mb-0">Filtrer par langues :</label>
+              <div className="d-flex flex-wrap" id="languages-checkbox">
+                {languages.map((lang) => (
+                  <div key={lang.key} className="form-check mr-2">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      ref={lang.key}
+                      name={lang.name}
+                      checked={this.isChecked(lang)}
+                      onChange={this.search}
+                      id={`lang-${lang.key}`}
+                    />
+                    <label className="form-check-label" htmlFor={`lang-${lang.key}`}>
+                      {lang.label}
+                    </label>
+                  </div>
+                ))}
               </div>
-            
+            </div>
           </form>
-          <table className="table table-striped">
-            <thead>
-              <tr>
-                <th className="w-5" scope="col">
-                  # {this.state.sites.length }
-                </th>
-                <th className="w-25" scope="col">
-                  URL
-                </th>
-                <th className="w-10" scope="col">
-                  Infrastructure VPSI
-                </th>
-                <th className="w-10" scope="col">
-                  Env. Openshift
-                </th>
-                <th className="w-30">Actions</th>
-              </tr>
-            </thead>
-            <Cells
-              sites={this.state.sites}
-              handleClickOnDeleteButton={this.handleClickOnDeleteButton}
-            />
-          </table>
+
+          
+          <div className="table-responsive">
+            <table className="table table-striped">
+              <thead className="table-light">
+                <tr>
+                  <th className="text-center" scope="col" style={{ width: "7%" }}>
+                    # {this.props.sites.length}
+                  </th>
+                  <th className="w-50 pl-0" scope="col">
+                    URL
+                  </th>
+                  <th className="w-10 text-center" scope="col">
+                    Type
+                  </th>
+                  <th className="w-20 text-center">Actions</th>
+                </tr>
+              </thead>
+              <Cells
+                sites={this.state.sites}
+                handleClickOnDeleteButton={this.handleClickOnDeleteButton}
+              />
+            </table>
+          </div>
         </Fragment>
       );
     }
     return content;
   }
 }
+
 export default withTracker(() => {
   const handles = [
     Meteor.subscribe("sites.list"),
-    Meteor.subscribe("openshiftEnv.list"),
     Meteor.subscribe("theme.list"),
-    Meteor.subscribe("platformTarget.list"),
+    Meteor.subscribe("type.list"),
   ];
   return {
     loading: handles.some((handle) => !handle.ready()),
     sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
-    openshiftEnvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-    platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
+    types: Types.find({}, { sort: { name: 1 } }).fetch(),
   };
 })(List);

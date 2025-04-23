@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Sites, OpenshiftEnvs, Themes, Categories, PlatformTargets } from "../../../api/collections";
+import { Sites, Types, Themes, Categories, PlatformTargets } from "../../../api/collections";
 import {
   CustomSingleCheckbox,
   CustomCheckbox,
@@ -45,16 +45,14 @@ class Add extends Component {
 
   updateFields = (event, values) => {
     if (event.target.checked === false) {
-      values.openshiftEnv = "";
+      values.type = "";
       values.theme = "";
-      values.platformTarget = "";
       values.unitId = "";
       values.languages = [];
       values.categories = [];
     } else {
-      values.openshiftEnv = "www";
+      values.type = "kubernetes";
       values.theme = "wp-theme-2018";
-      values.platformTarget = "openshift-4";
     }
   };
 
@@ -150,17 +148,14 @@ class Add extends Component {
         userExperienceUniqueLabel: "",
         tagline: "",
         title: "",
-        openshiftEnv: "www",
+        type: "kubernetes",
         theme: "wp-theme-2018",
-        platformTarget: "openshift-4",
         categories: [],
         languages: [],
         unitId: "",
         snowNumber: "",
         comment: "",
         tags: [],
-        professors: [],
-        wpInfra: true,
       };
     } else if (this.state.action == "edit") {
       initialValues = this.props.site;
@@ -170,9 +165,7 @@ class Add extends Component {
 
   isLoading = (initialValues) => {
     const isLoading =
-      this.props.openshiftenvs === undefined ||
       this.props.themes === undefined ||
-      this.props.platformtargets === undefined ||
       this.props.categories === undefined ||
       initialValues === undefined;
     return isLoading;
@@ -331,6 +324,27 @@ class Add extends Component {
                   }}
                   onBlur={(e) => {
                     handleBlur(e);
+                    this.updateUserMsg();
+                  }}
+                  label="Type du site"
+                  name="type"
+                  component={CustomSelect}
+                >
+                  {this.props.types.map((type, index) => (
+                    <option key={type._id} value={type.name} label={type.name.charAt(0).toUpperCase() + type.name.slice(1)}>
+                      {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
+                    </option>
+                  ))}
+                </Field>
+                <ErrorMessage name="type" component={CustomError} />
+
+                <Field
+                  onChange={(e) => {
+                    handleChange(e);
+                    this.updateUserMsg();
+                  }}
+                  onBlur={(e) => {
+                    handleBlur(e);
                     setFieldValue(event.target.name, event.target.value.trim());
                     this.updateUserMsg();
                   }}
@@ -359,48 +373,6 @@ class Add extends Component {
                   component={CustomInput}
                 />
                 <ErrorMessage name="title" component={CustomError} />
-
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateFields(e, values);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Site dans l'infrastructure WordPress VPSI ?"
-                  name="wpInfra"
-                  type="checkbox"
-                  checked={values.wpInfra}
-                  component={CustomSingleCheckbox}
-                />
-
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Environnement Openshift"
-                  name="openshiftEnv"
-                  component={CustomSelect}
-                  disabled={values.wpInfra === false}
-                >
-                  {values.wpInfra === false ? (
-                    <option key="blank" value="blank" label=""></option>
-                  ) : null}
-                  {this.props.openshiftenvs.map((env, index) => (
-                    <option key={env._id} value={env.name} label={env.name}>
-                      {env.name}
-                    </option>
-                  ))}
-                </Field>
-                <ErrorMessage name="openshiftEnv" component={CustomError} />
 
                 <div className="form-group">
                   Catégories
@@ -444,32 +416,6 @@ class Add extends Component {
                 </Field>
 
                 <ErrorMessage name="theme" component={CustomError} />
-
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Plateforme cible"
-                  name="platformTarget"
-                  component={CustomSelect}
-                  disabled={values.wpInfra === false}
-                >
-                  {values.wpInfra === false ? (
-                    <option key="blank" value="blank" label=""></option>
-                  ) : null}
-                  {this.props.platformtargets.map((platformTarget, index) => (
-                    <option key={platformTarget._id} value={platformTarget.name} label={platformTarget.name}>
-                      {platformTarget.name}
-                    </option>
-                  ))}
-                </Field>
-
-                <ErrorMessage name="platformTarget" component={CustomError} />
 
                 <h6>Langues</h6>
                 <Field
@@ -708,10 +654,9 @@ class Add extends Component {
 }
 export default withRouter(
   withTracker((props) => {
-    Meteor.subscribe("openshiftEnv.list");
     Meteor.subscribe("theme.list");
-    Meteor.subscribe("platformTarget.list");
     Meteor.subscribe("category.list");
+    Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
 
     let sites;
@@ -719,7 +664,7 @@ export default withRouter(
     if (props.match.path === "/edit/:_id") {
       sites = Sites.find({ _id: props.match.params._id }).fetch();
       return {
-        openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
+        types: Types.find({}, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
         platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
@@ -727,7 +672,7 @@ export default withRouter(
       };
     } else {
       return {
-        openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
+        types: Types.find({}, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
         platformtargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
         categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
