@@ -136,3 +136,28 @@ table {
 #languages-checkbox label {
   display: inline !important;
 }
+
+.type-kubernetes {
+  background-color: #e0f7fa;
+  color: #006064; 
+}
+
+.type-external {
+  background-color: #d0ebff; 
+  color: #084298; 
+}
+
+.type-archived {
+  background-color: #fff3cd; 
+  color: #856404; 
+}
+
+.type-deleted {
+  background-color: #f8d7da; 
+  color: #842029; 
+}
+
+.type-temporary {
+  background-color: #e2e3e5; 
+  color: #41464b; 
+}

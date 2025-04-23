@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
 import PopOver from "../popover/PopOver";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Categories, OpenshiftEnvs, Themes, PlatformTargets } from "../../../api/collections";
+import { Categories, OpenshiftEnvs, Themes, PlatformTargets, Types } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading, DangerMessage } from "../Messages";
 import Swal from "sweetalert2";
@@ -198,6 +198,39 @@ const OpenshiftEnvsList = (props) => (
               &times;
             </span>
           </button>
+        </li>
+      ))}
+    </ul>
+  </Fragment>
+);
+
+const TypesList = (props) => (
+  <Fragment>
+    <h5 className="card-header">
+      Liste des différents types de sites
+      <PopOver
+        popoverUniqID="type"
+        title="Type du site"
+        placement="bottom"
+        description="Le type de site détermine son mode de déploiement et de stockage. Les sites internes, gérés par la DSI, sont de type kubernetes. Les sites publics ou externes utilisent le type external. Les sites archivés ou supprimés sont respectivement de type archived et deleted. Enfin, les sites temporaires, gérés par wp-klneex, sont de type temporary."
+      />
+    </h5>
+    <ul className="list-group">
+      {props.types.map((type) => (
+        <li
+          key={type._id}
+          className="list-group-item d-flex justify-content-between align-items-center px-3"
+        >
+          <div className="d-flex align-items-center gap-2">
+            <h5>
+              <span className={`badge type-${type.name} text-uppercase text-small`}>
+                {type.name}
+              </span>
+            </h5>
+          </div>
+          <span className="text-muted text-end">
+            {type.description}
+          </span>
         </li>
       ))}
     </ul>
@@ -540,6 +573,12 @@ class Admin extends Component {
             />
           </div>
 
+          <div className="my-2">
+            <TypesList
+              types={this.props.types}
+            />
+          </div>
+
           <div className="card my-2">
             <CategoriesList
               categoriesError={this.state.categoryError}
@@ -603,11 +642,13 @@ export default withTracker(() => {
   Meteor.subscribe("theme.list");
   Meteor.subscribe("platformTarget.list");
   Meteor.subscribe("category.list");
+  Meteor.subscribe("type.list");
 
   return {
     openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
     platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
     categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+    types: Types.find({}, { sort: { name: 1 } }).fetch(),
   };
 })(Admin);
