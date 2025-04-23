@@ -137,23 +137,34 @@ export const tagSchema = new SimpleSchema({
     }
 }, { tracker: Tracker } )
 
+export const typesSchema = new SimpleSchema({
+    name: {
+        type: String,
+        label: "Nom du type",
+        custom: isRequired,
+    },
+    description: {
+        type: String,
+        label: "Description du type",
+        optional: true,
+    },
+    schema: {
+        type: Object,
+        label: "Schéma du type",
+        optional: false,
+        defaultValue: "test",
+    }
+}, { check });
+
 sitesSchema.messageBox = messageBox;
 sitesWPInfraOutsideSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
+typesSchema.messageBox = messageBox;
 professorSchema.messageBox = messageBox;
 
 class Site {
-    
   constructor(doc) {
         Object.assign(this, doc);
-    }
-
-    getWpInfra() {
-      if (this.wpInfra) {
-        return 'Oui';
-      } else {
-        return 'Non';
-      }
     }
 }
 
@@ -239,6 +250,7 @@ const Categories = new Mongo.Collection('categories');
 const Themes = new Mongo.Collection('themes');
 const PlatformTargets = new Mongo.Collection('platformtargets');
 const Tags = new Mongo.Collection('tags');
+const Types = new Mongo.Collection('types');
 const Professors = new Mongo.Collection('professors');
 const AppLogs = new Mongo.Collection('AppLogs');
 
@@ -272,6 +284,12 @@ Tags.deny({
   remove() { return true; },
 });
 
+Types.deny({
+  insert() { return true; },
+  update() { return true; },
+  remove() { return true; },
+});
+
 Professors.deny({
   insert() { return true; },
   update() { return true; },
@@ -296,6 +314,7 @@ export {
   Themes,
   PlatformTargets,
   Tags,
+  Types,
   Professors,
   AppLogs
 }

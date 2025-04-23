@@ -6,7 +6,8 @@ import {
   Categories,
   AppLogs,
   Professors,
-  Sites
+  Sites,
+  Types
 } from "../imports/api/collections";
 import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
@@ -69,6 +70,11 @@ Meteor.publish("category.list", function () {
 Meteor.publish("tag.list", function () {
   let tagCursor = Tags.find({}, { sort: { name_fr: 1 } });
   return [tagCursor];
+});
+
+Meteor.publish("type.list", function () {
+  let typeCursor = Types.find({}, { sort: { name: 1 } });
+  return [typeCursor];
 });
 
 Meteor.publish("professor.list", function () {
