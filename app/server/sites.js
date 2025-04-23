@@ -13,6 +13,7 @@ Meteor.startup( async () => {
           k8sName: site.metadata.name,
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
+          type: site.spec.type,
           openshiftEnv: "kubernetes",
           categories: [],
           theme: site.spec.wordpress.theme,
