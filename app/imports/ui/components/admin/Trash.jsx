@@ -22,7 +22,6 @@ const Cells = (props) => (
             {site.type}
           </span>
         </td>
-        <td>{site.openshiftEnv}</td>
         <td>
           <Link className="mr-2" to={`/edit/${site._id}`}>
             <button

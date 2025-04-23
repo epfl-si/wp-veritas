@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
 import PopOver from "../popover/PopOver";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Categories, OpenshiftEnvs, Themes, PlatformTargets, Types } from "../../../api/collections";
+import { Categories, Themes, PlatformTargets, Types } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading, DangerMessage } from "../Messages";
 import Swal from "sweetalert2";
@@ -28,47 +28,6 @@ const ThemesForm = (props) => (
               props.updateUserMsg();
             }}
             placeholder="Nom du thème à ajouter"
-            name="name"
-            type="text"
-            component={CustomInput}
-            className=""
-          />
-          <ErrorMessage name="name" component={CustomError} />
-          <div className="my-1 text-right">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </form>
-      )}
-    </Formik>
-  </div>
-);
-
-const PlatformTargetsForm = (props) => (
-  <div className="card-body">
-    <Formik
-      onSubmit={props.submitPlatformTarget}
-      initialValues={{ name: "" }}
-      validateOnBlur={false}
-      validateOnChange={false}
-    >
-      {({ handleSubmit, isSubmitting, handleChange, handleBlur }) => (
-        <form onSubmit={handleSubmit} className="">
-          <Field
-            onChange={(e) => {
-              handleChange(e);
-              props.updateUserMsg();
-            }}
-            onBlur={(e) => {
-              handleBlur(e);
-              props.updateUserMsg();
-            }}
-            placeholder="Nom de la plateforme cible à ajouter"
             name="name"
             type="text"
             component={CustomInput}
@@ -130,80 +89,6 @@ const CategoriesForm = (props) => (
   </div>
 );
 
-const OpenShiftEnvsForm = (props) => (
-  <div className="card-body">
-    <Formik
-      onSubmit={props.submitOpenShiftEnv}
-      initialValues={{ name: "" }}
-      validateOnBlur={false}
-      validateOnChange={false}
-    >
-      {({ handleSubmit, isSubmitting, handleChange, handleBlur }) => (
-        <form onSubmit={handleSubmit} className="">
-          <Field
-            onChange={(e) => {
-              handleChange(e);
-              props.updateUserMsg();
-            }}
-            onBlur={(e) => {
-              handleBlur(e);
-              props.updateUserMsg();
-            }}
-            placeholder="Nom de l'environnement openshift à ajouter"
-            name="name"
-            type="text"
-            component={CustomInput}
-          />
-          <ErrorMessage name="name" component={CustomError} />
-          <div className="my-1 text-right">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </form>
-      )}
-    </Formik>
-  </div>
-);
-
-const OpenshiftEnvsList = (props) => (
-  <Fragment>
-    <h5 className="card-header">
-      Liste des environnements openshift
-      <PopOver
-        popoverUniqID="openshiftenv"
-        title="Environnements Openshift"
-        placement="bottom"
-        description="Les environnements OpenShift permettent de définir sur quelles machines
-                     virtuelles seront déployés les sites. Certaines conditions doivent être remplies, 
-                     comme par exemple un site dans l'environnement `inside` doit avoir l'url
-                     inside.epfl.ch."
-      />
-    </h5>
-    <ul className="list-group">
-      {props.openshiftenvs.map((env, index) => (
-        <li key={env._id} value={env.name} className="list-group-item">
-          {env.name}
-          <button type="button" className="close" aria-label="Close">
-            <span
-              onClick={() => {
-                props.handleClickOnDeleteOpenshiftButton(env._id);
-              }}
-              aria-hidden="true"
-            >
-              &times;
-            </span>
-          </button>
-        </li>
-      ))}
-    </ul>
-  </Fragment>
-);
-
 const TypesList = (props) => (
   <Fragment>
     <h5 className="card-header">
@@ -222,11 +107,9 @@ const TypesList = (props) => (
           className="list-group-item d-flex justify-content-between align-items-center px-3"
         >
           <div className="d-flex align-items-center gap-2">
-            <h5>
-              <span className={`badge type-${type.name} text-uppercase text-small`}>
-                {type.name}
-              </span>
-            </h5>
+            <span className={`badge type-${type.name} p-2 text-uppercase text-small`}>
+              {type.name}
+            </span>
           </div>
           <span className="text-muted text-end">
             {type.description}
@@ -325,37 +208,6 @@ const ThemesList = (props) => (
   </Fragment>
 );
 
-const PlatformTargetsList = (props) => (
-  <Fragment>
-    <h5 className="card-header">
-      Liste des plateformes cibles des sites WordPress
-      <PopOver
-        popoverUniqID="platformTargets"
-        title="Platforms Targets WordPress"
-        placement="bottom"
-        description="Permet de définir ..."
-      />
-    </h5>
-    <ul className="list-group">
-      {props.platformTargets.map((platformTarget, index) => (
-        <li key={platformTarget._id} value={platformTarget.name} className="list-group-item">
-          {platformTarget.name}
-          <button type="button" className="close" aria-label="Close">
-            <span
-              onClick={() => {
-                props.handleClickOnDeletePlatformTargetButton(platformTarget._id);
-              }}
-              aria-hidden="true"
-            >
-              &times;
-            </span>
-          </button>
-        </li>
-      ))}
-    </ul>
-  </Fragment>
-);
-
 class Admin extends Component {
   constructor(props) {
     super(props);
@@ -375,15 +227,9 @@ class Admin extends Component {
     let meteorMethodName;
     let target;
 
-    if (collection._name === "openshiftenvs") {
-      meteorMethodName = "insertOpenshiftEnv";
-      target = "environnement openshift";
-    } else if (collection._name === "themes") {
+    if (collection._name === "themes") {
       meteorMethodName = "insertTheme";
       target = "thème";
-    } else if (collection._name === "platformtargets") {
-      meteorMethodName = "insertPlatformTarget";
-      target = "plateforme cible";
     } else if (collection._name === "categories") {
       meteorMethodName = "insertCategory";
       target = "catégorie";
@@ -406,16 +252,8 @@ class Admin extends Component {
     });
   };
 
-  submitOpenShiftEnv = (values, actions) => {
-    this.submit(OpenshiftEnvs, values, actions);
-  };
-
   submitTheme = (values, actions) => {
     this.submit(Themes, values, actions);
-  };
-
-  submitPlatformTarget = (values, actions) => {
-    this.submit(PlatformTargets, values, actions);
   };
 
   submitCategory = (values, actions) => {
@@ -427,18 +265,10 @@ class Admin extends Component {
     let target;
     let elementToDelete;
 
-    if (collection._name === "openshiftenvs") {
-      meteorMethodName = "removeOpenshiftEnv";
-      target = "environnement openshift";
-      elementToDelete = { openshiftEnvId: elementId };
-    } else if (collection._name === "themes") {
+    if (collection._name === "themes") {
       meteorMethodName = "removeTheme";
       target = "thème";
       elementToDelete = { themeId: elementId };
-    } else if (collection._name === "platformtargets") {
-      meteorMethodName = "removePlatformTarget";
-      target = "plateforme cible";
-      elementToDelete = { platformTargetId: elementId };
     } else if (collection._name === "categories") {
       meteorMethodName = "removeCategory";
       target = "catégorie";
@@ -462,10 +292,6 @@ class Admin extends Component {
     });
   };
 
-  deleteOpenshiftEnv = (openshiftEnvID) => {
-    this.delete(OpenshiftEnvs, openshiftEnvID);
-  };
-
   deleteTheme = (themeID) => {
     this.delete(Themes, themeID);
   };
@@ -478,18 +304,6 @@ class Admin extends Component {
     this.delete(Categories, categoryID);
   };
 
-  handleClickOnDeleteOpenshiftButton = (openshiftEnvID) => {
-    this.handleClickOnDeleteButton(OpenshiftEnvs, openshiftEnvID);
-  };
-
-  handleClickOnDeleteThemeButton = (themeID) => {
-    this.handleClickOnDeleteButton(Themes, themeID);
-  };
-
-  handleClickOnDeletePlatformTargetButton = (platformTargetID) => {
-    this.handleClickOnDeleteButton(PlatformTargets, platformTargetID);
-  };
-
   handleClickOnDeleteCategoryButton = (categoryID) => {
     this.handleClickOnDeleteButton(Categories, categoryID);
   };
@@ -498,9 +312,7 @@ class Admin extends Component {
     let element = collection.findOne({ _id: elementId });
     let label;
 
-    if (collection._name === "openshiftenvs") {
-      label = "l'environnement openshift";
-    } else if (collection._name === "themes") {
+    if (collection._name === "themes") {
       label = "le thème";
     } else if (collection._name === "platformtargets") {
       label = "la plateforme cible";
@@ -519,9 +331,7 @@ class Admin extends Component {
       cancelButtonText: "Non",
     }).then((result) => {
       if (result.value) {
-        if (collection._name === "openshiftenvs") {
-          this.deleteOpenshiftEnv(elementId);
-        } else if (collection._name === "themes") {
+        if (collection._name === "themes") {
           this.deleteTheme(elementId);
         } else if (collection._name === "platformtargets") {
           this.deletePlatformTarget(elementId);
@@ -534,9 +344,8 @@ class Admin extends Component {
 
   isLoading = () => {
     const isLoading =
-      this.props.openshiftenvs === undefined ||
+      this.props.types === undefined ||
       this.props.themes === undefined ||
-      this.props.platformTargets === undefined ||
       this.props.categories === undefined;
     return isLoading;
   };
@@ -559,19 +368,6 @@ class Admin extends Component {
               message={`L'élément "${this.state.target}" a été supprimé avec succès !`}
             />
           ) : null}
-
-          <div className="card my-2">
-            <OpenshiftEnvsList
-              openshiftenvs={this.props.openshiftenvs}
-              handleClickOnDeleteOpenshiftButton={
-                this.handleClickOnDeleteOpenshiftButton
-              }
-            />
-            <OpenShiftEnvsForm
-              submitOpenShiftEnv={this.submitOpenShiftEnv}
-              updateUserMsg={this.updateUserMsg}
-            />
-          </div>
 
           <div className="my-2">
             <TypesList
@@ -606,19 +402,6 @@ class Admin extends Component {
             />
           </div>
 
-          <div className="card my-2">
-            <PlatformTargetsList
-              platformTargets={this.props.platformTargets}
-              handleClickOnDeletePlatformTargetButton={
-                this.handleClickOnDeletePlatformTargetButton
-              }
-            />
-            <PlatformTargetsForm
-              submitPlatformTarget={this.submitPlatformTarget}
-              updateUserMsg={this.updateUserMsg}
-            />
-          </div>
-
           {this.state.addSuccess ? (
             <AlertSuccess
               message={`L'élément "${this.state.target}" a été ajouté avec succès !`}
@@ -638,14 +421,12 @@ class Admin extends Component {
 }
 
 export default withTracker(() => {
-  Meteor.subscribe("openshiftEnv.list");
   Meteor.subscribe("theme.list");
   Meteor.subscribe("platformTarget.list");
   Meteor.subscribe("category.list");
   Meteor.subscribe("type.list");
 
   return {
-    openshiftenvs: OpenshiftEnvs.find({}, { sort: { name: 1 } }).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
     platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
     categories: Categories.find({}, { sort: { name: 1 } }).fetch(),

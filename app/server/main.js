@@ -11,7 +11,6 @@ import "../imports/api/methods/themes";
 import "../imports/api/methods/platform-target";
 import "../imports/api/methods/professors";
 import "../imports/api/methods/categories";
-import "../imports/api/methods/openshift-env";
 import "../imports/api/methods/sites";
 
 import { importData } from "./import-data";
