@@ -161,7 +161,7 @@ const validateConsistencyOfFields = (newSite) => {
       }
     }
 
-    if (newSite.url.includes(".epfl.ch")) {
+    if (newSite.url.includes(".epfl.ch") && !newSite.url.includes("wpn-test.epfl.ch")) {
       if (!(newSite.theme === "wp-theme-light")) {
         throwMeteorErrors(
           ["theme"],
