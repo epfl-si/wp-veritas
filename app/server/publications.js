@@ -1,11 +1,8 @@
 import {
-  OpenshiftEnvs,
   Themes,
-  PlatformTargets,
   Tags,
   Categories,
   AppLogs,
-  Professors,
   Sites,
   Types
 } from "../imports/api/collections";
@@ -22,6 +19,7 @@ Meteor.publish("sites.list", async function () {
     this.added("sites", site._id, site);
     // TODO: turn into a live query
   }
+
   this.ready();
 
   const that = this;
@@ -47,19 +45,9 @@ Meteor.publish("deleteSites.list", async function () {
   this.ready();
 });
 
-Meteor.publish("openshiftEnv.list", function () {
-  let openshiftEnvCursor = OpenshiftEnvs.find({}, { sort: { name: 1 } });
-  return [openshiftEnvCursor];
-});
-
 Meteor.publish("theme.list", function () {
   let themeCursor = Themes.find({}, { sort: { name: 1 } });
   return [themeCursor];
-});
-
-Meteor.publish("platformTarget.list", function () {
-  let platformTargetCursor = PlatformTargets.find({}, { sort: { name: 1 } });
-  return [platformTargetCursor];
 });
 
 Meteor.publish("category.list", function () {
@@ -75,11 +63,6 @@ Meteor.publish("tag.list", function () {
 Meteor.publish("type.list", function () {
   let typeCursor = Types.find({}, { sort: { name: 1 } });
   return [typeCursor];
-});
-
-Meteor.publish("professor.list", function () {
-  let professorCursor = Professors.find({}, { sort: { sciper: 1 } });
-  return [professorCursor];
 });
 
 Meteor.publish("user.list", function () {
