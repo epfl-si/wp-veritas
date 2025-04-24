@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
 import PopOver from "../popover/PopOver";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Categories, Themes, PlatformTargets, Types } from "../../../api/collections";
+import { Categories, Themes, Types } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading, DangerMessage } from "../Messages";
 import Swal from "sweetalert2";
@@ -422,13 +422,11 @@ class Admin extends Component {
 
 export default withTracker(() => {
   Meteor.subscribe("theme.list");
-  Meteor.subscribe("platformTarget.list");
   Meteor.subscribe("category.list");
   Meteor.subscribe("type.list");
 
   return {
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-    platformTargets: PlatformTargets.find({}, { sort: { name: 1 } }).fetch(),
     categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
     types: Types.find({}, { sort: { name: 1 } }).fetch(),
   };

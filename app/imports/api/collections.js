@@ -46,16 +46,6 @@ const messageBox = new MessageBox({
 
 messageBox.setLanguage('fr');
 
-export const openshiftEnvsSchema = new SimpleSchema({
-    name: {
-        type: String,
-        label: "Nom de l'environnement openshift",
-        custom: isRequired,
-    }
-}, { tracker: Tracker } );
-
-openshiftEnvsSchema.messageBox = messageBox;
-
 export const categoriesSchema = new SimpleSchema({
     name: {
         type: String,
@@ -75,34 +65,6 @@ export const themesSchema = new SimpleSchema({
 }, { check });
 
 themesSchema.messageBox = messageBox;
-
-export const platformTargetsSchema = new SimpleSchema({
-  name: {
-      type: String,
-      label: "Nom de la plateforme cible",
-      custom: isRequired,
-  }
-}, { check });
-
-platformTargetsSchema.messageBox = messageBox;
-
-export const professorSchema = new SimpleSchema({
-  // _id use to update a tag
-  _id: {
-    type: String,
-    optional: true,
-  },
-  sciper: {
-    type: String,
-    label: "Sciper",
-    custom: isRequired,
-  },
-  displayName: {
-    type: String,
-    label: "DisplayName",
-    optional: false,
-  }
-}, { tracker: Tracker } )
 
 export const tagSchema = new SimpleSchema({
     // _id use to update a tag
@@ -160,7 +122,6 @@ sitesSchema.messageBox = messageBox;
 sitesWPInfraOutsideSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
 typesSchema.messageBox = messageBox;
-professorSchema.messageBox = messageBox;
 
 class Site {
   constructor(doc) {
@@ -245,20 +206,12 @@ Sites.tagged_search = function (text="", tags=[]) {
     ).fetch();
 }
 
-const OpenshiftEnvs = new Mongo.Collection('openshiftenvs');
 const Categories = new Mongo.Collection('categories');
 const Themes = new Mongo.Collection('themes');
-const PlatformTargets = new Mongo.Collection('platformtargets');
 const Tags = new Mongo.Collection('tags');
 const Types = new Mongo.Collection('types');
-const Professors = new Mongo.Collection('professors');
 const AppLogs = new Mongo.Collection('AppLogs');
 
-OpenshiftEnvs.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
 
 Categories.deny({
   insert() { return true; },
@@ -272,12 +225,6 @@ Themes.deny({
   remove() { return true; },
 });
 
-PlatformTargets.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
 Tags.deny({
   insert() { return true; },
   update() { return true; },
@@ -285,12 +232,6 @@ Tags.deny({
 });
 
 Types.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-Professors.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
@@ -309,12 +250,9 @@ Meteor.users.deny({
 });
 
 export {
-  OpenshiftEnvs,
   Categories,
   Themes,
-  PlatformTargets,
   Tags,
   Types,
-  Professors,
   AppLogs
 }

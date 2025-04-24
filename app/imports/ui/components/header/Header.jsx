@@ -99,30 +99,6 @@ class Header extends Component {
                   </div>
                 </li>
               ) : null}
-              {this.props.currentUserIsAdmin ||
-              this.props.currentUserIsEditor ? (
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    id="navbarDropdown"
-                    role="button"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
-                  >
-                    Professeurs
-                  </a>
-                  <div className="dropdown-menu">
-                    <NavLink
-                      className="dropdown-item"
-                      to="/professors"
-                      activeClassName="active"
-                    >
-                      Gestion des professeurs
-                    </NavLink>
-                  </div>
-                </li>
-              ) : null}
               {this.props.currentUserIsAdmin ? (
                 <li className="nav-item dropdown">
                   <a
