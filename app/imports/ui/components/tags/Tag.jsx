@@ -245,6 +245,7 @@ class Tag extends Component {
                     <option value="field-of-research">
                       Domaine de recherche
                     </option>
+                    <option value="doctoral-program">Programme doctoral</option>
                   </Field>
                   <ErrorMessage name="type" component={CustomError} />
 
