@@ -22,6 +22,7 @@ class SiteTags extends React.Component {
       ...(values.facultyTags || []),
       ...(values.instituteTags || []),
       ...(values.fieldOfResearchTags || []),
+      ...(values.doctoralProgramTags || []),
     ];
 
     let site = this.getSite();
@@ -30,7 +31,7 @@ class SiteTags extends React.Component {
       this.setState({ saveSuccess: true });
     } catch (errors) {
       console.error(errors);
-      if (! errors.details) throw errors;
+      if (!errors.details) throw errors;
       let formErrors = {};
       errors.details.forEach(function (error) {
         formErrors[error.name] = error.message;
@@ -47,15 +48,18 @@ class SiteTags extends React.Component {
       this.props.facultyTags === undefined ||
       this.props.instituteTags === undefined ||
       this.props.fieldOfResearchTags === undefined ||
+      this.props.doctoralProgramTags === undefined ||
       site == undefined
     );
   }
 
   getSite = () => {
-    // Get the URL parameter
     let siteId = this.props.match.params._id;
-    let site = Sites.findOne({ _id: siteId });
-    return site;
+    return Sites.findOne({ _id: siteId });
+  };
+
+  getTagsBySiteUrl = (siteUrl, tagList) => {
+    return tagList.filter(tag => tag.sites && tag.sites.includes(siteUrl));
   };
 
   render() {
@@ -66,11 +70,23 @@ class SiteTags extends React.Component {
     if (isLoading) {
       content = <h1>Loading....</h1>;
     } else {
-      let msgSaveSuccess = (
+
+      const siteUrl = site.url;
+
+      const getTagsForSite = (tagList) =>
+        tagList.filter(tag => tag.sites && tag.sites.includes(siteUrl));
+
+      const facultyTagsForSite = getTagsForSite(this.props.facultyTags);
+      const instituteTagsForSite = getTagsForSite(this.props.instituteTags);
+      const fieldOfResearchTagsForSite = getTagsForSite(this.props.fieldOfResearchTags);
+      const doctoralProgramTagsForSite = getTagsForSite(this.props.doctoralProgramTags);
+
+      const msgSaveSuccess = (
         <div className="alert alert-success" role="alert">
           La modification a été enregistrée avec succès !
         </div>
       );
+
 
       content = (
         <div className="my-4">
@@ -78,21 +94,19 @@ class SiteTags extends React.Component {
           {this.state.saveSuccess && msgSaveSuccess}
           <p>
             Pour le site{" "}
-            <a href={site.url} target="_blank">
+            <a href={site.url} target="_blank" rel="noopener noreferrer">
               {site.url}
             </a>
             , veuillez sélectionner ci-dessous les tags à associer:{" "}
           </p>
           <Formik
+            enableReinitialize={true}
             onSubmit={this.submit}
             initialValues={{
-              facultyTags: site.tags.filter((tag) => tag.type === "faculty"),
-              instituteTags: site.tags.filter(
-                (tag) => tag.type === "institute"
-              ),
-              fieldOfResearchTags: site.tags.filter(
-                (tag) => tag.type === "field-of-research"
-              ),
+              facultyTags: facultyTagsForSite,
+              instituteTags: instituteTagsForSite,
+              fieldOfResearchTags: fieldOfResearchTagsForSite,
+              doctoralProgramTags: doctoralProgramTagsForSite
             }}
             validateOnBlur={false}
             validateOnChange={false}
@@ -102,53 +116,59 @@ class SiteTags extends React.Component {
               isSubmitting,
               values,
               touched,
-              dirty,
               errors,
-              handleChange,
-              handleBlur,
-              handleReset,
               setFieldValue,
               setFieldTouched,
             }) => (
               <form onSubmit={handleSubmit} className="bg-white border p-4">
                 <div className="form-group clearfix">
                   <MySelect
-                    id="facultyTags"
+                    name="facultyTags"
                     value={values.facultyTags}
                     onChange={setFieldValue}
                     onBlur={setFieldTouched}
+                    options={this.props.facultyTags}
                     error={errors.facultyTags}
                     touched={touched.facultyTags}
-                    options={this.props.facultyTags}
                     saveSuccess={this.updateSaveSuccess}
                     placeholder="Sélectionner un tag faculté"
-                    name="facultyTags"
                   />
                   <MySelect
+                    name="instituteTags"
                     value={values.instituteTags}
                     onChange={setFieldValue}
                     onBlur={setFieldTouched}
+                    options={this.props.instituteTags}
                     error={errors.instituteTags}
                     touched={touched.instituteTags}
-                    options={this.props.instituteTags}
                     saveSuccess={this.updateSaveSuccess}
                     placeholder="Sélectionner un tag institut"
-                    name="instituteTags"
                   />
                   <MySelect
+                    name="fieldOfResearchTags"
                     value={values.fieldOfResearchTags}
                     onChange={setFieldValue}
                     onBlur={setFieldTouched}
+                    options={this.props.fieldOfResearchTags}
                     error={errors.fieldOfResearchTags}
                     touched={touched.fieldOfResearchTags}
-                    options={this.props.fieldOfResearchTags}
                     saveSuccess={this.updateSaveSuccess}
                     placeholder="Sélectionner un tag domaine de recherche"
-                    name="fieldOfResearchTags"
+                  />
+                  <MySelect
+                    name="doctoralProgramTags"
+                    value={values.doctoralProgramTags}
+                    onChange={setFieldValue}
+                    onBlur={setFieldTouched}
+                    options={this.props.doctoralProgramTags}
+                    error={errors.doctoralProgramTags}
+                    touched={touched.doctoralProgramTags}
+                    saveSuccess={this.updateSaveSuccess}
+                    placeholder="Sélectionner un tag programme doctoral"
                   />
                 </div>
-                <div className="my-1 text-right ">
-                  <button type="submit" className="btn btn-primary">
+                <div className="my-1 text-right">
+                  <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
                     Enregistrer
                   </button>
                 </div>
@@ -161,30 +181,21 @@ class SiteTags extends React.Component {
     return content;
   }
 }
+
 export default withTracker(() => {
   Meteor.subscribe("tag.list");
+  Meteor.subscribe("type.list");
   Meteor.subscribe("sites.list");
 
-  let facultyTags = Tags.find(
-    { type: "faculty" },
-    { sort: { name_fr: 1 } }
-  ).fetch();
-
-  let instituteTags = Tags.find(
-    { type: "institute" },
-    { sort: { name_fr: 1 } }
-  ).fetch();
-
-  let fieldOfResearchTags = Tags.find(
-    { type: "field-of-research" },
-    { sort: { name_fr: 1 } }
-  ).fetch();
+  const fetchSortedTags = (type) =>
+    Tags.find({ type }, { sort: { name_fr: 1 } }).fetch();
 
   return {
-    facultyTags: facultyTags,
-    instituteTags: instituteTags,
-    fieldOfResearchTags: fieldOfResearchTags,
-    sites: Sites.find({ isDeleted: false }).fetch(),
+    facultyTags: fetchSortedTags("faculty"),
+    instituteTags: fetchSortedTags("institute"),
+    fieldOfResearchTags: fetchSortedTags("field-of-research"),
+    doctoralProgramTags: fetchSortedTags("doctoral-program"),
+    sites: Sites.find().fetch(),
   };
 })(SiteTags);
 
@@ -210,7 +221,7 @@ class MySelect extends React.Component {
           isMulti
           onChange={this.handleChange}
           onBlur={this.handleBlur}
-          value={this.props.value}
+          value={this.props.value || []}
           options={this.props.options}
           getOptionLabel={(option) => option.name_fr}
           getOptionValue={(option) => option._id}
