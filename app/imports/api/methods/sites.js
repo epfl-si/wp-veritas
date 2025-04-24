@@ -17,33 +17,6 @@ import { siteWPKubernetesSchema } from "../schemas/siteWPKubernetesSchema";
 
 const debug = Debug("api/methods/sites");
 
-const generateAnsibleHostPattern = (site) => {
-  const currentURL = new URL(site.url);
-  let result = currentURL.host.replace(".epfl.ch", "");
-
-  // Delete the first '/'
-  let pathName = currentURL.pathname.slice(1);
-
-  // Delete the last '/'
-  pathName = pathName.slice(0, pathName.length - 1);
-
-  // Replace all '/' by '__'
-  pathName = pathName.replace(/\//g, "__");
-
-  if (pathName) {
-    result += "__" + pathName;
-  }
-
-  // Replace all '-' by '_'
-  result = result.replace(/-/g, "_");
-
-  if (getEnvironment() === "TEST") {
-    result = `test_${result}`;
-  }
-
-  return result;
-};
-
 async function getUnitNames(unitId) {
   // Ldap search to get unitName and unitLevel2
   let unit = await Meteor.applyAsync("getUnitFromLDAP", [unitId], true);
@@ -284,42 +257,6 @@ const restoreSite = new VeritasValidatedMethod({
   },
 });
 
-const associateProfessorsToSite = new VeritasValidatedMethod({
-  name: "associateProfessorsToSite",
-  role: Editor,
-  validate({ site, professors }) {
-    if (Array.isArray(professors)) {
-      professors.forEach((prof) => {
-        professorSchema.validate(prof);
-      });
-    } else {
-      throwMeteorError("professors", "Professors data are BAD");
-    }
-
-    if (site.wpInfra) {
-      sitesSchema.validate(site);
-    } else {
-      sitesWPInfraOutsideSchema.validate(site);
-    }
-  },
-  async run({ site, professors }) {
-    let siteDocument = {
-      professors: professors,
-    };
-
-    let siteBeforeUpdate = await Sites.findOneAsync({ _id: site._id });
-    await Sites.updateAsync({ _id: site._id }, { $set: siteDocument });
-
-    let updatedSite = await Sites.findOneAsync({ _id: site._id });
-
-    AppLogger.getLog().info(
-      `Associate professors to site with ID ${site._id}`,
-      { before: siteBeforeUpdate, after: updatedSite },
-      this.userId
-    );
-  },
-});
-
 const associateTagsToSite = new VeritasValidatedMethod({
   name: "associateTagsToSite",
   role: Editor,
@@ -394,9 +331,7 @@ rateLimiter([
   removeSite,
   removePermanentlySite,
   restoreSite,
-  associateProfessorsToSite,
   associateTagsToSite,
-  generateSite,
 ]);
 
 export {
@@ -405,7 +340,5 @@ export {
   removeSite,
   removePermanentlySite,
   restoreSite,
-  associateProfessorsToSite,
   associateTagsToSite,
-  generateSite,
 };
