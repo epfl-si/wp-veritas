@@ -1,9 +1,9 @@
 import SimpleSchema from 'simpl-schema';
 import { isRequired } from './utils';
-import { sitesBaseSchema } from './siteBaseSchema';
+import { siteBase, siteBaseSchema } from './siteBaseSchema';
 
-export const sitesWPSchema = new SimpleSchema({
-  ...sitesBaseSchema,
+export const siteWP = {
+  ...siteBase,
   tagline: {
       type: String,
       label: "Tagline",
@@ -55,4 +55,6 @@ export const sitesWPSchema = new SimpleSchema({
       type: String,
       allowedValues: ['en', 'fr', 'de', 'el', 'es', 'ro', 'it'],
   },
-}, { check });
+}
+
+export const siteWPSchema = new SimpleSchema(siteWP, { check });

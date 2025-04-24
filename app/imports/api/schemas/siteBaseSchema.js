@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { isRequired } from './utils';
 
-export const sitesBaseSchema = new SimpleSchema({
+export const siteBase = {
   // _id use to update a site
   _id: {
       type: String,
@@ -42,8 +42,6 @@ export const sitesBaseSchema = new SimpleSchema({
   type: {
       type: String,
       optional: false,
-      allowedValues: ['kubernetes', 'external', 'archived', 'deleted', 'temporary'],
-      defaultValue: 'kubernetes',
       label: 'Type de site',
   },
   comment: {
@@ -64,10 +62,6 @@ export const sitesBaseSchema = new SimpleSchema({
     type: String,
     optional: true,
     max: 50,
-  },
-  isDeleted: {
-    type: Boolean,
-    defaultValue: false,
   },
   tags: {
     type: Array,
@@ -101,4 +95,6 @@ export const sitesBaseSchema = new SimpleSchema({
     type: String,
     optional: true
   },
-}, { check });
+}
+
+export const siteBaseSchema = new SimpleSchema(siteBase, { check })
