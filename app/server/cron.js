@@ -1,43 +1,4 @@
-import { Sites, Professors } from '../imports/api/collections';
-
-SyncedCron.add({
-  name: 'Update professors name',
-  schedule: function(parser) {
-    return parser.text('every 24 hours');
-  },
-  job: async function(intendedAt) {
-    console.log("Update professors ...");
-
-    const publicLdapContext = require('epfl-ldap')();
-    
-    let professors = await Professors.find({}).fetchAsync();
-    for (let prof of professors) {
-      const user = await new Promise((resolve, reject) => {
-        publicLdapContext.users.getUserBySciper(prof.sciper, function(err, user) {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(user);
-          }
-        });
-      });
-
-
-      let professorDocument = {
-        displayName: user.displayName,
-      }
-      await Professors.updateAsync(
-        { _id: prof._id },
-        { $set: professorDocument }
-      );
-
-      let profAfter = await Professors.findOneAsync(prof._id);
-      console.log(`Prof: ${profAfter.sciper} after update => DisplayName: ${profAfter.displayName}`);
-
-    }
-    console.log('All professors updated:', intendedAt);
-  }
-});
+import { Sites } from '../imports/api/collections';
 
 SyncedCron.add({
   name: 'Update unit names',
