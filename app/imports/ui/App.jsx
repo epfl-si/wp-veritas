@@ -11,7 +11,6 @@ import {
   SiteTags,
   Log,
   Professor,
-  SiteProfessors,
   Trash,
 } from "./components";
 import { BrowserRouter as Router, Route } from "react-router-dom";
@@ -41,11 +40,6 @@ class Apps extends Component {
                 <Route path="/tags" component={Tag} />
                 <Route path="/tag/:_id" component={Tag} />
                 <Route path="/site-tags/:_id" component={SiteTags} />
-                <Route exact path="/professors" component={Professor} />
-                <Route
-                  path="/site-professors/:_id"
-                  component={SiteProfessors}
-                />
               </React.Fragment>
             ) : null}
             {this.props.currentUserIsAdmin ? (
