@@ -1,5 +1,6 @@
 import { watchWPSites } from "./kubernetes"
 import { Sites } from "../imports/api/collections"
+import debug from "debug";
 
 Meteor.startup( async () => {
   watchWPSites({added, removed});
