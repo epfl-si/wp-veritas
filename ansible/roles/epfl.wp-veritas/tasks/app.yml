@@ -29,6 +29,37 @@
         selector:
           app: '{{ app_name }}'
 
+- name: Role
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: '{{ app_name }}'
+        namespace: '{{ openshift_namespace }}'
+      rules:
+        - apiGroups: ['wordpress.epfl.ch']
+          resources:
+            - wordpresssites
+          verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+
+- name: RoleBinding
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: '{{ app_name }}'
+        namespace: '{{ openshift_namespace }}'
+      subjects:
+        - kind: ServiceAccount
+          name: '{{ app_name }}'
+          namespace: '{{ openshift_namespace }}'
+      roleRef:
+        kind: Role
+        name: '{{ app_name }}'
+        apiGroup: rbac.authorization.k8s.io
+
 - name: Deployment
   kubernetes.core.k8s:
     definition:
@@ -42,7 +73,7 @@
           team: '{{ team }}'
           app.kubernetes.io/name: '{{ app_name }}'
           app.kubernetes.io/managed-by: 'Ansible'
-          app.kubernetes.io/version: '{{ tag }}'
+          app.kubernetes.io/version: '3.0.0'
         annotations:
           app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
       spec:
@@ -70,7 +101,7 @@
                     topologyKey: kubernetes.io/hostname
             containers:
               - name: '{{ app_name }}'
-                image: '{{ quay_registry }}/{{ app_name }}:{{ tag }}'
+                image: '{{ quay_registry }}/{{ app_name }}:3.0.0'
                 ports:
                   - containerPort: 3000
                 env:
