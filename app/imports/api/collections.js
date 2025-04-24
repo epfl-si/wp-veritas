@@ -3,9 +3,9 @@ import SimpleSchema from 'simpl-schema';
 import { check } from 'meteor/check';
 import { Tracker } from 'meteor/tracker';
 import MessageBox from 'message-box';
-import { sitesSchema } from './schemas/sitesSchema';
-import { sitesWPInfraOutsideSchema } from './schemas/sitesWPInfraOutsideSchema';
 import { isRequired, isRequiredUnderCondition } from './schemas/utils';
+import { siteExternalSchema } from './schemas/siteExternal';
+import { siteWPSchema } from './schemas/siteWPSchema';
 
 SimpleSchema.defineValidationErrorTransform(error => {
     const ddpError = new Meteor.Error(error.message);
@@ -127,8 +127,8 @@ export const typesSchema = new SimpleSchema({
     }
 }, { check });
 
-sitesSchema.messageBox = messageBox;
-sitesWPInfraOutsideSchema.messageBox = messageBox;
+siteWPSchema.messageBox = messageBox;
+siteExternalSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
 typesSchema.messageBox = messageBox;
 
