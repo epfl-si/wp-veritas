@@ -1,5 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import { Sites, professorSchema, tagSchema } from "../collections";
+import { Sites, Types, professorSchema, tagSchema } from "../collections";
 import { sitesSchema } from "../schemas/sitesSchema";
 import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
 import { throwMeteorError, throwMeteorErrors } from "../error";
@@ -11,6 +11,8 @@ import { getEnvironment } from "../../api/utils";
 import Debug from "debug";
 
 import "../methods"; // without this line run test failed
+import { siteWPSchema } from "../schemas/siteWPSchema";
+import { siteExternal } from "../schemas/siteExternal";
 
 const debug = Debug("api/methods/sites");
 
@@ -131,49 +133,38 @@ async function prepareUpdateInsert(site, action) {
 }
 
 const validateConsistencyOfFields = (newSite) => {
-  // For "int" openshiftEnv, we want test all cases
-  if (newSite.openshiftEnv !== "int") {
-    // Check if inside site datas are OK
+  if (newSite.type === "kubernetes") {
     if (
       newSite.url.includes("inside.epfl.ch") ||
-      newSite.openshiftEnv === "inside" ||
       newSite.categories.find((category) => category.name === "Inside")
     ) {
       if (
         !(
           newSite.url.includes("inside.epfl.ch") &&
-          newSite.openshiftEnv === "inside" &&
           newSite.categories.find((category) => category.name === "Inside")
         )
       ) {
         throwMeteorErrors(
-          ["url", "categories", "openshiftEnv"],
-          "Site inside: Les champs url, catégorie et environnement OpenShift ne sont pas cohérents"
+          ["url", "categories"],
+          "Site inside: Les champs url et catégorie ne sont pas cohérents"
         );
       }
     }
 
-    // Check if www and labs sites datas are OK
-    if (newSite.openshiftEnv === "www" || newSite.openshiftEnv === "labs") {
-      if (
-        !(
-          (newSite.openshiftEnv === "www" || newSite.openshiftEnv === "labs") &&
-          newSite.categories.find((category) => category.name === "epfl-menus")
-        )
-      ) {
+    if (newSite.url.includes("www.epfl.ch")) {
+      if (newSite.categories.find((category) => category.name === "epfl-menus")) {
         throwMeteorErrors(
-          ["categories", "openshiftEnv"],
-          "Sites www et labs: La catégorie epfl-menus est obligatoire"
+          ["categories"],
+          "Sites www: La catégorie epfl-menus est obligatoire"
         );
       }
     }
 
-    // Check if subdomains-lite site datas are OK
-    if (newSite.openshiftEnv === "subdomains-lite" || newSite.theme === "wp-theme-light") {
-      if (!(newSite.openshiftEnv === "subdomains-lite" && newSite.theme === "wp-theme-light")) {
+    if (newSite.url.includes(".epfl.ch")) {
+      if (!(newSite.theme === "wp-theme-light")) {
         throwMeteorErrors(
-          ["theme", "openshiftEnv"],
-          "Site subdomains-lite: Les champs thème et environnement OpenShift ne sont pas cohérents"
+          ["theme"],
+          "Site subdomains-lite: Le champ du thème n'est pas cohérent"
         );
       }
     }
@@ -184,19 +175,28 @@ const insertSite = new VeritasValidatedMethod({
   name: "insertSite",
   role: Admin,
   serverOnly: true,
-  validate(newSite) {
-    // TODO: Default values should not be subject to data validation.
-    newSite.isDeleted = false;
-    if (newSite.wpInfra) {
-      sitesSchema.validate(newSite);
-    } else {
-      sitesWPInfraOutsideSchema.validate(newSite);
+  async validate(newSite) {
+    const type = await Types.findOneAsync({
+      name: newSite.type,
+      schema: { $ne: null }
+    })
+
+    if (!type) {
+      throwMeteorError("type", "Type de site inconnu");
     }
+
+    if (type.schema === "siteWPSchema"){
+      siteWPSchema.validate(newSite);
+    } else if (type.schema === "siteExternal") {
+      siteExternal.validate(newSite);
+    } else {
+      throwMeteorError("type", "Type de site inconnu");
+    }
+
     validateConsistencyOfFields(newSite);
   },
   async run(newSite) {
     import { createWPSite } from "/server/kubernetes.js";
-
     const { k8sName } = await createWPSite(newSite);
     return {
       k8sName,
@@ -334,15 +334,14 @@ const removeSite = new VeritasValidatedMethod({
   }).validator(),
   async run({ siteId }) {
     import { deleteWPSite } from "/server/kubernetes.js";
+
     let site = await Sites.findOneAsync({ _id: siteId });
     await deleteWPSite(site.k8sName);
     AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
-    if (site.wpInfra) {
-      const user = await Meteor.users.findOneAsync({ _id: this.userId });
-      const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} on wp-veritas! #wpSiteDeleted`;
-      Telegram.sendMessage(message, /*preview=*/false);
-    }
+    const user = await Meteor.users.findOneAsync({ _id: this.userId });
+    const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} on wp-veritas! #wpSiteDeleted`;
+    Telegram.sendMessage(message, /*preview=*/false);
   },
 });
 
