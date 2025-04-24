@@ -12,7 +12,8 @@ import Debug from "debug";
 
 import "../methods"; // without this line run test failed
 import { siteWPSchema } from "../schemas/siteWPSchema";
-import { siteExternal } from "../schemas/siteExternal";
+import { siteExternalSchema } from "../schemas/siteExternal";
+import { siteWPKubernetesSchema } from "../schemas/siteWPKubernetesSchema";
 
 const debug = Debug("api/methods/sites");
 
@@ -188,7 +189,7 @@ const insertSite = new VeritasValidatedMethod({
     if (type.schema === "siteWPSchema"){
       siteWPSchema.validate(newSite);
     } else if (type.schema === "siteExternal") {
-      siteExternal.validate(newSite);
+      siteExternalSchema.validate(newSite);
     } else {
       throwMeteorError("type", "Type de site inconnu");
     }
