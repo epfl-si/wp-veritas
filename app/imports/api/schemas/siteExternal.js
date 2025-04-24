@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
-import { sitesBaseSchema } from './siteBaseSchema';
+import { siteBase } from './siteBaseSchema';
 
-export const sitesExternal = new SimpleSchema({
-  ...sitesBaseSchema,
+export const siteExternal = new SimpleSchema({
+  ...siteBase
 }, { check });

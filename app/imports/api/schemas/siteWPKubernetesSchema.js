@@ -1,8 +1,8 @@
 import SimpleSchema from 'simpl-schema';
-import { sitesWPSchema } from './siteWPSchema';
+import { siteWP } from './siteWPSchema';
 
-export const sitesWPKubernetesSchema = new SimpleSchema({
-  ...sitesWPSchema,
+export const siteWPKubernetesSchema = new SimpleSchema({
+  ...siteWP,
   name: {
     type: String,
     optional: false,
