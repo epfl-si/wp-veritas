@@ -244,7 +244,7 @@ Tags.deny({
 Types.deny({
   insert() { return true; },
   update() { return true; },
-  remove() { return true; },
+  remove() { return false; },
 });
 
 AppLogs.deny({
