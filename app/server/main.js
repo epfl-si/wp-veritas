@@ -8,8 +8,6 @@ import "./publications"; // Call meteor publications backend
 import "../imports/api/methods"; // Call meteor methods backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
-import "../imports/api/methods/platform-target";
-import "../imports/api/methods/professors";
 import "../imports/api/methods/categories";
 import "../imports/api/methods/sites";
 
@@ -60,10 +58,8 @@ if (Meteor.isServer) {
     }
     // Import each REST API endpoint in turn, to register them
     import "./rest/categories";
-    import "./rest/professors";
     import "./rest/sites";
     import "./rest/tags";
-    import "./rest/openshiftenv";
     import "./cron";
 
     SyncedCron.start();
