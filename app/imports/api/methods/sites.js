@@ -1,7 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import { Sites, Types, professorSchema, tagSchema } from "../collections";
-import { sitesSchema } from "../schemas/sitesSchema";
-import { sitesWPInfraOutsideSchema } from "../schemas/sitesWPInfraOutsideSchema";
+import { Sites, SitesExternal, Tags, Types, tagSchema } from "../collections";
 import { throwMeteorError, throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
@@ -170,12 +168,29 @@ const insertSite = new VeritasValidatedMethod({
     validateConsistencyOfFields(newSite);
   },
   async run(newSite) {
-    import { createWPSite } from "/server/kubernetes.js";
-    const { k8sName } = await createWPSite(newSite);
-    return {
-      k8sName,
-      unitName: "TODO"
-    };
+    const type = await Types.findOneAsync({
+      name: newSite.type,
+      schema: { $ne: null }
+    })
+
+    if (!type) {
+      throwMeteorError("type", "Type de site inconnu");
+    }
+
+    if (type.schema === "internal") {
+      import { createWPSite } from "/server/kubernetes.js";
+      const { url } = await createWPSite(newSite);
+      return {
+        name: url,
+        unitName: "TODO"
+      };
+    } else if (type.schema === "external") {
+      await SitesExternal.insertAsync(newSite);
+      return {
+        url: newSite.url,
+        unitName: "TODO"
+      };
+    }
   }
 });
 
@@ -183,11 +198,6 @@ const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   validate(newSite) {
-    // TODO: Ajouter un champ professors: [] à tous les sites qui n'ont pas de prof
-    if (!("professors" in newSite)) {
-      newSite.professors = [];
-    }
-
     if (newSite.wpInfra) {
       sitesSchema.validate(newSite);
     } else {
@@ -209,14 +219,32 @@ const removeSite = new VeritasValidatedMethod({
     siteId: { type: String },
   }).validator(),
   async run({ siteId }) {
-    import { deleteWPSite } from "/server/kubernetes.js";
-
     let site = await Sites.findOneAsync({ _id: siteId });
-    await deleteWPSite(site.k8sName);
+    if (!site) {
+      throwMeteorError("site", "Site not found");
+    }
+
+    const type = await Types.findOneAsync({
+      name: newSite.type,
+      schema: { $ne: null }
+    })
+
+    if (!type) {
+      throwMeteorError("type", "Type de site inconnu");
+    }
+
+    if (type.schema === "internal") {
+      import { deleteWPSite } from "/server/kubernetes.js";
+      await deleteWPSite(site.k8sName);
+    } else if (type.schema === "external") {
+      await SitesExternal.removeAsync({ _id: siteId });
+    }
+
     AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
 
     const user = await Meteor.users.findOneAsync({ _id: this.userId });
-    const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} on wp-veritas! #wpSiteDeleted`;
+    const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} (${site.type}) on wp-veritas! #wpSiteDeleted`;
+
     Telegram.sendMessage(message, /*preview=*/false);
   },
 });

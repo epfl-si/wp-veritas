@@ -113,7 +113,7 @@ export async function createWPSite (site) {
       body,
     );
 
-    return { k8sName };
+    return { url };
   } catch (err) {
     console.error('Failed to create WP Site: ', err);
     throw err;
