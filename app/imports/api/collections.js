@@ -95,8 +95,17 @@ export const tagSchema = new SimpleSchema({
     type: {
         type: String,
         label: "Type de tag",
-        allowedValues: ['faculty', 'institute', 'field-of-research'],
-    }
+        allowedValues: ['faculty', 'institute', 'field-of-research', "doctoral-program"],
+    },
+    sites: {
+        type: Array,
+        label: "Sites",
+        optional: true,
+    },
+    'sites.$': {
+        type: String,
+        optional: true,
+    },
 }, { tracker: Tracker } )
 
 export const typesSchema = new SimpleSchema({
