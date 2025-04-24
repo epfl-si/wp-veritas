@@ -79,8 +79,16 @@ class Add extends Component {
       state = { addSuccess: false, editSuccess: true, action: "edit" };
     }
 
+    if (values.type == "external") {
+      delete values.tagline
+      delete values.title
+      delete values.categories
+      delete values.theme
+      delete values.languages
+    }
+
     try {
-      const { k8sName } = (await Meteor.callAsync(methodName, values));
+      const { k8sName } = await Meteor.callAsync(methodName, values);
 
       const site = await Promise.race([
         new Promise(async (resolve, reject) => {
@@ -91,22 +99,22 @@ class Add extends Component {
             try {
               const exists = await mySiteCursor.fetchAsync();
               if (exists.length) resolve(exists[0]);
-              return !! exists.length;
+              return !!exists.length;
             } catch (e) {
               reject(e);
             }
           }
 
           try {
-            if (! await tryAgain()) {
+            if (!(await tryAgain())) {
               let waiting;
               waiting = await mySiteCursor.observeAsync({
                 async added(site) {
                   if (await tryAgain()) {
                     if (waiting) waiting.stop();
                   }
-                }
-              })
+                },
+              });
             }
           } catch (e) {
             reject(e);
@@ -114,7 +122,8 @@ class Add extends Component {
         }),
         new Promise((resolve, reject) => {
           setInterval(() => reject("Timeout"), 10000);
-        })]);
+        }),
+      ]);
 
       actions.setSubmitting(false);
       if (this.state.action === "add") {
@@ -184,7 +193,11 @@ class Add extends Component {
   generate = async (siteId) => {
     try {
       const result = await generateSite({ siteId });
-      this.setState({ generateFailed: result !== "successful", generateSuccess: result === "successful", generateRunning: false });
+      this.setState({
+        generateFailed: result !== "successful",
+        generateSuccess: result === "successful",
+        generateRunning: false,
+      });
     } catch (error) {
       console.error("generateSite", error);
       this.setState({ generateFailed: true, generateSuccess: false, generateRunning: false });
@@ -215,10 +228,7 @@ class Add extends Component {
     // Display 'Normalize button' if
     // - user edit current site (no when user add a new site)
     // - the current site belongs to WordPress Infra
-    return (
-      this.state.action === "edit" &&
-      initialValues.wpInfra
-    );
+    return this.state.action === "edit" && initialValues.wpInfra;
   };
 
   render() {
@@ -331,206 +341,215 @@ class Add extends Component {
                   component={CustomSelect}
                 >
                   {this.props.types.map((type, index) => (
-                    <option key={type._id} value={type.name} label={type.name.charAt(0).toUpperCase() + type.name.slice(1)}>
+                    <option
+                      key={type._id}
+                      value={type.name}
+                      label={type.name.charAt(0).toUpperCase() + type.name.slice(1)}
+                    >
                       {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
                     </option>
                   ))}
                 </Field>
                 <ErrorMessage name="type" component={CustomError} />
 
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg();
-                  }}
-                  placeholder="Tagline du site à ajouter"
-                  label="Tagline"
-                  name="tagline"
-                  type="text"
-                  component={CustomInput}
-                />
-                <ErrorMessage name="tagline" component={CustomError} />
+                {values.type !== "external" && (
+                  <div>
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        setFieldValue(event.target.name, event.target.value.trim());
+                        this.updateUserMsg();
+                      }}
+                      placeholder="Tagline du site à ajouter"
+                      label="Tagline"
+                      name="tagline"
+                      type="text"
+                      component={CustomInput}
+                    />
+                    <ErrorMessage name="tagline" component={CustomError} />
 
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg();
-                  }}
-                  placeholder="Titre du site à ajouter"
-                  label="Titre"
-                  name="title"
-                  type="text"
-                  component={CustomInput}
-                />
-                <ErrorMessage name="title" component={CustomError} />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        setFieldValue(event.target.name, event.target.value.trim());
+                        this.updateUserMsg();
+                      }}
+                      placeholder="Titre du site à ajouter"
+                      label="Titre"
+                      name="title"
+                      type="text"
+                      component={CustomInput}
+                    />
+                    <ErrorMessage name="title" component={CustomError} />
 
-                <div className="form-group">
-                  Catégories
-                  <MyCategorySelect
-                    id="categories"
-                    value={values.categories}
-                    onChange={setFieldValue}
-                    onBlur={setFieldTouched}
-                    error={errors.categories}
-                    touched={touched.categories}
-                    options={this.props.categories}
-                    saveSuccess={this.updateSaveSuccess}
-                    placeholder="Sélectionner les catégories"
-                    name="categories"
-                    isDisabled={values.wpInfra === false}
-                  />
-                </div>
+                    <div className="form-group">
+                      Catégories
+                      <MyCategorySelect
+                        id="categories"
+                        value={values.categories}
+                        onChange={setFieldValue}
+                        onBlur={setFieldTouched}
+                        error={errors.categories}
+                        touched={touched.categories}
+                        options={this.props.categories}
+                        saveSuccess={this.updateSaveSuccess}
+                        placeholder="Sélectionner les catégories"
+                        name="categories"
+                        isDisabled={values.wpInfra === false}
+                      />
+                    </div>
 
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Thème"
-                  name="theme"
-                  component={CustomSelect}
-                  disabled={values.wpInfra === false}
-                >
-                  {values.wpInfra === false ? (
-                    <option key="blank" value="blank" label=""></option>
-                  ) : null}
-                  {this.props.themes.map((theme, index) => (
-                    <option key={theme._id} value={theme.name} label={theme.name}>
-                      {theme.name}
-                    </option>
-                  ))}
-                </Field>
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Thème"
+                      name="theme"
+                      component={CustomSelect}
+                      disabled={values.wpInfra === false}
+                    >
+                      {values.wpInfra === false ? (
+                        <option key="blank" value="blank" label=""></option>
+                      ) : null}
+                      {this.props.themes.map((theme, index) => (
+                        <option key={theme._id} value={theme.name} label={theme.name}>
+                          {theme.name}
+                        </option>
+                      ))}
+                    </Field>
 
-                <ErrorMessage name="theme" component={CustomError} />
+                    <ErrorMessage name="theme" component={CustomError} />
 
-                <h6>Langues</h6>
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Français"
-                  name="languages"
-                  type="checkbox"
-                  value="fr"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Anglais"
-                  name="languages"
-                  type="checkbox"
-                  value="en"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Allemand"
-                  name="languages"
-                  type="checkbox"
-                  value="de"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Italien"
-                  name="languages"
-                  type="checkbox"
-                  value="it"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Espagnol"
-                  name="languages"
-                  type="checkbox"
-                  value="es"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Grec"
-                  name="languages"
-                  type="checkbox"
-                  value="el"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    this.updateUserMsg();
-                  }}
-                  label="Roumain"
-                  name="languages"
-                  type="checkbox"
-                  value="ro"
-                  component={CustomCheckbox}
-                  disabled={values.wpInfra === false}
-                />
-                <ErrorMessage name="languages" component={CustomError} />
+                    <h6>Langues</h6>
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Français"
+                      name="languages"
+                      type="checkbox"
+                      value="fr"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Anglais"
+                      name="languages"
+                      type="checkbox"
+                      value="en"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Allemand"
+                      name="languages"
+                      type="checkbox"
+                      value="de"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Italien"
+                      name="languages"
+                      type="checkbox"
+                      value="it"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Espagnol"
+                      name="languages"
+                      type="checkbox"
+                      value="es"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Grec"
+                      name="languages"
+                      type="checkbox"
+                      value="el"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <Field
+                      onChange={(e) => {
+                        handleChange(e);
+                        this.updateUserMsg();
+                      }}
+                      onBlur={(e) => {
+                        handleBlur(e);
+                        this.updateUserMsg();
+                      }}
+                      label="Roumain"
+                      name="languages"
+                      type="checkbox"
+                      value="ro"
+                      component={CustomCheckbox}
+                      disabled={values.wpInfra === false}
+                    />
+                    <ErrorMessage name="languages" component={CustomError} />
+
+                  </div>
+                )}
 
                 <Field
                   onChange={(e) => {
