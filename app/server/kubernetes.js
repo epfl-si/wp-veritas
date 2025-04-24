@@ -79,7 +79,7 @@ export async function createWPSite (site) {
       path = path.slice(0, -1);
     }
 
-    const body = { // Define body according to required schema
+    const body = {
       metadata: {
         name: k8sName,
       },
@@ -93,6 +93,7 @@ export async function createWPSite (site) {
             unitId: parseInt(site.unitId),
           },
         },
+        type: site.type,
         wordpress: {
           debug: true,
           languages: site.languages,
