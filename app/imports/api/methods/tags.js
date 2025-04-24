@@ -47,6 +47,7 @@ const insertTag = new VeritasValidatedMethod({
       url_fr: newTag.url_fr,
       url_en: newTag.url_en,
       type: newTag.type,
+      sites: [],
     };
 
     let newTagAfterInsert = await Tags.insertAsync(newTagDocument);
@@ -88,28 +89,6 @@ const updateTag = new VeritasValidatedMethod({
       { before: tagBeforeUpdate, after: updatedTag },
       this.userId
     );
-
-    // we need update all sites that have this updated tag
-    let sites = await Sites.find({}).fetchAsync();
-    for (const site of sites) {
-      const newTags = [];
-      for (const currentTag of site.tags) {
-        if (currentTag._id === newTag._id) {
-          // we want update this tag of current site
-          newTags.push(newTag);
-        } else {
-          newTags.push(currentTag);
-        }
-      }
-      await Sites.updateAsync(
-        { _id: site._id },
-        {
-          $set: {
-            tags: newTags,
-          },
-        }
-      );
-    };
   },
 });
 
@@ -129,27 +108,6 @@ const removeTag = new VeritasValidatedMethod({
       { before: tagBeforeDelete, after: "" },
       this.userId
     );
-
-    // we need update all sites that have this deleted tag
-    let sites = await Sites.find({}).fetchAsync();
-    for (const site of sites) {
-      const newTags = [];
-      for (const tag of site.tags) {
-        if (tag._id === tagId) {
-          // we want delete this tag of current site
-        } else {
-          newTags.push(tag);
-        }
-      }
-      await Sites.updateAsync(
-        { _id: site._id },
-        {
-          $set: {
-            tags: newTags,
-          },
-        }
-      );
-    }
   },
 });
 

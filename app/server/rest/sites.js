@@ -1,4 +1,4 @@
-import { Sites } from "../../imports/api/collections";
+import { Sites, Tags } from "../../imports/api/collections";
 import { REST }  from "../../imports/rest";
 import { formatSiteCategories } from "./utils";
 import { getUnits } from "../units";
@@ -81,48 +81,59 @@ REST.addRoute(
   "sites",
   {
     get: async function({ queryParams }) {
-      // is that a id request from an url ?
+      async function addTagsToSites(sites) {
+        const enrichedSites = [];
+        for (const site of sites) {
+          const siteTags = await Tags.find({
+            sites: site.url
+          }).fetchAsync();
+          site.tags = siteTags.map((tag) => (
+            {
+              _id: tag._id,
+              url_fr: tag.url_fr,
+              url_en: tag.url_en,
+              name_fr: tag.name_fr,
+              name_en: tag.name_en,
+              type: tag.type,
+            }
+          ));
+          enrichedSites.push(site);
+        }
+        return enrichedSites;
+      }
+      
+      let sites = [];
       if (queryParams && queryParams.site_url) {
         let siteUrl = queryParams.site_url;
-        if (!(siteUrl.endsWith("/"))) {
-          siteUrl = siteUrl + "/"
-        }
-        return formatSiteCategories(await Sites.find({ isDeleted: false, url: siteUrl }).fetchAsync());
+        // if (!(siteUrl.endsWith("/"))) {
+        //   siteUrl = siteUrl + "/";
+        // }
+        sites = await Sites.find({ url: siteUrl }).fetchAsync();
       } else if (queryParams && queryParams.search_url) {
-        return formatSiteCategories(
-          await Sites.find({
-            isDeleted: false,
-            url: { $regex: queryParams.search_url, $options: "i" },
-          }).fetchAsync()
-        );
-      } else if (queryParams && queryParams.platform_target) {
-        return formatSiteCategories(
-          await Sites.find({
-            isDeleted: false,
-            platformTarget: queryParams.platform_target,
-          }).fetchAsync()
-        );
+        sites = await Sites.find({
+          url: { $regex: queryParams.search_url, $options: "i" },
+        }).fetchAsync();
+      } else if (queryParams && queryParams.type) {
+        sites = await Sites.find({
+          type: queryParams.type,
+        }).fetchAsync();
       } else if (queryParams && (queryParams.text || queryParams.tags)) {
         if (queryParams.tags && !Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];
         }
-        let sites = Sites.tagged_search(queryParams.text, queryParams.tags);
-        return formatSiteCategories(sites);
+        sites = Sites.tagged_search(queryParams.text, queryParams.tags);
       } else if (queryParams && queryParams.tagged) {
-        let sites = Sites.tagged_search();
-        return formatSiteCategories(sites);
+        sites = Sites.tagged_search();
       } else {
         // nope, we are here for all the sites data
-        let sites = await Sites.find({ isDeleted: false }).fetchAsync();
-        for (let site of sites) {
-          site["ansibleHost"] = generateAnsibleHostPattern(site);
-        }
-        return formatSiteCategories(sites);
+        sites = await Sites.find().fetchAsync();
       }
-    },
+      // Add tags to all sites before formatting
+      const sitesWithTags = await addTagsToSites(sites);
+      return formatSiteCategories(sitesWithTags);
+    }
   }
 );
-
 /**
  * @api {get} /inventory/entries  Get all sites (active or deleted)
  * @apiGroup Sites
@@ -173,9 +184,6 @@ REST.addRoute(
   {
     get: async function() {
       let sites = await Sites.find({}).fetchAsync();
-      for (let site of sites) {
-        site["ansibleHost"] = generateAnsibleHostPattern(site);
-      }
       return formatSiteCategories(sites);
     },
   }
@@ -253,10 +261,28 @@ REST.addRoute(
   {
     get: async function({ urlParams }) {
       // @TODO: error if ID Not Found
-      return formatSiteCategories(await Sites.findOneAsync(urlParams.id));
-    },
-  }
-);
+
+      const site = await Sites.findOneAsync(urlParams.id);
+
+      const tags = await Tags.find(
+        { sites: site.url },
+      ).fetchAsync();
+      
+      return {
+        ...formatSiteCategories(site),
+        tags: tags.map((tag) => (
+          {
+            _id: tag._id,
+            url_fr: tag.url_fr,
+            url_en: tag.url_en,
+            name_fr: tag.name_fr,
+            name_en: tag.name_en,
+            type: tag.type,
+          }
+        ))
+      };
+  },
+});
 
 /**
  * @api {get} /sites/:id/tags    Get tags by site ID
@@ -307,7 +333,19 @@ REST.addRoute(
     get: async function({ urlParams }) {
       // @TODO: SiteNotFound
       let site = await Sites.findOneAsync(urlParams.id);
-      return site.tags;
+      const tags = await Tags.find(
+        { sites: site.url },
+      ).fetchAsync();
+      return tags.map((tag) => (
+        {
+          _id: tag._id,
+          url_fr: tag.url_fr,
+          url_en: tag.url_en,
+          name_fr: tag.name_fr,
+          name_en: tag.name_en,
+          type: tag.type,
+        }
+      ))
     },
   }
 );
@@ -388,10 +426,13 @@ REST.addRoute(
     get: async function({ uriParams }) {
       let tag1 = urlParams.tag1.toUpperCase();
       let tag2 = urlParams.tag2.toUpperCase();
-      let sites = await Sites.find({
-        isDeleted: false,
+      let tags = await Tags.find({
         "tags.name_en": tag1,
         "tags.name_en": tag2,
+      }).fetchAsync();
+
+      let sites = await Sites.find({
+        url: { $in: tags.map((tag) => tag.url) },
       }).fetchAsync();
       return formatSiteCategories(sites);
     },
@@ -445,13 +486,16 @@ REST.addRoute(
 REST.addRoute(
   "sites-with-tags-fr/:tag1/:tag2",
   {
-    get: async function({ urlParams }) {
+    get: async function({ uriParams }) {
       let tag1 = urlParams.tag1.toUpperCase();
       let tag2 = urlParams.tag2.toUpperCase();
-      let sites = await Sites.find({
-        isDeleted: false,
+      let tags = await Tags.find({
         "tags.name_fr": tag1,
         "tags.name_fr": tag2,
+      }).fetchAsync();
+
+      let sites = await Sites.find({
+        url: { $in: tags.map((tag) => tag.url) },
       }).fetchAsync();
       return formatSiteCategories(sites);
     },
