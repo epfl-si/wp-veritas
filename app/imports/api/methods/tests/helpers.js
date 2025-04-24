@@ -14,19 +14,6 @@ async function getSitesByTag(tag) {
   return sitesByTag;
 }
 
-async function getSitesByProfessor(professor) {
-  let sitesByProfessor = [];
-  let sites = await Sites.find({}).fetchAsync();
-  sites.forEach((site) => {
-    site.professors.forEach((currentProfessor) => {
-      if (currentProfessor._id === professor._id) {
-        sitesByProfessor.push(site);
-      }
-    });
-  });
-  return sitesByProfessor;
-}
-
 async function createSite(userId, categories, tags, professors) {
   const context = { userId };
   const args = {
@@ -52,4 +39,4 @@ async function createSite(userId, categories, tags, professors) {
   await insertSite._execute(context, args);
 }
 
-export { getSitesByTag, getSitesByProfessor, createSite };
+export { getSitesByTag, createSite };
