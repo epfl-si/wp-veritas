@@ -6,7 +6,7 @@ Meteor.startup( async () => {
   watchWPSites({added, removed});
 
   async function added(site) {
-    const url = site.spec.hostname + site.spec.path;
+    const url = `https://${site.spec.hostname}${site.spec.path}${!site.spec.path.endsWith("/") ? "/" : ""}`;
     await Sites.upsertAsync(
       { url },
       {
@@ -15,10 +15,8 @@ Meteor.startup( async () => {
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
           type: site.spec.type,
-          openshiftEnv: "kubernetes",
           categories: [],
           theme: site.spec.wordpress.theme,
-          platformTarget: "kubernetes",
           languages: site.spec.wordpress.languages,
           unitId: site.spec.owner.epfl.unitId,
           createdDate: site.metadata.creationTimestamp,
