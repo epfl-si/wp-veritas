@@ -1,5 +1,4 @@
-import { sitesSchema } from "../imports/api/schemas/sitesSchema";
-import { Sites, Categories } from "../imports/api/collections";
+import { Sites } from "../imports/api/collections";
 
 const loadTestData = async () => {
   // delete all data
@@ -66,11 +65,8 @@ const loadTestData = async () => {
       comment: "",
       userExperience: false,
       userExperienceUniqueLabel: "",
-      professors: [],
       tags: [],
     };
-
-    sitesSchema.validate(siteDocument);
 
     let newSiteId = await Sites.insertAsync(siteDocument);
   }
