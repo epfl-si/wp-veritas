@@ -87,14 +87,16 @@ class Add extends Component {
       delete values.languages
     }
 
+    values.unitId = parseInt(values.unitId);
+
     try {
-      const { k8sName } = await Meteor.callAsync(methodName, values);
+      const { url } = await Meteor.callAsync(methodName, values);
 
       const site = await Promise.race([
         new Promise(async (resolve, reject) => {
-          const mySiteCursor = Sites.find({ k8sName });
+          const mySiteCursor = Sites.find({ url });
           async function tryAgain() {
-            console.log(`Trying again... ${k8sName}`);
+            console.log(`Trying again... ${url}`);
 
             try {
               const exists = await mySiteCursor.fetchAsync();
@@ -164,7 +166,6 @@ class Add extends Component {
         unitId: "",
         snowNumber: "",
         comment: "",
-        tags: [],
       };
     } else if (this.state.action == "edit") {
       initialValues = this.props.site;
