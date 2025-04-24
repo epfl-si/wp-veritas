@@ -220,6 +220,7 @@ const Themes = new Mongo.Collection('themes');
 const Tags = new Mongo.Collection('tags');
 const Types = new Mongo.Collection('types');
 const AppLogs = new Mongo.Collection('AppLogs');
+const SitesExternal = new Mongo.Collection("sites-external");
 
 
 Categories.deny({
@@ -252,6 +253,12 @@ AppLogs.deny({
   remove() { return true; },
 });
 
+SitesExternal.deny({
+    insert() { return true; },
+    update() { return true; },
+    remove() { return true; },
+});
+
 Meteor.users.deny({
   insert() { return true; },
   update() { return true; },
@@ -263,5 +270,6 @@ export {
   Themes,
   Tags,
   Types,
-  AppLogs
+  AppLogs,
+  SitesExternal,
 }
