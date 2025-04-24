@@ -186,9 +186,9 @@ const insertSite = new VeritasValidatedMethod({
       throwMeteorError("type", "Type de site inconnu");
     }
 
-    if (type.schema === "siteWPSchema"){
+    if (type.schema === "internal") {
       siteWPSchema.validate(newSite);
-    } else if (type.schema === "siteExternal") {
+    } else if (type.schema === "external") {
       siteExternalSchema.validate(newSite);
     } else {
       throwMeteorError("type", "Type de site inconnu");
