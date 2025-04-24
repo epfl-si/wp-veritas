@@ -3,7 +3,7 @@ import { siteWP } from './siteWPSchema';
 
 export const siteWPKubernetesSchema = new SimpleSchema({
   ...siteWP,
-  name: {
+  k8sName: {
     type: String,
     optional: false,
     max: 50,

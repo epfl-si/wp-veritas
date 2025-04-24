@@ -17,15 +17,13 @@ export const siteBase = {
       regEx: SimpleSchema.RegEx.Url,
   },
   unitId: {
-      type: String,
-      label: 'ID de l unité',
+      type: Number,
+      label: "ID de l'unité",
       optional: false,
-      min: 1,
-      max: 100,
   },
   unitName: {
     type: String,
-    label: 'Nom de l unité',
+    label: "Nom de l'unité",
     optional: true,
   },
   unitNameLevel2: {
@@ -51,7 +49,7 @@ export const siteBase = {
       max: 2048,
   },
   createdDate: {
-      type: Date,
+      type: String,
       optional: true,
   },
   userExperience: {
@@ -62,38 +60,6 @@ export const siteBase = {
     type: String,
     optional: true,
     max: 50,
-  },
-  tags: {
-    type: Array,
-    label: "Tags",
-  },
-  'tags.$': {
-    type: Object,
-    optional: true
-  },
-  'tags.$._id': {
-    type: String,
-    optional: true
-  },
-  'tags.$.url_fr': {
-    type: String,
-    optional: true
-  },
-  'tags.$.url_en': {
-    type: String,
-    optional: true
-  },
-  'tags.$.name_fr': {
-    type: String,
-    optional: true
-  },
-  'tags.$.name_en': {
-    type: String,
-    optional: true
-  },
-  'tags.$.type': {
-    type: String,
-    optional: true
   },
 }
 
