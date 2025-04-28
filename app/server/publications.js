@@ -74,7 +74,7 @@ Meteor.publish("k8ssites.list", function () {
           k8sName: site.metadata.name,
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
-          type: site.spec.type,
+          type: 'kubernetes',
           categories: [],
           theme: site.spec.wordpress.theme,
           languages: site.spec.wordpress.languages,
