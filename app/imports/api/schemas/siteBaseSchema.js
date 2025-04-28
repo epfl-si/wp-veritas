@@ -52,14 +52,9 @@ export const siteBase = {
       type: String,
       optional: true,
   },
-  userExperience: {
+  monitorSite: {
       type: Boolean,
       optional: true,
-  },
-  userExperienceUniqueLabel: {
-    type: String,
-    optional: true,
-    max: 50,
   },
 }
 

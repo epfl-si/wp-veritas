@@ -51,7 +51,7 @@ const removeCategory = new VeritasValidatedMethod({
     if (0 < await sitesUsingThisCategory.countAsync()) { // if nothing found, we're happy because that means that there are no sites suing ths category !
       let siteList = await sitesUsingThisCategory.fetchAsync();
       throwMeteorError(
-        "userExperienceCategories",
+        "CategoriesError",
         "Impossible de supprimer la catégorie, veuillez l'enlever des sites qui l'utilisent:",
         siteList
       );

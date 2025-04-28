@@ -100,11 +100,10 @@ REST.addRoute(
  *        "comment": "Site \"intranet\" en 2018 pour infrastructure IaaS",
  *        "createdDate": null,
  *        "tags": [],
- *        "userExperience": false,
+ *        "monitorSite": false,
  *        "unitName": "exheb",
  *        "unitNameLevel2": "vpo-si",
  *        "wpInfra": true,
- *        "userExperienceUniqueLabel": "",
  *        "categories": [
  *          "Inside"
  *        ],

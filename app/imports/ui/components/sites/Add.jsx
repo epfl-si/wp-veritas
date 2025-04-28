@@ -156,7 +156,6 @@ class Add extends Component {
     if (this.state.action == "add") {
       initialValues = {
         url: "",
-        userExperienceUniqueLabel: "",
         tagline: "",
         title: "",
         type: "kubernetes",
@@ -611,30 +610,12 @@ class Add extends Component {
                     handleBlur(e);
                     this.updateUserMsg();
                   }}
-                  label="À observer avec ressenti"
-                  name="userExperience"
+                  label="À monitorer"
+                  name="monitorSite"
                   type="checkbox"
-                  checked={values.userExperience}
+                  checked={values.monitorSite}
                   component={CustomSingleCheckbox}
                 />
-
-                <Field
-                  onChange={(e) => {
-                    handleChange(e);
-                    this.updateUserMsg();
-                  }}
-                  onBlur={(e) => {
-                    handleBlur(e);
-                    setFieldValue(event.target.name, event.target.value.trim());
-                    this.updateUserMsg();
-                  }}
-                  placeholder="Libellé doit être unique"
-                  label="Libellé pour le ressenti"
-                  name="userExperienceUniqueLabel"
-                  type="text"
-                  component={CustomInput}
-                />
-                <ErrorMessage name="userExperienceUniqueLabel" component={CustomError} />
 
                 <Field
                   onChange={(e) => {

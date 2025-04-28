@@ -63,8 +63,7 @@ const loadTestData = async () => {
       unitNameLevel2: "",
       snowNumber: "",
       comment: "",
-      userExperience: false,
-      userExperienceUniqueLabel: "",
+      monitorSite: false,
       tags: [],
     };
 

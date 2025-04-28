@@ -94,7 +94,7 @@ module.exports.loadData = async (destination, data) => {
           unitNameLevel2: "",
           snowNumber: "",
           comment: "",
-          userExperience: false,
+          monitorSite: false,
           slug: "",
           professors: [],
           tags: [],
