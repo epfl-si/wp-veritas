@@ -417,6 +417,7 @@ class List extends Component {
 export default withTracker(() => {
   const handles = [
     Meteor.subscribe("sites.list"),
+    Meteor.subscribe("k8ssites.list"),
     Meteor.subscribe("theme.list"),
     Meteor.subscribe("type.list"),
   ];

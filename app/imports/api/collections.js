@@ -139,7 +139,7 @@ class Site {
 }
 
 export const Sites = new Mongo.Collection(
-  Meteor.isServer ? null : "sites",
+  "sites",
   {
     transform: (doc) => new Site(doc),
   });
@@ -220,9 +220,6 @@ const Themes = new Mongo.Collection('themes');
 const Tags = new Mongo.Collection('tags');
 const Types = new Mongo.Collection('types');
 const AppLogs = new Mongo.Collection('AppLogs');
-const SitesExternal = new Mongo.Collection("sites-external");
-
-
 
 Meteor.users.deny({
   insert() { return true; },
@@ -236,5 +233,4 @@ export {
   Tags,
   Types,
   AppLogs,
-  SitesExternal,
 }

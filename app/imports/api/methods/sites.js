@@ -185,7 +185,7 @@ const insertSite = new VeritasValidatedMethod({
         unitName: "TODO"
       };
     } else if (type.schema === "external") {
-      await SitesExternal.insertAsync(newSite);
+      await Sites.insertAsync(newSite);
       return {
         url: newSite.url,
         unitName: "TODO"
@@ -237,7 +237,7 @@ const removeSite = new VeritasValidatedMethod({
       import { deleteWPSite } from "/server/kubernetes.js";
       await deleteWPSite(site.k8sName);
     } else if (type.schema === "external") {
-      await SitesExternal.removeAsync({ _id: siteId });
+      await Sites.removeAsync({ _id: siteId });
     }
 
     AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
