@@ -223,41 +223,6 @@ const AppLogs = new Mongo.Collection('AppLogs');
 const SitesExternal = new Mongo.Collection("sites-external");
 
 
-Categories.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-Themes.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-Tags.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-Types.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return false; },
-});
-
-AppLogs.deny({
-  insert() { return true; },
-  update() { return true; },
-  remove() { return true; },
-});
-
-SitesExternal.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-});
 
 Meteor.users.deny({
   insert() { return true; },
