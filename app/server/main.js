@@ -2,7 +2,6 @@ import helmet from "helmet";
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
 import { loadFixtures } from "./fixtures";
-import "./sites";
 
 import "./publications"; // Call meteor publications backend
 import "../imports/api/methods"; // Call meteor methods backend
