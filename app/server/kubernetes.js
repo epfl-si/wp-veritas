@@ -142,9 +142,9 @@ export function watchWPSites({added, removed}) {
     {},
     async (type, site) => {
       debug("Site " + type);
-      if (type === "ADDED") {
+      if ((type === "ADDED") && added) {
         await added(site);
-      } else if (type === "DELETED") {
+      } else if ((type === "DELETED") && removed) {
         await removed(site);
       }
     },
