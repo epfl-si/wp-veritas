@@ -143,12 +143,22 @@ export function watchWPSites({added, removed}) {
     async (type, site) => {
       debug("Site " + type);
       if ((type === "ADDED") && added) {
-        await added(site);
+        await added(new K8SSite(site));
       } else if ((type === "DELETED") && removed) {
-        await removed(site);
+        await removed(new K8SSite(site));
       }
     },
     () => {
       debug("Stopping Kubernetes watch");
     });
+}
+
+class K8SSite {
+  constructor(k8sStruct) {
+    Object.assign(this, k8sStruct);
+  }
+
+  get url () {
+    return `https://${this.spec.hostname}${this.spec.path}${!this.spec.path.endsWith("/") ? "/" : ""}`;
+  }
 }

@@ -61,16 +61,11 @@ Meteor.publish("k8ssites.list", function () {
         change = this.changed.bind(this, "sites"),
         remove = this.removed.bind(this, "sites")
 
-  function getUrl (site) {
-    return `https://${site.spec.hostname}${site.spec.path}${!site.spec.path.endsWith("/") ? "/" : ""}`;
-  }
-
   async function added (site) {
-    const url = getUrl(site)
-    debug(`Added from k8s: ${url}`)
-    add(url,
+    debug(`Added from k8s: ${site.url}`)
+    add(site.url,
       {
-          url,
+          url: site.url,
           k8sName: site.metadata.name,
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
@@ -85,9 +80,8 @@ Meteor.publish("k8ssites.list", function () {
   }
 
   async function removed (site) {
-    const url = getUrl(site)
-    debug(`Removed from k8s: ${url}`)
-    remove(url)
+    debug(`Removed from k8s: ${site.url}`)
+    remove(site.url)
   }
 });
 
