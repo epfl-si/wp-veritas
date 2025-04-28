@@ -6,6 +6,7 @@ import { Loading } from "../Messages";
 import { removeSite, getDaysFromDate } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
+import url from "url";
 
 const Cells = (props) => (
   <tbody>
@@ -26,7 +27,18 @@ const Cells = (props) => (
         </td>
         <td className="">
           <div className="d-flex flex-wrap justify-content-center">
-            <Link to={`/edit/${site._id}`} className="mr-2">
+            <button
+              type="button"
+              className="btn btn-outline-success btn-sm mr-2"
+              title={ (site.type === 'kubernetes') ? 'View site YAML' : 'Not a Kubernetes site' }
+              onClick={() => {
+                props.handleViewSiteYAML(site._id);
+              }}
+              disabled={site.type !== 'kubernetes'}
+            >
+              ⓘ
+            </button>
+            <Link to={`/edit/${site._id}`} className="mr-1">
               <button
                 type="button"
                 className="btn btn-outline-primary btn-sm"
@@ -127,6 +139,41 @@ class List extends Component {
     } catch (error) {
       console.error("deleteSite", error);
     }
+  };
+
+  handleViewSiteYAML = (siteId) => {
+    let site = Sites.findOne({ _id: siteId });
+    Swal.fire({
+      title: `${site.k8sName}`,
+      titleText: `${site.k8sName}`,
+      icon: "info",
+      html: `
+<pre style="text-align: left;">
+apiVersion: wordpress.epfl.ch/v2
+kind: WordpressSite
+metadata:
+  name: ${site.k8sName}
+  namespace: XXXsvc0041t-wordpress
+spec:
+  hostname: ${url.parse(site.url).hostname}
+  owner:
+    epfl:
+      unitId: ${site.unitId}
+  path: ${ (url.parse(site.url).path.replace(/\/$/, '') == '') ? '/' : url.parse(site.url).path.replace(/\/$/, '') }
+  wordpress:
+    debug: false
+    title: "${site.title}"
+    tagline: "${site.tagline}"
+    theme: ${site.theme}
+    languages:
+${site.languages.map(lang => `    - ${lang}`).join('\n')}
+    plugins:
+      XXXepfl-menus: {}
+</pre>
+      `,
+      showCloseButton: true,
+      confirmButtonText: 'Ok!',
+    });
   };
 
   isChecked = (langIsChecked) => {
@@ -409,6 +456,7 @@ class List extends Component {
               <Cells
                 sites={this.state.sites}
                 handleClickOnDeleteButton={this.handleClickOnDeleteButton}
+                handleViewSiteYAML={this.handleViewSiteYAML}
               />
             </table>
           </div>
