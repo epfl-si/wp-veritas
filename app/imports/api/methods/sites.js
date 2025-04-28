@@ -40,9 +40,6 @@ async function getUnitNames(unitId) {
 }
 
 async function prepareUpdateInsert(site, action) {
-  if (site.userExperienceUniqueLabel == undefined) {
-    site.userExperienceUniqueLabel = "";
-  }
 
   // Ensures that site URL will end with a slash
   if (!site.url.endsWith("/")) {
@@ -51,9 +48,8 @@ async function prepareUpdateInsert(site, action) {
 
   const URL_ALREADY_EXISTS_MSG =
     "Cette URL existe déjà ! (il peut s'agir d'un site présent dans la corbeille).";
-  const LABEL_ALREADY_EXISTS_MSG = "Ce label existe déjà !";
 
-  // Check if url is unique and if userExperienceUniqueLabel is unique
+  // Check if URL is unique
   // TODO: Move this code to SimpleSchema custom validation function
   if (action === "update") {
     const sites = Sites.find({ url: site.url });
@@ -65,31 +61,9 @@ async function prepareUpdateInsert(site, action) {
         throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
       }
     }
-    if (site.userExperienceUniqueLabel != "") {
-      const sitesByUXUniqueLabel = Sites.find({
-        userExperienceUniqueLabel: site.userExperienceUniqueLabel,
-      });
-      const sitesByUXUniqueLabelCount = await sitesByUXUniqueLabel.countAsync();
-      if (sitesByUXUniqueLabelCount > 1) {
-        throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
-      } else if (sitesByUXUniqueLabelCount == 1) {
-        if ((await sitesByUXUniqueLabel.fetch())[0]._id != site._id) {
-          throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
-        }
-      }
-    }
   } else {
     if (await Sites.find({ url: site.url }).countAsync() > 0) {
       throwMeteorError("url", URL_ALREADY_EXISTS_MSG);
-    }
-
-    if (
-      site.userExperienceUniqueLabel != "" &&
-      (await Sites.find({
-        userExperienceUniqueLabel: site.userExperienceUniqueLabel,
-      }).countAsync ()) > 0
-    ) {
-      throwMeteorError("userExperienceUniqueLabel", LABEL_ALREADY_EXISTS_MSG);
     }
   }
 
@@ -97,8 +71,8 @@ async function prepareUpdateInsert(site, action) {
     site.tags = [];
   }
 
-  if (site.userExperience == undefined) {
-    site.userExperience = false;
+  if (site.monitorSite == undefined) {
+    site.monitorSite = false;
   }
 
   return site;
@@ -118,7 +92,7 @@ const validateConsistencyOfFields = (newSite) => {
       ) {
         throwMeteorErrors(
           ["url", "categories"],
-          "Site inside: Les champs url et catégorie ne sont pas cohérents"
+          "Site inside: Les champs URL et catégorie ne sont pas cohérents"
         );
       }
     }
@@ -325,7 +299,7 @@ const associateTagsToSite = new VeritasValidatedMethod({
             { $pull: { sites: site.url } }
           );
         }
-      } 
+      }
 
       else if (tagStillSelected) {
         await Tags.updateAsync(
@@ -337,15 +311,15 @@ const associateTagsToSite = new VeritasValidatedMethod({
 
     const siteBeforeUpdate = await Sites.findOneAsync({ _id: site._id });
     const tagsAfterUpdate = await Tags.find({ sites: site.url }).fetchAsync();
-    
+
     AppLogger.getLog().info(
       `Associate tags to site with ID ${site._id}`,
-      { 
-        before: siteBeforeUpdate, 
-        after: { 
-          _id: site._id, 
-          url: site.url, 
-          associatedTags: tagsAfterUpdate.map(tag => ({ _id: tag._id, name: tag.name_fr, type: tag.type })) 
+      {
+        before: siteBeforeUpdate,
+        after: {
+          _id: site._id,
+          url: site.url,
+          associatedTags: tagsAfterUpdate.map(tag => ({ _id: tag._id, name: tag.name_fr, type: tag.type }))
         }
       },
       this.userId

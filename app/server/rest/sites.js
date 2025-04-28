@@ -30,12 +30,11 @@ import { getUnits } from "../units";
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
- *         "userExperience": false,
+ *         "monitorSite": false,
  *         "tags": [],
  *         "professors": [],
  *         "wpInfra": true,
  *         "platformTarget": "openshift-4",
- *         "userExperienceUniqueLabel": ""
  *       },
  *       ...,
  *     ]
@@ -101,7 +100,7 @@ REST.addRoute(
         }
         return enrichedSites;
       }
-      
+
       let sites = [];
       if (queryParams && queryParams.site_url) {
         let siteUrl = queryParams.site_url;
@@ -161,12 +160,11 @@ REST.addRoute(
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
- *         "userExperience": false,
+ *         "monitorSite": false,
  *         "tags": [],
  *         "professors": [],
  *         "wpInfra": true,
  *         "platformTarget": "openshift-4",
- *         "userExperienceUniqueLabel": ""
  *       },
  *       ...,
  *     ]
@@ -213,8 +211,7 @@ REST.addRoute(
  * @apiSuccess {String} snowNumber                Site snowNumber.
  * @apiSuccess {String} comment                   Site comment.
  * @apiSuccess {String} createdDate               Site createdDate.
- * @apiSuccess {String} userExperience            Site userExperience.
- * @apiSuccess {String} userExperienceUniqueLabel Site userExperienceUniqueLabel.
+ * @apiSuccess {String} monitorSite               Site monitorSite.
  * @apiSuccess {String} wpInfra                   Site wpInfra.
  * @apiSuccess {String} platformTarget            Site platformTarget.
  *
@@ -239,12 +236,11 @@ REST.addRoute(
  *       "snowNumber": "",
  *       "comment": "Site canari pour tester l'image",
  *       "createdDate": "2020-03-05T09:52:06.310Z",
- *       "userExperience": false,
+ *       "monitorSite": false,
  *       "tags": [],
  *       "professors": [],
  *       "wpInfra": true,
  *       "platformTarget": "openshift-4",
- *       "userExperienceUniqueLabel": ""
  *     }
  *
  * @apiError SiteNotFound Site with this ID wasn't found.
@@ -267,7 +263,7 @@ REST.addRoute(
       const tags = await Tags.find(
         { sites: site.url },
       ).fetchAsync();
-      
+
       return {
         ...formatSiteCategories(site),
         tags: tags.map((tag) => (
