@@ -130,7 +130,7 @@ export async function deleteWPSite (k8sName) {
       k8sName
     );
   } catch (err) {
-    console.error('Failed to create WP Site: ', err);
+    console.error('Failed to delete WP Site: ', err);
     throw err;
   }
 }
