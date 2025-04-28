@@ -97,7 +97,7 @@ const TypesList = (props) => (
         popoverUniqID="type"
         title="Type du site"
         placement="bottom"
-        description="Le type de site détermine son mode de déploiement et de stockage. Les sites internes, gérés par la DSI, sont de type kubernetes. Les sites publics ou externes utilisent le type external. Les sites archivés ou supprimés sont respectivement de type archived et deleted. Enfin, les sites temporaires, gérés par wp-klneex, sont de type temporary."
+        description="Le type de site détermine son mode de déploiement et de stockage. Les sites internes, gérés par la DSI, sont de type kubernetes. Les sites publics ou externes utilisent le type external. Les sites archivés ou supprimés sont respectivement de type archived et deleted. Enfin, les sites temporaires, gérés par WP-Kleenex, sont de type temporary."
       />
     </h5>
     <ul className="list-group">
