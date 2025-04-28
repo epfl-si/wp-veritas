@@ -327,6 +327,14 @@ const associateTagsToSite = new VeritasValidatedMethod({
   },
 });
 
+const getDaysFromDate = (date) => {
+  const fromDate = new Date(date);
+  const today = new Date();
+  const diffInMs = today - fromDate;
+  const diffInDay = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  return (diffInDay > 0) ? ( (diffInDay == 1) ? 'Today' : `${diffInDay} days` ) : '-';
+}
+
 rateLimiter([
   insertSite,
   updateSite,
@@ -343,4 +351,5 @@ export {
   removePermanentlySite,
   restoreSite,
   associateTagsToSite,
+  getDaysFromDate,
 };

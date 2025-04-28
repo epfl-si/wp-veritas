@@ -3,7 +3,7 @@ import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { Sites, Themes, Types } from "../../../api/collections";
 import { Loading } from "../Messages";
-import { removeSite } from "../../../api/methods/sites";
+import { removeSite, getDaysFromDate } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
 
@@ -11,8 +11,7 @@ const Cells = (props) => (
   <tbody>
     {props.sites.map((site, index) => (
       <tr key={site._id} className="align-middle">
-        <th scope="row" className="align-middle text-center">{index + 1}</th>
-        <td className="align-middle pl-0">
+        <td className="align-middle pl-3">
           <a href={site.url} target="_blank" className="text-break">
             {site.url}
           </a>
@@ -21,6 +20,9 @@ const Cells = (props) => (
           <span className={`badge p-2 type-${site.type} text-uppercase`}>
             {site.type}
           </span>
+        </td>
+        <td className="align-middle text-center" data-date={site.createdDate ?? '-'} title={site.createdDate ?? '-'} >
+          {getDaysFromDate(site.createdDate)}
         </td>
         <td className="">
           <div className="d-flex flex-wrap justify-content-center">
@@ -392,14 +394,14 @@ class List extends Component {
             <table className="table table-striped">
               <thead className="table-light">
                 <tr>
-                  <th className="text-center" scope="col" style={{ width: "7%" }}>
-                    # {this.props.sites.length}
-                  </th>
-                  <th className="w-50 pl-0" scope="col">
+                  <th className="w-50 pl-3" scope="col">
                     URL
                   </th>
                   <th className="w-10 text-center" scope="col">
                     Type
+                  </th>
+                  <th className="w-10 text-center" scope="col">
+                    Age
                   </th>
                   <th className="w-20 text-center">Actions</th>
                 </tr>
