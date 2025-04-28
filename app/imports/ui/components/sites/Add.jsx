@@ -678,11 +678,12 @@ export default withRouter(
     Meteor.subscribe("category.list");
     Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
+    Meteor.subscribe("k8ssites.list");
 
     let sites;
 
-    if (props.match.path === "/edit/:_id") {
-      sites = Sites.find({ _id: props.match.params._id }).fetch();
+    if (props.match.path === "/edit/*") {
+      sites = Sites.find({ _id: props.match.params[0] }).fetch();
       return {
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),

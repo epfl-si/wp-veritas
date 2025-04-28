@@ -45,7 +45,7 @@ class Apps extends Component {
             {this.props.currentUserIsAdmin ? (
               <React.Fragment>
                 <Route path="/add" component={Add} />
-                <Route path="/edit/:_id" component={Add} />
+                <Route path="/edit/*" component={Add} />
                 <Route exact path="/admin" component={Admin} />
                 <Route exact path="/trash" component={Trash} />
                 <Route path="/admin/log/list" component={Log} />
