@@ -114,25 +114,40 @@ table {
 
 .type-kubernetes {
   background-color: #e0f7fa;
-  color: #006064; 
+  color: #006064;
+}
+.type-kubernetes:before {
+  content: "● ";
 }
 
 .type-external {
   background-color: #d0ebff; 
-  color: #084298; 
+  color: #084298;
+}
+.type-external:before {
+  content: "⏹ ";
 }
 
 .type-archived {
   background-color: #fff3cd; 
-  color: #856404; 
+  color: #856404;
+}
+.type-archived:before {
+  content: "⧉ ";
 }
 
 .type-deleted {
   background-color: #f8d7da; 
-  color: #842029; 
+  color: #842029;
+}
+.type-deleted:before{
+  content: "🗑 ";
 }
 
 .type-temporary {
   background-color: #e2e3e5; 
-  color: #41464b; 
+  color: #41464b;
+}
+.type-temporary:before{
+  content: "⯁ ";
 }

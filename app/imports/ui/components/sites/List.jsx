@@ -28,26 +28,29 @@ const Cells = (props) => (
               <button
                 type="button"
                 className="btn btn-outline-primary btn-sm"
+                title="Éditer le site"
               >
-                Éditer
+                ✎
               </button>
             </Link>
             <Link to={`/site-tags/${site._id}`} className="mr-2">
               <button
                 type="button"
                 className="btn btn-outline-primary btn-sm"
+                title="Associer des tags"
               >
-                Associer des tags
+                🏷
               </button>
             </Link>
             <button
               type="button"
               className="btn btn-outline-danger btn-sm"
+              title="Supprimer le site"
               onClick={() => {
                 props.handleClickOnDeleteButton(site._id);
               }}
             >
-              Supprimer
+              🗑
             </button>
           </div>
         </td>
