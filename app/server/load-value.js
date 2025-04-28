@@ -5,7 +5,7 @@ const types = [
   { name: "external", description: "Site hébergé en dehors de l'infrastructure interne", schema: "external" },
   { name: "archived", description: "Site archivé, conservé à des fins de référence", schema: "internal" },
   { name: "deleted", description: "Site supprimé, hors de l'infrastructure active", schema: null },
-  { name: "temporary", description: "Site temporaire géré par wp-klneex", schema: null },
+  { name: "temporary", description: "Site temporaire géré par WP-Kleenex", schema: null },
 ];
 
 const loadData = async () => {
