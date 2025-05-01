@@ -172,17 +172,43 @@ const insertSite = new VeritasValidatedMethod({
 const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
-  validate(newSite) {
-    if (newSite.wpInfra) {
-      sitesSchema.validate(newSite);
-    } else {
-      sitesWPInfraOutsideSchema.validate(newSite);
+  async validate(siteToUpdate) {
+    const type = await Types.findOneAsync({
+      name: siteToUpdate.type,
+      schema: { $ne: null }
+    })
+
+    if (!type) {
+      throwMeteorError("type", "Type de site inconnu");
     }
 
-    validateConsistencyOfFields(newSite);
+    if (type.schema === "internal") {
+      siteWPSchema.validate(siteToUpdate);
+    } else if (type.schema === "external") {
+      siteExternalSchema.validate(siteToUpdate);
+    } else {
+      throwMeteorError("type", "Type de site inconnu");
+    }
+
+    validateConsistencyOfFields(siteToUpdate);
   },
-  async run(newSite) {
-    return createWPSite(newSite);
+  async run(siteToUpdate) {
+    const type = await Types.findOneAsync({
+      name: siteToUpdate.type,
+      schema: { $ne: null }
+    })
+
+    if (!type) {
+      throwMeteorError("type", "Type de site inconnu");
+    }
+
+    if (type.schema === "internal") {
+      // TODO: Update for Kubernetes
+    } else if (type.schema === "external") {
+      const site = await Sites.findOneAsync({ url: siteToUpdate.url });
+      delete siteToUpdate._id;
+      const siteUpdated = await Sites.updateAsync({ _id: site._id }, { $set: siteToUpdate });
+    }
   },
 });
 
