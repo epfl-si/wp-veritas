@@ -159,6 +159,7 @@ const insertSite = new VeritasValidatedMethod({
         unitName: "TODO"
       };
     } else if (type.schema === "external") {
+      newSite.createdDate = new Date().toISOString().split('T')[0];
       await Sites.insertAsync(newSite);
       return {
         url: newSite.url,
