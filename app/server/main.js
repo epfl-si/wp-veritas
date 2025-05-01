@@ -10,7 +10,6 @@ import "../imports/api/methods/themes";
 import "../imports/api/methods/categories";
 import "../imports/api/methods/sites";
 
-import { importData } from "./import-data";
 import { AppLogger } from "../imports/api/logger";
 import { loadData } from "./load-value";
 
