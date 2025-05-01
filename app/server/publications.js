@@ -32,25 +32,21 @@ Meteor.publish("sites.list", async function () {
 
   const observer = await cursor.observeChangesAsync({
     added(id, fields) {
-      console.debug('----added----', new Date());
+      debug('----added----', new Date(), id, fields);
       const site = fields
       urlOfMongoId[id] = site.url
       added(site.url, site)
     },
     changed(id, fields) {
-      console.debug('----changed----', new Date());
-      console.debug(id);
-      console.debug(fields);
       const url = urlOfMongoId[id]
-      console.debug(url);
+      debug('----changed----', new Date(), id, fields, url);
       if (fields.url) {
         throw new Error("Cannot mutate url")
       }
       changed(url, fields)
-      console.debug('↝↝↝↝changed↜↜↜↜')
     },
     removed(id) {
-      console.debug('----removed----', new Date());
+      debug('----removed----', new Date(), id);
       const url = urlOfMongoId[id]
       removed(url)
     }
@@ -60,7 +56,7 @@ Meteor.publish("sites.list", async function () {
   this.ready();   // https://docs.meteor.com/api/collections#Mongo-Cursor-observeAsync says:
                   // Before observeChangesAsync returns, added (or addedBefore) will be called
                   // zero or more times to deliver the initial results of the query.
-  console.log('----ready----', new Date());
+  debug('----ready----', new Date());
 });
 
 Meteor.publish("k8ssites.list", function () {
