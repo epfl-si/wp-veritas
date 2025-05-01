@@ -14,7 +14,7 @@ import Debug from "debug";
 const debug = Debug("server/publications");
 // This show all the Distributed Data Protocol messages,
 // debug purpose only:
-Meteor._printSentDDP = true;
+// Meteor._printSentDDP = true;
 
 Meteor.publish("sites.list", async function () {
   const cursor = Sites.find({})
