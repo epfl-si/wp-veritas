@@ -59,8 +59,5 @@ if (Meteor.isServer) {
     import "./rest/categories";
     import "./rest/sites";
     import "./rest/tags";
-    import "./cron";
-
-    SyncedCron.start();
   });
 }
