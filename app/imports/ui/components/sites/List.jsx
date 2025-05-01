@@ -22,6 +22,17 @@ const Cells = (props) => (
             {site.type}
           </span>
         </td>
+        <td className="align-middle text-center">
+          <input
+            type="checkbox" 
+            checked={site.monitorSite}
+            title={ (site.monitorSite) ? 'Site is monitored' : 'Site is not monitored' }
+            onChange={() => {
+              setMonitor(site.url, !site.monitorSite);
+            }}
+            disabled={site.type === 'kubernetes'}
+          />
+        </td>
         <td className="align-middle text-center" data-date={site.createdDate ?? '-'} title={site.createdDate ?? '-'} >
           {getDaysFromDate(site.createdDate)}
         </td>
@@ -72,6 +83,10 @@ const Cells = (props) => (
     ))}
   </tbody>
 );
+
+const setMonitor = async (url, status) => {
+  await Meteor.callAsync('setMonitor', { url, status });
+}
 
 class List extends Component {
   constructor(props) {
@@ -446,6 +461,9 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                   </th>
                   <th className="w-10 text-center" scope="col">
                     Type
+                  </th>
+                  <th className="w-10 text-center" scope="col">
+                    Monitored
                   </th>
                   <th className="w-10 text-center" scope="col">
                     Age
