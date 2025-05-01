@@ -211,6 +211,23 @@ const updateSite = new VeritasValidatedMethod({
     }
   },
 });
+const setMonitor = new VeritasValidatedMethod({
+  name: "setMonitor",
+  role: Admin,
+  serverOnly: true,
+  validate: new SimpleSchema({
+    url: { type: String },
+    status: { type: Boolean },
+  }).validator(),
+  async run ({ url, status }) {
+    const site = await Sites.findOneAsync({ url });
+    if (site) {
+      await Sites.updateAsync({ _id: site._id }, { $set: { monitorSite: status } });
+    } else {
+      // TODO: create base object
+    }
+  }
+});
 
 const removeSite = new VeritasValidatedMethod({
   name: "removeSite",
