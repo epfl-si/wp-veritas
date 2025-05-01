@@ -7,6 +7,7 @@ import { removeSite, getDaysFromDate } from "../../../api/methods/sites";
 import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
 import url from "url";
+import { bouncyCircle } from "../spinners"
 
 const Cells = (props) => (
   <tbody>
@@ -23,15 +24,20 @@ const Cells = (props) => (
           </span>
         </td>
         <td className="align-middle text-center">
-          <input
-            type="checkbox" 
-            checked={site.monitorSite}
-            title={ (site.monitorSite) ? 'Site is monitored' : 'Site is not monitored' }
-            onChange={() => {
-              setMonitor(site.url, !site.monitorSite);
-            }}
-            disabled={site.type === 'kubernetes'}
-          />
+          { props.monitorSiteChanging[site.url] ?
+              bouncyCircle
+              :
+            <input
+              type="checkbox" 
+              checked={site.monitorSite}
+              title={ (site.monitorSite) ? 'Site is monitored' : 'Site is not monitored' }
+              onChange={(event) => {
+                props.setMonitor(event.target, site.url, !site.monitorSite);
+                event.preventDefault();
+              }}
+              disabled={site.type === 'kubernetes'}
+            />
+          }
         </td>
         <td className="align-middle text-center" data-date={site.createdDate ?? '-'} title={site.createdDate ?? '-'} >
           {getDaysFromDate(site.createdDate)}
@@ -84,10 +90,6 @@ const Cells = (props) => (
   </tbody>
 );
 
-const setMonitor = async (url, status) => {
-  await Meteor.callAsync('setMonitor', { url, status });
-}
-
 class List extends Component {
   constructor(props) {
     super(props);
@@ -99,6 +101,7 @@ class List extends Component {
       languages: [],
       sites: props.sites,
       types: props.types,
+      monitorSiteChanging: {}
     };
   }
 
@@ -252,6 +255,22 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
       languagesFilter: languagesFilter,
     });
   };
+
+  setMonitor = async (eventTarget, url, status) => {
+    this.setState(
+      ({monitorSiteChanging}) => (
+        {monitorSiteChanging: {[url]: true, ...monitorSiteChanging}}
+      )
+    );
+    await Meteor.callAsync('setMonitor', { url, status });
+    this.setState(
+      ({monitorSiteChanging}) => {
+        monitorSiteChanging = {...monitorSiteChanging};
+        delete monitorSiteChanging[url];
+        return {monitorSiteChanging}
+      }
+    );
+  }
 
   export = () => {
     // Export search result
@@ -475,6 +494,8 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                 sites={this.state.sites}
                 handleClickOnDeleteButton={this.handleClickOnDeleteButton}
                 handleViewSiteYAML={this.handleViewSiteYAML}
+                monitorSiteChanging={this.state.monitorSiteChanging}
+                setMonitor={this.setMonitor}
               />
             </table>
           </div>
