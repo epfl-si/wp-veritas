@@ -12,6 +12,9 @@ import { watchWPSites } from "./kubernetes";
 import Debug from "debug";
 
 const debug = Debug("server/publications");
+// This show all the Distributed Data Protocol messages,
+// debug purpose only:
+// Meteor._printSentDDP = true;
 
 Meteor.publish("sites.list", async function () {
   const cursor = Sites.find({})
@@ -33,22 +36,31 @@ Meteor.publish("sites.list", async function () {
   this.ready()
   cursor.observeChangesAsync({
     added(id, fields) {
+      console.debug('----added----', new Date());
       const site = fields
       urlOfMongoId[id] = site.url
       added(site.url, site)
     },
     changed(id, fields) {
+      console.debug('----changed----', new Date());
+      console.debug(id);
+      console.debug(fields);
       const url = urlOfMongoId[id]
+      console.debug(url);
       if (fields.url) {
         throw new Error("Cannot mutate url")
       }
+      debugger;
       changed(url, fields)
+      console.debug('↝↝↝↝changed↜↜↜↜')
     },
     removed(id) {
+      console.debug('----removed----', new Date());
       const url = urlOfMongoId[id]
       removed(url)
     }
   }).then((observer) => {
+    console.log('----observer----', new Date());
     this.onStop(() => observer.stop())
   })
 });
