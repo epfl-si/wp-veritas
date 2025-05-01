@@ -14,9 +14,10 @@ import Debug from "debug";
 const debug = Debug("server/publications");
 // This show all the Distributed Data Protocol messages,
 // debug purpose only:
-// Meteor._printSentDDP = true;
+Meteor._printSentDDP = true;
 
 Meteor.publish("sites.list", async function () {
+  debugger
   const cursor = Sites.find({})
   const urlOfMongoId = {}
 
@@ -28,12 +29,9 @@ Meteor.publish("sites.list", async function () {
 
   const added = this.added.bind(this, "sites"),
         changed = this.changed.bind(this, "sites"),
-        removed = this.removed.bind(this, "sites")
-  for (const site of await cursor.fetchAsync()) {
-    urlOfMongoId[site._id] = site.url
-    added(site.url, site)
-  }
-  this.ready()
+        removed = this.removed.bind(this, "sites"),
+        ready = this.ready.bind(this);
+
   cursor.observeChangesAsync({
     added(id, fields) {
       console.debug('----added----', new Date());
@@ -60,6 +58,9 @@ Meteor.publish("sites.list", async function () {
       removed(url)
     }
   }).then((observer) => {
+    this.ready();   // https://docs.meteor.com/api/collections#Mongo-Cursor-observeAsync says:
+                    // Before observeChangesAsync returns, added (or addedBefore) will be called
+                    // zero or more times to deliver the initial results of the query.
     console.log('----observer----', new Date());
     this.onStop(() => observer.stop())
   })
