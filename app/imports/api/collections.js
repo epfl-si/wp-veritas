@@ -136,6 +136,9 @@ class Site {
   constructor(doc) {
         Object.assign(this, doc);
     }
+  getCreatedDate() {
+    return new Date(this.k8screatedDate || this.createdDate);
+  }
 }
 
 export const Sites = new Mongo.Collection(
