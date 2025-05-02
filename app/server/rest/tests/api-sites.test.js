@@ -21,6 +21,7 @@ const getExpectedSiteResult = async () => {
       comment: "Vin nature par excellence !",
       createdDate: site.createdDate,
       monitorSite: false,
+      tags: []  // The API endpoint is expected to “left join” them
     },
   ];
   return expectedResult;
