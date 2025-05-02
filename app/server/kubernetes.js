@@ -135,6 +135,33 @@ export async function deleteWPSite (k8sName) {
   }
 }
 
+export async function deleteWPSiteByURL (siteURL) {
+  try {
+    const listWPSites = await k8sCustomApi.listNamespacedCustomObject(
+      'wordpress.epfl.ch',
+      'v2',
+      getNamespace(),
+      'wordpresssites'
+    );
+    const site = listWPSites.body.items.find((site) => {
+      const searchedURL = new URL('https://' + site.spec.hostname + site.spec.path);
+      if (!site.spec.path.endsWith('/')) {
+        searchedURL.pathname += '/';
+      }
+      return siteURL === searchedURL.toString();
+    });
+    debug('Try to delete', siteURL);
+    if (!site) {
+      throw new Meteor.Error('Site not found');
+    } else {
+      await deleteWPSite(site.metadata.name);
+    }
+  } catch (err) {
+    console.error(`Failed to delete ${siteURL}`, err);
+    throw err;
+  }
+}
+
 export function watchWPSites({added, removed, resourcesChanged}, options) {
   const namespace = getNamespace();
 
