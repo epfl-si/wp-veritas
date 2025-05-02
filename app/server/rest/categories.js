@@ -88,7 +88,6 @@ REST.addRoute(
  *        "url": "https://inside.epfl.ch/portal-xaas",
  *        "tagline": "Portal-XaaS",
  *        "title": "IAAS",
- *        "openshiftEnv": "inside",
  *        "category": "Inside",
  *        "theme": "wp-theme-2018",
  *        "languages": [

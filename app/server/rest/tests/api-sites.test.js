@@ -17,7 +17,6 @@ const getExpectedSiteResult = async () => {
       url: "https://www.epfl.ch/beaujolais/madame-placard/",
       tagline: "Yvon Métras",
       title: "Ma meilleure découverte 2019",
-      openshiftEnv: "www",
       categories: ["epfl-menus"],
       theme: "wp-theme-2018",
       languages: site.languages,

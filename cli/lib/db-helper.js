@@ -151,9 +151,6 @@ module.exports.deleteAllDocuments = async function (
     await db.collection("tags").deleteMany({});
     console.log(`All documents off tags collections are deleted`);
 
-    await db.collection("openshiftenvs").deleteMany({});
-    console.log(`All documents off openshiftenvs collections are deleted`);
-
     await db.collection("platformtargets").deleteMany({});
     console.log(`All documents off platformtargets collections are deleted`);
 
