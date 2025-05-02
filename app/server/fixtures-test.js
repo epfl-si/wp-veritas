@@ -23,10 +23,7 @@ const loadCategoriesFixtures = async () => {
 
 const loadSitesFixtures = async () => {
   let userId = await createUser();
-  let categories = await Categories.find({ name: "epfl-menus" }).fetchAsync();
-
-  // Create site with this professor
-  await createSite(userId, categories);
+  await createSite(userId);
 };
 
 const loadTestFixtures = async () => {
