@@ -1,11 +1,10 @@
 import { Sites } from "../../../imports/api/collections";
-import { generateAnsibleHostPattern } from "../utils"
 
 let chai = require("chai");
 let expect = chai.expect;
 let chaiHttp = require("chai-http");
 chai.use(chaiHttp);
-
+chai.use(require("deep-equal-in-any-order"));
 
 const getExpectedSiteResult = async () => {
   let site = await Sites.findOneAsync({
@@ -38,7 +37,7 @@ const endpointSites = () => {
       .get(endpointGetSites);
     expect(res).to.have.status(200);
     expect(res.headers["content-type"]).to.equal("application/json");
-    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
+    expect(res.body).to.deep.equalInAnyOrder(expectedResult);
   });
 
   // Get site by ID
@@ -52,10 +51,7 @@ const endpointSites = () => {
     expect(res).to.have.status(200);
     expect(res.headers["content-type"]).to.equal("application/json");
     let result = res.body
-    result["ansibleHost"] = generateAnsibleHostPattern(res.body);
-    expect(JSON.stringify(result)).to.eql(
-      JSON.stringify(expectedResult[0])
-    );
+    expect([result]).to.deep.equalInAnyOrder(expectedResult);
   });
 
   // Get a site by URL
@@ -69,10 +65,7 @@ const endpointSites = () => {
     expect(res).to.have.status(200);
     expect(res.headers["content-type"]).to.equal("application/json");
     let result = res.body;
-    result[0]["ansibleHost"] = generateAnsibleHostPattern(res.body[0]);
-    expect(JSON.stringify(result)).to.eql(
-      JSON.stringify(expectedResult)
-    );
+    expect(result).to.deep.equalInAnyOrder(expectedResult);
   });
 
   // Get a site by wrong URL
@@ -83,7 +76,7 @@ const endpointSites = () => {
       .get(endpointGetSitesSiteURL + "=http://perdu.com/");
     expect(res).to.have.status(200);
     expect(res.headers["content-type"]).to.equal("application/json");
-    expect(JSON.stringify(res.body)).to.eql(JSON.stringify([]));
+    expect(res.body).to.deep.equal([]);
   });
 
   // TODO: Get sites by URL pattern
