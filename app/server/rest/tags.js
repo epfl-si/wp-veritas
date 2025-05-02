@@ -43,7 +43,7 @@ REST.addRoute(
    *       "type": "field-of-research"
    *     }
    *
-   * @apiError TagNotFound OpenShiftEnv with this ID wasn't found.
+   * @apiError TagNotFound Tag with this ID wasn't found.
    *
    * @apiErrorExample Error-Response:
    *     HTTP/1.1 404 Not Found

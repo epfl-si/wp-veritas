@@ -84,7 +84,6 @@ module.exports.loadData = async (destination, data) => {
           tagline: "",
           title: title,
           wpInfra: true,
-          openshiftEnv: "int",
           categories: categories,
           theme: theme,
           languages: languages,

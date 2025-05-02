@@ -17,7 +17,6 @@ import { getUnits } from "../units";
  *         "slug": "",
  *         "tagline": "Canari",
  *         "title": "Test",
- *         "openshiftEnv": "www",
  *         "category": "GeneralPublic",
  *         "theme": "wp-theme-2018",
  *         "languages": [
@@ -141,7 +140,6 @@ REST.addRoute(
  *         "slug": "",
  *         "tagline": "Canari",
  *         "title": "Test",
- *         "openshiftEnv": "www",
  *         "category": "GeneralPublic",
  *         "theme": "wp-theme-2018",
  *         "languages": [
@@ -188,7 +186,6 @@ REST.addRoute(
  * @apiSuccess {String} slug                      Site slug.
  * @apiSuccess {String} tagline                   Site tagline.
  * @apiSuccess {String} title                     Site title.
- * @apiSuccess {String} openshiftEnv              Site openshiftEnv.
  * @apiSuccess {String} category                  Site category. — DEPRECATED
  * @apiSuccess {Array}  categories                Site categories.
  * @apiSuccess {String} theme                     Site theme.
@@ -209,7 +206,6 @@ REST.addRoute(
  *       "slug": "",
  *       "tagline": "Canari",
  *       "title": "Test",
- *       "openshiftEnv": "www",
  *       "category": "GeneralPublic",
  *       "theme": "wp-theme-2018",
  *       "languages": [
