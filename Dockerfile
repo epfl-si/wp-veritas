@@ -17,7 +17,7 @@ RUN meteor npm i
 RUN BROWSERSLIST_IGNORE_OLD_DATA=1 meteor build --allow-superuser /usr --directory
 RUN cd /usr/bundle/programs/server && meteor npm install
 
-RUN ln /root/.meteor/packages/meteor-tool/*/*/dev_bundle/bin/node /usr/local/bin/node
+RUN  ln $(find /root/.meteor -name node -type f | grep -v 3.0.0-rc) /usr/local/bin/node
 
 FROM ubuntu:focal
 
