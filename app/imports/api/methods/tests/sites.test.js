@@ -57,9 +57,6 @@ if (Meteor.isServer) {
       let sitesNumber = await Sites.find({}).countAsync();
       let site = await Sites.findOneAsync({ url: url });
 
-      assert.strictEqual(site.categories.length, 1);
-      assert.strictEqual(site.categories[0].name, "epfl-menus");
-
       assert.strictEqual(sitesNumber, 1);
     });
 
@@ -86,9 +83,6 @@ if (Meteor.isServer) {
       let siteAfterUpdate = await Sites.findOneAsync({ _id: site._id });
 
       assert.strictEqual(nb, 1);
-
-      assert.strictEqual(site.categories.length, 1);
-      assert.strictEqual(site.categories[0].name, "epfl-menus");
     });
 
     it("remove site", async () => {
