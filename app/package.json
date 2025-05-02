@@ -48,6 +48,7 @@
   "devDependencies": {
     "babel-plugin-istanbul": "^6.0.0",
     "chai": "^4.2.0",
-    "chai-http": "^4.3.0"
+    "chai-http": "^4.3.0",
+    "deep-equal-in-any-order": "^2.0.6"
   }
 }
