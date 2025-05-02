@@ -48,6 +48,7 @@ const getExpectedTagResult = async () => {
       url_fr: "https://fr.wikipedia.org/wiki/Beaujolais",
       url_en: "https://en.wikipedia.org/wiki/Beaujolais",
       type: "field-of-research",
+      sites: []
     },
     {
       _id: tag2Id,
@@ -56,6 +57,7 @@ const getExpectedTagResult = async () => {
       url_fr: "https://fr.wikipedia.org/wiki/Vin_naturel",
       url_en: "https://en.wikipedia.org/wiki/Natural_wine",
       type: "field-of-research",
+      sites: []
     },
   ];
 
