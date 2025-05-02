@@ -54,7 +54,6 @@ if (Meteor.isServer) {
         comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
-        isDeleted: false
       };
 
       await insertSite._execute(context, args);
@@ -89,7 +88,6 @@ if (Meteor.isServer) {
         comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
-        isDeleted: false
       };
 
       await updateSite._execute(context, args);
@@ -113,12 +111,12 @@ if (Meteor.isServer) {
       const context = { userId };
       const args = { siteId: site._id };
 
-      let sitesNumberBeforeRemove = await Sites.find({ isDeleted: false }).countAsync();
+      let sitesNumberBeforeRemove = await Sites.find().countAsync();
       assert.strictEqual(sitesNumberBeforeRemove, 1);
 
       await removeSite._execute(context, args);
 
-      let sitesNumberAfterRemove = await Sites.find({ isDeleted: false }).countAsync();
+      let sitesNumberAfterRemove = await Sites.find().countAsync();
       assert.strictEqual(sitesNumberAfterRemove, 0);
     });
   });
