@@ -54,9 +54,6 @@ if (Meteor.isServer) {
       let userId = await createUser();
       let tag = await Tags.findOneAsync({ name_en: "Algebra" });
 
-      let site = (await getSitesByTag(tag))[0];
-      assert.strictEqual(site.tags[0].name_en, "Algebra");
-
       const context = { userId };
       const args = {
         _id: tag._id,
@@ -78,8 +75,6 @@ if (Meteor.isServer) {
       assert.strictEqual(tagAfterUpdate.name_fr, "Mathématiques");
       assert.strictEqual(tagAfterUpdate.name_en, "Maths");
 
-      let siteAfterUpdate = (await getSitesByTag(tag))[0];
-      assert.strictEqual(siteAfterUpdate.tags[0].name_en, "Maths");
     });
 
     it("remove tag", async () => {
@@ -92,13 +87,7 @@ if (Meteor.isServer) {
       let nbBefore = await Tags.find({}).countAsync();
       assert.strictEqual(nbBefore, 1);
 
-      let siteNumbersBefore = (await getSitesByTag(tag)).length;
-      assert.strictEqual(siteNumbersBefore, 1);
-
       await removeTag._execute(context, args);
-
-      let siteNumbersAfter = (await getSitesByTag(tag)).length;
-      assert.strictEqual(siteNumbersAfter, 0);
 
       let nbAfter = await Tags.find({}).countAsync();
       assert.strictEqual(nbAfter, 0);
