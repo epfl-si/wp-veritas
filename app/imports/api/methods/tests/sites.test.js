@@ -44,11 +44,7 @@ if (Meteor.isServer) {
       const context = { userId };
       const args = {
         url: url,
-        tagline: "Yvon Métras",
-        title: title,
-        categories: await Categories.find({ name: "epfl-menus" }).fetchAsync(),
-        theme: "wp-theme-2018",
-        languages: ["en", "fr"],
+        type: "external",
         unitId: 13030,
         snowNumber: "42",
         comment: "Vin nature par excellence !",
@@ -65,24 +61,18 @@ if (Meteor.isServer) {
       assert.strictEqual(site.categories[0].name, "epfl-menus");
 
       assert.strictEqual(sitesNumber, 1);
-      assert.strictEqual(site.title, title);
     });
 
     it("update site", async () => {
       let userId = await createUser();
       const url = "https://www.epfl.ch/beaujolais/madame-placard/";
-      const title = "Ma meilleure découverte 2019";
       let site = await Sites.findOneAsync({ url: url });
 
       const context = { userId };
       const args = {
         _id: site._id,
         url: url,
-        tagline: site.tagline,
-        title: title,
-        categories: await Categories.find({ name: "epfl-menus" }).fetchAsync(),
-        theme: "wp-theme-2018",
-        languages: ["en", "fr"],
+        type: "external",
         unitId: 13030,
         snowNumber: "42",
         comment: "Vin nature par excellence !",
@@ -96,8 +86,6 @@ if (Meteor.isServer) {
       let siteAfterUpdate = await Sites.findOneAsync({ _id: site._id });
 
       assert.strictEqual(nb, 1);
-      assert.strictEqual(siteAfterUpdate.tagline, "Yvon Métras");
-      assert.strictEqual(siteAfterUpdate.title, title);
 
       assert.strictEqual(site.categories.length, 1);
       assert.strictEqual(site.categories[0].name, "epfl-menus");

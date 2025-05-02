@@ -14,19 +14,13 @@ const getExpectedSiteResult = async () => {
   let expectedResult = [
     {
       _id: site._id,
+      type: "external",
       url: "https://www.epfl.ch/beaujolais/madame-placard/",
-      tagline: "Yvon Métras",
-      title: "Ma meilleure découverte 2019",
-      categories: ["epfl-menus"],
-      theme: "wp-theme-2018",
-      languages: site.languages,
       unitId: 13030,
       snowNumber: "42",
       comment: "Vin nature par excellence !",
       createdDate: site.createdDate,
       monitorSite: false,
-      isDeleted: false,
-      ansibleHost: "www__beaujolais__madame_placard",
     },
   ];
   return expectedResult;
