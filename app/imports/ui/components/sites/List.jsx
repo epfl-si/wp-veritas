@@ -41,8 +41,8 @@ const Cells = (props) => (
         <td className="align-middle text-center">
           { site.k8sDatabaseStatus }
         </td>
-        <td className="align-middle text-center" data-date={site.createdDate ?? '-'} title={site.createdDate ?? '-'} >
-          {getDaysFromDate(site.createdDate)}
+        <td className="align-middle text-center" data-date={site.getCreatedDate()?.toString()} title={site.getCreatedDate()?.toString()} >
+          {getDaysFromDate(site.getCreatedDate())}
         </td>
         <td className="">
           <div className="d-flex flex-wrap justify-content-center">
@@ -66,6 +66,7 @@ const Cells = (props) => (
                 ✎
               </button>
             </Link>
+            
             <Link to={`/site-tags/${site._id}`} className="mr-2">
               <button
                 type="button"
