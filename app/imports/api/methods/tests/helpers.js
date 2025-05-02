@@ -14,7 +14,7 @@ async function createSite(userId) {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
     tagline: "Yvon Métras",
     title: "Ma meilleure découverte 2019",
-    type: "kubernetes",
+    type: "external",
     categories: [{ name: "epfl-menus" }],
     theme: "wp-theme-light",
     languages: ["en", "fr"],
