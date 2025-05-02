@@ -221,6 +221,15 @@ const Tags = new Mongo.Collection('tags');
 const Types = new Mongo.Collection('types');
 const AppLogs = new Mongo.Collection('AppLogs');
 
+if (Meteor.isServer) {
+  Sites.ensureExists = async function(url) {
+    const site = await Sites.findOneAsync({ url });
+    if (site) return site;
+    await Sites.insertAsync({ url });
+    return await Sites.findOneAsync({ url });
+  }
+}
+
 Meteor.users.deny({
   insert() { return true; },
   update() { return true; },

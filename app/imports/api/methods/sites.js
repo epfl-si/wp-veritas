@@ -220,12 +220,8 @@ const setMonitor = new VeritasValidatedMethod({
     status: { type: Boolean },
   }).validator(),
   async run ({ url, status }) {
-    const site = await Sites.findOneAsync({ url });
-    if (site) {
-      await Sites.updateAsync({ _id: site._id }, { $set: { monitorSite: status } });
-    } else {
-      // TODO: create base object
-    }
+    const site = await Sites.ensureExists(url);
+    await Sites.updateAsync({ url }, { $set: { monitorSite: status } });
   }
 });
 
