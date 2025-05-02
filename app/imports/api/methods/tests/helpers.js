@@ -1,17 +1,11 @@
-import { Sites, Categories } from "../../collections";
+import { Sites, Categories, Tags } from "../../collections";
 import { insertSite } from "../sites";
 
 async function getSitesByTag(tag) {
-  let sitesByTag = [];
+  [tag] = await Tags.find({name: tag}).fetchAsync();
+  if (!tag) return [];
   let sites = await Sites.find({}).fetchAsync();
-  sites.forEach((site) => {
-    site.tags.forEach((currentTag) => {
-      if (currentTag._id === tag._id) {
-        sitesByTag.push(site);
-      }
-    });
-  });
-  return sitesByTag;
+  return sites.filter(site =>  tag.sites.includes(site.url))
 }
 
 async function createSite(userId) {
