@@ -66,7 +66,6 @@ if (Meteor.isServer) {
         comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
-        tags: [tag1, tag2],
         isDeleted: false
       };
 
@@ -102,7 +101,6 @@ if (Meteor.isServer) {
         comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
-        tags: [],
         isDeleted: false
       };
 
