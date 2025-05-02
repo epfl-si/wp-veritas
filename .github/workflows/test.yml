@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 env:
   METEOR_VERSION: 3.1.2
+  KUBERNETES_FAKE: 1
 
 jobs:
   test:

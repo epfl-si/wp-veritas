@@ -121,6 +121,10 @@ export async function createWPSite (site) {
 }
 
 export async function deleteWPSite (k8sName) {
+  if (process.env.KUBERNETES_FAKE) {
+    console.log("deleteWPSite: Kubernetes part stubbed out for tests");
+    return;
+  }
   try {
     await k8sCustomApi.deleteNamespacedCustomObject(
       'wordpress.epfl.ch',
@@ -136,6 +140,10 @@ export async function deleteWPSite (k8sName) {
 }
 
 export async function deleteWPSiteByURL (siteURL) {
+  if (process.env.KUBERNETES_FAKE) {
+    console.log("deleteWPSiteByURL: stubbed out for tests");
+    return;
+  }
   try {
     const listWPSites = await k8sCustomApi.listNamespacedCustomObject(
       'wordpress.epfl.ch',
