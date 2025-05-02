@@ -91,7 +91,7 @@ if (Meteor.isServer) {
       let site = await Sites.findOneAsync({ url: url });
 
       const context = { userId };
-      const args = { siteId: site._id };
+      const args = { url: site.url };
 
       let sitesNumberBeforeRemove = await Sites.find().countAsync();
       assert.strictEqual(sitesNumberBeforeRemove, 1);
