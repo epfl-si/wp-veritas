@@ -67,7 +67,6 @@ if (Meteor.isServer) {
         createdDate: new Date().toString(),
         monitorSite: false,
         tags: [tag1, tag2],
-        wpInfra: true,
         isDeleted: false
       };
 
@@ -104,7 +103,6 @@ if (Meteor.isServer) {
         createdDate: new Date().toString(),
         monitorSite: false,
         tags: [],
-        wpInfra: true,
         isDeleted: false
       };
 
