@@ -160,9 +160,6 @@ export async function deleteWPSiteByURL (siteURL) {
     console.error(`Failed to delete ${siteURL} in Kubernetes`, err);
     throw err;
   }
-
-  // TODO: do we want to set the `isDeleted` flag here instead?
-  await Sites.removeAsync({ url : siteURL });
 }
 
 export function watchWPSites({added, removed, resourcesChanged}, options) {

@@ -208,6 +208,8 @@ const removeSite = new VeritasValidatedMethod({
   async run({ url }) {
     import { deleteWPSiteByURL } from "/server/kubernetes.js";
     await deleteWPSiteByURL(url);
+    // TODO: do we want to set the `isDeleted` flag here instead?
+    await Sites.removeAsync({ url });
   },
 });
 
