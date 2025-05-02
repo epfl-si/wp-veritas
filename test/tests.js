@@ -18,20 +18,6 @@ const professor = require('./professor');
 
   await page.goto(httpUrl);
   await page.waitFor(1000);
-  
-  /*
-  await site.addSite(page);
-  await utils.doScreenshot(page, 'addSite');
-
-  await site.editSite(page);
-  await utils.doScreenshot(page, 'editSite');
-
-  await tag.addTag(page);
-  await utils.doScreenshot(page, 'addTag');
-
-  await tag.editTag(page);
-  await utils.doScreenshot(page, 'editTag');
-  */
 
   await professor.goProfessorsPage(page);
   await utils.doScreenshot(page, 'goProfessorPage');
@@ -39,13 +25,8 @@ const professor = require('./professor');
   await professor.addProfessor(page);
   await utils.doScreenshot(page, 'addProfessor');
   /*
-  await professor.deleteProfessor(page);
-  await utils.doScreenshot(page, 'deleteProfessor');
-  */
   await professor.updateProfessorsLDAPInfo(page);
   await utils.doScreenshot(page, 'updateProfessorsLDAPInfo');
-
-  //await site.deleteSite(page);
 
   await browser.close();
 })();
