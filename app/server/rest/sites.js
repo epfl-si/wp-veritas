@@ -23,14 +23,13 @@ import { getUnits } from "../units";
  *           "en",
  *           "fr"
  *         ],
- *         "unitId": "13031",
+ *         "unitId": 13031,
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
  *         "monitorSite": false,
  *         "tags": [],
  *         "wpInfra": true,
- *         "platformTarget": "openshift-4",
  *       },
  *       ...,
  *     ]
@@ -146,7 +145,7 @@ REST.addRoute(
  *           "en",
  *           "fr"
  *         ],
- *         "unitId": "13031",
+ *         "unitId": 13031,
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
