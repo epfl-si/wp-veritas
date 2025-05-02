@@ -328,8 +328,6 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
         "faculty",
         "languages",
         "unitId",
-        "unitName",
-        "unitNameLevel2",
         "snowNumber",
         "status",
         "facultyTags",

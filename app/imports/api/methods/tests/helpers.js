@@ -25,8 +25,6 @@ async function createSite(userId, categories, tags, professors) {
     theme: "wp-theme-2018",
     languages: ["en", "fr"],
     unitId: "13030",
-    unitName: "ISAS-FSD",
-    unitNameLevel2: "VPO-SI",
     snowNumber: "42",
     comment: "Vin nature par excellence !",
     createdDate: new Date(),

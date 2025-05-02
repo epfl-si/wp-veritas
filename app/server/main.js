@@ -4,7 +4,6 @@ import { WebApp } from "meteor/webapp";
 import { loadFixtures } from "./fixtures";
 
 import "./publications"; // Call meteor publications backend
-import "../imports/api/methods"; // Call meteor methods backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
 import "../imports/api/methods/categories";

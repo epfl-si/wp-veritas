@@ -101,8 +101,6 @@ REST.addRoute(
  *        "createdDate": null,
  *        "tags": [],
  *        "monitorSite": false,
- *        "unitName": "exheb",
- *        "unitNameLevel2": "vpo-si",
  *        "wpInfra": true,
  *        "categories": [
  *          "Inside"

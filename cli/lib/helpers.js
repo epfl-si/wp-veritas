@@ -78,7 +78,6 @@ module.exports.loadData = async (destination, data) => {
 
       if (!stop) {
         let unitId = site.unit_id
-        let unitName = site.unit_name
 
         let siteDocument = {
           url: url,
@@ -90,8 +89,6 @@ module.exports.loadData = async (destination, data) => {
           theme: theme,
           languages: languages,
           unitId: unitId,
-          unitName: unitName,
-          unitNameLevel2: "",
           snowNumber: "",
           comment: "",
           monitorSite: false,
