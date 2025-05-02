@@ -3,7 +3,7 @@ name: Test
 on: [push, pull_request]
 
 env:
-  METEOR_VERSION: 3.0-rc.4
+  METEOR_VERSION: 3.1.2
 
 jobs:
   test:
