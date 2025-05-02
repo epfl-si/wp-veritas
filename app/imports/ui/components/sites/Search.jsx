@@ -101,7 +101,7 @@ class Search extends React.Component {
                 - Login (pour les ayants droit): <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
               </div>
               <div className="py-1">
-                - Unité de rattachement: <strong>{this.state.site.unitName} ({this.state.site.unitId})</strong>
+                - N° unité de rattachement: <strong>{this.state.site.unitId}</strong>
               </div>
               <div className="py-1">
                 <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>

@@ -25,8 +25,6 @@ const professor = require('./professor');
   await professor.addProfessor(page);
   await utils.doScreenshot(page, 'addProfessor');
   /*
-  await professor.updateProfessorsLDAPInfo(page);
-  await utils.doScreenshot(page, 'updateProfessorsLDAPInfo');
 
   await browser.close();
 })();

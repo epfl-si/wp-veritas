@@ -25,8 +25,6 @@ import { getUnits } from "../units";
  *           "fr"
  *         ],
  *         "unitId": "13031",
- *         "unitName": "idev-ing",
- *         "unitNameLevel2": "vpo-si",
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
@@ -155,8 +153,6 @@ REST.addRoute(
  *           "fr"
  *         ],
  *         "unitId": "13031",
- *         "unitName": "idev-ing",
- *         "unitNameLevel2": "vpo-si",
  *         "snowNumber": "",
  *         "comment": "Site canari pour tester l'image",
  *         "createdDate": "2020-03-05T09:52:06.310Z",
@@ -206,8 +202,6 @@ REST.addRoute(
  * @apiSuccess {Array}  tags                      Site tags.
  * @apiSuccess {Array}  professors                Site professors.
  * @apiSuccess {String} unitId                    Site unitId.
- * @apiSuccess {String} unitName                  Site unitName.
- * @apiSuccess {String} unitNameLevel2            Site unitNameLevel2.
  * @apiSuccess {String} snowNumber                Site snowNumber.
  * @apiSuccess {String} comment                   Site comment.
  * @apiSuccess {String} createdDate               Site createdDate.
@@ -231,8 +225,6 @@ REST.addRoute(
  *         "fr"
  *       ],
  *       "unitId": "13031",
- *       "unitName": "idev-ing",
- *       "unitNameLevel2": "vpo-si",
  *       "snowNumber": "",
  *       "comment": "Site canari pour tester l'image",
  *       "createdDate": "2020-03-05T09:52:06.310Z",

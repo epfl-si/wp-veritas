@@ -22,12 +22,8 @@ class Add extends Component {
     super(props);
 
     let action;
-    let unitName = "";
     if (this.props.match.path.startsWith("/edit")) {
       action = "edit";
-      if ("site" in props && props.site) {
-        unitName = props.site.unitName;
-      }
     } else {
       action = "add";
     }
@@ -39,7 +35,6 @@ class Add extends Component {
       saveSuccess: false,
       generateSuccess: false,
       generateRunning: false,
-      unitName: unitName,
     };
   }
 
@@ -132,7 +127,6 @@ class Add extends Component {
         state.previousSite = site;
         actions.resetForm();
       }
-      state.unitName = site.unitName;
       this.setState(state);
       if (this.state.action === "add") {
         this.props.history.push("/edit/" + site._id);
@@ -238,10 +232,6 @@ class Add extends Component {
     if (this.isLoading(initialValues)) {
       content = <Loading />;
     } else {
-      if (this.action === "edit" && this.state.unitName === "") {
-        this.setState({ unitName: this.props.site.unitName });
-      }
-
       let msgEditSuccess = (
         <div className="alert alert-success" role="alert">
           Le site a été modifié avec succès !
@@ -569,19 +559,6 @@ class Add extends Component {
                   disabled={values.wpInfra === false}
                 />
                 <ErrorMessage name="unitId" component={CustomError} />
-
-                {this.state.action === "edit" && this.state.unitName ? (
-                  <div className="form-group">
-                    <label htmlFor="unitName">Nom de l'unité :</label>
-                    <input
-                      className="form-control"
-                      id="unitName"
-                      type="text"
-                      disabled
-                      value={this.state.unitName}
-                    />
-                  </div>
-                ) : null}
 
                 <Field
                   onChange={(e) => {

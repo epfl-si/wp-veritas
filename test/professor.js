@@ -28,13 +28,6 @@ const deleteProfessor = async (page) => {
   await page.waitFor(1000);
 }
 
-const updateProfessorsLDAPInfo = async (page) => {
-  await page.$eval('#updateLDAPButton', e => e.click());
-  await page.waitFor(3000);
-  console.log("Update professor OK");
-}
-
 module.exports.goProfessorsPage = goProfessorsPage;
 module.exports.addProfessor = addProfessor;
 module.exports.deleteProfessor = deleteProfessor;
-module.exports.updateProfessorsLDAPInfo = updateProfessorsLDAPInfo;

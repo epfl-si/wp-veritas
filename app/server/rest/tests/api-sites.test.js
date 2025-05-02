@@ -23,8 +23,6 @@ const getExpectedSiteResult = async () => {
       platformTarget: "openshift-4",
       languages: site.languages,
       unitId: "13030",
-      unitName: "isas-fsd",
-      unitNameLevel2: "vpo-si",
       snowNumber: "42",
       comment: "Vin nature par excellence !",
       createdDate: site.createdDate,

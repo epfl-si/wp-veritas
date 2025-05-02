@@ -8,36 +8,11 @@ import { Telegram } from "../telegram";
 import { getEnvironment } from "../../api/utils";
 import Debug from "debug";
 
-import "../methods"; // without this line run test failed
 import { siteWPSchema } from "../schemas/siteWPSchema";
 import { siteExternalSchema } from "../schemas/siteExternal";
 import { siteWPKubernetesSchema } from "../schemas/siteWPKubernetesSchema";
 
 const debug = Debug("api/methods/sites");
-
-async function getUnitNames(unitId) {
-  // Ldap search to get unitName and unitLevel2
-  let unit = await Meteor.applyAsync("getUnitFromLDAP", [unitId], true);
-  let unitName = "";
-  let unitNameLevel2 = "";
-
-  if (unit && "cn" in unit) {
-    unitName = unit.cn;
-  }
-
-  if (unit && "dn" in unit) {
-    let dn = unit.dn.split(",");
-    if (dn.length == 5) {
-      // dn[2] = 'ou=associations'
-      unitNameLevel2 = dn[2].split("=")[1];
-    }
-  }
-
-  return {
-    unitName: unitName,
-    unitNameLevel2: unitNameLevel2,
-  };
-}
 
 async function prepareUpdateInsert(site, action) {
 
@@ -156,14 +131,12 @@ const insertSite = new VeritasValidatedMethod({
       const { url } = await createWPSite(newSite);
       return {
         name: url,
-        unitName: "TODO"
       };
     } else if (type.schema === "external") {
       newSite.createdDate = new Date().toISOString().split('T')[0];
       await Sites.insertAsync(newSite);
       return {
         url: newSite.url,
-        unitName: "TODO"
       };
     }
   }
