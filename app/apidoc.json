@@ -13,7 +13,6 @@
       "GetSitesId",
     "Categories",
     "Tags",
-    "Professors",
     "OpenShift",
       "GetOpenshiftenvs"
   ]

@@ -105,7 +105,6 @@ REST.addRoute(
  *        "categories": [
  *          "Inside"
  *        ],
- *        "professors": []
  *       },
  *       ...,
  *     ]

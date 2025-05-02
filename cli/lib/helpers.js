@@ -93,7 +93,6 @@ module.exports.loadData = async (destination, data) => {
           comment: "",
           monitorSite: false,
           slug: "",
-          professors: [],
           tags: [],
           isDeleted: false,
         };

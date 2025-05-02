@@ -28,7 +28,6 @@ const getExpectedSiteResult = async () => {
       createdDate: site.createdDate,
       monitorSite: false,
       tags: site.tags,
-      professors: site.professors,
       wpInfra: true,
       isDeleted: false,
       ansibleHost: "www__beaujolais__madame_placard",

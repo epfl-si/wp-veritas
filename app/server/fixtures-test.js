@@ -5,12 +5,10 @@ import {
   Themes,
   PlatformTargets,
   Tags,
-  Professors,
   AppLogs,
 } from "../imports/api/collections";
 import { createUser } from "../tests/helpers";
 import { insertTag } from "../imports/api/methods/tags";
-import { insertProfessor } from "../imports/api/methods/professors";
 import { createSite } from "../imports/api/methods/tests/helpers";
 import Meteor from "meteor/meteor";
 import { Roles } from "meteor/alanning:roles";
@@ -55,28 +53,13 @@ const loadTagsFixtures = async () => {
   await createTag(userId, tagArgs2);
 };
 
-const loadProfessorsFixtures = async () => {
-  let userId = await createUser();
-
-  const context = { userId };
-  const args = {
-    sciper: "188475",
-    displayName: "Charmier Grégory",
-  };
-
-  await insertProfessor._execute(context, args);
-
-  await Professors.findOneAsync({ sciper: "188475" });
-};
-
 const loadSitesFixtures = async () => {
   let userId = await createUser();
   let tags = await Tags.find({}).fetchAsync();
   let categories = await Categories.find({ name: "epfl-menus" }).fetchAsync();
-  let professors = await Professors.find({ sciper: "188475" }).fetchAsync();
 
   // Create site with this professor
-  await createSite(userId, categories, tags, professors);
+  await createSite(userId, categories, tags);
 };
 
 const loadTestFixtures = async () => {
@@ -94,13 +77,6 @@ const loadTestFixtures = async () => {
     console.log("Tags already exist");
   }
 
-  if ((await Professors.find({}).countAsync()) == 0) {
-    console.log("    …importing professors");
-    await loadProfessorsFixtures();
-  } else {
-    console.log("Professors already exist");
-  }
-
   if ((await Sites.find({}).countAsync()) == 0) {
     console.log("    …importing sites");
     await loadSitesFixtures();
@@ -110,7 +86,7 @@ const loadTestFixtures = async () => {
 };
 
 async function resetDatabase () {
-  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, PlatformTargets, Tags, Professors, AppLogs]) {
+  for (const c of [Sites, OpenshiftEnvs, Categories, Themes, PlatformTargets, Tags, AppLogs]) {
     await c.dropCollectionAsync();
   }
   for (const r of await Roles.getAllRoles().fetchAsync()) {
