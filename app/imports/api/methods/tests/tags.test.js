@@ -34,10 +34,8 @@ if (Meteor.isServer) {
 
       let nb = await Tags.find({}).countAsync();
       let tag = await Tags.findOneAsync({ name_en: "Algebra" });
-      let category = await Categories.findOneAsync({ name: "epfl-menus" });
     
-      // Create site with this tag
-      await createSite(userId, [category], [tag], []);
+      await createSite(userId);
 
       assert.strictEqual(nb, 1);
       assert.strictEqual(tag.name_fr, "Algèbre");

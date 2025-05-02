@@ -1,4 +1,4 @@
-import { Sites } from "../../collections";
+import { Sites, Categories } from "../../collections";
 import { insertSite } from "../sites";
 
 async function getSitesByTag(tag) {
@@ -14,14 +14,14 @@ async function getSitesByTag(tag) {
   return sitesByTag;
 }
 
-async function createSite(userId, categories) {
+async function createSite(userId) {
   const context = { userId };
   const args = {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
     tagline: "Yvon Métras",
     title: "Ma meilleure découverte 2019",
     type: "kubernetes",
-    categories: categories,
+    categories: [{ name: "epfl-menus" }],
     theme: "wp-theme-2018",
     languages: ["en", "fr"],
     unitId: 13030,
