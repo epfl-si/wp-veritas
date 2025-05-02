@@ -29,7 +29,6 @@ async function createSite(userId, categories) {
     comment: "Vin nature par excellence !",
     createdDate: new Date().toString(),
     monitorSite: false,
-    wpInfra: true,
   };
   await insertSite._execute(context, args);
 }
