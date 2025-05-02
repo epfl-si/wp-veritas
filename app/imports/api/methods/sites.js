@@ -203,36 +203,11 @@ const removeSite = new VeritasValidatedMethod({
   role: Admin,
   serverOnly: true,
   validate: new SimpleSchema({
-    siteId: { type: String },
+    url: { type: String },
   }).validator(),
-  async run({ siteId }) {
-    let site = await Sites.findOneAsync({ _id: siteId });
-    if (!site) {
-      throwMeteorError("site", "Site not found");
-    }
-
-    const type = await Types.findOneAsync({
-      name: newSite.type,
-      schema: { $ne: null }
-    })
-
-    if (!type) {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    if (type.schema === "internal") {
-      import { deleteWPSite } from "/server/kubernetes.js";
-      await deleteWPSite(site.k8sName);
-    } else if (type.schema === "external") {
-      await Sites.removeAsync({ _id: siteId });
-    }
-
-    AppLogger.getLog().info(`Delete site ID ${siteId}`, { before: site, after: "" }, this.userId);
-
-    const user = await Meteor.users.findOneAsync({ _id: this.userId });
-    const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${site.url} (${site.type}) on wp-veritas! #wpSiteDeleted`;
-
-    Telegram.sendMessage(message, /*preview=*/false);
+  async run({ url }) {
+    import { deleteWPSiteByURL } from "/server/kubernetes.js";
+    await deleteWPSiteByURL(url);
   },
 });
 

@@ -28,7 +28,7 @@ const Cells = (props) => (
               bouncyCircle
               :
             <input
-              type="checkbox" 
+              type="checkbox"
               checked={site.monitorSite}
               title={ (site.monitorSite) ? 'Site is monitored' : 'Site is not monitored' }
               onChange={(event) => {
@@ -155,7 +155,7 @@ class List extends Component {
 
   deleteSite = async (siteId) => {
     try {
-      await removeSite({ siteId });
+      await removeSite({ url: siteId });
     } catch (error) {
       console.error("deleteSite", error);
     }
