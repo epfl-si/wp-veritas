@@ -1,16 +1,10 @@
 import assert from "assert";
-import { Sites, Tags, Categories } from "../../collections";
+import { Sites, Categories } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { createUser } from "../../../../tests/helpers";
 import { loadFixtures } from "../../../../server/fixtures";
 import { resetDatabase } from "../../../../server/fixtures-test";
-
-async function createTag(userId, args) {
-  const context = { userId };
-  const idTag = await insertTag._execute(context, args);
-  return await Tags.findOneAsync({_id: idTag});
-}
 
 if (Meteor.isServer) {
   describe("meteor methods site", function () {
@@ -43,12 +37,6 @@ if (Meteor.isServer) {
         url_en: "https://en.wikipedia.org/wiki/Natural_wine",
         type: "field-of-research",
       };
-
-      let tag1 = await createTag(userId, tagArgs1);
-      let tag2 = await createTag(userId, tagArgs2);
-
-      let tagsNumber = await Tags.find({}).countAsync();
-      assert.strictEqual(tagsNumber, 2);
 
       const url = "https://www.epfl.ch/beaujolais/madame-placard/";
       const title = "Ma meilleure découverte 2019";

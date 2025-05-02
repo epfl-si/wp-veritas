@@ -25,7 +25,6 @@ const getExpectedSiteResult = async () => {
       comment: "Vin nature par excellence !",
       createdDate: site.createdDate,
       monitorSite: false,
-      tags: site.tags,
       isDeleted: false,
       ansibleHost: "www__beaujolais__madame_placard",
     },
