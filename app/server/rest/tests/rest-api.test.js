@@ -1,4 +1,4 @@
-import { loadFixtures } from "../../fixtures";
+import { setupRoles } from "../../roles";
 import { resetDatabase, loadTestFixtures } from "../../fixtures-test";
 
 import { endpointSites } from "./api-sites.test";
@@ -10,7 +10,7 @@ if (Meteor.isServer) {
     before(async () => {
       console.log("    …reseting database");
       await resetDatabase();
-      await loadFixtures();
+      await setupRoles();
       await loadTestFixtures();
     });
 

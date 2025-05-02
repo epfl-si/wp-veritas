@@ -3,14 +3,14 @@ import { Tags, Categories } from "../../collections";
 import { insertTag, updateTag, removeTag } from "../tags";
 import { createUser } from "../../../../tests/helpers";
 import { createSite, getSitesByTag } from "./helpers";
-import { loadFixtures } from "../../../../server/fixtures";
+import { setupRoles } from "../../../../server/roles";
 import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods tag", function () {
     before(async function () {
       await resetDatabase();
-      await loadFixtures();
+      await setupRoles();
       await Categories.insertAsync({
         name: "epfl-menus",
       });

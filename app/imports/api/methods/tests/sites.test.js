@@ -3,14 +3,14 @@ import { Sites, Categories } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { createUser } from "../../../../tests/helpers";
-import { loadFixtures } from "../../../../server/fixtures";
+import { setupRoles } from "../../../../server/roles";
 import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods site", function () {
     before(async function () {
       await resetDatabase();
-      await loadFixtures();
+      await setupRoles();
       await Categories.insertAsync({
         name: "Inside",
       });
