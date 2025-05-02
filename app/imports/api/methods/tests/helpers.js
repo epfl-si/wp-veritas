@@ -22,7 +22,7 @@ async function createSite(userId) {
     title: "Ma meilleure découverte 2019",
     type: "kubernetes",
     categories: [{ name: "epfl-menus" }],
-    theme: "wp-theme-2018",
+    theme: "wp-theme-light",
     languages: ["en", "fr"],
     unitId: 13030,
     snowNumber: "42",
