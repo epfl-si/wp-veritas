@@ -46,9 +46,6 @@ async function resetDatabase () {
   for (const c of [Sites, Categories, Themes, Tags, AppLogs]) {
     await c.dropCollectionAsync();
   }
-  for (const r of await Roles.getAllRoles().fetchAsync()) {
-    await Roles.deleteRoleAsync(r._id);
-  }
 }
 
 export { loadTestFixtures, resetDatabase };

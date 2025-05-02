@@ -2,14 +2,14 @@ import assert from "assert";
 import { Themes } from "../../collections";
 import { insertTheme, removeTheme } from "../themes";
 import { createUser } from "../../../../tests/helpers";
-import { loadFixtures } from "../../../../server/fixtures";
+import { setupRoles } from "../../../../server/roles";
 import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods theme", function () {
     before(async function () {
       await resetDatabase();
-      await loadFixtures();
+      await setupRoles();
     });
 
     it("insert theme", async () => {

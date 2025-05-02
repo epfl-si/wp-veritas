@@ -2,14 +2,14 @@ import assert from "assert";
 import { Categories } from "../../collections";
 import { insertCategory, removeCategory } from "../categories";
 import { createUser } from "../../../../tests/helpers";
-import { loadFixtures } from "../../../../server/fixtures";
+import { setupRoles } from "../../../../server/roles";
 import { resetDatabase } from "../../../../server/fixtures-test";
 
 if (Meteor.isServer) {
   describe("meteor methods category", function () {
     before(async function () {
       await resetDatabase();
-      await loadFixtures();
+      await setupRoles();
     });
 
     it("insert category", async () => {

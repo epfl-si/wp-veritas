@@ -1,7 +1,7 @@
 import helmet from "helmet";
 import { Meteor } from "meteor/meteor";
 import { WebApp } from "meteor/webapp";
-import { loadFixtures } from "./fixtures";
+import { setupRoles } from "./roles";
 
 import "./publications"; // Call meteor publications backend
 import "../imports/api/methods/tags";
@@ -47,7 +47,7 @@ if (Meteor.isServer) {
       importData();
     }
 
-    loadFixtures();
+    setupRoles();
     loadData();
 
     if (!disableTequila) {
