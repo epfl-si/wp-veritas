@@ -152,7 +152,7 @@ export async function deleteWPSiteByURL (siteURL) {
     });
     debug('Try to delete', siteURL);
     if (!site) {
-      throw new Meteor.Error('Site not found');
+      console.log(`While deleting site ${siteURL}: not found in Kubernetes.`);
     } else {
       await deleteWPSite(site.metadata.name);
     }
