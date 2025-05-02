@@ -94,7 +94,7 @@ REST.addRoute(
  *          "en",
  *          "fr"
  *        ],
- *        "unitId": "13035",
+ *        "unitId": 13035,
  *        "snowNumber": "",
  *        "comment": "Site \"intranet\" en 2018 pour infrastructure IaaS",
  *        "createdDate": null,

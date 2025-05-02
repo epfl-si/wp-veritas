@@ -20,7 +20,7 @@ const getExpectedSiteResult = async () => {
       categories: ["epfl-menus"],
       theme: "wp-theme-2018",
       languages: site.languages,
-      unitId: "13030",
+      unitId: 13030,
       snowNumber: "42",
       comment: "Vin nature par excellence !",
       createdDate: site.createdDate,

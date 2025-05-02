@@ -24,7 +24,7 @@ async function createSite(userId, categories, tags) {
     categories: categories,
     theme: "wp-theme-2018",
     languages: ["en", "fr"],
-    unitId: "13030",
+    unitId: 13030,
     snowNumber: "42",
     comment: "Vin nature par excellence !",
     createdDate: new Date(),
