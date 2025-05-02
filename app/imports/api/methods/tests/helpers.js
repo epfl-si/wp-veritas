@@ -27,7 +27,7 @@ async function createSite(userId, categories, tags) {
     unitId: 13030,
     snowNumber: "42",
     comment: "Vin nature par excellence !",
-    createdDate: new Date(),
+    createdDate: new Date().toString(),
     monitorSite: false,
     tags: tags,
     wpInfra: true,
