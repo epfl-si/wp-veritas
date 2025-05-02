@@ -73,7 +73,7 @@ const validateConsistencyOfFields = (newSite) => {
     }
 
     if (newSite.url.includes("www.epfl.ch")) {
-      if (newSite.categories.find((category) => category.name === "epfl-menus")) {
+      if (! newSite.categories.find((category) => category.name === "epfl-menus")) {
         throwMeteorErrors(
           ["categories"],
           "Sites www: La catégorie epfl-menus est obligatoire"
