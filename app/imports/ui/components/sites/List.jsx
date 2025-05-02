@@ -35,9 +35,11 @@ const Cells = (props) => (
                 props.setMonitor(event.target, site.url, !site.monitorSite);
                 event.preventDefault();
               }}
-              disabled={site.type === 'kubernetes'}
             />
           }
+        </td>
+        <td className="align-middle text-center">
+          { site.k8sDatabaseStatus }
         </td>
         <td className="align-middle text-center" data-date={site.createdDate ?? '-'} title={site.createdDate ?? '-'} >
           {getDaysFromDate(site.createdDate)}
@@ -483,6 +485,9 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                   </th>
                   <th className="w-10 text-center" scope="col">
                     Monitored
+                  </th>
+                  <th className="w-10 text-center" scope="col">
+                    Database
                   </th>
                   <th className="w-10 text-center" scope="col">
                     Age

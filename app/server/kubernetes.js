@@ -3,7 +3,7 @@ import { Sites } from "../imports/api/collections";
 
 import Debug from "debug";
 
-const debug = Debug("server/publications");
+const debug = Debug("server/kubernetes");
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -135,17 +135,68 @@ export async function deleteWPSite (k8sName) {
   }
 }
 
-export function watchWPSites({added, removed}) {
+export function watchWPSites({added, removed, resourcesChanged}, options) {
   const namespace = getNamespace();
+
+  const sitesByUid = {};
+  const dbPingQueue = {};
+
+  if (options?.watchDatabases) {
+    async function pingOwnerOfDatabase (db) {
+      if (! resourcesChanged) return;
+      const uid = db.ownerWordpressSiteUid;
+      if (! uid) return;
+      if (sitesByUid[uid]) {
+        debug("Pinging database", db, "for site", sitesByUid[uid]);
+        await resourcesChanged.call({ db }, sitesByUid[uid]);
+      } else {
+        // We haven't seen the corresponding WordpressSite yet:
+        debug("Deferring ping to database (site not yet seen)", db);
+        dbPingQueue[uid] = db;
+      }
+    }
+
+    k8sWatchApi.watch(
+      "/apis/k8s.mariadb.com/v1alpha1/namespaces/" + namespace + "/databases",
+      {},
+      async (type, database) => {
+        const db = new K8SDatabase(database);
+        debug("Database " + type, db.ownerWordpressSiteUid);
+        if (type === "ADDED") {
+          await pingOwnerOfDatabase(db);
+        } else if ((type === "DELETED")) {
+          await pingOwnerOfDatabase(db);
+        } else if ((type === "MODIFIED")) {
+          await pingOwnerOfDatabase(db);
+        }
+      },
+    () => {
+      debug("Stopping Kubernetes watch");
+    });
+  }
+
+  async function maybeDeferredDatabasePing (site) {
+    if (resourcesChanged && site.uid && dbPingQueue[site.uid]) {
+      const db = dbPingQueue[site.uid];
+      delete db[site.uid];
+      debug("deferred ping", db, site);
+      await resourcesChanged.call({db}, site);
+    }
+  }
+
   k8sWatchApi.watch(
     "/apis/wordpress.epfl.ch/v2/namespaces/" + namespace + "/wordpresssites",
     {},
     async (type, site) => {
-      debug("Site " + type);
+      site = new K8SSite(site);
+      debug("Site " + type, site.uid);
       if ((type === "ADDED") && added) {
-        await added(new K8SSite(site));
+        await added(site);
+        sitesByUid[site.uid] = site;
+        await maybeDeferredDatabasePing(site);
       } else if ((type === "DELETED") && removed) {
-        await removed(new K8SSite(site));
+        delete sitesByUid[site.uid];
+        await removed(site);
       }
     },
     () => {
@@ -153,12 +204,38 @@ export function watchWPSites({added, removed}) {
     });
 }
 
-class K8SSite {
+class _K8SObject {
   constructor(k8sStruct) {
     Object.assign(this, k8sStruct);
   }
 
+  get uid () {
+    return this.metadata?.uid;
+  }
+}
+
+class K8SSite extends _K8SObject {
   get url () {
     return `https://${this.spec.hostname}${this.spec.path}${!this.spec.path.endsWith("/") ? "/" : ""}`;
+  }
+}
+
+class K8SDatabase extends _K8SObject {
+  get ownerWordpressSiteUid () {
+    const ownerReferences = this.metadata?.ownerReferences;
+    if (ownerReferences?.length === 1 && ownerReferences[0].kind === "WordpressSite") {
+      return ownerReferences[0].uid;
+    }
+  }
+
+  databaseStatus () {
+    for (const c of (this.status?.conditions || [])) {
+      if (c.type === "Ready" && c.status) {
+        return "READY"
+      } else {
+        // TODO: distinguish more cases.
+        return "NOT_READY";
+      }
+    }
   }
 }

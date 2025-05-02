@@ -60,7 +60,7 @@ Meteor.publish("sites.list", async function () {
 });
 
 Meteor.publish("k8ssites.list", function () {
-  watchWPSites({added, removed});
+  watchWPSites({added, removed, resourcesChanged}, { watchDatabases: true });
   this.ready();
 
   const add = this.added.bind(this, "sites"),
@@ -80,7 +80,8 @@ Meteor.publish("k8ssites.list", function () {
           theme: site.spec.wordpress.theme,
           languages: site.spec.wordpress.languages,
           unitId: site.spec.owner.epfl.unitId,
-          createdDate: site.metadata.creationTimestamp,
+          k8screatedDate: site.metadata.creationTimestamp,
+          k8sdeletedDate: site.metadata.deletionTimestamp
       }
     );
   }
@@ -88,6 +89,12 @@ Meteor.publish("k8ssites.list", function () {
   async function removed (site) {
     debug(`Removed from k8s: ${site.url}`)
     remove(site.url)
+  }
+
+  async function resourcesChanged (site) {
+    change(site.url, {
+      k8sDatabaseStatus: this.db?.databaseStatus()
+    })
   }
 });
 
