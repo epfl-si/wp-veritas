@@ -11,7 +11,7 @@ async function getSitesByTag(tag) {
 async function createSite(userId) {
   const context = { userId };
   const args = {
-    url: "https://www.epfl.ch/beaujolais/madame-placard",
+    url: "https://www.epfl.ch/beaujolais/madame-placard/",
     type: "external",
     unitId: 13030,
     snowNumber: "42",
