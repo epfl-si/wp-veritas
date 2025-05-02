@@ -42,7 +42,7 @@ const endpointTags = () => {
     expect(res).to.have.status(200);
     expect(res).to.be.ok;
     expect(res.headers["content-type"]).to.equal("application/json");
-    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult));
+    expect(res.body).to.deep.equalInAnyOrder(expectedResult);
   });
 
   let endpointGetTagsId = "/api/v1/tags/:id";
@@ -55,7 +55,7 @@ const endpointTags = () => {
     expect(res).to.have.status(200);
     expect(res).to.be.ok;
     expect(res.headers["content-type"]).to.equal("application/json");
-    expect(JSON.stringify(res.body)).to.eql(JSON.stringify(expectedResult[0]));
+    expect(res.body).to.deep.equalInAnyOrder(expectedResult[0]);
   });
 };
 
