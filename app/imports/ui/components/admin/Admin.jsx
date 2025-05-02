@@ -296,10 +296,6 @@ class Admin extends Component {
     this.delete(Themes, themeID);
   };
 
-  deletePlatformTarget = (platformTargetID) => {
-    this.delete(PlatformTargets, platformTargetID);
-  };
-
   deleteCategory = (categoryID) => {
     this.delete(Categories, categoryID);
   };
@@ -333,8 +329,6 @@ class Admin extends Component {
       if (result.value) {
         if (collection._name === "themes") {
           this.deleteTheme(elementId);
-        } else if (collection._name === "platformtargets") {
-          this.deletePlatformTarget(elementId);
         } else if (collection._name === "categories") {
           this.deleteCategory(elementId);
         }

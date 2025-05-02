@@ -60,16 +60,13 @@ import { getUnits } from "../units";
  *     https://wp-veritas.epfl.ch/api/v1/sites?search_url=canari
  */
 /**
- * @api {get}  /sites?platform_target={param} Get sites by platformTarget
  * @apiGroup Sites
- * @apiParam {String} platform_target Text present in platformTarget
  * @apiExample {http} Example usage:
- *     https://wp-veritas.epfl.ch/api/v1/sites?platform_target=openshift-4
+ *     https://wp-veritas.epfl.ch/api/v1/sites
  */
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
-// and to: /api/v1/sites?platform_target=... to filter sites based on platformTarget
 // and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
@@ -158,7 +155,6 @@ REST.addRoute(
  *         "monitorSite": false,
  *         "tags": [],
  *         "wpInfra": true,
- *         "platformTarget": "openshift-4",
  *       },
  *       ...,
  *     ]
@@ -204,7 +200,6 @@ REST.addRoute(
  * @apiSuccess {String} createdDate               Site createdDate.
  * @apiSuccess {String} monitorSite               Site monitorSite.
  * @apiSuccess {String} wpInfra                   Site wpInfra.
- * @apiSuccess {String} platformTarget            Site platformTarget.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -228,7 +223,6 @@ REST.addRoute(
  *       "monitorSite": false,
  *       "tags": [],
  *       "wpInfra": true,
- *       "platformTarget": "openshift-4",
  *     }
  *
  * @apiError SiteNotFound Site with this ID wasn't found.
