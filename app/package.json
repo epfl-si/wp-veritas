@@ -18,7 +18,6 @@
     "@babel/runtime": "^7.9.2",
     "@kubernetes/client-node": "^0.21.0",
     "debug": "^4.3.4",
-    "epfl-ldap": "^1.0.1",
     "formik": "^2.1.4",
     "helmet": "^3.22.0",
     "jquery": "^3.5.0",
