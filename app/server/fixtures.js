@@ -3,7 +3,15 @@ import { Roles } from "meteor/alanning:roles";
 const loadRolesFixtures = async () => {
   const roles = ['admin', 'tags-editor', 'epfl-member'];
   for (const role of roles) {
+    try {
       await Roles.createRoleAsync(role);
+    } catch (e) {
+      if (e.toString().includes("duplicate key error")) {
+        console.log("🤷‍♂️");
+      } else {
+        throw e;
+      }
+    }
   }
 }
 
