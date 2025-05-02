@@ -4,7 +4,6 @@ import { resetDatabase, loadTestFixtures } from "../../fixtures-test";
 import { endpointSites } from "./api-sites.test";
 import { endpointCategories } from "./api-categories.test";
 import { endpointTags } from "./api-tags.test";
-import { endpointProfessors } from "./api-professors.test";
 import { endpointOpenshiftEnvs } from "./api-openshiftenvs.test";
 
 if (Meteor.isServer) {
@@ -20,7 +19,6 @@ if (Meteor.isServer) {
     describe("API's endpoint: /sites", endpointSites.bind(this));
     describe("API's endpoint: /categories", endpointCategories.bind(this));
     describe("API's endpoint: /tags", endpointTags.bind(this));
-    describe("API's endpoint: /professors", endpointProfessors.bind(this));
     describe("API's endpoint: /openshiftenvs", endpointOpenshiftEnvs.bind(this));
   });
 }

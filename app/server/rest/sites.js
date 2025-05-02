@@ -30,7 +30,6 @@ import { getUnits } from "../units";
  *         "createdDate": "2020-03-05T09:52:06.310Z",
  *         "monitorSite": false,
  *         "tags": [],
- *         "professors": [],
  *         "wpInfra": true,
  *         "platformTarget": "openshift-4",
  *       },
@@ -158,7 +157,6 @@ REST.addRoute(
  *         "createdDate": "2020-03-05T09:52:06.310Z",
  *         "monitorSite": false,
  *         "tags": [],
- *         "professors": [],
  *         "wpInfra": true,
  *         "platformTarget": "openshift-4",
  *       },
@@ -200,7 +198,6 @@ REST.addRoute(
  * @apiSuccess {String} theme                     Site theme.
  * @apiSuccess {Array}  languages                 Site languages.
  * @apiSuccess {Array}  tags                      Site tags.
- * @apiSuccess {Array}  professors                Site professors.
  * @apiSuccess {String} unitId                    Site unitId.
  * @apiSuccess {String} snowNumber                Site snowNumber.
  * @apiSuccess {String} comment                   Site comment.
@@ -230,7 +227,6 @@ REST.addRoute(
  *       "createdDate": "2020-03-05T09:52:06.310Z",
  *       "monitorSite": false,
  *       "tags": [],
- *       "professors": [],
  *       "wpInfra": true,
  *       "platformTarget": "openshift-4",
  *     }

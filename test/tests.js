@@ -19,9 +19,6 @@ const professor = require('./professor');
   await page.goto(httpUrl);
   await page.waitFor(1000);
 
-  await professor.goProfessorsPage(page);
-  await utils.doScreenshot(page, 'goProfessorPage');
-
   await professor.addProfessor(page);
   await utils.doScreenshot(page, 'addProfessor');
   /*

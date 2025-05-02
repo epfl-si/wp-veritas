@@ -14,7 +14,7 @@ async function getSitesByTag(tag) {
   return sitesByTag;
 }
 
-async function createSite(userId, categories, tags, professors) {
+async function createSite(userId, categories, tags) {
   const context = { userId };
   const args = {
     url: "https://www.epfl.ch/beaujolais/madame-placard",
@@ -30,7 +30,6 @@ async function createSite(userId, categories, tags, professors) {
     createdDate: new Date(),
     monitorSite: false,
     tags: tags,
-    professors: professors,
     wpInfra: true,
   };
   await insertSite._execute(context, args);
