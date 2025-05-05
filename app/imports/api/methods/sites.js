@@ -252,7 +252,8 @@ const restoreSite = new VeritasValidatedMethod({
 const associateTagsToSite = new VeritasValidatedMethod({
   name: "associateTagsToSite",
   role: Editor,
-  async validate({ site, tags }) {
+  serverOnly: true,
+  async validate({ url, tags }) {
     if (Array.isArray(tags)) {
       tags.forEach((tag) => {
         tagSchema.validate(tag);
@@ -260,33 +261,16 @@ const associateTagsToSite = new VeritasValidatedMethod({
     } else {
       throwMeteorError("tags", "Tags data are BAD");
     }
-
-    const type = await Types.findOneAsync({
-      name: site.type,
-      schema: { $ne: null }
-    })
-
-    if (!type) {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    if (type.schema === "internal") {
-      siteWPKubernetesSchema.validate(site);
-    } else if (type.schema === "external") {
-      siteExternalSchema.validate(site);
-    } else {
-      throwMeteorError("type", "Type de site inconnu");
-    }
   },
-  async run({ site, tags }) {
+  async run({ url, tags }) {
     const allTags = await Tags.find().fetchAsync();
     for (const existingTag of allTags) {
       const tagStillSelected = tags.some(selectedTag => selectedTag._id === existingTag._id);
-      if (existingTag.sites && existingTag.sites.includes(site.url)) {
+      if (existingTag.sites && existingTag.sites.includes(url)) {
         if (!tagStillSelected) {
           await Tags.updateAsync(
             { _id: existingTag._id },
-            { $pull: { sites: site.url } }
+            { $pull: { sites: url } }
           );
         }
       }
@@ -294,21 +278,18 @@ const associateTagsToSite = new VeritasValidatedMethod({
       else if (tagStillSelected) {
         await Tags.updateAsync(
           { _id: existingTag._id },
-          { $addToSet: { sites: site.url } }
+          { $addToSet: { sites: url } }
         );
       }
     }
 
-    const siteBeforeUpdate = await Sites.findOneAsync({ _id: site._id });
-    const tagsAfterUpdate = await Tags.find({ sites: site.url }).fetchAsync();
+    const tagsAfterUpdate = await Tags.find({ sites: url }).fetchAsync();
 
     AppLogger.getLog().info(
-      `Associate tags to site with ID ${site._id}`,
+      `Associate tags to site with URL ${url}`,
       {
-        before: siteBeforeUpdate,
         after: {
-          _id: site._id,
-          url: site.url,
+          url: url,
           associatedTags: tagsAfterUpdate.map(tag => ({ _id: tag._id, name: tag.name_fr, type: tag.type }))
         }
       },

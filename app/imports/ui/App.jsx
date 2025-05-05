@@ -39,7 +39,7 @@ class Apps extends Component {
                 <Route exact path="/" component={List} />
                 <Route path="/tags" component={Tag} />
                 <Route path="/tag/:_id" component={Tag} />
-                <Route path="/site-tags/:_id" component={SiteTags} />
+                <Route path="/site-tags/*" component={SiteTags} />
               </React.Fragment>
             ) : null}
             {this.props.currentUserIsAdmin ? (
