@@ -411,6 +411,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                     value={this.state.searchValue}
                     onChange={this.search}
                     placeholder="Filtrer par mot-clé"
+                    autoFocus
                   />
                 </div>
                 <div className="ml-2">
