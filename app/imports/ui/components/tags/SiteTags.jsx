@@ -27,7 +27,7 @@ class SiteTags extends React.Component {
 
     let site = this.getSite();
     try {
-      await associateTagsToSite({ site, tags });
+      await associateTagsToSite({ url: site.url, tags });
       this.setState({ saveSuccess: true });
     } catch (errors) {
       console.error(errors);
@@ -54,8 +54,8 @@ class SiteTags extends React.Component {
   }
 
   getSite = () => {
-    let siteId = this.props.match.params._id;
-    return Sites.findOne({ _id: siteId });
+    let url = this.props.match.params[0];
+    return Sites.findOne({ url });
   };
 
   getTagsBySiteUrl = (siteUrl, tagList) => {
@@ -186,6 +186,7 @@ export default withTracker(() => {
   Meteor.subscribe("tag.list");
   Meteor.subscribe("type.list");
   Meteor.subscribe("sites.list");
+  Meteor.subscribe("k8ssites.list");
 
   const fetchSortedTags = (type) =>
     Tags.find({ type }, { sort: { name_fr: 1 } }).fetch();
