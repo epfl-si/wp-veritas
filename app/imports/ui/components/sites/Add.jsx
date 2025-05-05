@@ -354,13 +354,13 @@ class Add extends Component {
                         setFieldValue(event.target.name, event.target.value.trim());
                         this.updateUserMsg();
                       }}
-                      placeholder="Tagline du site à ajouter"
-                      label="Tagline"
-                      name="tagline"
+                      placeholder="Titre du site à ajouter"
+                      label="Titre"
+                      name="title"
                       type="text"
                       component={CustomInput}
                     />
-                    <ErrorMessage name="tagline" component={CustomError} />
+                    <ErrorMessage name="title" component={CustomError} />
 
                     <Field
                       onChange={(e) => {
@@ -372,13 +372,13 @@ class Add extends Component {
                         setFieldValue(event.target.name, event.target.value.trim());
                         this.updateUserMsg();
                       }}
-                      placeholder="Titre du site à ajouter"
-                      label="Titre"
-                      name="title"
+                      placeholder="Tagline du site à ajouter"
+                      label="Tagline"
+                      name="tagline"
                       type="text"
                       component={CustomInput}
                     />
-                    <ErrorMessage name="title" component={CustomError} />
+                    <ErrorMessage name="tagline" component={CustomError} />
 
                     <div className="form-group">
                       Catégories
@@ -537,7 +537,6 @@ class Add extends Component {
                       disabled={values.wpInfra === false}
                     />
                     <ErrorMessage name="languages" component={CustomError} />
-
                   </div>
                 )}
 
