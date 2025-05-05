@@ -73,7 +73,7 @@
           team: '{{ team }}'
           app.kubernetes.io/name: '{{ app_name }}'
           app.kubernetes.io/managed-by: 'Ansible'
-          app.kubernetes.io/version: '3.2.0'
+          app.kubernetes.io/version: '3.3.0'
         annotations:
           app.openshift.io/vcs-uri: 'https://github.com/epfl-si/wp-veritas/'
       spec:
@@ -101,7 +101,7 @@
                     topologyKey: kubernetes.io/hostname
             containers:
               - name: '{{ app_name }}'
-                image: '{{ quay_registry }}/{{ app_name }}:3.2.0'
+                image: '{{ quay_registry }}/{{ app_name }}:3.3.0'
                 ports:
                   - containerPort: 3000
                 env:
