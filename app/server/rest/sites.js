@@ -65,7 +65,6 @@ import { getUnits } from "../units";
 // Maps to: /api/v1/sites
 // and to: /api/v1/sites?site_url=... to get a specific site
 // and to: /api/v1/sites?search_url=... to filter sites based on URL
-// and to: /api/v1/sites?text=... to search a list of sites from a text
 // and to: /api/v1/sites?tags=... to search a list of sites from an array of tags with status "created" or "no-wordpress"
 // and to: /api/v1/sites?tagged=true to retrieve the list of sites with at least a tag with status "created" or "no-wordpress"
 REST.addRoute(
@@ -108,8 +107,8 @@ REST.addRoute(
         sites = await Sites.find({
           type: queryParams.type,
         }).fetchAsync();
-      } else if (queryParams && (queryParams.text || queryParams.tags)) {
-        if (queryParams.tags && !Array.isArray(queryParams.tags)) {
+      } else if (queryParams?.tags) {
+        if (!Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];
         }
         sites = await Sites.taggedSearchAsync(queryParams.tags);
