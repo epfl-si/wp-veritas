@@ -53,17 +53,35 @@ async function prepareUpdateInsert(site, action) {
   return site;
 }
 
-const validateConsistencyOfFields = (newSite) => {
-  newSite = new Site(newSite);
-  if (newSite.type === "kubernetes") {
+async function validateSite(site) {
+  site = new Site(site);
+
+  const type = await Types.findOneAsync({
+      name: site.type,
+    schema: { $ne: null }
+  })
+
+  if (!type) {
+    throwMeteorError("type", "Type de site inconnu");
+  }
+
+  if (type.schema === "internal") {
+    siteWPSchema.validate(site);
+  } else if (type.schema === "external") {
+    siteExternalSchema.validate(site);
+  } else {
+    throwMeteorError("type", "Type de site inconnu");
+  }
+
+  if (site.type === "kubernetes") {
     if (
-      newSite.url.includes("inside.epfl.ch") ||
-      newSite.categories.find((category) => category.name === "Inside")
+      site.url.includes("inside.epfl.ch") ||
+      site.categories.find((category) => category.name === "Inside")
     ) {
       if (
         !(
-          newSite.url.includes("inside.epfl.ch") &&
-          newSite.categories.find((category) => category.name === "Inside")
+          site.url.includes("inside.epfl.ch") &&
+          site.categories.find((category) => category.name === "Inside")
         )
       ) {
         throwMeteorErrors(
@@ -73,8 +91,8 @@ const validateConsistencyOfFields = (newSite) => {
       }
     }
 
-    if (newSite.url.includes("www.epfl.ch")) {
-      if (! newSite.categories.find((category) => category.name === "epfl-menus")) {
+    if (site.url.includes("www.epfl.ch")) {
+      if (! site.categories.find((category) => category.name === "epfl-menus")) {
         throwMeteorErrors(
           ["categories"],
           "Sites www: La catégorie epfl-menus est obligatoire"
@@ -82,10 +100,10 @@ const validateConsistencyOfFields = (newSite) => {
       }
     }
 
-    if (! newSite.isThemeAllowed(newSite.theme)) {
+    if (! site.isThemeAllowed(site.theme)) {
       throwMeteorErrors(
         ["theme"],
-        `Le thème ${newSite.theme} n'est pas permis pour le domaine ${URL.parse(newSite.url).hostname}`
+        `Le thème ${site.theme} n'est pas permis pour le domaine ${URL.parse(site.url).hostname}`
       );
     }
   }
@@ -96,24 +114,7 @@ const insertSite = new VeritasValidatedMethod({
   role: Admin,
   serverOnly: true,
   async validate(newSite) {
-    const type = await Types.findOneAsync({
-      name: newSite.type,
-      schema: { $ne: null }
-    })
-
-    if (!type) {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    if (type.schema === "internal") {
-      siteWPSchema.validate(newSite);
-    } else if (type.schema === "external") {
-      siteExternalSchema.validate(newSite);
-    } else {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    validateConsistencyOfFields(newSite);
+    await validateSite(newSite);
   },
   async run(newSite) {
     const type = await Types.findOneAsync({
@@ -145,24 +146,7 @@ const updateSite = new VeritasValidatedMethod({
   name: "updateSite",
   role: Admin,
   async validate(siteToUpdate) {
-    const type = await Types.findOneAsync({
-      name: siteToUpdate.type,
-      schema: { $ne: null }
-    })
-
-    if (!type) {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    if (type.schema === "internal") {
-      siteWPSchema.validate(siteToUpdate);
-    } else if (type.schema === "external") {
-      siteExternalSchema.validate(siteToUpdate);
-    } else {
-      throwMeteorError("type", "Type de site inconnu");
-    }
-
-    validateConsistencyOfFields(siteToUpdate);
+    await validateSite(siteToUpdate);
   },
   async run(siteToUpdate) {
     const type = await Types.findOneAsync({
