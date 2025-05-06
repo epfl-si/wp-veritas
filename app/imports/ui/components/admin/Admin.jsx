@@ -296,6 +296,10 @@ class Admin extends Component {
     this.delete(Themes, themeID);
   };
 
+  handleClickOnDeleteThemeButton = (themeID) => {
+    this.handleClickOnDeleteButton(Themes, themeID);
+  };
+
   deleteCategory = (categoryID) => {
     this.delete(Categories, categoryID);
   };
