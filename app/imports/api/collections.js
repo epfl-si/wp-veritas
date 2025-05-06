@@ -132,7 +132,7 @@ siteExternalSchema.messageBox = messageBox;
 tagSchema.messageBox = messageBox;
 typesSchema.messageBox = messageBox;
 
-class Site {
+export class Site {
   constructor(doc) {
     Object.assign(this, doc);
   }

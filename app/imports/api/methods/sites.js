@@ -1,5 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import { Sites, SitesExternal, Tags, Types, tagSchema } from "../collections";
+import { Site, Sites, SitesExternal, Tags, Types, tagSchema } from "../collections";
 import { throwMeteorError, throwMeteorErrors } from "../error";
 import { AppLogger } from "../logger";
 import { rateLimiter } from "./rate-limiting";
@@ -54,7 +54,7 @@ async function prepareUpdateInsert(site, action) {
 }
 
 const validateConsistencyOfFields = (newSite) => {
-  newSite = Site(newSite);
+  newSite = new Site(newSite);
   if (newSite.type === "kubernetes") {
     if (
       newSite.url.includes("inside.epfl.ch") ||
