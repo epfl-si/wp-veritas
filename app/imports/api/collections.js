@@ -167,7 +167,7 @@ export const Sites = new Mongo.Collection(
  * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
  */
 
-Sites.tagged_search = function (text="", tags=[]) {
+Sites.taggedSearchAsync = async function (text="", tags=[]) {
     // build the query
     let finder = {
        isDeleted: false,
@@ -223,13 +223,13 @@ Sites.tagged_search = function (text="", tags=[]) {
         });
     }
 
-    return Sites.find(finder,
+    return await Sites.find(finder,
         {
             sort: {
                 title: 1
             }
         }
-    ).fetch();
+    ).fetchAsync();
 }
 
 const Categories = new Mongo.Collection('categories');

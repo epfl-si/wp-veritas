@@ -112,9 +112,9 @@ REST.addRoute(
         if (queryParams.tags && !Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];
         }
-        sites = Sites.tagged_search(queryParams.text, queryParams.tags);
+        sites = await Sites.taggedSearchAsync(queryParams.tags);
       } else if (queryParams && queryParams.tagged) {
-        sites = Sites.tagged_search();
+        sites = await Sites.taggedSearchAsync();
       } else {
         // nope, we are here for all the sites data
         sites = await Sites.find().fetchAsync();
