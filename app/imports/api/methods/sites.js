@@ -54,6 +54,7 @@ async function prepareUpdateInsert(site, action) {
 }
 
 const validateConsistencyOfFields = (newSite) => {
+  newSite = Site(newSite);
   if (newSite.type === "kubernetes") {
     if (
       newSite.url.includes("inside.epfl.ch") ||
@@ -81,13 +82,11 @@ const validateConsistencyOfFields = (newSite) => {
       }
     }
 
-    if (newSite.url.includes(".epfl.ch") && !newSite.url.includes("wpn-test.epfl.ch")) {
-      if (!(newSite.theme === "wp-theme-light")) {
-        throwMeteorErrors(
-          ["theme"],
-          "Site subdomains-lite: Le champ du thème n'est pas cohérent"
-        );
-      }
+    if (! newSite.isThemeAllowed(newSite.theme)) {
+      throwMeteorErrors(
+        ["theme"],
+        `Le thème ${newSite.theme} n'est pas permis pour le domaine ${URL.parse(newSite.url).hostname}`
+      );
     }
   }
 };

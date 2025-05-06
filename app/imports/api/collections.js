@@ -134,10 +134,24 @@ typesSchema.messageBox = messageBox;
 
 class Site {
   constructor(doc) {
-        Object.assign(this, doc);
-    }
+    Object.assign(this, doc);
+  }
+
   getCreatedDate() {
     return new Date(this.k8screatedDate || this.createdDate);
+  }
+
+  isThemeAllowed (theme) {
+    const url = URL.parse(this.url);
+    if ((url.host === "www.epfl.ch") ||
+        (url.host === "inside.epfl.ch") ||
+        (url.host === "formation-wp.epfl.ch")) {
+      return theme === "wp-theme-2018";
+    } else if (url.host === "wpn-test.epfl.ch") {
+      return true;
+    } else {
+      return theme === "wp-theme-light";
+    }
   }
 }
 
