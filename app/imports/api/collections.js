@@ -161,45 +161,12 @@ export const Sites = new Mongo.Collection(
     transform: (doc) => new Site(doc),
   });
 
-/**
- * Search for a specific text, or a list of tags, for element with at least a tag. Sort by title
- * @param {array=} lookup for this tag entries, precisely (regex specific search, insensitive)
- */
-
-Sites.taggedSearchAsync = async function (tags=[]) {
-    // build the query
-    let finder = {
-       isDeleted: false,
-       $and : []
-    };
-
-    finder['$and'].push({
-        "tags": { $exists: true, $ne: [] }
-    });
-
-    const regex_search = [];
-    tags.forEach(function(tag){
-      regex_search.push(  new RegExp("^" + tag + "$", "i") );
-    });
-
-    finder['$and'].push({
-        $or: [
-            {
-                "tags.name_en": { $all: regex_search}
-            },
-            {
-                "tags.name_fr": { $all: regex_search}
-            }
-        ]
-    });
-
-    return await Sites.find(finder,
-        {
-            sort: {
-                title: 1
-            }
-        }
-    ).fetchAsync();
+Sites.findAllUndeleted = async function() {
+  return await Sites.find({
+    $or: [
+      { isDeleted: false },
+      { isDeleted: { $exists: false } }
+    ]}).fetchAsync()
 }
 
 const Categories = new Mongo.Collection('categories');

@@ -3,6 +3,64 @@ import { REST }  from "../../imports/rest";
 import { formatSiteCategories } from "./utils";
 import { getUnits } from "../units";
 
+import { watchWPSites } from "../kubernetes";
+
+const MergedSites = (function() {
+  const kubernetesSitesByUrl = {};
+
+  watchWPSites({
+    added (site) {
+      kubernetesSitesByUrl[site.url] = {
+        title: site.title, url: site.url,
+        ...site
+      };
+    },
+
+    removed (site) {
+      delete kubernetesSitesByUrl[site.url];
+    }
+  });
+
+  function merged (k8sSites, mongoSites) {
+    const sites = {};
+
+    function accumulate (site) {
+      sites[site.url] = {
+        ...(sites[site.url] || {}),
+        ...site
+      };
+    }
+
+    k8sSites.map(accumulate);
+    mongoSites.map(accumulate);
+    return Object.values(sites);
+  }
+
+  return {
+    async allUndeleted () {
+      return merged(
+        Object.values(kubernetesSitesByUrl),
+        await Sites.findAllUndeleted());
+    },
+
+    async byUrl (url) {
+      return merged(
+        [kubernetesSitesByUrl[url]],
+        await Sites.findOneAsync({ url }));
+    },
+
+    async matchIgnoreCase (r) {
+      const match = new RegExp(r, "i");
+      return merged(
+        kubernetesSitesByUrl.keys().filter((url) => match.test(url)).
+          map((url) => kubernetesSitesByUrl[url]),
+        await Sites.find({
+          url: { $regex: r, $options: "i" },
+        }).fetchAsync());
+    }
+  }
+})();
+
 /**
  * @api {get} /sites  Get all active sites (isDeleted: false)
  * @apiGroup Sites
@@ -71,55 +129,49 @@ REST.addRoute(
   "sites",
   {
     get: async function({ queryParams }) {
-      async function addTagsToSites(sites) {
-        const enrichedSites = [];
-        for (const site of sites) {
-          const siteTags = await Tags.find({
-            sites: site.url
-          }).fetchAsync();
-          site.tags = siteTags.map((tag) => (
-            {
-              _id: tag._id,
-              url_fr: tag.url_fr,
-              url_en: tag.url_en,
-              name_fr: tag.name_fr,
-              name_en: tag.name_en,
-              type: tag.type,
-            }
-          ));
-          enrichedSites.push(site);
-        }
-        return enrichedSites;
-      }
-
-      let sites = [];
+      debugger;
+      let sites;
       if (queryParams && queryParams.site_url) {
         let siteUrl = queryParams.site_url;
-        // if (!(siteUrl.endsWith("/"))) {
-        //   siteUrl = siteUrl + "/";
-        // }
-        sites = await Sites.find({ url: siteUrl }).fetchAsync();
-      } else if (queryParams && queryParams.search_url) {
-        sites = await Sites.find({
-          url: { $regex: queryParams.search_url, $options: "i" },
-        }).fetchAsync();
-      } else if (queryParams && queryParams.type) {
-        sites = await Sites.find({
-          type: queryParams.type,
-        }).fetchAsync();
-      } else if (queryParams?.tags) {
+        if (!(siteUrl.endsWith("/"))) {
+          siteUrl = siteUrl + "/";
+        }
+        sites = await MergedSites.byUrl(siteUrl);
+      } else if (queryParams?.search_url) {
+        sites = await MergedSites.matchIgnoreCase(queryParams?.search_url);
+      } else {
+        sites = await MergedSites.allUndeleted();
+      }
+
+      let tags;
+      if (queryParams?.tags) {
         if (!Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];
         }
-        sites = await Sites.taggedSearchAsync(queryParams.tags);
-      } else if (queryParams && queryParams.tagged) {
-        sites = await Sites.taggedSearchAsync();
+        tags = await Tags.find({$or: tags.flatMap((tag) => [
+          { "name_en": tag },
+          { "name_fr": tag }
+        ]) }).fetchAsync();
       } else {
-        // nope, we are here for all the sites data
-        sites = await Sites.find().fetchAsync();
+        tags = await Tags.find({}).fetchAsync();
       }
-      // Add tags to all sites before formatting
-      const sitesWithTags = await addTagsToSites(sites);
+
+      const sitesByUrl = {};
+      sites.forEach((site) => { sitesByUrl[site.url] = site; });
+      for (const t of tags) {
+        for (const url of t.sites) {
+          if (! sitesByUrl[url]) continue;
+          if (! sitesByUrl[url].tags) sitesByUrl[url].tags = [];
+          sitesByUrl[url].tags.push(t);
+        }
+      }
+
+      let sitesWithTags;
+      if (queryParams?.tagged) {
+        sitesWithTags = Object.values(sitesByUrl).filter((s) => s.tags);
+      } else {
+        sitesWithTags = Object.values(sitesByUrl);
+      }
       return formatSiteCategories(sitesWithTags);
     }
   }
@@ -473,3 +525,50 @@ REST.addRoute(
     },
   }
 );
+
+
+/**
+ * Search for a specific text, or a list of tags, for element with at least a tag. Sort by title
+ * @param {array=} lookup sites that have any of these tags (by default: that have any tag)
+ */
+
+async function searchSitesByTags(tags=[]) {
+  const tagsRetained = {};
+  tags.forEach((tag) => tagsRetained[tag] = 1);
+
+
+  const tagsMongo = await Tags.find(tags.length ? {$or: tags.map((tag) => (
+    { $or: [
+      { "name_en": tag },
+      { "name_fr": tag }
+    ] }
+  ))} : {}).fetchAsync();
+
+  if (! tagsMongo) return [];
+
+  // The set of URLs of sites that have all the requested tags:
+  const matchingUrls = tagsMongo
+    .map((tag) => new Set(tag.sites))
+    .reduce((a, c) => a.intersection(c));
+
+  const mongoSitesByUrl = {};
+  (await Sites.findAllUndeleted()).foreach((site) => {
+    mongoSitesByUrl[site.url] = site;
+  });
+
+  return matchingUrls.values().map((url) => {
+    if (mongoSitesByUrl[url] || kubernetesSitesByUrl[url]) {
+      const site = { ...(mongoSitesByUrl[url] || {}),
+                     ...(kubernetesSitesByUrl[url] || {}) }
+      site.tags = []
+
+      for (const tag of tagsMongo) {
+        if (tag.sites.find((url) => url === site.url)) {
+          site.tags.push(tag)
+        }
+      }
+
+      return site
+    }
+  }).filter((s) => s !== undefined);
+}

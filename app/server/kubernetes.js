@@ -253,6 +253,10 @@ class K8SSite extends _K8SObject {
   get url () {
     return `https://${this.spec.hostname}${this.spec.path}${!this.spec.path.endsWith("/") ? "/" : ""}`;
   }
+
+  get title () {
+    return this.spec?.wordpress?.title;
+  }
 }
 
 class K8SDatabase extends _K8SObject {
