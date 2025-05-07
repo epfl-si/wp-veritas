@@ -129,7 +129,6 @@ REST.addRoute(
   "sites",
   {
     get: async function({ queryParams }) {
-      debugger;
       let sites;
       if (queryParams && queryParams.site_url) {
         let siteUrl = queryParams.site_url;
