@@ -163,8 +163,8 @@ REST.addRoute(
       for (const t of tags) {
         for (const url of t.sites) {
           if (! sitesByUrl[url]) continue;
-          if (! sitesByUrl[url].tags) sitesByUrl[url].tags = [];
-          sitesByUrl[url].tags.push(t);
+          if (! sitesByUrl[url].tags) sitesByUrl[url].tags = new Set();
+          sitesByUrl[url].tags.add(t);
         }
       }
 
@@ -175,9 +175,9 @@ REST.addRoute(
         sitesWithTags = Object.values(sitesByUrl);
       }
 
-      // Add empty tags list for any sites that lack one after filtering:
+      // Convert sets to lists
       sitesWithTags.forEach((site) => {
-        if (! site.tags) site.tags = [];
+        sites.tags = site.tags ? site.tags.values() :  [];
       })
 
       return formatSiteCategories(sitesWithTags);
