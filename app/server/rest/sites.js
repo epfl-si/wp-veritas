@@ -177,7 +177,7 @@ REST.addRoute(
 
       // Convert sets to lists
       sitesWithTags.forEach((site) => {
-        sites.tags = site.tags ? site.tags.values() :  [];
+        site.tags = site.tags ? site.tags.values() :  [];
       })
 
       return formatSiteCategories(sitesWithTags);
