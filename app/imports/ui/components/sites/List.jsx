@@ -492,7 +492,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                   <th className="w-10 text-center" scope="col">
                     Age
                   </th>
-                  <th className="w-20 text-center">Actions</th>
+                  <th className="w-15 text-center">Actions</th>
                 </tr>
               </thead>
               <Cells
