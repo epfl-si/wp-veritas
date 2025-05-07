@@ -8,18 +8,20 @@ import { watchWPSites } from "../kubernetes";
 const MergedSites = (function() {
   const kubernetesSitesByUrl = {};
 
-  watchWPSites({
-    added (site) {
-      kubernetesSitesByUrl[site.url] = {
-        title: site.title, url: site.url,
-        ...site
-      };
-    },
+  if (! process.env.KUBERNETES_FAKE) {
+    watchWPSites({
+      added (site) {
+        kubernetesSitesByUrl[site.url] = {
+          title: site.title, url: site.url,
+          ...site
+        };
+      },
 
-    removed (site) {
-      delete kubernetesSitesByUrl[site.url];
-    }
-  });
+      removed (site) {
+        delete kubernetesSitesByUrl[site.url];
+      }
+    });
+  }
 
   function merged (k8sSites, mongoSites) {
     const sites = {};
