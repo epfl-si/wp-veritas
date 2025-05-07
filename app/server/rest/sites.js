@@ -151,7 +151,7 @@ REST.addRoute(
         if (!Array.isArray(queryParams.tags)) {
           queryParams.tags = [queryParams.tags];
         }
-        tags = await Tags.find({$or: tags.flatMap((tag) => [
+        tags = await Tags.find({$or: queryParams.tags.flatMap((tag) => [
           { "name_en": tag },
           { "name_fr": tag }
         ]) }).fetchAsync();
