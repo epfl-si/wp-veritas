@@ -25,6 +25,7 @@ const MergedSites = (function() {
     const sites = {};
 
     function accumulate (site) {
+      if (site === undefined) return;
       sites[site.url] = {
         ...(sites[site.url] || {}),
         ...site
