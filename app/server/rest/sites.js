@@ -49,7 +49,7 @@ const MergedSites = (function() {
     async byUrl (url) {
       return merged(
         [kubernetesSitesByUrl[url]],
-        await Sites.findOneAsync({ url }));
+        [await Sites.findOneAsync({ url })]);
     },
 
     async matchIgnoreCase (r) {
