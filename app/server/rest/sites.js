@@ -174,6 +174,12 @@ REST.addRoute(
       } else {
         sitesWithTags = Object.values(sitesByUrl);
       }
+
+      // Add empty tags list for any sites that lack one after filtering:
+      sitesWithTags.forEach((site) => {
+        if (! site.tags) site.tags = [];
+      })
+
       return formatSiteCategories(sitesWithTags);
     }
   }
