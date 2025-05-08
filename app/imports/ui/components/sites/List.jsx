@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
 import url from "url";
 import { bouncyCircle } from "../spinners"
+import { Info, Pencil, Tags, Trash2 } from "lucide-react";
 
 const Cells = (props) => (
   <tbody>
@@ -48,43 +49,43 @@ const Cells = (props) => (
           <div className="d-flex flex-wrap justify-content-center">
             <button
               type="button"
-              className="btn btn-outline-success btn-sm mr-2"
+              className="btn btn-outline-success btn-sm mr-2 p-2 d-flex align-items-center justify-content-center"
               title={ (site.type === 'kubernetes') ? 'View site YAML' : 'Not a Kubernetes site' }
               onClick={() => {
                 props.handleViewSiteYAML(site._id);
               }}
               disabled={site.type !== 'kubernetes'}
             >
-              ⓘ
+              <Info size={20} />
             </button>
             <Link to={`/edit/${site._id}`} className="mr-1">
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm"
+                className="btn btn-outline-primary btn-sm p-2 d-flex align-items-center justify-content-center"
                 title="Éditer le site"
               >
-                ✎
+                <Pencil size={20} />
               </button>
             </Link>
             
             <Link to={`/site-tags/${site._id}`} className="mr-2">
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm"
+                className="btn btn-outline-primary btn-sm p-2 d-flex align-items-center justify-content-center"
                 title="Associer des tags"
               >
-                🏷
+                <Tags size={20} />
               </button>
             </Link>
             <button
               type="button"
-              className="btn btn-outline-danger btn-sm"
+              className="btn btn-outline-danger btn-sm p-2 d-flex align-items-center justify-content-center"
               title="Supprimer le site"
               onClick={() => {
                 props.handleClickOnDeleteButton(site._id);
               }}
             >
-              🗑
+              <Trash2 size={20} />
             </button>
           </div>
         </td>
