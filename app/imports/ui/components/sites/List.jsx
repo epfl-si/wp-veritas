@@ -365,7 +365,8 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
     });
 
     const blob = new Blob([csv], { type: "text/plain;charset=utf-8;" });
-    saveAs(blob, "wp-veritas.csv");
+    const today = new Date().toISOString().split('T')[0];
+    saveAs(blob, `wp-veritas_export_${today}.csv`);
   };
 
   render() {
