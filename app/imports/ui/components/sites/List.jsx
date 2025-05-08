@@ -8,15 +8,16 @@ import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
 import url from "url";
 import { bouncyCircle } from "../spinners"
-import { Info, Pencil, Tags, Trash2 } from "lucide-react";
+import { AlertTriangle, Database, Globe, Info, Pencil, Tags, Trash2, X } from "lucide-react";
 
 const Cells = (props) => (
   <tbody>
     {props.sites.map((site, index) => (
       <tr key={site._id} className="align-middle">
         <td className="align-middle pl-3">
-          <a href={site.url} target="_blank" className="text-break">
-            {site.url}
+          <a href={site.url} target="_blank" className="text-break d-flex align-items-center">
+            <Globe size={16} className="mr-2" />
+            <span>{site.url}</span>
           </a>
         </td>
         <td className="align-middle text-center">
@@ -40,7 +41,30 @@ const Cells = (props) => (
           }
         </td>
         <td className="align-middle text-center">
-          { site.k8sDatabaseStatus }
+          {site.k8sDatabaseStatus === 'READY' && (
+            <span className="badge d-flex align-items-center justify-content-center">
+              <Database size={14} className="mr-1" />
+              <span>READY</span>
+            </span>
+          )}
+          {site.k8sDatabaseStatus === 'UNKNOWN' && (
+            <span className="badge d-flex align-items-center justify-content-center">
+              <AlertTriangle size={14} className="mr-1" />
+              <span>UNKNOWN</span>
+            </span>
+          )}
+          {site.k8sDatabaseStatus === 'DOWN' && (
+            <span className="badge d-flex align-items-center justify-content-center">
+              <X size={14} className="mr-1" />
+              <span>DOWN</span>
+            </span>
+          )}
+          {site.k8sDatabaseStatus && !['READY', 'UNKNOWN', 'DOWN'].includes(site.k8sDatabaseStatus) && (
+            <span className="badge d-flex align-items-center justify-content-center">
+              <X size={14} className="mr-1" />
+              <span>{site.k8sDatabaseStatus}</span>
+            </span>
+          )}
         </td>
         <td className="align-middle text-center" data-date={site.getCreatedDate()?.toString()} title={site.getCreatedDate()?.toString()} >
           {getDaysFromDate(site.getCreatedDate())}
