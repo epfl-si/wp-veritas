@@ -181,8 +181,8 @@ class List extends Component {
           valueB = b.url.toLowerCase();
           break;
         case 'type':
-          valueA = a.type.toLowerCase();
-          valueB = b.type.toLowerCase();
+          valueA = (a.type || '').toLowerCase();
+          valueB = (b.type || '').toLowerCase();
           break;
         case 'monitored':
           valueA = a.monitorSite ? 1 : 0;
