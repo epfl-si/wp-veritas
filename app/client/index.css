@@ -154,3 +154,14 @@ table {
 .type-temporary:before{
   content: "⯁ ";
 }
+
+.cursor-pointer {
+  cursor: pointer;
+}
+.active-sort {
+  font-weight: bold;
+  color: #0056b3;
+}
+th:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

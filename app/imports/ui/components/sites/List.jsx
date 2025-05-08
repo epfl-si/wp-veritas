@@ -10,6 +10,21 @@ import url from "url";
 import { bouncyCircle } from "../spinners"
 import { AlertTriangle, Database, Globe, Info, Pencil, Tags, Trash2, X } from "lucide-react";
 
+const SortableHeader = ({ title, className, column, currentSort, onSort }) => {
+  const isActive = currentSort.column === column;
+  const direction = isActive ? (currentSort.direction === 'asc' ? '↑' : '↓') : '';
+  
+  return (
+    <th 
+      className={`${className} ${isActive ? 'active-sort' : ''} cursor-pointer`} 
+      scope="col"
+      onClick={() => onSort(column)}
+    >
+      {title} {direction}
+    </th>
+  );
+};
+
 const Cells = (props) => (
   <tbody>
     {props.sites.map((site, index) => (
@@ -129,7 +144,11 @@ class List extends Component {
       languages: [],
       sites: props.sites,
       types: props.types,
-      monitorSiteChanging: {}
+      monitorSiteChanging: {},
+      sort: {
+        column: 'url', // Default sort column
+        direction: 'asc' // Default sort direction
+      }
     };
   }
 
@@ -142,13 +161,63 @@ class List extends Component {
       state.languagesFilter === false &&
       props.sites != state.sites
     ) {
-      // Set state with props
+      // Set state with props and keep current sort
+      const sortedSites = props.sites.slice();
       return {
-        sites: props.sites,
+        sites: state.sort ? List.sortSites(sortedSites, state.sort) : sortedSites,
       };
     }
     // Return null if the state hasn't changed
     return null;
+  }
+
+  static sortSites(sites, sort) {
+    return sites.slice().sort((a, b) => {
+      let valueA, valueB;
+
+      switch(sort.column) {
+        case 'url':
+          valueA = a.url.toLowerCase();
+          valueB = b.url.toLowerCase();
+          break;
+        case 'type':
+          valueA = a.type.toLowerCase();
+          valueB = b.type.toLowerCase();
+          break;
+        case 'monitored':
+          valueA = a.monitorSite ? 1 : 0;
+          valueB = b.monitorSite ? 1 : 0;
+          break;
+        case 'database':
+          valueA = a.k8sDatabaseStatus || '';
+          valueB = b.k8sDatabaseStatus || '';
+          break;
+        case 'age':
+          valueA = a.getCreatedDate() ? new Date(a.getCreatedDate()).getTime() : 0;
+          valueB = b.getCreatedDate() ? new Date(b.getCreatedDate()).getTime() : 0;
+          break;
+        default:
+          valueA = a[sort.column];
+          valueB = b[sort.column];
+      }
+
+      if (sort.direction === 'asc') {
+        return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+      } else {
+        return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+      }
+    });
+  }
+
+  handleSort = (column) => {
+    this.setState(prevState => {
+      const direction = prevState.sort.column === column && prevState.sort.direction === 'asc' ? 'desc' : 'asc';
+      const sort = { column, direction };
+      
+      const sortedSites = List.sortSites(prevState.sites, sort);
+      
+      return { sort, sites: sortedSites };
+    });
   }
 
   onSubmit = (e) => {
@@ -273,12 +342,14 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
     if (languages.length === 0) {
       languagesFilter = false;
     }
+    
+    const sortedSites = List.sortSites(sites, this.state.sort);
 
     this.setState({
       searchValue: keyword,
       type: type,
       theme: theme,
-      sites: sites,
+      sites: sortedSites,
       languages: languages,
       languagesFilter: languagesFilter,
     });
@@ -504,21 +575,41 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
             <table className="table table-striped">
               <thead className="table-light">
                 <tr>
-                  <th className="w-50 pl-3" scope="col">
-                    URL
-                  </th>
-                  <th className="w-10 text-center" scope="col">
-                    Type
-                  </th>
-                  <th className="w-10 text-center" scope="col">
-                    Monitored
-                  </th>
-                  <th className="w-10 text-center" scope="col">
-                    Database
-                  </th>
-                  <th className="w-10 text-center" scope="col">
-                    Age
-                  </th>
+                  <SortableHeader 
+                    title="URL" 
+                    column="url"
+                    currentSort={this.state.sort}
+                    onSort={this.handleSort}
+                    className="w-50 pl-3"
+                  />
+                  <SortableHeader 
+                    title="Type" 
+                    column="type"
+                    currentSort={this.state.sort}
+                    onSort={this.handleSort}
+                    className="w-10 text-center"
+                  />
+                  <SortableHeader 
+                    title="Monitored" 
+                    column="monitored"
+                    currentSort={this.state.sort}
+                    onSort={this.handleSort}
+                    className="w-10 text-center"
+                  />
+                  <SortableHeader 
+                    title="Database" 
+                    column="database"
+                    currentSort={this.state.sort}
+                    onSort={this.handleSort}
+                    className="w-10 text-center"
+                  />
+                  <SortableHeader 
+                    title="Age" 
+                    column="age"
+                    currentSort={this.state.sort}
+                    onSort={this.handleSort}
+                    className="w-10 text-center"
+                  />
                   <th className="w-15 text-center">Actions</th>
                 </tr>
               </thead>
