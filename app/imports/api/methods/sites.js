@@ -126,6 +126,10 @@ const insertSite = new VeritasValidatedMethod({
       throwMeteorError("type", "Type de site inconnu");
     }
 
+    const user = await Meteor.users.findOneAsync({ _id: this.userId });
+    const message = `👀 Pssst! [${user.username}](https://people.epfl.ch/${this.userId}) created ${newSite.url} on wp-veritas! #wpSiteCreated`;
+    Telegram.sendMessage(message, /*preview=*/false);
+
     if (type.schema === "internal") {
       import { createWPSite } from "/server/kubernetes.js";
       const { url } = await createWPSite(newSite);
@@ -193,6 +197,9 @@ const removeSite = new VeritasValidatedMethod({
     await deleteWPSiteByURL(url);
     // TODO: do we want to set the `isDeleted` flag here instead?
     await Sites.removeAsync({ url });
+    const user = await Meteor.users.findOneAsync({ _id: this.userId });
+    const message = `⚠️ Heads up! [${user.username}](https://people.epfl.ch/${this.userId}) deleted ${url} on wp-veritas! #wpSiteDeleted`;
+    Telegram.sendMessage(message, /*preview=*/false);
   },
 });
 
