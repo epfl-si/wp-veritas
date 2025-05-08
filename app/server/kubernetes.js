@@ -207,6 +207,8 @@ export function watchWPSites({added, removed, resourcesChanged}, options) {
       },
     () => {
       debug("Stopping Kubernetes watch");
+    }).catch((err) => {
+      console.error("Error in database watch", err);
     });
   }
 
