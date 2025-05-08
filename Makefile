@@ -109,6 +109,10 @@ app/packages/meteor-synced-cron:
 ################################################################################
 # Targets for development purpose only                                         #
 ################################################################################
+.PHONY: up
+up:
+	@cd app; meteor; cd ..
+
 .PHONY: dev-up
 dev-up: check-env
 	@docker compose -f docker-compose-dev.yml up
