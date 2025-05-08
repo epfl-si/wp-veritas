@@ -447,6 +447,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                     className="form-control"
                     onChange={this.search}
                     id="type-list"
+                    defaultValue="kubernetes"
                   >
                     <option key="0" value="no-filter">Pas de filtre type</option>
                     {this.props.types.map((type) => (
