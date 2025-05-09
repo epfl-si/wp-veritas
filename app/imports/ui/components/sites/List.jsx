@@ -146,7 +146,7 @@ class List extends Component {
       types: props.types || [],
       monitorSiteChanging: {},
       sort: {
-        column: 'url',
+        column: 'age',
         direction: 'asc'
       }
     };
