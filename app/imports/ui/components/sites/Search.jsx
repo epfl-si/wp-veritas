@@ -91,35 +91,35 @@ class Search extends React.Component {
     if (this.state.queryURL) {
       if (this.state.found && this.state.site.wpInfra) {
         result = (
-          <div className="card my-2">
-            <div className="card-header">Résultat</div>
-            <div className="card-body">
-              <div className="py-1">
-                L'URL <a target="_blank" href={ this.state.queryURL }>{ this.state.queryURL }</a> a pour:
-              </div>
-              <div className="py-1">
-                - Login (pour les ayants droit): <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
-              </div>
-              <div className="py-1">
-                - N° unité de rattachement: <strong>{this.state.site.unitId}</strong>
-              </div>
-              <div className="py-1">
-                <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
-              </div>
+          <div>
+            <h5>Résultats</h5>
+            <div className="py-1">
+              L'URL <a target="_blank" href={ this.state.queryURL }>{ this.state.queryURL }</a> a pour :
+              <ul>
+                <li>
+                  Login (pour les ayants droit) : 
+                  <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
+                </li>
+                <li>
+                  N° d'unité de rattachement : 
+                  <strong>{this.state.site.unitId}</strong>
+                </li>
+                <li>
+                  <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
+                </li>
+              </ul>
             </div>
           </div>
         );
       } else {
-          result = (
-            <div className="card my-2">
-              <div className="card-header">Résultat</div>
-              <div className="card-body">
-                <div className="py-1">
-                  L'URL <a href={ this.state.queryURL }>{ this.state.queryURL }</a> n'est pas un site de l'infrastructure WordPress géré par la DSI
-                </div>
-              </div>
-            </div> 
-          )
+        result = (
+          <div>
+            <h5>Résultat</h5>
+            <div className="py-1">
+              Désolé, l'URL <a href={ this.state.queryURL }>{ this.state.queryURL }</a> n'est pas un site de l'infrastructure WordPress géré par la DSI.
+            </div>
+          </div> 
+        )
       }
     }
     return result;
@@ -132,8 +132,8 @@ class Search extends React.Component {
       content = <Loading />;
     } else {
       content = (
-        <div className="">
-          <h4 className="py-4">Quelle est l'instance WordPress de cette URL ?</h4>
+        <div className="card my-2">
+          <h5 className="card-header">Trouver des info sur le site WordPress à cette URL</h5>
           <Formik
             onSubmit={this.submit}
             initialValues={{ url: "" }}
@@ -156,11 +156,12 @@ class Search extends React.Component {
                     Rechercher
                   </button>
                 </div>
+                <div className="my-2">
+                  {this.displayResult()}
+                </div>
               </form>
             )}
           </Formik>
-
-          {this.displayResult()}
         </div>
       );
     }

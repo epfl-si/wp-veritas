@@ -62,8 +62,7 @@ function LastChange (props) {
   )()
   return (
     <>
-      <span>- Dernière modification le : </span>
-      {message}
+      Dernière modification le : {message}
     </>
   )
 }
