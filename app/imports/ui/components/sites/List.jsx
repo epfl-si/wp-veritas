@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import Checkbox from "./CheckBox";
 import url from "url";
 import { bouncyCircle } from "../spinners"
-import { AlertTriangle, Database, Globe, Info, Pencil, Tags, Trash2, X } from "lucide-react";
+import { AlertTriangle, Database, FileText, Globe, Info, Pencil, Tags, Trash2, X } from "lucide-react";
 
 const SortableHeader = ({ title, className, column, currentSort, onSort }) => {
   const isActive = currentSort.column === column;
@@ -86,6 +86,16 @@ const Cells = (props) => (
         </td>
         <td className="">
           <div className="d-flex flex-wrap justify-content-center">
+            <Link to={`/search/${site._id}`}>
+              <button
+                type="button"
+                className="btn btn-outline-success btn-sm mr-1 p-2 d-flex align-items-center justify-content-center"
+                title="Voir les info"
+                disabled={site.type === 'external'}
+              >
+                <Info size={15} />
+              </button>
+            </Link>
             <button
               type="button"
               className="btn btn-outline-success btn-sm mr-2 p-2 d-flex align-items-center justify-content-center"
@@ -95,27 +105,28 @@ const Cells = (props) => (
               }}
               disabled={site.type !== 'kubernetes'}
             >
-              <Info size={20} />
+              <FileText size={15} />
             </button>
-            <Link to={`/edit/${site._id}`} className="mr-1">
+
+            <Link to={`/edit/${site._id}`}>
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm p-2 d-flex align-items-center justify-content-center"
+                className="btn btn-outline-primary btn-sm mr-1 p-2 d-flex align-items-center justify-content-center"
                 title="Éditer le site"
               >
-                <Pencil size={20} />
+                <Pencil size={15} />
               </button>
             </Link>
-            
             <Link to={`/site-tags/${site._id}`} className="mr-2">
               <button
                 type="button"
                 className="btn btn-outline-primary btn-sm p-2 d-flex align-items-center justify-content-center"
                 title="Associer des tags"
               >
-                <Tags size={20} />
+                <Tags size={15} />
               </button>
             </Link>
+
             <button
               type="button"
               className="btn btn-outline-danger btn-sm p-2 d-flex align-items-center justify-content-center"
@@ -124,7 +135,7 @@ const Cells = (props) => (
                 props.handleClickOnDeleteButton(site._id);
               }}
             >
-              <Trash2 size={20} />
+              <Trash2 size={15} />
             </button>
           </div>
         </td>
@@ -627,7 +638,6 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
             </div>
           </form>
 
-          
           <div className="table-responsive">
             <table className="table table-striped">
               <thead className="table-light">
