@@ -138,7 +138,7 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
-      type: "kubernetes", // Type par défaut défini sur "kubernetes"
+      type: "kubernetes",
       theme: "no-filter",
       languagesFilter: false,
       languages: [],
