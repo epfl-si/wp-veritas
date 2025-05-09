@@ -88,11 +88,11 @@ export async function createWPSite (site) {
       spec: {
         hostname,
         path,
-        owner: {
+        owner: site.unitId ? {
           epfl: {
             unitId: parseInt(site.unitId),
           },
-        },
+        } : undefined,
         type: site.type,
         wordpress: {
           debug: true,
