@@ -35,43 +35,42 @@ class Header extends Component {
           </Link>
           <div className="collapse navbar-collapse">
             <ul className="navbar-nav mr-auto">
-              <li class="nav-item">
+              <li className="nav-item">
                 <NavLink
-                  className="nav-link"
-                  exact
                   to="/"
-                  activeClassName="active"
+                  exact
+                  className="nav-link d-flex align-items-center"
                 >
-                  <House size={12} />
+                  <House size={20} />
                   &nbsp;Accueil
                 </NavLink>
               </li>
-              <li class="nav-item">
+              <li className="nav-item">
                 <NavLink
                   to="/add"
-                  className="nav-link"
+                  className="nav-link d-flex align-items-center"
                 >
-                  <CirclePlus size={12} />
+                  <CirclePlus size={20} />
                   &nbsp;Nouveau
                 </NavLink>
               </li>
-              <li class="nav-item">
+              <li className="nav-item">
                 <NavLink
                   to="/search"
-                  className="nav-link"
+                  className="nav-link d-flex align-items-center"
                 >
-                  <BadgeInfo size={12} />
+                  <BadgeInfo size={20} />
                   &nbsp;Info
                 </NavLink>
               </li>
               {this.props.currentUserIsAdmin ||
               this.props.currentUserIsEditor ? (
-                <li class="nav-item">
+                <li className="nav-item">
                   <NavLink
                     to="/tags"
-                    className="nav-link"
+                    className="nav-link d-flex align-items-center"
                   >
-                    <Bookmark size={12} />
+                    <Bookmark size={20} />
                     &nbsp;Tags
                   </NavLink>
                 </li>
@@ -79,15 +78,14 @@ class Header extends Component {
               {this.props.currentUserIsAdmin ? (
                 <li className="nav-item dropdown">
                   <a
-                    className="nav-link dropdown-toggle"
+                    className="nav-link dropdown-toggle d-flex align-items-center"
                     id="navbarDropdown"
                     role="button"
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
-                    activeClassName="active"
                   >
-                    <Settings size={12} />
+                    <Settings size={20} />
                     &nbsp;Gérer
                   </a>
                   <div className="dropdown-menu">
@@ -95,7 +93,6 @@ class Header extends Component {
                       className="dropdown-item"
                       exact
                       to="/admin"
-                      activeClassName="active"
                     >
                       Admin
                     </NavLink>
@@ -121,14 +118,14 @@ class Header extends Component {
               {this.props.currentUserIsAdmin ? (
                 <li className="nav-item dropdown">
                   <a
-                    className="nav-link dropdown-toggle"
+                    className="nav-link dropdown-toggle d-flex align-items-center"
                     id="navbarDropdown"
                     role="button"
                     data-toggle="dropdown"
                     aria-haspopup="true"
-                    aria-expanded="false"
+                    aria-expanded="false d-flex align-items-center"
                   >
-                    <Webhook size={12} />
+                    <Webhook size={20} />
                     &nbsp;API
                   </a>
                   <div className="dropdown-menu">
