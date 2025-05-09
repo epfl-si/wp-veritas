@@ -15,7 +15,6 @@ async function createSite(userId) {
     type: "external",
     unitId: 13030,
     snowNumber: "42",
-    comment: "Vin nature par excellence !",
     createdDate: new Date().toString(),
     monitorSite: false,
   };
