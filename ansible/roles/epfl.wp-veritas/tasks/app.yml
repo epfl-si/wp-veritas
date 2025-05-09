@@ -109,6 +109,8 @@
                     value: '{{ awx_url }}'
                   - name: WP_VERITAS_TEQUILA_ALLOWED_HOSTS
                     value: '{{ tequila_allowed_hosts }}'
+                  - name: K8S_NAMESPACE
+                    value: '{{ openshift_namespace }}'
                   - name: ROOT_URL
                     value: 'https://{{ route.host }}'
                   - name: DEBUG
