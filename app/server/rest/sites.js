@@ -28,6 +28,7 @@ const MergedSites = (function() {
 
     function accumulate (site) {
       if (site === undefined) return;
+      delete site.comment; // Keep the comments for WP-Veritas admins
       delete site.tags;  // Temporary — While we still have these in the database
       sites[site.url] = {
         ...(sites[site.url] || {}),
