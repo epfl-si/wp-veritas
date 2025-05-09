@@ -138,47 +138,41 @@ class List extends Component {
     super(props);
     this.state = {
       searchValue: "",
-      type: "no-filter",
+      type: "kubernetes", // Type par défaut défini sur "kubernetes"
       theme: "no-filter",
-      languagesFilter: false, // Filter language used ?
+      languagesFilter: false,
       languages: [],
-      sites: props.sites,
-      types: props.types,
+      sites: this.applySortAndFilter(props.sites || [], "kubernetes"),
+      types: props.types || [],
       monitorSiteChanging: {},
       sort: {
-        column: 'url', // Default sort column
-        direction: 'asc' // Default sort direction
+        column: 'url',
+        direction: 'asc'
       }
     };
   }
 
-  // More information here: https://alligator.io/react/get-derived-state/
-  static getDerivedStateFromProps(props, state) {
-    if (
-      state.searchValue === "" &&
-      state.type === "no-filter" &&
-      state.theme === "no-filter" &&
-      state.languagesFilter === false &&
-      props.sites != state.sites
-    ) {
-      // Set state with props and keep current sort
-      const sortedSites = props.sites.slice();
-      return {
-        sites: state.sort ? List.sortSites(sortedSites, state.sort) : sortedSites,
-      };
+  applySortAndFilter(sites, typeFilter) {
+    let filteredSites = sites;
+    if (typeFilter !== "no-filter") {
+      filteredSites = sites.filter(site => site.type === typeFilter);
     }
-    // Return null if the state hasn't changed
-    return null;
+    
+    return this.sortSites(filteredSites, { column: 'url', direction: 'asc' });
   }
 
-  static sortSites(sites, sort) {
+  sortSites(sites, sort) {
+    if (!sites || !Array.isArray(sites)) {
+      return [];
+    }
+    
     return sites.slice().sort((a, b) => {
       let valueA, valueB;
 
       switch(sort.column) {
         case 'url':
-          valueA = a.url.toLowerCase();
-          valueB = b.url.toLowerCase();
+          valueA = (a.url || '').toLowerCase();
+          valueB = (b.url || '').toLowerCase();
           break;
         case 'type':
           valueA = (a.type || '').toLowerCase();
@@ -209,12 +203,30 @@ class List extends Component {
     });
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (
+      state.searchValue === "" &&
+      state.theme === "no-filter" &&
+      state.languagesFilter === false &&
+      props.sites !== state.sites
+    ) {
+      return {
+        sites: state.sortSites ? 
+          state.sortSites(
+            props.sites.filter(site => site.type === state.type), 
+            state.sort
+          ) : props.sites.filter(site => site.type === state.type)
+      };
+    }
+    return null;
+  }
+
   handleSort = (column) => {
     this.setState(prevState => {
       const direction = prevState.sort.column === column && prevState.sort.direction === 'asc' ? 'desc' : 'asc';
       const sort = { column, direction };
       
-      const sortedSites = List.sortSites(prevState.sites, sort);
+      const sortedSites = this.sortSites(prevState.sites, sort);
       
       return { sort, sites: sortedSites };
     });
@@ -343,7 +355,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
       languagesFilter = false;
     }
     
-    const sortedSites = List.sortSites(sites, this.state.sort);
+    const sortedSites = this.sortSites(sites, this.state.sort);
 
     this.setState({
       searchValue: keyword,
@@ -505,7 +517,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                     type="search"
                     id="search"
                     className="form-control"
-                    value={this.state.searchValue}
+                    defaultValue={this.state.searchValue}
                     onChange={this.search}
                     placeholder="Filtrer par mot-clé"
                     autoFocus
@@ -537,6 +549,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                     className="form-control"
                     onChange={this.search}
                     id="theme-list"
+                    defaultValue={this.state.theme}
                   >
                     <option key="0" value="no-filter">Pas de filtre par thème</option>
                     {this.props.themes.map((theme) => (
