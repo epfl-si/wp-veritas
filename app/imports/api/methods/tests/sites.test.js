@@ -47,7 +47,6 @@ if (Meteor.isServer) {
         type: "external",
         unitId: 13030,
         snowNumber: "42",
-        comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
       };
@@ -72,7 +71,6 @@ if (Meteor.isServer) {
         type: "external",
         unitId: 13030,
         snowNumber: "42",
-        comment: "Vin nature par excellence !",
         createdDate: new Date().toString(),
         monitorSite: false,
       };
