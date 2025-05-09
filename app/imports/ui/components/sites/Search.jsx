@@ -97,11 +97,11 @@ class Search extends React.Component {
               L'URL <a target="_blank" href={ this.state.queryURL }>{ this.state.queryURL }</a> a pour :
               <ul>
                 <li>
-                  Login (pour les ayants droit) : 
+                  Login (pour les ayants droit) :&nbsp;
                   <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
                 </li>
                 <li>
-                  N° d'unité de rattachement : 
+                  N° d'unité de rattachement :&nbsp;
                   <strong>{this.state.site.unitId}</strong>
                 </li>
                 <li>
