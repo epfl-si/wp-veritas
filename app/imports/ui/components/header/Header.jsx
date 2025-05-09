@@ -4,6 +4,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import logo from "./Logo_EPFL.svg";
 import { Loading } from "../Messages";
 import { version } from "../../../../package.json";
+import { House, CirclePlus, BadgeInfo, Bookmark, Settings, Webhook } from "lucide-react";
 
 class Header extends Component {
   getRole() {
@@ -34,69 +35,45 @@ class Header extends Component {
           </Link>
           <div className="collapse navbar-collapse">
             <ul className="navbar-nav mr-auto">
-              <li className="nav-item dropdown">
-                <a
-                  className="nav-link dropdown-toggle"
-                  id="navbarDropdown"
-                  role="button"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
+              <li class="nav-item">
+                <NavLink
+                  className="nav-link"
+                  exact
+                  to="/"
+                  activeClassName="active"
                 >
-                  Source de vérité
-                </a>
-                <div className="dropdown-menu">
-                  {this.props.currentUserIsAdmin ||
-                  this.props.currentUserIsEditor ? (
-                    <NavLink
-                      className="dropdown-item"
-                      exact
-                      to="/"
-                      activeClassName="active"
-                    >
-                      Voir la source de vérité
-                    </NavLink>
-                  ) : null}
-                  <NavLink
-                    className="dropdown-item"
-                    to="/search"
-                    activeClassName="active"
-                  >
-                    Instance WordPress ?
-                  </NavLink>
-                  {this.props.currentUserIsAdmin ? (
-                    <NavLink
-                      className="dropdown-item"
-                      to="/add"
-                      activeClassName="active"
-                    >
-                      Ajouter un nouveau site
-                    </NavLink>
-                  ) : null}
-                </div>
+                  <House size={12} />
+                  &nbsp;Accueil
+                </NavLink>
+              </li>
+              <li class="nav-item">
+                <NavLink
+                  to="/add"
+                  className="nav-link"
+                >
+                  <CirclePlus size={12} />
+                  &nbsp;Nouveau
+                </NavLink>
+              </li>
+              <li class="nav-item">
+                <NavLink
+                  to="/search"
+                  className="nav-link"
+                >
+                  <BadgeInfo size={12} />
+                  &nbsp;Info
+                </NavLink>
               </li>
               {this.props.currentUserIsAdmin ||
               this.props.currentUserIsEditor ? (
-                <li className="nav-item dropdown">
-                  <a
-                    className="nav-link dropdown-toggle"
-                    id="navbarDropdown"
-                    role="button"
-                    data-toggle="dropdown"
-                    aria-haspopup="true"
-                    aria-expanded="false"
+                <li class="nav-item">
+                  <NavLink
+                    to="/tags"
+                    className="nav-link"
                   >
-                    Tags
-                  </a>
-                  <div className="dropdown-menu">
-                    <NavLink
-                      className="dropdown-item"
-                      to="/tags"
-                      activeClassName="active"
-                    >
-                      Gestion des tags
-                    </NavLink>
-                  </div>
+                    <Bookmark size={12} />
+                    &nbsp;Tags
+                  </NavLink>
                 </li>
               ) : null}
               {this.props.currentUserIsAdmin ? (
@@ -108,8 +85,10 @@ class Header extends Component {
                     data-toggle="dropdown"
                     aria-haspopup="true"
                     aria-expanded="false"
+                    activeClassName="active"
                   >
-                    Admins
+                    <Settings size={12} />
+                    &nbsp;Gérer
                   </a>
                   <div className="dropdown-menu">
                     <NavLink
@@ -125,8 +104,8 @@ class Header extends Component {
                       exact
                       to="/trash"
                       activeClassName="active"
-                      >
-                        Corbeille
+                    >
+                      Corbeille
                     </NavLink>
                     <NavLink
                       className="dropdown-item"
@@ -149,7 +128,8 @@ class Header extends Component {
                     aria-haspopup="true"
                     aria-expanded="false"
                   >
-                    API
+                    <Webhook size={12} />
+                    &nbsp;API
                   </a>
                   <div className="dropdown-menu">
                     <a className="dropdown-item" target="_blank" href="/api/index.html">Documentation de l'API</a>
