@@ -76,6 +76,8 @@ class Search extends React.Component {
 
   submit = (values, actions) => {
     this.setState({ found: false, site: {}, queryURL: '' });
+    this.props.history.push(`/search/${values.url}`);
+
     let urlSearched = values.url;
     this.search(urlSearched)
     actions.setSubmitting(false);
