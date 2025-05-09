@@ -33,7 +33,8 @@ class Apps extends Component {
           <div className="App container">
             {getEnvironment() === "PROD" ? null : ribbon}
             <Header />
-            <Route path="/search" component={Search} />
+            <Route exact path="/search" component={Search} />
+            <Route path="/search/*" component={Search} />
             {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
               <React.Fragment>
                 <Route exact path="/" component={List} />

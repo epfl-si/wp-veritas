@@ -28,7 +28,7 @@ class Search extends React.Component {
     this.state = {
       site: {},
       found: false,
-      queryURL: '',
+      queryURL: props.match.params[0] || '',
     };
   }
 
@@ -149,6 +149,7 @@ class Search extends React.Component {
                   name="url"
                   type="text"
                   component={CustomInput}
+                  initialValues={ this.props.match.params[0] || '' }
                 />
                 <ErrorMessage name="url" component={CustomError} />
                 <div className="my-1 text-right">
