@@ -154,7 +154,7 @@ class List extends Component {
 
   applySortAndFilter(sites, typeFilter) {
     let filteredSites = sites;
-    if (typeFilter !== "no-filter") {
+    if (typeFilter && typeFilter !== "no-filter") {
       filteredSites = sites.filter(site => site.type === typeFilter);
     }
     
@@ -210,12 +210,14 @@ class List extends Component {
       state.languagesFilter === false &&
       props.sites !== state.sites
     ) {
+      const filteredSites = state.type === "no-filter" ? 
+        props.sites : 
+        props.sites.filter(site => site.type === state.type);
+      
       return {
         sites: state.sortSites ? 
-          state.sortSites(
-            props.sites.filter(site => site.type === state.type), 
-            state.sort
-          ) : props.sites.filter(site => site.type === state.type)
+          state.sortSites(filteredSites, state.sort) : 
+          filteredSites
       };
     }
     return null;
