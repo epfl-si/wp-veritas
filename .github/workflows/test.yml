@@ -3,7 +3,7 @@ name: Test
 on: [push, pull_request]
 
 env:
-  METEOR_VERSION: 3.1.2
+  METEOR_VERSION: 3.2.2
   KUBERNETES_FAKE: 1
 
 jobs:
