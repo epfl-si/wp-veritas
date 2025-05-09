@@ -136,29 +136,32 @@ const Cells = (props) => (
 class List extends Component {
   constructor(props) {
     super(props);
+    
+    const initialSort = {
+      column: 'age',
+      direction: 'desc'
+    };
+    
     this.state = {
       searchValue: "",
       type: "kubernetes",
       theme: "no-filter",
       languagesFilter: false,
       languages: [],
-      sites: this.applySortAndFilter(props.sites || [], "kubernetes"),
+      sites: props.sites ? this.applySortAndFilter(props.sites, "kubernetes", initialSort) : [],
       types: props.types || [],
       monitorSiteChanging: {},
-      sort: {
-        column: 'age',
-        direction: 'asc'
-      }
+      sort: initialSort
     };
   }
 
-  applySortAndFilter(sites, typeFilter) {
+  applySortAndFilter(sites, typeFilter, sort = { column: 'url', direction: 'asc' }) {
     let filteredSites = sites;
     if (typeFilter && typeFilter !== "no-filter") {
       filteredSites = sites.filter(site => site.type === typeFilter);
     }
     
-    return this.sortSites(filteredSites, { column: 'url', direction: 'asc' });
+    return this.sortSites(filteredSites, sort);
   }
 
   sortSites(sites, sort) {
@@ -208,16 +211,49 @@ class List extends Component {
       state.searchValue === "" &&
       state.theme === "no-filter" &&
       state.languagesFilter === false &&
-      props.sites !== state.sites
+      props.sites !== state.originalSites
     ) {
       const filteredSites = state.type === "no-filter" ? 
         props.sites : 
         props.sites.filter(site => site.type === state.type);
       
       return {
-        sites: state.sortSites ? 
-          state.sortSites(filteredSites, state.sort) : 
-          filteredSites
+        sites: filteredSites.slice().sort((a, b) => {
+          let valueA, valueB;
+          
+          switch(state.sort.column) {
+            case 'url':
+              valueA = (a.url || '').toLowerCase();
+              valueB = (b.url || '').toLowerCase();
+              break;
+            case 'type':
+              valueA = (a.type || '').toLowerCase();
+              valueB = (b.type || '').toLowerCase();
+              break;
+            case 'monitored':
+              valueA = a.monitorSite ? 1 : 0;
+              valueB = b.monitorSite ? 1 : 0;
+              break;
+            case 'database':
+              valueA = a.k8sDatabaseStatus || '';
+              valueB = b.k8sDatabaseStatus || '';
+              break;
+            case 'age':
+              valueA = a.getCreatedDate() ? new Date(a.getCreatedDate()).getTime() : 0;
+              valueB = b.getCreatedDate() ? new Date(b.getCreatedDate()).getTime() : 0;
+              break;
+            default:
+              valueA = a[state.sort.column];
+              valueB = b[state.sort.column];
+          }
+
+          if (state.sort.direction === 'asc') {
+            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+          } else {
+            return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+          }
+        }),
+        originalSites: props.sites
       };
     }
     return null;
@@ -454,6 +490,12 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
     saveAs(blob, `wp-veritas_export_${today}.csv`);
   };
 
+  componentDidMount() {
+    if (this.props.sites) {
+      this.setState({ originalSites: this.props.sites });
+    }
+  }
+
   render() {
     let content;
 
@@ -653,7 +695,7 @@ export default withTracker(() => {
   ];
   return {
     loading: handles.some((handle) => !handle.ready()),
-    sites: Sites.find({}, { sort: { url: 1 } }).fetch(),
+    sites: Sites.find({}).fetch(),
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
     types: Types.find({}, { sort: { name: 1 } }).fetch(),
   };
