@@ -89,53 +89,53 @@ const Cells = (props) => (
             <Link to={`/search/${site._id}`}>
               <button
                 type="button"
-                className="btn btn-outline-success btn-sm mr-1 p-2 d-flex align-items-center justify-content-center"
+                className="btn btn-outline-success btn-sm mr-1 p-1 d-flex align-items-center justify-content-center"
                 title="Voir les info"
                 disabled={site.type === 'external'}
               >
-                <Info size={15} />
+                <Info size={20} />
               </button>
             </Link>
             <button
               type="button"
-              className="btn btn-outline-success btn-sm mr-2 p-2 d-flex align-items-center justify-content-center"
+              className="btn btn-outline-success btn-sm mr-2 p-1 d-flex align-items-center justify-content-center"
               title={ (site.type === 'kubernetes') ? 'View site YAML' : 'Not a Kubernetes site' }
               onClick={() => {
                 props.handleViewSiteYAML(site._id);
               }}
               disabled={site.type !== 'kubernetes'}
             >
-              <FileText size={15} />
+              <FileText size={20} />
             </button>
 
             <Link to={`/edit/${site._id}`}>
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm mr-1 p-2 d-flex align-items-center justify-content-center"
+                className="btn btn-outline-primary btn-sm mr-1 p-1 d-flex align-items-center justify-content-center"
                 title="Éditer le site"
               >
-                <Pencil size={15} />
+                <Pencil size={20} />
               </button>
             </Link>
-            <Link to={`/site-tags/${site._id}`} className="mr-2">
+            <Link to={`/site-tags/${site._id}`}>
               <button
                 type="button"
-                className="btn btn-outline-primary btn-sm p-2 d-flex align-items-center justify-content-center"
+                className="btn btn-outline-primary btn-sm mr-2 p-1 d-flex align-items-center justify-content-center"
                 title="Associer des tags"
               >
-                <Tags size={15} />
+                <Tags size={20} />
               </button>
             </Link>
 
             <button
               type="button"
-              className="btn btn-outline-danger btn-sm p-2 d-flex align-items-center justify-content-center"
+              className="btn btn-outline-danger btn-sm p-1 d-flex align-items-center justify-content-center"
               title="Supprimer le site"
               onClick={() => {
                 props.handleClickOnDeleteButton(site._id);
               }}
             >
-              <Trash2 size={15} />
+              <Trash2 size={20} />
             </button>
           </div>
         </td>
