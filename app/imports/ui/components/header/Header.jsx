@@ -45,6 +45,8 @@ class Header extends Component {
                   &nbsp;Accueil
                 </NavLink>
               </li>
+              {this.props.currentUserIsAdmin ||
+              this.props.currentUserIsEditor ? (
               <li className="nav-item">
                 <NavLink
                   to="/add"
@@ -54,6 +56,7 @@ class Header extends Component {
                   &nbsp;Nouveau
                 </NavLink>
               </li>
+              ) : null}
               <li className="nav-item">
                 <NavLink
                   to="/search"
