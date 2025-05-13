@@ -32,6 +32,13 @@ class Search extends React.Component {
     };
   }
 
+  componentDidMount() {
+    const query = this.props.match.params[0];
+    if (query) {
+      this.search(query);
+    }
+  }
+
   /**
    * Cette méthode prend en entrée une URL d'une page WordPress et
    * retourne l'URL de l'instance WordPress.
@@ -138,7 +145,7 @@ class Search extends React.Component {
           <h5 className="card-header">Trouver des info sur le site WordPress à cette URL</h5>
           <Formik
             onSubmit={this.submit}
-            initialValues={{ url: "" }}
+            initialValues={{ url: this.props.match.params[0] || '' }}
             validationSchema={this.urlSchema}
             validateOnBlur={false}
             validateOnChange={false}
@@ -151,7 +158,6 @@ class Search extends React.Component {
                   name="url"
                   type="text"
                   component={CustomInput}
-                  initialValues={ this.props.match.params[0] || '' }
                 />
                 <ErrorMessage name="url" component={CustomError} />
                 <div className="my-1 text-right">
