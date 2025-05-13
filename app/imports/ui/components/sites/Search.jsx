@@ -180,6 +180,7 @@ class Search extends React.Component {
 
 export default withTracker(() => {
   Meteor.subscribe("sites.list");
+  Meteor.subscribe("k8ssites.list");
   return {
     sites: Sites.find({ isDeleted: false }, { sort: { url: 1 } }).fetch(),
   };
