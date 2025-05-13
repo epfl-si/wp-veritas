@@ -91,7 +91,7 @@ class Search extends React.Component {
   displayResult = () => {
     let result;
     if (this.state.queryURL) {
-      if (this.state.found && this.state.site.wpInfra) {
+      if (this.state.found) {
         result = (
           <div>
             <h5>Résultats</h5>
