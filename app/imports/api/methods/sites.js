@@ -291,9 +291,13 @@ const associateTagsToSite = new VeritasValidatedMethod({
 const getDaysFromDate = (date) => {
   const fromDate = new Date(date);
   const today = new Date();
+  fromDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
   const diffInMs = today - fromDate;
   const diffInDay = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  return (diffInDay > 0) ? ( (diffInDay == 1) ? 'Today' : `${diffInDay} days` ) : '-';
+  if (diffInDay === 0) return 'Today';
+  if (diffInDay > 0) return `${diffInDay} days`;
+  return '-';
 }
 
 rateLimiter([
