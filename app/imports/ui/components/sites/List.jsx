@@ -617,24 +617,42 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
                 </div>
               </div>
             <div className="form-group">
-              <label className="mb-0">Filtrer par langues :</label>
-              <div className="d-flex flex-wrap" id="languages-checkbox">
-                {languages.map((lang) => (
-                  <div key={lang.key} className="form-check mr-2">
-                    <input
-                      className="form-check-input"
-                      type="checkbox"
-                      ref={lang.key}
-                      name={lang.name}
-                      checked={this.isChecked(lang)}
-                      onChange={this.search}
-                      id={`lang-${lang.key}`}
-                    />
-                    <label className="form-check-label" htmlFor={`lang-${lang.key}`}>
-                      {lang.label}
-                    </label>
+              <div className="d-flex flex-row justify-content-between" id="prout">
+                <div id="languages-checkbox">
+                  <label className="mb-0">Filtrer par langues :</label>
+                  <div className="d-flex flex-item">
+                    {languages.map((lang) => (
+                      <div key={lang.key} className="form-check mr-2">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          ref={lang.key}
+                          name={lang.name}
+                          checked={this.isChecked(lang)}
+                          onChange={this.search}
+                          id={`lang-${lang.key}`}
+                        />
+                        <label className="form-check-label" htmlFor={`lang-${lang.key}`}>
+                          {lang.label}
+                        </label>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                <div className="d-flex flex-row" id="numbers-container">
+                  <div className="p-2 ml-2 text-center rounded border border-dark">
+                    <b>{this.state.sites.length}</b>
+                    <div>sites au total</div>
+                  </div>
+                  <div className="p-2 ml-2 text-center rounded border border-success">
+                    <b>{this.state.sites.filter(o => o.type === 'kubernetes').length}</b>
+                    <div>sites k8s</div>
+                  </div>
+                  <div className="p-2 ml-2 text-center rounded border border-primary">
+                    <b>{this.state.sites.filter(o => o.type !== 'kubernetes').length}</b>
+                    <div>sites autres</div>
+                  </div>
+                </div>
               </div>
             </div>
           </form>
