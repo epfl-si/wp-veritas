@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { PropTypes } from 'prop-types'
 
 class Case {
-  static PLUGIN_NOT_RESPONDING = new Case('PLUGIN_NOT_RESPONDING', 'Unexpected error: no information available on the API. Is the plugin enabled on this website?')
-  static '404_NOT_FOUND' = new Case('404_NOT_FOUND', 'Error 404: The requested page does not exist')
-  static REQUEST_ERROR = new Case('REQUEST_ERROR', 'Request error: an error occured during the data fetching')
-  static SUCCESS = new Case('SUCCESS', 'SUCCESS')
+  static PLUGIN_NOT_RESPONDING = new Case('PLUGIN_NOT_RESPONDING', "Erreur inattendue : aucune information disponible sur l'API. Le plugin est-il activé sur ce site ?")
+  static '404_NOT_FOUND' = new Case('404_NOT_FOUND', "Erreur 404 : la page demandée n'existe pas")
+  static REQUEST_ERROR = new Case('REQUEST_ERROR', "Erreur de requête : une erreur s'est produite lors de la récupération des données")
+  static SUCCESS = new Case('SUCCESS', 'SUCCÈS')
 
   constructor (name, description) {
     this.name = name
