@@ -61,15 +61,11 @@ function LastChange (props) {
     } else if (requestStatus !== Case.SUCCESS) {
       return requestStatus.description
     } else {
-      return <span>{ lastChangeDate } par <a href={`https://search.epfl.ch/?filter=people&q=${username}`}>{username}</a></span>
+      return <span>La dernière modification de la page a été faite par <a href={ `https://search.epfl.ch/?filter=people&q=${ username }` }>{ username }</a> le { lastChangeDate }.</span>
     }
   }
   )()
-  return (
-    <>
-      Dernière modification de la page le : {message}
-    </>
-  )
+  return message
 }
 
 export default LastChange
