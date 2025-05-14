@@ -5,6 +5,7 @@ class Case {
   static PLUGIN_NOT_RESPONDING = new Case('PLUGIN_NOT_RESPONDING', "Erreur inattendue : aucune information disponible sur l'API. Le plugin est-il activé sur ce site ?")
   static '404_NOT_FOUND' = new Case('404_NOT_FOUND', "Erreur 404 : la page demandée n'existe pas")
   static REQUEST_ERROR = new Case('REQUEST_ERROR', "Erreur de requête : une erreur s'est produite lors de la récupération des données")
+  static NEVER_MODIFIED = new Case('NEVER_MODIFIED', "Le site n'a jamais été modifié")
   static SUCCESS = new Case('SUCCESS', 'SUCCÈS')
 
   constructor (name, description) {
@@ -21,13 +22,17 @@ function LastChange (props) {
     resetRequest()
     fetch(props.url)
       .then(response => {
+        if (response.status === 404) {
+          return setRequestStatus(Case['404_NOT_FOUND'])
+        } 
+
         return response.json()
       })
       .then(data => {
-        if (data === 404) {
-          setRequestStatus(Case['404_NOT_FOUND'])
-        } else if (data.data && data.data.status === 404) {
+        if (data.data && data.data.status === 404) {
           setRequestStatus(Case.PLUGIN_NOT_RESPONDING)
+        } else if (Array.isArray(data) && data.length === 0) {
+          setRequestStatus(Case.NEVER_MODIFIED)
         } else {
           const obj = data[0]
           setRequestStatus(Case.SUCCESS)
