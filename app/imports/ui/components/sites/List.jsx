@@ -440,36 +440,38 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
       site.categories = site.categories
         .map((category) => category.name)
         .join(",");
+      
+      site.createdDate = site.getCreatedDate().toISOString()
 
-      let facultyTags = "";
-      let instituteTags = "";
-      let clusterTags = "";
+      // let facultyTags = "";
+      // let instituteTags = "";
+      // let clusterTags = "";
 
-      site.tags.forEach(function (tag) {
-        if (tag.type === "faculty") {
-          if (facultyTags === "") {
-            facultyTags += tag.name_en;
-          } else {
-            facultyTags += "," + tag.name_en;
-          }
-        } else if (tag.type === "institute") {
-          if (instituteTags === "") {
-            instituteTags += tag.name_en;
-          } else {
-            instituteTags += "," + tag.name_en;
-          }
-        } else if (tag.type === "field-of-research") {
-          if (clusterTags === "") {
-            clusterTags += tag.name_en;
-          } else {
-            clusterTags += "," + tag.name_en;
-          }
-        }
-      });
+      // site.tags.forEach(function (tag) {
+      //   if (tag.type === "faculty") {
+      //     if (facultyTags === "") {
+      //       facultyTags += tag.name_en;
+      //     } else {
+      //       facultyTags += "," + tag.name_en;
+      //     }
+      //   } else if (tag.type === "institute") {
+      //     if (instituteTags === "") {
+      //       instituteTags += tag.name_en;
+      //     } else {
+      //       instituteTags += "," + tag.name_en;
+      //     }
+      //   } else if (tag.type === "field-of-research") {
+      //     if (clusterTags === "") {
+      //       clusterTags += tag.name_en;
+      //     } else {
+      //       clusterTags += "," + tag.name_en;
+      //     }
+      //   }
+      // });
 
-      site.facultyTags = facultyTags;
-      site.instituteTags = instituteTags;
-      site.clusterTags = clusterTags;
+      // site.facultyTags = facultyTags;
+      // site.instituteTags = instituteTags;
+      // site.clusterTags = clusterTags;
     });
 
     const csv = Papa.unparse({
@@ -477,7 +479,6 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
       fields: [
         "_id",
         "url",
-        "wpInfra",
         "title",
         "tagline",
         "type",
@@ -488,9 +489,9 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
         "unitId",
         "snowNumber",
         "status",
-        "facultyTags",
-        "instituteTags",
-        "clusterTags",
+        // "facultyTags",
+        // "instituteTags",
+        // "clusterTags",
         "createdDate",
       ],
       data: sites,
