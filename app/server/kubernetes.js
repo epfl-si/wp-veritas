@@ -67,10 +67,7 @@ export async function createWPSite (site) {
       throw new Error('k8sName could not be generated');
     }
 
-    const parsedPlugins = site.categories.reduce((acc, category) => {
-      acc[category.name] = {};
-      return acc;
-    }, {});
+    const parsedPlugins = site.getKubernetesPluginStruct();
 
     const url = new URL(site.url);
     const hostname = url.hostname;
