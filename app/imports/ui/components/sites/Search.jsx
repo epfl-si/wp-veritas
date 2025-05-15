@@ -5,7 +5,7 @@ import { Formik, Field, ErrorMessage } from "formik";
 import { CustomError, CustomInput } from "../CustomFields";
 import * as yup from "yup";
 import { Loading } from "../Messages";
-import LastChange from "./LastChange";
+import LastModifications from "./LastModifications";
 import { ExternalLink } from "lucide-react";
 
 class Search extends React.Component {
@@ -130,7 +130,7 @@ class Search extends React.Component {
                   </a>
                 </li>
                 <li>
-                  <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
+                  <LastModifications url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
                 </li>
               </ul>
             </div>

@@ -14,8 +14,8 @@ class Case {
   }
 }
 
-function LastChange (props) {
-  LastChange.propTypes = {
+function LastModifications (props) {
+  LastModifications.propTypes = {
     url: PropTypes.string.isRequired
   }
   useEffect(() => {
@@ -68,4 +68,4 @@ function LastChange (props) {
   return message
 }
 
-export default LastChange
+export default LastModifications
