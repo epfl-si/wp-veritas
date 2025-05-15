@@ -1,22 +1,66 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { CheckCircle, AlertTriangle, AlertCircle, Loader } from "lucide-react";
 
-export const AlertSuccess = (props) => (
-  <div className="alert alert-success" role="alert">
-    {props.message}
-  </div>
+const AlertMessage = ({ type, message, icon }) => {
+  const alertClasses = {
+    success: "alert alert-success",
+    danger: "alert alert-danger",
+    warning: "alert alert-warning",
+    info: "alert alert-info",
+  };
+
+  return (
+    <div className="py-4">
+      <div className={alertClasses[type]} role="alert">
+        <div className="d-flex align-items-center">
+          {icon}
+          <span className="ml-2">{message}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const AlertSuccess = ({ message }) => (
+  <AlertMessage 
+    type="success" 
+    message={message} 
+    icon={<CheckCircle size={20} color="green" />} 
+  />
 );
 
-export const AlertDanger = (props) => (
-  <div className="alert alert-danger" role="alert">
-    {props.message}
-  </div>
+export const AlertDanger = ({ message }) => (
+  <AlertMessage 
+    type="danger" 
+    message={message} 
+    icon={<AlertCircle size={20} color="red" />} 
+  />
 );
 
-export const AlertSiteSuccess = (props) => (
-  <div className="alert alert-success" role="alert">
-    Le nouveau site <a href={"/edit/" + props.id}>{props.title}</a> a été ajouté avec succès !
-  </div>
+export const AlertWarning = ({ message }) => (
+  <AlertMessage 
+    type="warning" 
+    message={message} 
+    icon={<AlertTriangle size={20} color="orange" />} 
+  />
+);
+
+export const AlertInfo = ({ message }) => (
+  <AlertMessage 
+    type="info" 
+    message={message} 
+    icon={<Loader size={20} color="blue" />} 
+  />
+);
+
+export const AlertSiteSuccess = ({ id, title }) => (
+  <AlertSuccess message={
+    <span>
+      Le site <strong>{title}</strong> a été créé avec succès !{" "}
+      <a href={"/edit/" + id}>Éditer à nouveau ce site</a>
+    </span>
+  } />
 );
 
 export const Loading = () => (

@@ -130,18 +130,26 @@ const insertSite = new VeritasValidatedMethod({
     const message = `👀 Pssst! [${user.username}](https://people.epfl.ch/${this.userId}) created ${newSite.url} on wp-veritas! #wpSiteCreated`;
     Telegram.sendMessage(message, /*preview=*/false);
 
-    if (type.schema === "internal") {
-      import { createWPSite } from "/server/kubernetes.js";
-      const { url } = await createWPSite(newSite);
-      return {
-        name: url,
-      };
-    } else if (type.schema === "external") {
-      newSite.createdDate = new Date().toISOString().split('T')[0];
-      await Sites.insertAsync(newSite);
-      return {
-        url: newSite.url,
-      };
+    try {
+      if (type.schema === "internal") {
+        import { createWPSite } from "/server/kubernetes.js";
+        const { statusCode, message, url } = await createWPSite(newSite);
+        return {
+          statusCode, 
+          message, 
+          url
+        };
+      } else if (type.schema === "external") {
+        newSite.createdDate = new Date().toISOString().split('T')[0];
+        await Sites.insertAsync(newSite);
+        return {
+          statusCode: 201,
+          message: "Site created successfully",
+          url: newSite.url
+        };
+      }
+    } catch (err) {
+      throw err;
     }
   }
 });

@@ -113,10 +113,23 @@ export async function createWPSite (site) {
       body,
     );
 
-    return { url };
+    return { url: url.href + "/", statusCode: response.response.statusCode, message: response.response.statusMessage };
   } catch (err) {
     console.error('Failed to create WP Site: ', err);
-    throw err;
+    if (err.response) {
+      const error = new Meteor.Error('create-site-error', "Website creation failure", {
+        code: err.response.statusCode,
+        message: err.response.body.message,
+        url: site.url,
+      });
+      throw error;
+    } else {
+      throw new Meteor.Error('create-site-error', err.message, {
+        statusCode: 500,
+        message: err.message,
+        url: site.url,
+      });
+    }
   }
 }
 

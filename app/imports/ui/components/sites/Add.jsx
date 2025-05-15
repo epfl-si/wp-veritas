@@ -11,7 +11,7 @@ import {
   CustomSelect,
   CustomTextarea,
 } from "../CustomFields";
-import { Loading, AlertSiteSuccess, AlertSuccess, AlertDanger } from "../Messages";
+import { Loading, AlertSiteSuccess, AlertSuccess, AlertDanger, AlertInfo, AlertWarning } from "../Messages";
 import Select from "react-select";
 import { generateSite } from "../../../api/methods/sites";
 import PopOver from "../popover/PopOver";
@@ -35,6 +35,8 @@ class Add extends Component {
       saveSuccess: false,
       generateSuccess: false,
       generateRunning: false,
+      alertMessage: null,
+      alertType: null,
     };
   }
 
@@ -52,11 +54,18 @@ class Add extends Component {
   };
 
   updateUserMsg = () => {
-    this.setState({ addSuccess: false, editSuccess: false, generateSuccess: false });
+    this.setState({ addSuccess: false, editSuccess: false, generateSuccess: false, alertMessage: null, alertType: null });
   };
 
   updateSaveSuccess = (newValue) => {
     this.setState({ saveSuccess: newValue });
+  };
+
+  setAlert = (type, message) => {
+    this.setState({
+      alertType: type,
+      alertMessage: message
+    });
   };
 
   submit = async (values, actions) => {
@@ -85,7 +94,8 @@ class Add extends Component {
     values.unitId = parseInt(values.unitId);
 
     try {
-      const { url } = await Meteor.callAsync(methodName, values);
+      this.setAlert("warning", "En cours de traitement...");
+      const { url, statusCode, message } = await Meteor.callAsync(methodName, values);
 
       const site = await Promise.race([
         new Promise(async (resolve, reject) => {
@@ -118,28 +128,46 @@ class Add extends Component {
           }
         }),
         new Promise((resolve, reject) => {
-          setInterval(() => reject("Timeout"), 10000);
+          setInterval(() => {
+            reject("Timeout");
+          }, 10000);
         }),
       ]);
 
-      actions.setSubmitting(false);
-      if (this.state.action === "add") {
-        state.previousSite = site;
-        actions.resetForm();
-      }
-      this.setState(state);
-      if (this.state.action === "add") {
-        this.props.history.push("/edit/" + site._id);
+      if (statusCode >= 200 && statusCode < 300) {
+        state.alertType = "success";
+        state.alertMessage = message || (this.state.action === "add" ? 
+          "Le site a été créé avec succès !" : 
+          "Le site a été modifié avec succès !");
+        
+        actions.setSubmitting(false);
+        if (this.state.action === "add") {
+          state.previousSite = site;
+          actions.resetForm();
+        }
+        this.setState(state);
+      } else {
+        this.setAlert("danger", message || "Une erreur est survenue lors de l'opération.");
+        actions.setSubmitting(false);
       }
     } catch (error) {
       console.log(error);
-      let formErrors = {};
+      if (error.error == "validation-error") {
+        let formErrors = {};
 
-      (error.details || []).forEach(function (error) {
-        formErrors[error.name] = error.message;
-      });
+        (error.details || []).forEach(function (error) {
+          formErrors[error.name] = error.message;
+        });
 
-      actions.setErrors(formErrors);
+
+        actions.setErrors(formErrors);
+      } else {
+        this.setAlert(
+          "danger",
+          "Erreur lors de la création: " +
+            (error?.details?.message ?? error?.message ?? "Une erreur inattendue est survenue.")
+        );
+      }
       actions.setSubmitting(false);
     }
   };
@@ -225,6 +253,29 @@ class Add extends Component {
     return this.state.action === "edit" && initialValues.wpInfra;
   };
 
+  renderAlert() {
+    if (this.state.addSuccess) {
+      return <AlertSiteSuccess id={this.state.previousSite._id} title={this.state.previousSite.title} />;
+    }
+    
+    if (this.state.alertType && this.state.alertMessage) {
+      switch (this.state.alertType) {
+        case "success":
+          return <AlertSuccess message={this.state.alertMessage} />;
+        case "danger":
+          return <AlertDanger message={this.state.alertMessage} />;
+        case "warning":
+          return <AlertWarning message={this.state.alertMessage} />;
+        case "info":
+          return <AlertInfo message={this.state.alertMessage} />;
+        default:
+          return null;
+      }
+    }
+
+    return null;
+  }
+
   render() {
     let content;
     let initialValues = this.getInitialValues();
@@ -232,31 +283,9 @@ class Add extends Component {
     if (this.isLoading(initialValues)) {
       content = <Loading />;
     } else {
-      let msgEditSuccess = (
-        <div className="alert alert-success" role="alert">
-          Le site a été modifié avec succès !
-        </div>
-      );
-
       content = (
         <div className="card my-2">
           <h5 className="card-header">{this.getPageTitle()}</h5>
-          {this.state.addSuccess ? (
-            <AlertSiteSuccess
-              id={this.state.previousSite._id}
-              title={this.state.previousSite.title}
-            />
-          ) : null}
-          {this.state.generateRunning ? (
-            <AlertSuccess message={"La normalisation du site a commencé !"} />
-          ) : null}
-          {this.state.generateSuccess ? (
-            <AlertSuccess message={"Le site a été normalisé avec succès !"} />
-          ) : null}
-          {this.state.generateFailed ? (
-            <AlertDanger message={"La normalisaton du site a échoué !"} />
-          ) : null}
-          {this.state.editSuccess && msgEditSuccess}
           <Formik
             onSubmit={this.submit}
             initialValues={initialValues}
@@ -275,6 +304,7 @@ class Add extends Component {
               setFieldTouched,
             }) => (
               <form onSubmit={handleSubmit} className="bg-white border p-4">
+                {this.renderAlert()}
                 <div className="my-1 text-right">
                   <button type="submit" disabled={isSubmitting} className="btn btn-primary mx-2">
                     Enregistrer
@@ -616,13 +646,6 @@ class Add extends Component {
               </form>
             )}
           </Formik>
-          {this.state.addSuccess ? (
-            <AlertSiteSuccess
-              id={this.state.previousSite._id}
-              title={this.state.previousSite.title}
-            />
-          ) : null}
-          {this.state.editSuccess && msgEditSuccess}
         </div>
       );
     }
