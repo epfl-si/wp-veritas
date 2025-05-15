@@ -75,7 +75,7 @@ export async function createWPSite (site) {
     const url = new URL(site.url);
     const hostname = url.hostname;
     let path = url.pathname;
-    if (path && path.endsWith('/')) {
+    if (path && path.endsWith('/') && path !== '/') {
       path = path.slice(0, -1);
     }
 
