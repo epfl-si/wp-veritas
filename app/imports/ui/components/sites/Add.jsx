@@ -96,53 +96,64 @@ class Add extends Component {
     try {
       this.setAlert("warning", "En cours de traitement...");
       const { url, statusCode, message } = await Meteor.callAsync(methodName, values);
-
-      const site = await Promise.race([
-        new Promise(async (resolve, reject) => {
-          const mySiteCursor = Sites.find({ url });
-          async function tryAgain() {
-            console.log(`Trying again... ${url}`);
-
-            try {
-              const exists = await mySiteCursor.fetchAsync();
-              if (exists.length) resolve(exists[0]);
-              return !!exists.length;
-            } catch (e) {
-              reject(e);
-            }
-          }
-
-          try {
-            if (!(await tryAgain())) {
-              let waiting;
-              waiting = await mySiteCursor.observeAsync({
-                async added(site) {
-                  if (await tryAgain()) {
-                    if (waiting) waiting.stop();
-                  }
-                },
-              });
-            }
-          } catch (e) {
-            reject(e);
-          }
-        }),
-        new Promise((resolve, reject) => {
-          setInterval(() => {
-            reject("Timeout");
-          }, 10000);
-        }),
-      ]);
-
+      
       if (statusCode >= 200 && statusCode < 300) {
+        let site;
+        try {
+          site = await Promise.race([
+            new Promise(async (resolve, reject) => {
+              const mySiteCursor = Sites.find({ url });
+              
+              async function tryAgain() {
+                console.log(`Trying again... ${url}`);
+                try {
+                  const exists = await mySiteCursor.fetchAsync();
+                  if (exists.length) {
+                    resolve(exists[0]);
+                    return true;
+                  }
+                  return false;
+                } catch (e) {
+                  reject(e);
+                  return false;
+                }
+              }
+              
+              try {
+                if (!(await tryAgain())) {
+                  let waiting;
+                  waiting = await mySiteCursor.observeAsync({
+                    async added(site) {
+                      if (await tryAgain()) {
+                        if (waiting) waiting.stop();
+                      }
+                    },
+                  });
+                }
+              } catch (e) {
+                reject(e);
+              }
+            }),
+            new Promise((resolve, reject) => {
+              setTimeout(() => {
+                reject("Timeout");
+              }, 10000);
+            }),
+          ]);
+          
+          console.log("Site created", statusCode);
+        } catch (timeoutError) {
+          console.warn("Site creation timed out, but statusCode was successful:", timeoutError);
+        }
+        
         state.alertType = "success";
-        state.alertMessage = message || (this.state.action === "add" ? 
-          "Le site a été créé avec succès !" : 
+        state.alertMessage = message || (this.state.action === "add" ?
+          "Le site a été créé avec succès !" :
           "Le site a été modifié avec succès !");
         
         actions.setSubmitting(false);
         if (this.state.action === "add") {
-          state.previousSite = site;
+          state.previousSite = site || { url };
           actions.resetForm();
         }
         this.setState(state);
