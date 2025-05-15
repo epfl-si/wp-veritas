@@ -151,7 +151,7 @@ class Add extends Component {
         actions.setSubmitting(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       if (error.error == "validation-error") {
         let formErrors = {};
 
@@ -159,6 +159,10 @@ class Add extends Component {
           formErrors[error.name] = error.message;
         });
 
+        this.setState({
+          alertType: null,
+          alertMessage: null
+        });
 
         actions.setErrors(formErrors);
       } else {
