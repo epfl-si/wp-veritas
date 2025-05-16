@@ -6,6 +6,7 @@ import { CustomError, CustomInput } from "../CustomFields";
 import * as yup from "yup";
 import { Loading } from "../Messages";
 import LastChange from "./LastChange";
+import { ExternalLink } from "lucide-react";
 
 class Search extends React.Component {
   urlSchema = yup.object().shape({
@@ -111,7 +112,13 @@ class Search extends React.Component {
                 </li>
                 <li>
                   N° d'unité de rattachement :&nbsp;
-                  <strong>{this.state.site.unitId}</strong>
+                  <strong>{this.state.site.unitId}</strong>&nbsp;
+                  <a
+                    target="_blank"
+                    href={"https://search.epfl.ch/?filter=unit&q=" + this.state.site.unitId}
+                  >
+                    <ExternalLink size={14} />
+                  </a>
                 </li>
                 <li>
                   <LastChange url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
