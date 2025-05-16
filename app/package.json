@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.27.1",
-    "@kubernetes/client-node": "^0.21.0",
+    "@kubernetes/client-node": "^1.2.0",
     "debug": "^4.3.4",
     "formik": "^2.1.4",
     "helmet": "^3.22.0",
