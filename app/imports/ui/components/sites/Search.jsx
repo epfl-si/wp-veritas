@@ -116,8 +116,17 @@ class Search extends React.Component {
                   <a
                     target="_blank"
                     href={"https://search.epfl.ch/?filter=unit&q=" + this.state.site.unitId}
+                    title={"Information de l'unité " + this.state.site.unitId + " sur search.epfl.ch"}
                   >
                     <ExternalLink size={14} />
+                  </a>
+                  &nbsp;
+                  <a
+                    target="_blank"
+                    href={"https://units.epfl.ch/#/unites/" + this.state.site.unitId}
+                    title={"Information de l'unité " + this.state.site.unitId + " sur units.epfl.ch"}
+                  >
+                    <ExternalLink size={14} color="#000" />
                   </a>
                 </li>
                 <li>
