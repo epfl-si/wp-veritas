@@ -674,7 +674,7 @@ export const OptionalCategories = [
 export function getKubernetesPluginStruct (site) {
   const plugins = (new DefaultCategory()).getPlugins(site);
   for (const cat of OptionalCategories) {
-    if (site.categories.find((c) => c.name === cat.label)) {
+    if (site.categories.find((c) => c === cat.label)) {
       Object.assign(plugins, (new cat()).getPlugins(site));
     }
   }

@@ -76,12 +76,12 @@ async function validateSite(site) {
   if (site.type === "kubernetes") {
     if (
       site.url.includes("inside.epfl.ch") ||
-      site.categories.find((category) => category.name === "Inside")
+      site.categories.find((category) => category === "Inside")
     ) {
       if (
         !(
           site.url.includes("inside.epfl.ch") &&
-          site.categories.find((category) => category.name === "Inside")
+          site.categories.find((category) => category === "Inside")
         )
       ) {
         throwMeteorErrors(
@@ -92,7 +92,7 @@ async function validateSite(site) {
     }
 
     if (site.url.includes("www.epfl.ch")) {
-      if (! site.categories.find((category) => category.name === "epfl-menus")) {
+      if (! site.categories.find((category) => category === "epfl-menus")) {
         throwMeteorErrors(
           ["categories"],
           "Sites www: La catégorie epfl-menus est obligatoire"

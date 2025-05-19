@@ -1,7 +1,6 @@
 import {
   Themes,
   Tags,
-  Categories,
   AppLogs,
   Sites,
   Types
@@ -110,11 +109,6 @@ Meteor.publish("deleteSites.list", async function () {
 Meteor.publish("theme.list", function () {
   let themeCursor = Themes.find({}, { sort: { name: 1 } });
   return [themeCursor];
-});
-
-Meteor.publish("category.list", function () {
-  let categoryCursor = Categories.find({}, { sort: { name: 1 } });
-  return [categoryCursor];
 });
 
 Meteor.publish("tag.list", function () {

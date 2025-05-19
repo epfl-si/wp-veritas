@@ -437,9 +437,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
     let sites = this.state.sites;
 
     sites.forEach(function (site) {
-      site.categories = site.categories
-        .map((category) => category.name)
-        .join(",");
+      site.categories = site.categories.join(",");
       
       site.createdDate = site.getCreatedDate().toISOString()
 

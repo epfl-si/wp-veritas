@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Sites, Types, Themes, Categories } from "../../../api/collections";
+import { Sites, Types, Themes } from "../../../api/collections";
+import { OptionalCategories } from "../../../api/k8s/siteCategories";
 import {
   CustomSingleCheckbox,
   CustomCheckbox,
@@ -212,7 +213,6 @@ class Add extends Component {
   isLoading = (initialValues) => {
     const isLoading =
       this.props.themes === undefined ||
-      this.props.categories === undefined ||
       initialValues === undefined;
     return isLoading;
   };
@@ -670,7 +670,6 @@ class Add extends Component {
 export default withRouter(
   withTracker((props) => {
     Meteor.subscribe("theme.list");
-    Meteor.subscribe("category.list");
     Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
     Meteor.subscribe("k8ssites.list");
@@ -682,14 +681,14 @@ export default withRouter(
       return {
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+        categories: OptionalCategories.map((c) => c.label),
         site: sites[0],
       };
     } else {
       return {
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+        categories: OptionalCategories.map((c) => c.label),
       };
     }
   })(Add)
