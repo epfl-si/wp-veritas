@@ -96,7 +96,7 @@ export class DefaultCategory extends WPVeritasCategory {
           },
         ],
       },
-      "wp-plugin-pushgateway": {},
+      pushgateway: {},
       accred: {
         wp_options: [
           { name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
@@ -423,6 +423,60 @@ export class DefaultCategory extends WPVeritasCategory {
   }
 }
 
+export class CategoryInside extends WPVeritasCategory {
+  get plugins () {
+    return {
+      "epfl-intranet": {},
+    }
+  }
+}
+
+CategoryInside.label = "Inside";
+
+export class CategoryRestauration extends WPVeritasCategory {
+  get plugins () {
+    return {
+      "epfl-restauration": {
+        wp_options: [
+          { name: "epfl_restauration_api_url", value: "https://nutrimenu.ch/nmapi/getMenu" },
+          { name: "epfl_restauration_api_username", value: "epfl.getmenu@nutrimenu.ch" },
+          {
+            name: "epfl_restauration_api_password",
+            valueFrom: {
+              secretKeyRef: {
+                name: "wp-plugin-secrets",
+                key: "restauration_api_password",
+              },
+            },
+          },
+        ],
+      },
+    };
+  }
+}
+
+CategoryRestauration.label = "Restauration";
+
+export class CategoryLibrary extends WPVeritasCategory {
+  getPlugins (site) {
+    return {
+      "EPFL-Library-Plugins": {},
+    };
+  }
+}
+
+CategoryLibrary.label = "Library";
+
+export class CategoryCDHSHS extends WPVeritasCategory {
+  getPlugins (site) {
+    return {
+      "epfl-courses-se": {},
+    };
+  }
+}
+
+CategoryCDHSHS.label = "CDHSHS";
+
 export class CategoryWPForms extends WPVeritasCategory {
   get plugins () {
     return {
@@ -480,6 +534,15 @@ export class CategoryWPForms extends WPVeritasCategory {
           },
         ],
       },
+    };
+  }
+}
+
+CategoryWPForms.label = "WPForms";
+
+export class CategoryPayonline extends WPVeritasCategory {
+  get plugins () {
+    return {
       "wpforms-epfl-payonline": {
         wp_options: [
           {
@@ -556,66 +619,57 @@ export class CategoryWPForms extends WPVeritasCategory {
             },
           },
         ],
-      },
-    };
+      }
+    }
   }
 }
 
-CategoryWPForms.label = "WPForms";
+CategoryPayonline.label = "Payonline";
 
-export class CategoryRestauration extends WPVeritasCategory {
+export class CategorySurveys extends WPVeritasCategory {
   get plugins () {
     return {
-      "epfl-restauration": {
-        wp_options: [
-          { name: "epfl_restauration_api_url", value: "https://nutrimenu.ch/nmapi/getMenu" },
-          { name: "epfl_restauration_api_username", value: "epfl.getmenu@nutrimenu.ch" },
-          {
-            name: "epfl_restauration_api_password",
-            valueFrom: {
-              secretKeyRef: {
-                name: "wp-plugin-secrets",
-                key: "restauration_api_password",
-              },
-            },
-          },
-        ],
-      },
-    };
+      "wpforms-surveys-polls": {},
+    }
   }
 }
 
-CategoryRestauration.label = "Restauration";
+CategorySurveys.label = "Surveys";
 
-export class CategoryEPFLMenus extends WPVeritasCategory {
-  get plugins() {
+export class CategoryDiplomaVerification extends WPVeritasCategory {
+  get plugins () {
     return {
-      "epfl-menus": {},
-    };
+      "epfl-diploma-verification": {},
+    }
   }
 }
 
-CategoryEPFLMenus.label = "EPFL Menus";
+CategoryDiplomaVerification.label = "DiplomaVerification";
 
-export class CategoryLibrary extends WPVeritasCategory {
-  get plugins() {
+
+export class CategoryPartnerUniversities extends WPVeritasCategory {
+  get plugins () {
     return {
-      "EPFL-Library-Plugins": {},
-    };
+     "epfl-partner-universities": {}
+    }
   }
 }
 
-CategoryLibrary.label = "Library";
+CategoryPartnerUniversities.label = "PartnerUniversities";
 
-
-export class CategoryLibrary extends WPVeritasCategory {
-  get plugins() {
+export class CategoryEpflMenus extends WPVeritasCategory {
+  get plugins () {
     return {
-      "epfl-courses-se": {},
-    };
+      "epfl-menus": {}
+    }
   }
 }
 
-CategoryCDHSHS.label = "CDHSHS";
+CategoryEpflMenus.label = "epfl-menus";
 
-export const OptionalCategories = [CategoryWPForms, CategoryRestauration, CategoryCDHSHS];
+export const OptionalCategories = [
+  CategoryInside, CategoryRestauration, CategoryLibrary,
+  CategoryCDHSHS, CategoryWPForms, CategoryPayonline,
+  CategorySurveys, CategoryDiplomaVerification, CategoryPartnerUniversities,
+  CategoryEpflMenus
+];
