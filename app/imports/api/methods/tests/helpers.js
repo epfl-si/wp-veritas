@@ -1,4 +1,4 @@
-import { Sites, Categories, Tags } from "../../collections";
+import { Sites, Tags } from "../../collections";
 import { insertSite } from "../sites";
 
 async function getSitesByTag(tag) {

@@ -1,5 +1,4 @@
 import assert from "assert";
-import "../imports/api/methods/tests/categories.test";
 import "../imports/api/methods/tests/themes.test";
 import "../imports/api/methods/tests/tags.test";
 import "../imports/api/methods/tests/sites.test";

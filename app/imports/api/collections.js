@@ -169,7 +169,6 @@ Sites.findAllUndeleted = async function() {
     ]}).fetchAsync()
 }
 
-const Categories = new Mongo.Collection('categories');
 const Themes = new Mongo.Collection('themes');
 const Tags = new Mongo.Collection('tags');
 const Types = new Mongo.Collection('types');
@@ -191,7 +190,6 @@ Meteor.users.deny({
 });
 
 export {
-  Categories,
   Themes,
   Tags,
   Types,
