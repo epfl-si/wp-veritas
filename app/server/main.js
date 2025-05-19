@@ -6,7 +6,6 @@ import { setupRoles } from "./roles";
 import "./publications"; // Call meteor publications backend
 import "../imports/api/methods/tags";
 import "../imports/api/methods/themes";
-import "../imports/api/methods/categories";
 import "../imports/api/methods/sites";
 
 import { AppLogger } from "../imports/api/logger";
@@ -54,7 +53,6 @@ if (Meteor.isServer) {
       import "./tequila-config";
     }
     // Import each REST API endpoint in turn, to register them
-    import "./rest/categories";
     import "./rest/sites";
     import "./rest/tags";
   });

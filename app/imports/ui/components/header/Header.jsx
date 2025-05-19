@@ -136,8 +136,6 @@ class Header extends Component {
                     <a className="dropdown-item" target="_blank" href="/api/v1/sites">Voir tous les sites</a>
                     <a className="dropdown-item" target="_blank" href="/api/v1/inventory/entries">Voir tous les sites (y.c. supprimés)</a>
                     <a className="dropdown-item" target="_blank" href="/api/v1/sites?platform_target=openshift-4">Voir les sites sur OpenShift 4</a>
-                    <a className="dropdown-item" target="_blank" href="/api/v1/categories">Voir toutes les catégories</a>
-                    <a className="dropdown-item" target="_blank" href="/api/v1/categories/WPForms/sites">Voir les sites avec WPForms</a>
                     <a className="dropdown-item" target="_blank" href="/api/v1/tags">Voir les tags</a>
                   </div>
                 </li>
