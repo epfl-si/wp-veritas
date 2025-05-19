@@ -149,7 +149,7 @@ class Admin extends Component {
     let label;
 
     Swal.fire({
-      title: `Voulez vous vraiment supprimer le thème: ${element.name} ?`,
+      title: `Voulez vous vraiment supprimer le thème: ${element.name}&nbsp;?`,
       text: "Cette action est irréversible",
       icon: "warning",
       showCancelButton: true,
@@ -194,13 +194,13 @@ class Admin extends Component {
         <Fragment>
           {this.state.addSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été ajouté avec succès !`}
+              message={`L'élément "${this.state.target}" a été ajouté avec succès&nbsp;!`}
             />
           ) : null}
 
           {this.state.deleteSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été supprimé avec succès !`}
+              message={`L'élément "${this.state.target}" a été supprimé avec succès&nbsp;!`}
             />
           ) : null}
 
@@ -225,13 +225,13 @@ class Admin extends Component {
 
           {this.state.addSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été ajouté avec succès !`}
+              message={`L'élément "${this.state.target}" a été ajouté avec succès&nbsp;!`}
             />
           ) : null}
 
           {this.state.deleteSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été supprimé avec succès !`}
+              message={`L'élément "${this.state.target}" a été supprimé avec succès&nbsp;!`}
             />
           ) : null}
         </Fragment>
