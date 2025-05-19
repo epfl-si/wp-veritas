@@ -600,7 +600,7 @@ CategoryEPFLMenus.label = "EPFL Menus";
 export class CategoryLibrary extends WPVeritasCategory {
   get plugins() {
     return {
-      Library: {},
+      "EPFL-Library-Plugins": {},
     };
   }
 }
