@@ -677,14 +677,6 @@ export function getKubernetesPluginStruct (site) {
     if (site.categories.find((c) => c.name === cat.label)) {
       Object.assign(plugins, (new cat()).getPlugins(site));
     }
-
-    // TODO: this is the “old” form, whereby the operator had built-in knowledge
-    // about plugins, options and more. Remove.
-    Object.assign(plugins,
-      this.categories.reduce((acc, category) => {
-        acc[category.name] = {};
-        return acc;
-      }, {}));
   }
   return plugins;
 }
