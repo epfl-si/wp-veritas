@@ -719,8 +719,8 @@ class MyCategorySelect extends React.Component {
           onBlur={this.handleBlur}
           value={this.props.value}
           options={this.props.options}
-          getOptionLabel={(option) => option.name}
-          getOptionValue={(option) => option._id}
+          getOptionLabel={(option) => option}
+          getOptionValue={(option) => option}
           placeholder={this.props.placeholder}
           isDisabled={this.props.isDisabled}
           styles={{
