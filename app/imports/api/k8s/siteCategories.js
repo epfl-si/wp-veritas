@@ -607,4 +607,15 @@ export class CategoryLibrary extends WPVeritasCategory {
 
 CategoryLibrary.label = "Library";
 
-export const OptionalCategories = [CategoryWPForms, CategoryRestauration];
+
+export class CategoryLibrary extends WPVeritasCategory {
+  get plugins() {
+    return {
+      "epfl-courses-se": {},
+    };
+  }
+}
+
+CategoryCDHSHS.label = "CDHSHS";
+
+export const OptionalCategories = [CategoryWPForms, CategoryRestauration, CategoryCDHSHS];
