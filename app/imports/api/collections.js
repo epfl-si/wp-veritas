@@ -6,7 +6,6 @@ import MessageBox from 'message-box';
 import { isRequired, isRequiredUnderCondition } from './schemas/utils';
 import { siteExternalSchema } from './schemas/siteExternal';
 import { siteWPSchema } from './schemas/siteWPSchema';
-import { DefaultCategory, OptionalCategories } from './k8s/siteCategories.js';
 
 SimpleSchema.defineValidationErrorTransform(error => {
     const ddpError = new Meteor.Error(error.message);
@@ -153,28 +152,6 @@ export class Site {
     } else {
       return theme === "wp-theme-light";
     }
-  }
-
-  getKubernetesPluginStruct() {
-    if (! Meteor.isServer) return {};
-
-    const categoryConstructorArgs = {languages: this.languages};
-
-    const plugins = (new DefaultCategory(categoryConstructorArgs)).plugins;
-    for (const cat of OptionalCategories) {
-      if (site.categories.find(cat.label)) {
-        Object.assign((new cat(categoryConstructorArgs)).plugins);
-      }
-    }
-
-    // TODO: this is the “old” form, whereby the operator had built-in knowledge
-    // about plugins, options and more. Remove.
-    Object.assign(plugins,
-      this.categories.reduce((acc, category) => {
-        acc[category.name] = {};
-        return acc;
-      }, {}));
-    return plugins;
   }
 }
 

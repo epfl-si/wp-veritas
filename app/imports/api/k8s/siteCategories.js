@@ -1,7 +1,4 @@
 class WPVeritasCategory {
-  constructor(opts) {
-    Object.assign(this, opts);
-  }
 }
 
 const knownLanguages = {
@@ -15,7 +12,7 @@ const knownLanguages = {
 }
 
 export class DefaultCategory extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "epfl-404": {},
       enlighter: {
@@ -101,7 +98,7 @@ export class DefaultCategory extends WPVeritasCategory {
         wp_options: [
           { name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
           { name: "plugin:epfl_accred:subscriber_group", value: "*" },
-          { name: "plugin:epfl_accred:unit_id", value: this.unitId },
+          { name: "plugin:epfl_accred:unit_id", value: site.unitId },
         ],
       },
       "epfl-cache-control": {
@@ -193,12 +190,12 @@ export class DefaultCategory extends WPVeritasCategory {
               domains: [],
               version: "3.5.4",
               first_activation: Math.floor(new Date() / 1000),
-              default_lang: this.languages[0],
+              default_lang: site.languages[0],
             },
           },
         ],
         polylang: {
-          languages: this.languages.map((l) => ({ slug: l, ...knownLanguages[l] })),
+          languages: site.languages.map((l) => ({ slug: l, ...knownLanguages[l] })),
         },
       },
       redirection: {
@@ -424,7 +421,7 @@ export class DefaultCategory extends WPVeritasCategory {
 }
 
 export class CategoryInside extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "epfl-intranet": {},
     }
@@ -434,7 +431,7 @@ export class CategoryInside extends WPVeritasCategory {
 CategoryInside.label = "Inside";
 
 export class CategoryRestauration extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "epfl-restauration": {
         wp_options: [
@@ -478,7 +475,7 @@ export class CategoryCDHSHS extends WPVeritasCategory {
 CategoryCDHSHS.label = "CDHSHS";
 
 export class CategoryWPForms extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       wpforms: {
         wp_options: [
@@ -541,7 +538,7 @@ export class CategoryWPForms extends WPVeritasCategory {
 CategoryWPForms.label = "WPForms";
 
 export class CategoryPayonline extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "wpforms-epfl-payonline": {
         wp_options: [
@@ -627,7 +624,7 @@ export class CategoryPayonline extends WPVeritasCategory {
 CategoryPayonline.label = "Payonline";
 
 export class CategorySurveys extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "wpforms-surveys-polls": {},
     }
@@ -637,7 +634,7 @@ export class CategorySurveys extends WPVeritasCategory {
 CategorySurveys.label = "Surveys";
 
 export class CategoryDiplomaVerification extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "epfl-diploma-verification": {},
     }
@@ -648,7 +645,7 @@ CategoryDiplomaVerification.label = "DiplomaVerification";
 
 
 export class CategoryPartnerUniversities extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
      "epfl-partner-universities": {}
     }
@@ -658,7 +655,7 @@ export class CategoryPartnerUniversities extends WPVeritasCategory {
 CategoryPartnerUniversities.label = "PartnerUniversities";
 
 export class CategoryEpflMenus extends WPVeritasCategory {
-  get plugins () {
+  getPlugins (site) {
     return {
       "epfl-menus": {}
     }
@@ -673,3 +670,21 @@ export const OptionalCategories = [
   CategorySurveys, CategoryDiplomaVerification, CategoryPartnerUniversities,
   CategoryEpflMenus
 ];
+
+export function getKubernetesPluginStruct (site) {
+  const plugins = (new DefaultCategory()).getPlugins(site);
+  for (const cat of OptionalCategories) {
+    if (site.categories.find((c) => c.name === cat.label)) {
+      Object.assign(plugins, (new cat()).getPlugins(site));
+    }
+
+    // TODO: this is the “old” form, whereby the operator had built-in knowledge
+    // about plugins, options and more. Remove.
+    Object.assign(plugins,
+      this.categories.reduce((acc, category) => {
+        acc[category.name] = {};
+        return acc;
+      }, {}));
+  }
+  return plugins;
+}

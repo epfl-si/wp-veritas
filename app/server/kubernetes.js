@@ -1,5 +1,6 @@
 import * as k8s from "@kubernetes/client-node";
 import { Sites } from "../imports/api/collections";
+import { getKubernetesPluginStruct } from "../imports/api/k8s/siteCategories";
 
 import Debug from "debug";
 
@@ -67,7 +68,7 @@ export async function createWPSite (site) {
       throw new Error('k8sName could not be generated');
     }
 
-    const parsedPlugins = site.getKubernetesPluginStruct();
+    const parsedPlugins = getKubernetesPluginStruct(site);
 
     const url = new URL(site.url);
     const hostname = url.hostname;
