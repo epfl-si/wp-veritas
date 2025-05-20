@@ -573,7 +573,7 @@ export class CategoryPayonline extends WPVeritasCategory {
             name: "wpforms-epfl-payonline-saferpay-terminalid-test",
             valueFrom: {
               secretKeyRef: {
-                name: "saferpay_test_terminalid",
+                name: "wp-plugin-secrets",
                 key: "saferpay_test_apiusername",
               },
             },
