@@ -54,7 +54,7 @@ function makeK8sSiteName (site) {
     index++;
   }
 
-  return K8sWPObjectName;
+  return K8sWPObjectName.toLowerCase();
 }
 
 export async function createWPSite (site) {
