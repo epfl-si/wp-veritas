@@ -74,7 +74,7 @@ function lastChange (siteUrl, pageUrl) {
     setUsername('')
   }
 
-  let content = <span>La dernière modification de la page a été faite par <a href={ `https://search.epfl.ch/?filter=people&q=${ username }` }>{ username }</a> le { lastChangeDate }.</span>
+  let content = <span>La dernière modification de la page a été faite par <a href={ `https://search.epfl.ch/?filter=people&q=${ username }`} target="_blank">{ username }</a> le { lastChangeDate }.</span>
 
   return [displayMessage(requestStatus, content), requestStatus]
 }
@@ -112,7 +112,7 @@ function lastRevisions(siteUrl) {
         {revisions.map((revision, index) => (
           <li key={index}>
             <span>
-            <a href={`https://search.epfl.ch/?filter=people&q=${revision.username}`}>{revision.username}</a> le {revision.last_modified} {revision.post_title ? <>sur la page <a href={`${revision.post_url}`}>{revision.post_title}</a></> : '(page non disponible)'}
+            <a href={`https://search.epfl.ch/?filter=people&q=${revision.username}`} target="_blank">{revision.username}</a> le {revision.last_modified} {revision.post_title ? <>sur la page <a href={`${revision.post_url}`} target="_blank">{revision.post_title}</a></> : '(page non disponible)'}
             </span>
           </li>
         ))}
