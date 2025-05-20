@@ -575,7 +575,7 @@ export class CategoryPayonline extends WPVeritasCategory {
             valueFrom: {
               secretKeyRef: {
                 name: "wp-plugin-secrets",
-                key: "saferpay_test_apiusername",
+                key: "saferpay_test_terminalid",
               },
             },
           },
@@ -612,7 +612,7 @@ export class CategoryPayonline extends WPVeritasCategory {
             valueFrom: {
               secretKeyRef: {
                 name: "wp-plugin-secrets",
-                key: "saferpay_prod_apiusername",
+                key: "saferpay_prod_terminalid",
               },
             },
           },
