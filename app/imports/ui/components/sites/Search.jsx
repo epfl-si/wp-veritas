@@ -130,8 +130,9 @@ class Search extends React.Component {
                   </a>
                 </li>
                 <li>
-                  <LastModifications url={this.state.site.url + 'wp-json/epfl/v1/lastchange?url=' + this.state.queryURL}/>
+                  <LastModifications siteUrl={this.state.site.url} pageUrl={this.state.queryURL}/>
                 </li>
+                <LastModifications siteUrl={this.state.site.url}/>
               </ul>
             </div>
           </div>
