@@ -522,10 +522,11 @@ export class CategoryWPForms extends WPVeritasCategory {
           },
           {
             name: "wpforms_license",
+            valueEncoding: "JSON",
             valueFrom: {
               secretKeyRef: {
                 name: "wp-plugin-secrets",
-                key: "wpforms_license_phpserialized",
+                key: "wpforms_license_json",
               },
             },
           },
