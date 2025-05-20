@@ -19,7 +19,7 @@ export class DefaultCategory extends WPVeritasCategory {
         wp_options: [
           {
             name: "enlighter-options",
-            phpSerializedValue: {
+            value: {
               "translation-enabled": true,
               "enlighterjs-init": "inline",
               "enlighterjs-assets-js": true,
@@ -122,7 +122,7 @@ export class DefaultCategory extends WPVeritasCategory {
         wp_options: [
           {
             name: "epfl_csp_options",
-            phpSerializedValue: {
+            value: {
               status: "on",
               theme_maintenance: "on",
               status_code: "no",
@@ -169,14 +169,14 @@ export class DefaultCategory extends WPVeritasCategory {
       "flowpaper-lite-pdf-flipbook": {},
       polylang: {
         wp_options: [
-          { name: "widget_polylang", phpSerializedValue: { _multiwidget: 1 } },
-          { name: "polylang_settings", phpSerializedValue: { wizard: false } },
+          { name: "widget_polylang", value: { _multiwidget: 1 } },
+          { name: "polylang_settings", value: { wizard: false } },
           { name: "polylang_wizard_done", value: true },
-          { name: "pll_dismissed_notices", phpSerializedValue: ["wizard"] },
-          { name: "polylang_wpml_strings", phpSerializedValue: [] },
+          { name: "pll_dismissed_notices", value: ["wizard"] },
+          { name: "polylang_wpml_strings", value: [] },
           {
             name: "polylang",
-            phpSerializedValue: {
+            value: {
               browser: 0,
               rewrite: 1,
               hide_default: 1,
@@ -203,7 +203,7 @@ export class DefaultCategory extends WPVeritasCategory {
         wp_options: [
           {
             name: "redirection_options",
-            phpSerializedValue: {
+            value: {
               support: false,
               token: "", // leave blank to regenerate
               monitor_post: 1,
@@ -301,7 +301,7 @@ export class DefaultCategory extends WPVeritasCategory {
           { name: "wpmf_option_hoverimg", value: 1 },
           {
             name: "wpmf_options_format_title",
-            phpSerializedValue: {
+            value: {
               hyphen: 1,
               period: 0,
               plus: 0,
@@ -321,7 +321,7 @@ export class DefaultCategory extends WPVeritasCategory {
           },
           {
             name: "wpmf_image_watermark_apply",
-            phpSerializedValue: {
+            value: {
               all_size: 1,
               thumbnail: 0,
               medium: 0,
@@ -335,7 +335,7 @@ export class DefaultCategory extends WPVeritasCategory {
           { name: "wpmf_watermark_image_id", value: 0 },
           {
             name: "$wpmf_gallery_settings",
-            phpSerializedValue: {
+            value: {
               hyphen: 1,
               period: 0,
               plus: 0,
@@ -355,7 +355,7 @@ export class DefaultCategory extends WPVeritasCategory {
           },
           {
             name: "$wpmf_gallery_settings",
-            phpSerializedValue: {
+            value: {
               hide_remote_video: 0,
               gallery_settings: {
                 theme: {
@@ -481,7 +481,7 @@ export class CategoryWPForms extends WPVeritasCategory {
         wp_options: [
           {
             name: "wpforms_challenge",
-            phpSerializedValue: {
+            value: {
               status: "skipped",
               step: 0,
               user_id: 1,
@@ -497,7 +497,7 @@ export class CategoryWPForms extends WPVeritasCategory {
           },
           {
             name: "wpforms_settings",
-            phpSerializedValue: {
+            value: {
               currency: "CHF",
               "hide-announcements": true,
               "hide-admin-bar": true,
