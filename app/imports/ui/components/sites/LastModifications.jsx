@@ -112,7 +112,7 @@ function lastRevisions(siteUrl) {
         {revisions.map((revision, index) => (
           <li key={index}>
             <span>
-            <a href={`https://search.epfl.ch/?filter=people&q=${revision.username}`}>{revision.username}</a> le {revision.last_modified} {revision.post_title ? `sur la page ${revision.post_title}` : '(page non disponible)'}
+            <a href={`https://search.epfl.ch/?filter=people&q=${revision.username}`}>{revision.username}</a> le {revision.last_modified} {revision.post_title ? <>sur la page <a href={`${revision.post_url}`}>{revision.post_title}</a></> : '(page non disponible)'}
             </span>
           </li>
         ))}
