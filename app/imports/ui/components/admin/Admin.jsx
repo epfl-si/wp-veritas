@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component, Fragment } from "react";
 import PopOver from "../popover/PopOver";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Categories, Themes, Types } from "../../../api/collections";
+import { Themes, Types } from "../../../api/collections";
 import { CustomError, CustomInput } from "../CustomFields";
 import { AlertSuccess, Loading, DangerMessage } from "../Messages";
 import Swal from "sweetalert2";
@@ -49,46 +49,6 @@ const ThemesForm = (props) => (
   </div>
 );
 
-const CategoriesForm = (props) => (
-  <div className="card-body">
-    <Formik
-      onSubmit={props.submitCategory}
-      initialValues={{ name: "" }}
-      validateOnBlur={false}
-      validateOnChange={false}
-    >
-      {({ handleSubmit, isSubmitting, handleChange, handleBlur }) => (
-        <form onSubmit={handleSubmit} className="">
-          <Field
-            onChange={(e) => {
-              handleChange(e);
-              props.updateUserMsg();
-            }}
-            onBlur={(e) => {
-              handleBlur(e);
-              props.updateUserMsg();
-            }}
-            placeholder="Nom de la catégorie à ajouter"
-            name="name"
-            type="text"
-            component={CustomInput}
-          />
-          <ErrorMessage name="name" component={CustomError} />
-          <div className="my-1 text-right">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn btn-primary"
-            >
-              Enregistrer
-            </button>
-          </div>
-        </form>
-      )}
-    </Formik>
-  </div>
-);
-
 const TypesList = (props) => (
   <Fragment>
     <h5 className="card-header">
@@ -101,13 +61,13 @@ const TypesList = (props) => (
       />
     </h5>
     <ul className="list-group">
-      {props.types.map((type) => (
+      {props.types.sort((a, b) => a.name.localeCompare(b.name)).map((type) => (
         <li
           key={type._id}
           className="list-group-item d-flex justify-content-between align-items-center px-3"
         >
           <div className="d-flex align-items-center gap-2">
-            <span className={`badge type-${type.name} p-2 text-uppercase text-small`}>
+            <span className={`badge type-${type.name.toLowerCase()} p-2 text-uppercase text-small`}>
               {type.name}
             </span>
           </div>
@@ -119,63 +79,6 @@ const TypesList = (props) => (
     </ul>
   </Fragment>
 );
-
-class CategoriesList extends Component {
-  render() {
-    let haveError = this.props.categoriesError;
-    return (
-      <Fragment>
-        <h5 className="card-header">
-          Liste des catégories des sites WordPress
-          <PopOver
-            popoverUniqID="categories"
-            title="Catégories"
-            placement="bottom"
-            description="Les catégories permettent de définir quelles spécificités les sites
-                     doivent avoir lors de leurs déploiements. Par exemple, la catégorie `inside`
-                     permet d'installer le nécessaire permettant l'authentification d'accès
-                     au site. De manière similaire, la catégorie `Restauration` permet
-                     l'installation du plugin `epfl-menu` lors du déploiement du site."
-          />
-        </h5>
-        <ul className="list-group">
-          {this.props.categories.map((category, index) => (
-            <li
-              key={category._id}
-              value={category.name}
-              className="list-group-item"
-            >
-              <div className="ListEntry">
-                {category.name}
-                <button type="button" className="close" aria-label="Close">
-                  <span
-                    onClick={() => {
-                      this.props.handleClickOnDeleteCategoryButton(
-                        category._id
-                      );
-                    }}
-                    aria-hidden="true"
-                  >
-                    &times;
-                  </span>
-                </button>
-
-                {haveError.elementId === category._id && (
-                  <DangerMessage
-                    elementId={"category-" + category._id}
-                    title={haveError.title}
-                    message={haveError.details}
-                    additional={haveError.additional}
-                  />
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </Fragment>
-    );
-  }
-}
 
 const ThemesList = (props) => (
   <Fragment>
@@ -214,7 +117,7 @@ class Admin extends Component {
     this.state = {
       addSuccess: false,
       deleteSuccess: false,
-      categoryError: false,
+      themeError: false,
       target: "",
     };
   }
@@ -223,19 +126,8 @@ class Admin extends Component {
     this.setState({ addSuccess: false, deleteSuccess: false, target: "" });
   };
 
-  submit = (collection, values, actions) => {
-    let meteorMethodName;
-    let target;
-
-    if (collection._name === "themes") {
-      meteorMethodName = "insertTheme";
-      target = "thème";
-    } else if (collection._name === "categories") {
-      meteorMethodName = "insertCategory";
-      target = "catégorie";
-    }
-
-    Meteor.call(meteorMethodName, values, (errors, objectId) => {
+  submitTheme = (values, actions) => {
+    Meteor.call("insertTheme", values, (errors, objectId) => {
       if (errors) {
         console.debug(errors);
         let formErrors = {};
@@ -247,81 +139,17 @@ class Admin extends Component {
       } else {
         actions.setSubmitting(false);
         actions.resetForm();
-        this.setState({ addSuccess: true, target: target });
+        this.setState({ addSuccess: true, target: "thème" });
       }
     });
-  };
-
-  submitTheme = (values, actions) => {
-    this.submit(Themes, values, actions);
-  };
-
-  submitCategory = (values, actions) => {
-    this.submit(Categories, values, actions);
-  };
-
-  delete = (collection, elementId) => {
-    let meteorMethodName;
-    let target;
-    let elementToDelete;
-
-    if (collection._name === "themes") {
-      meteorMethodName = "removeTheme";
-      target = "thème";
-      elementToDelete = { themeId: elementId };
-    } else if (collection._name === "categories") {
-      meteorMethodName = "removeCategory";
-      target = "catégorie";
-      elementToDelete = { categoryId: elementId };
-    }
-
-    Meteor.call(meteorMethodName, elementToDelete, (error, objectId) => {
-      if (error) {
-        this.setState({
-          categoryError: {
-            elementId,
-            details: error.details[0].message,
-            title: error.name,
-            additional: error.details[0].additional,
-          },
-        });
-        console.log(`ERROR ${collection._name} ${meteorMethodName} ${error}`);
-      } else {
-        this.setState({ deleteSuccess: true, target: target });
-      }
-    });
-  };
-
-  deleteTheme = (themeID) => {
-    this.delete(Themes, themeID);
   };
 
   handleClickOnDeleteThemeButton = (themeID) => {
-    this.handleClickOnDeleteButton(Themes, themeID);
-  };
-
-  deleteCategory = (categoryID) => {
-    this.delete(Categories, categoryID);
-  };
-
-  handleClickOnDeleteCategoryButton = (categoryID) => {
-    this.handleClickOnDeleteButton(Categories, categoryID);
-  };
-
-  handleClickOnDeleteButton = (collection, elementId) => {
-    let element = collection.findOne({ _id: elementId });
+    let element = Themes.findOne({ _id: themeID });
     let label;
 
-    if (collection._name === "themes") {
-      label = "le thème";
-    } else if (collection._name === "platformtargets") {
-      label = "la plateforme cible";
-    } else if (collection._name === "categories") {
-      label = "la catégorie";
-    }
-
     Swal.fire({
-      title: `Voulez vous vraiment supprimer ${label}: ${element.name} ?`,
+      title: `Voulez vous vraiment supprimer le thème: ${element.name}&nbsp;?`,
       text: "Cette action est irréversible",
       icon: "warning",
       showCancelButton: true,
@@ -331,11 +159,21 @@ class Admin extends Component {
       cancelButtonText: "Non",
     }).then((result) => {
       if (result.value) {
-        if (collection._name === "themes") {
-          this.deleteTheme(elementId);
-        } else if (collection._name === "categories") {
-          this.deleteCategory(elementId);
-        }
+        Meteor.call("removeTheme", { themeId: themeID }, (error, objectId) => {
+          if (error) {
+            this.setState({
+              themeError: {
+                themeID,
+                details: error.details[0].message,
+                title: error.name,
+                additional: error.details[0].additional,
+              },
+            });
+            console.log(`ERROR themes removeTheme ${error}`);
+          } else {
+            this.setState({ deleteSuccess: true, target: "thème" });
+          }
+        });
       }
     });
   };
@@ -343,8 +181,7 @@ class Admin extends Component {
   isLoading = () => {
     const isLoading =
       this.props.types === undefined ||
-      this.props.themes === undefined ||
-      this.props.categories === undefined;
+      this.props.themes === undefined;
     return isLoading;
   };
 
@@ -357,33 +194,19 @@ class Admin extends Component {
         <Fragment>
           {this.state.addSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été ajouté avec succès !`}
+              message={`L'élément "${this.state.target}" a été ajouté avec succès&nbsp;!`}
             />
           ) : null}
 
           {this.state.deleteSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été supprimé avec succès !`}
+              message={`L'élément "${this.state.target}" a été supprimé avec succès&nbsp;!`}
             />
           ) : null}
 
           <div className="my-2">
             <TypesList
               types={this.props.types}
-            />
-          </div>
-
-          <div className="card my-2">
-            <CategoriesList
-              categoriesError={this.state.categoryError}
-              categories={this.props.categories}
-              handleClickOnDeleteCategoryButton={
-                this.handleClickOnDeleteCategoryButton
-              }
-            />
-            <CategoriesForm
-              submitCategory={this.submitCategory}
-              updateUserMsg={this.updateUserMsg}
             />
           </div>
 
@@ -402,13 +225,13 @@ class Admin extends Component {
 
           {this.state.addSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été ajouté avec succès !`}
+              message={`L'élément "${this.state.target}" a été ajouté avec succès&nbsp;!`}
             />
           ) : null}
 
           {this.state.deleteSuccess ? (
             <AlertSuccess
-              message={`L'élément "${this.state.target}" a été supprimé avec succès !`}
+              message={`L'élément "${this.state.target}" a été supprimé avec succès&nbsp;!`}
             />
           ) : null}
         </Fragment>
@@ -420,12 +243,10 @@ class Admin extends Component {
 
 export default withTracker(() => {
   Meteor.subscribe("theme.list");
-  Meteor.subscribe("category.list");
   Meteor.subscribe("type.list");
 
   return {
     themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-    categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
     types: Types.find({}, { sort: { name: 1 } }).fetch(),
   };
 })(Admin);

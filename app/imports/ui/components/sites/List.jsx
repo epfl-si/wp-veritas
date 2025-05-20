@@ -36,7 +36,7 @@ const Cells = (props) => (
           </a>
         </td>
         <td className="align-middle text-center">
-          <span className={`badge p-2 type-${site.type} text-uppercase`}>
+          <span className={`badge p-2 type-${site.type.toLowerCase()} text-uppercase`}>
             {site.type}
           </span>
         </td>
@@ -437,9 +437,7 @@ ${site.languages.map(lang => `    - ${lang}`).join('\n')}
     let sites = this.state.sites;
 
     sites.forEach(function (site) {
-      site.categories = site.categories
-        .map((category) => category.name)
-        .join(",");
+      site.categories = site.categories.join(",");
       
       site.createdDate = site.getCreatedDate().toISOString()
 

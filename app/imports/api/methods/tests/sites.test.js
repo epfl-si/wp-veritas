@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Sites, Categories } from "../../collections";
+import { Sites } from "../../collections";
 import { insertSite, updateSite, removeSite } from "../sites";
 import { insertTag } from "../tags";
 import { createUser } from "../../../../tests/helpers";
@@ -11,12 +11,6 @@ if (Meteor.isServer) {
     before(async function () {
       await resetDatabase();
       await setupRoles();
-      await Categories.insertAsync({
-        name: "Inside",
-      });
-      await Categories.insertAsync({
-        name: "epfl-menus",
-      });
     });
 
     it("insert site", async () => {

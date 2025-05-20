@@ -1,6 +1,5 @@
 import { Sites, Tags } from "../../imports/api/collections";
 import { REST }  from "../../imports/rest";
-import { formatSiteCategories } from "./utils";
 import { getUnits } from "../units";
 
 import { watchWPSites } from "../kubernetes";
@@ -182,7 +181,7 @@ REST.addRoute(
         if (! site.tags) site.tags = [];
       })
 
-      return formatSiteCategories(sitesWithTags);
+      return sitesWithTags;
     }
   }
 );
@@ -229,8 +228,7 @@ REST.addRoute(
   "inventory/entries",
   {
     get: async function() {
-      let sites = await Sites.find({}).fetchAsync();
-      return formatSiteCategories(sites);
+      return await Sites.find({}).fetchAsync();
     },
   }
 );
@@ -303,7 +301,7 @@ REST.addRoute(
       ).fetchAsync();
 
       return {
-        ...formatSiteCategories(site),
+        ...site,
         tags: tags.map((tag) => (
           {
             _id: tag._id,
@@ -465,10 +463,9 @@ REST.addRoute(
         "tags.name_en": tag2,
       }).fetchAsync();
 
-      let sites = await Sites.find({
+      return await Sites.find({
         url: { $in: tags.map((tag) => tag.url) },
       }).fetchAsync();
-      return formatSiteCategories(sites);
     },
   }
 );
@@ -528,10 +525,9 @@ REST.addRoute(
         "tags.name_fr": tag2,
       }).fetchAsync();
 
-      let sites = await Sites.find({
+      return await Sites.find({
         url: { $in: tags.map((tag) => tag.url) },
       }).fetchAsync();
-      return formatSiteCategories(sites);
     },
   }
 );

@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
-import { Sites, Types, Themes, Categories } from "../../../api/collections";
+import { Sites, Types, Themes } from "../../../api/collections";
+import { OptionalCategories } from "../../../api/k8s/siteCategories";
 import {
   CustomSingleCheckbox,
   CustomCheckbox,
@@ -38,6 +39,15 @@ class Add extends Component {
       alertMessage: null,
       alertType: null,
     };
+  }
+
+  // Return the actual schema of a Site.Type, "internal", "external"
+  getSchemaFromType = (type) => {
+    let myType = Types.find({name: type}).fetch();
+    if (Object.keys(myType).length) {
+      return myType[0].schema;
+    }
+    return null;
   }
 
   updateFields = (event, values) => {
@@ -83,7 +93,7 @@ class Add extends Component {
       state = { addSuccess: false, editSuccess: true, action: "edit" };
     }
 
-    if (values.type == "external") {
+    if (this.getSchemaFromType(values.type) == "external") {
       delete values.tagline
       delete values.title
       delete values.categories
@@ -212,7 +222,6 @@ class Add extends Component {
   isLoading = (initialValues) => {
     const isLoading =
       this.props.themes === undefined ||
-      this.props.categories === undefined ||
       initialValues === undefined;
     return isLoading;
   };
@@ -387,7 +396,7 @@ class Add extends Component {
                 </Field>
                 <ErrorMessage name="type" component={CustomError} />
 
-                {values.type !== "external" && (
+                {this.getSchemaFromType(values.type) !== "external" && (
                   <div>
                     <Field
                       onChange={(e) => {
@@ -670,7 +679,6 @@ class Add extends Component {
 export default withRouter(
   withTracker((props) => {
     Meteor.subscribe("theme.list");
-    Meteor.subscribe("category.list");
     Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
     Meteor.subscribe("k8ssites.list");
@@ -682,14 +690,14 @@ export default withRouter(
       return {
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+        categories: OptionalCategories.map((c) => c.label),
         site: sites[0],
       };
     } else {
       return {
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
-        categories: Categories.find({}, { sort: { name: 1 } }).fetch(),
+        categories: OptionalCategories.map((c) => c.label),
       };
     }
   })(Add)
@@ -719,8 +727,8 @@ class MyCategorySelect extends React.Component {
           onBlur={this.handleBlur}
           value={this.props.value}
           options={this.props.options}
-          getOptionLabel={(option) => option.name}
-          getOptionValue={(option) => option._id}
+          getOptionLabel={(option) => option}
+          getOptionValue={(option) => option}
           placeholder={this.props.placeholder}
           isDisabled={this.props.isDisabled}
           styles={{

@@ -24,14 +24,6 @@ export const siteWP = {
     optional: false
   },
   'categories.$': {
-    type: Object,
-    optional: true
-  },
-  'categories.$._id': {
-    type: String,
-    optional: true
-  },
-  'categories.$.name': {
     type: String,
     optional: true
   },

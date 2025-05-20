@@ -42,6 +42,10 @@
           resources:
             - wordpresssites
           verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete']
+        - apiGroups: ['k8s.mariadb.com']
+          resources:
+            - databases
+          verbs: ['get', 'list', 'watch']
 
 - name: RoleBinding
   kubernetes.core.k8s:

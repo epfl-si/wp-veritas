@@ -62,13 +62,6 @@ module.exports.loadData = async (destination, data) => {
         // Get category object by category name
         let connectionString = dbHelpers.getConnectionString(destination);
 
-        // Return a empty list if category is GeneralPublic
-        categories = await dbHelpers.getCategories(
-          connectionString,
-          destination,
-          site.categories
-        );
-
         theme = site.theme
         languages = site.languages
         if (!languages) {
@@ -84,7 +77,7 @@ module.exports.loadData = async (destination, data) => {
           tagline: "",
           title: title,
           wpInfra: true,
-          categories: categories,
+          categories: [],
           theme: theme,
           languages: languages,
           unitId: unitId,

@@ -1,5 +1,6 @@
 import * as k8s from "@kubernetes/client-node";
 import { Sites } from "../imports/api/collections";
+import { getKubernetesPluginStruct } from "../imports/api/k8s/siteCategories";
 
 import Debug from "debug";
 
@@ -53,7 +54,7 @@ function makeK8sSiteName (site) {
     index++;
   }
 
-  return K8sWPObjectName;
+  return K8sWPObjectName.toLowerCase();
 }
 
 export async function createWPSite (site) {
@@ -67,10 +68,7 @@ export async function createWPSite (site) {
       throw new Error('k8sName could not be generated');
     }
 
-    const parsedPlugins = site.categories.reduce((acc, category) => {
-      acc[category.name] = {};
-      return acc;
-    }, {});
+    const parsedPlugins = getKubernetesPluginStruct(site);
 
     const url = new URL(site.url);
     const hostname = url.hostname;
