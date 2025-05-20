@@ -129,10 +129,7 @@ class Search extends React.Component {
                     <ExternalLink size={14} color="#000" />
                   </a>
                 </li>
-                <li>
-                  <LastModifications siteUrl={this.state.site.url} pageUrl={this.state.queryURL}/>
-                </li>
-                <LastModifications siteUrl={this.state.site.url}/>
+                <LastModifications siteUrl={this.state.site.url} pageUrl={this.state.queryURL}/>
               </ul>
             </div>
           </div>
