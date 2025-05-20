@@ -36,7 +36,7 @@ const Cells = (props) => (
           </a>
         </td>
         <td className="align-middle text-center">
-          <span className={`badge p-2 type-${site.type} text-uppercase`}>
+          <span className={`badge p-2 type-${site.type.toLowerCase()} text-uppercase`}>
             {site.type}
           </span>
         </td>
