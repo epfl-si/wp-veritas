@@ -113,10 +113,7 @@ class Search extends React.Component {
                   N° d'unité de rattachement :&nbsp;
                   <strong>{this.state.site.unitId}</strong>
                 </li>
-                <li>
-                  <LastModifications siteUrl={this.state.site.url} pageUrl={this.state.queryURL}/>
-                </li>
-                <LastModifications siteUrl={this.state.site.url}/>
+                <LastModifications siteUrl={this.state.site.url} pageUrl={this.state.queryURL}/>
               </ul>
             </div>
           </div>

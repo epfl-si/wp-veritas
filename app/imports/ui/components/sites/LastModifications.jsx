@@ -76,7 +76,7 @@ function lastChange (siteUrl, pageUrl) {
 
   let content = <span>La dernière modification de la page a été faite par <a href={ `https://search.epfl.ch/?filter=people&q=${ username }` }>{ username }</a> le { lastChangeDate }.</span>
 
-  return displayMessage(requestStatus, content)
+  return [displayMessage(requestStatus, content), requestStatus]
 }
 
 function lastRevisions(siteUrl) {
@@ -126,10 +126,18 @@ function lastRevisions(siteUrl) {
 function LastModifications (props) {
   LastModifications.propTypes = {
     siteUrl: PropTypes.string.isRequired,
-    pageUrl: PropTypes.string
+    pageUrl: PropTypes.string.isRequired
   }
 
-  return props.pageUrl ? lastChange(props.siteUrl, props.pageUrl) : lastRevisions(props.siteUrl)
+  const [lastChangeContent, lastChangeStatus] = lastChange(props.siteUrl, props.pageUrl)
+  const lastRevisionsContent = lastRevisions(props.siteUrl)
+
+  return (
+    <>
+      <li>{lastChangeContent}</li>
+      {lastChangeStatus === Case.SUCCESS && lastRevisionsContent}
+    </>
+  )
 }
 
 export default LastModifications
