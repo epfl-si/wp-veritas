@@ -61,13 +61,13 @@ const TypesList = (props) => (
       />
     </h5>
     <ul className="list-group">
-      {props.types.map((type) => (
+      {props.types.sort((a, b) => a.name.localeCompare(b.name)).map((type) => (
         <li
           key={type._id}
           className="list-group-item d-flex justify-content-between align-items-center px-3"
         >
           <div className="d-flex align-items-center gap-2">
-            <span className={`badge type-${type.name} p-2 text-uppercase text-small`}>
+            <span className={`badge type-${type.name.toLowerCase()} p-2 text-uppercase text-small`}>
               {type.name}
             </span>
           </div>
