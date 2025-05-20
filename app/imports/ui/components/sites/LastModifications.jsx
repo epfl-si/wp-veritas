@@ -88,10 +88,8 @@ function lastRevisions(siteUrl) {
       .then(([status, data]) => {
         setRequestStatus(status)
         if(data) {
-          const obj = data[0]
-          setPostTitle(obj.post_title)
-          setUsername(obj.username)
-          setLastChangeDate(obj.last_modified)
+          const obj = data
+          setRevisions(obj)
         }
       })
       .catch(error => {
@@ -100,26 +98,24 @@ function lastRevisions(siteUrl) {
       })
   }, [apiCall])
 
-  const [postTitle, setPostTitle] = useState('')
-  const [lastChangeDate, setLastChangeDate] = useState()
-  const [username, setUsername] = useState('')
+  const [revisions, setRevisions] = useState([])
   const [requestStatus, setRequestStatus] = useState('')
   const resetRequest = () => {
     setRequestStatus('')
-    setPostTitle('')
-    setLastChangeDate('')
-    setUsername('')
+    setRevisions([])
   }
 
   let content = (
     <>
-      <li><span>Les dernières pages modifiées sur ce site sont :</span></li>
+      <li><span>Les dernières modifications sur ce site ont été faites par :</span></li>
       <ul>
-        <li>
-          <span>
-            {postTitle} par <a href={`https://search.epfl.ch/?filter=people&q=${username}`}>{username}</a> le {lastChangeDate}
-          </span>
-        </li>
+        {revisions.map((revision, index) => (
+          <li key={index}>
+            <span>
+            <a href={`https://search.epfl.ch/?filter=people&q=${revision.username}`}>{revision.username}</a> le {revision.last_modified} {revision.post_title ? `sur la page ${revision.post_title}` : '(page non disponible)'}
+            </span>
+          </li>
+        ))}
       </ul>
     </>
   )
