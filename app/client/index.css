@@ -131,6 +131,14 @@ table {
   content: "⏹ ";
 }
 
+.type-lamp {
+  background-color: #d0ebff; 
+  color: #084298;
+}
+.type-lamp:before {
+  content: "⌑ ";
+}
+
 .type-archived {
   background-color: #fff3cd; 
   color: #856404;

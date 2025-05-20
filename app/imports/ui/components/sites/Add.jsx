@@ -41,6 +41,15 @@ class Add extends Component {
     };
   }
 
+  // Return the actual schema of a Site.Type, "internal", "external"
+  getSchemaFromType = (type) => {
+    let myType = Types.find({name: type}).fetch();
+    if (Object.keys(myType).length) {
+      return myType[0].schema;
+    }
+    return null;
+  }
+
   updateFields = (event, values) => {
     if (event.target.checked === false) {
       values.type = "";
@@ -84,7 +93,7 @@ class Add extends Component {
       state = { addSuccess: false, editSuccess: true, action: "edit" };
     }
 
-    if (values.type == "external") {
+    if (this.getSchemaFromType(values.type) == "external") {
       delete values.tagline
       delete values.title
       delete values.categories
@@ -387,7 +396,7 @@ class Add extends Component {
                 </Field>
                 <ErrorMessage name="type" component={CustomError} />
 
-                {values.type !== "external" && (
+                {this.getSchemaFromType(values.type) !== "external" && (
                   <div>
                     <Field
                       onChange={(e) => {
