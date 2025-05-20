@@ -188,7 +188,7 @@ export class DefaultCategory extends WPVeritasCategory {
               post_types: [],
               taxonomies: [],
               domains: [],
-              version: "3.5.4",
+              version: "3.6.7",
               first_activation: Math.floor(new Date() / 1000),
               default_lang: site.languages[0],
             },
