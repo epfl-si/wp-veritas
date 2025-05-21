@@ -128,11 +128,3 @@ dev-build-force: check-env
 .PHONY: dev-exec
 dev-exec:
 	@docker exec -it --user root wp-veritas_meteor bash
-
-.PHONY: dev-cli
-dev-cli:
-	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src/cli && npm install && npm install -g ./ && cd /src/ && veritas-cli --help"
-
-.PHONY: dev-data
-dev-data: dev-cli
-	@docker exec -it --user root wp-veritas_meteor /bin/bash -c "cd /src && veritas-cli restore-prod-db"
