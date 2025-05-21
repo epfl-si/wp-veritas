@@ -13,12 +13,6 @@ Tequila.start({
       await Roles.setUserRolesAsync(tequila.uniqueid, ["epfl-member"], "wp-veritas");
     }
 
-    // Greg is admin forever and even after
-    if (tequila.uniqueid === "188475") {
-      await Roles.setUserRolesAsync(tequila.uniqueid, ["admin"], "wp-veritas");
-      // Roles.setUserRoles(tequila.uniqueid, ["tags-editor"], "wp-veritas");
-    }
-
     return tequila.uniqueid;
   },
   upsert: (tequila) => ({
