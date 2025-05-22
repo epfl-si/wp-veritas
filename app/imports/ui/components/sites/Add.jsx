@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
-import { withRouter } from "react-router-dom";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Sites, Types, Themes } from "../../../api/collections";
 import { OptionalCategories } from "../../../api/k8s/siteCategories";
@@ -676,8 +675,7 @@ class Add extends Component {
     return content;
   }
 }
-export default withRouter(
-  withTracker((props) => {
+export default withTracker((props) => {
     Meteor.subscribe("theme.list");
     Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
@@ -700,8 +698,7 @@ export default withRouter(
         categories: OptionalCategories.map((c) => c.label),
       };
     }
-  })(Add)
-);
+  })(Add);
 
 class MyCategorySelect extends React.Component {
   handleChange = (value) => {

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link, NavLink, withRouter } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { withTracker } from "meteor/react-meteor-data";
 import logo from "./Logo_EPFL.svg";
 import { Loading } from "../Messages";
@@ -38,7 +38,6 @@ class Header extends Component {
               <li className="nav-item">
                 <NavLink
                   to="/"
-                  exact
                   className="nav-link d-flex align-items-center"
                 >
                   <House size={20} />
@@ -94,23 +93,19 @@ class Header extends Component {
                   <div className="dropdown-menu">
                     <NavLink
                       className="dropdown-item"
-                      exact
                       to="/admin"
                     >
                       Admin
                     </NavLink>
                     <NavLink
                       className="dropdown-item"
-                      exact
                       to="/trash"
-                      activeClassName="active"
                     >
                       Corbeille
                     </NavLink>
                     <NavLink
                       className="dropdown-item"
                       to="/admin/log/list"
-                      activeClassName="active"
                     >
                       Voir les logs
                     </NavLink>
@@ -159,8 +154,7 @@ class Header extends Component {
 }
 // I don't know why but I need to keep 'withRouter'
 // if I want active NavLink
-export default withRouter(
-  withTracker((props) => {
+export default withTracker((props) => {
     let isAdmin = Roles.userIsInRole(Meteor.userId(), ["admin"], "wp-veritas");
     let isEditor = Roles.userIsInRole(
       Meteor.userId(),
@@ -177,5 +171,4 @@ export default withRouter(
       currentUserIsAdmin: isAdmin,
       currentUserIsEditor: isEditor,
     };
-  })(Header)
-);
+  })(Header);
