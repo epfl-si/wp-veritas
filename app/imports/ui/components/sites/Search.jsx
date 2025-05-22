@@ -7,6 +7,7 @@ import * as yup from "yup";
 import { Loading } from "../Messages";
 import LastChange from "./LastChange";
 import { ExternalLink } from "lucide-react";
+import { getUnitName } from "../../../api/methods/sites";
 
 class Search extends React.Component {
   urlSchema = yup.object().shape({
@@ -58,7 +59,7 @@ class Search extends React.Component {
    * Expected result: https://www.epfl.ch/campus/services/wp-admin
    * And not https://www.epfl.ch/campus/services/ressources/wp-admin
    */
-  search = (queryURL) => {
+  search = async (queryURL) => {
     let result = {
       url: ''
     }
@@ -76,6 +77,7 @@ class Search extends React.Component {
       }
     });
     if (result.url.length > 0) {
+      result['unitName'] = await Meteor.callAsync('getUnitName', result.unitId)
       this.setState({ found: true, site: result, queryURL: queryURL });
     } else {
       this.setState({ queryURL: queryURL });
@@ -111,8 +113,8 @@ class Search extends React.Component {
                   <a target="_blank" href={ this.state.site.url + 'wp-admin/' }>{this.state.site.url + 'wp-admin/'}</a>
                 </li>
                 <li>
-                  N° d'unité de rattachement :&nbsp;
-                  <strong>{this.state.site.unitId}</strong>&nbsp;
+                  Unité de rattachement :&nbsp;
+                  <strong>{this.state.site.unitName}</strong>&nbsp;({this.state.site.unitId})&nbsp;
                   <a
                     target="_blank"
                     href={"https://search.epfl.ch/?filter=unit&q=" + this.state.site.unitId}

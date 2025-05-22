@@ -308,6 +308,19 @@ const getDaysFromDate = (date) => {
   return '-';
 }
 
+const getUnitName = new VeritasValidatedMethod({
+  name: "getUnitName",
+  role: Editor,
+  async validate({unitId}) { return typeof unitId === Number ? true : false },
+  serverOnly: true,
+  async run(unitId) {
+    import { getUnitById } from "/server/units.js";
+    const unit = await getUnitById(unitId);
+    console.log(unit)
+    return `${unit.name} ${unit.labelfr}`;
+  }
+});
+
 rateLimiter([
   insertSite,
   updateSite,
@@ -325,4 +338,5 @@ export {
   restoreSite,
   associateTagsToSite,
   getDaysFromDate,
+  getUnitName
 };
