@@ -13,7 +13,7 @@ import {
   Professor,
   Trash,
 } from "./components";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Loading } from "../ui/components/Messages";
 import { getEnvironment } from "../api/utils";
 
@@ -33,31 +33,29 @@ class Apps extends Component {
           <div className="App container">
             {getEnvironment() === "PROD" ? null : ribbon}
             <Header />
-            <Route exact path="/search" component={Search} />
-            <Route path="/search/*" component={Search} />
-            {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
-              <React.Fragment>
-                <Route exact path="/" component={List} />
-                <Route path="/tags" component={Tag} />
-                <Route path="/tag/:_id" component={Tag} />
-                <Route path="/site-tags/*" component={SiteTags} />
-              </React.Fragment>
-            ) : null}
-            {this.props.currentUserIsAdmin ? (
-              <React.Fragment>
-                <Route path="/add" component={Add} />
-                <Route path="/edit/*" component={Add} />
-                <Route exact path="/admin" component={Admin} />
-                <Route exact path="/trash" component={Trash} />
-                <Route path="/admin/log/list" component={Log} />
-              </React.Fragment>
-            ) : null}
+            <Routes>
+              <Route path="/search" element={<Search/>} />
+              <Route path="/search/*" element={<Search/>} />
+              {this.props.currentUserIsAdmin || this.props.currentUserIsEditor ? (
+                <React.Fragment>
+                  <Route index element={<List/>} />
+                  <Route path="/tags" element={<Tag/>} />
+                  <Route path="/tag/:_id" element={<Tag/>} />
+                  <Route path="/site-tags/*" element={<SiteTags/>} />
+                </React.Fragment>
+              ) : null}
+              {this.props.currentUserIsAdmin ? (
+                <React.Fragment>
+                  <Route path="/add" element={<Add/>} />
+                  <Route path="/edit/*" element={<Add/>} />
+                  <Route path="/admin" element={<Admin/>} />
+                  <Route path="/trash" element={<Trash/>} />
+                  <Route path="/admin/log/list" element={<Log/>} />
+                </React.Fragment>
+              ) : null}
+            </Routes>
             <Footer />
           </div>
-          {/*  @TODO: refactor in a RedirectAPI.jsx component */}
-          <Route path="/api" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
-          <Route path="/api/v1" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
-          <Route path="/api/doc" component={() => { global.window && (global.window.location.href = '/api/index.html'); return null; } } />
         </Router>
       );
     }
