@@ -58,6 +58,17 @@ Meteor.publish("sites.list", async function () {
   debug('----ready----', new Date());
 });
 
+Meteor.publish("unit.details", async function (unitId, toCollection) {
+  import { getUnitById } from "/server/units.js";
+  try {
+    const unit = await getUnitById(unitId);
+    this.added(toCollection, unitId.toString(), unit);
+  } catch (e) {
+    console.error(e);
+  }
+  this.ready();
+});
+
 Meteor.publish("k8ssites.list", function () {
   watchWPSites({added, removed, resourcesChanged}, { watchDatabases: true });
   this.ready();
