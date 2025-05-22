@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import { withTracker } from "meteor/react-meteor-data";
+import { useTracker } from "meteor/react-meteor-data";
+import { useParams } from "react-router";
 import { Formik, Field, ErrorMessage } from "formik";
 import { Sites, Types, Themes } from "../../../api/collections";
 import { OptionalCategories } from "../../../api/k8s/siteCategories";
@@ -17,19 +18,12 @@ import { generateSite } from "../../../api/methods/sites";
 import PopOver from "../popover/PopOver";
 import Swal from "sweetalert2";
 
-class Add extends Component {
+class Add_ extends Component {
   constructor(props) {
     super(props);
 
-    let action;
-    if (this.props.match.path.startsWith("/edit")) {
-      action = "edit";
-    } else {
-      action = "add";
-    }
-
     this.state = {
-      action: action,
+      action: props.edit ? "edit" : "add",
       addSuccess: false,
       editSuccess: false,
       saveSuccess: false,
@@ -675,7 +669,9 @@ class Add extends Component {
     return content;
   }
 }
-export default withTracker((props) => {
+export default function Add () {
+  const { "*" : edit } = useParams();
+  const props = useTracker(() => {
     Meteor.subscribe("theme.list");
     Meteor.subscribe("type.list");
     Meteor.subscribe("sites.list");
@@ -683,9 +679,10 @@ export default withTracker((props) => {
 
     let sites;
 
-    if (props.match.path === "/edit/*") {
-      sites = Sites.find({ _id: props.match.params[0] }).fetch();
+    if (edit) {
+      const sites = Sites.find({ _id: edit }).fetch();
       return {
+        edit,
         types: Types.find({ schema: { $ne: null } }, { sort: { name: 1 } }).fetch(),
         themes: Themes.find({}, { sort: { name: 1 } }).fetch(),
         categories: OptionalCategories.map((c) => c.label),
@@ -698,7 +695,10 @@ export default withTracker((props) => {
         categories: OptionalCategories.map((c) => c.label),
       };
     }
-  })(Add);
+  }, [edit]);
+
+  return <Add_ {...props}/>;
+}
 
 class MyCategorySelect extends React.Component {
   handleChange = (value) => {
