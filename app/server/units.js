@@ -21,3 +21,16 @@ export const getUnits = async (sciper) => {
   units = units.map(String);
   return units;
 }
+
+export const getUnitById = async (unitId) => {
+  const url = `https://api.epfl.ch/v1/units/${unitId}`;
+  
+  const response = await fetch(url, {
+    headers: {
+      'Authorization': `Basic ${process.env.EFPL_API_BASIC}`,
+    },
+  });
+  
+  const data = await response.json();
+  return data;
+}
