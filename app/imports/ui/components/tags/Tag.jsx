@@ -24,10 +24,8 @@ export default function Tag(props) {
 
   const ready = editing ? !!tagToEdit : !!tags;
 
-  const [state, setState] = useState({
-    hideUrlsField: false,
-    saveSuccess: false,
-  });
+  const [hideUrlsField, setHideUrlsField] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   submit = async (values, actions) => {
     console.log("submit", values);
@@ -43,7 +41,7 @@ export default function Tag(props) {
       try {
         await insertTag(values);
         actions.resetForm();
-        setState({ ...state, saveSuccess: true });
+        setSaveSuccess(true);
       } catch (errors) {
         if (!errors.details) throw errors;
         console.error(errors);
@@ -59,7 +57,7 @@ export default function Tag(props) {
       try {
         await updateTag(values);
         props.history.push("/tags");
-        setState({ ...state, saveSuccess: true });
+        setSaveSuccess(true);
       } catch (errors) {
         if (!errors.details) throw errors;
         console.error(errors);
@@ -102,15 +100,11 @@ export default function Tag(props) {
   };
 
   const updateSaveSuccess = () => {
-    setState({ ...state, saveSuccess: false });
+    setSaveSuccess(false);
   };
 
   const hideUrls = (e) => {
-    if (e.target.value == "field-of-research") {
-      setState({ ...state, hideUrlsField: true });
-    } else {
-      setState({ ...state, hideUrlsField: false });
-    }
+    setHideUrlsField(e.target.value == "field-of-research");
   };
 
   if (! ready) return <Loading />;
