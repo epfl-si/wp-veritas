@@ -23,7 +23,7 @@ async function fetchApi(apiCall) {
 
   const data = await response.json()
 
-  if (data.data && data.data.status === 404) {
+  if ((data === 404 /* Wat? */) || (data?.data?.status === 404)) {
     return [Case.PLUGIN_NOT_RESPONDING, null]
   } else if (Array.isArray(data) && data.length === 0) {
     return [Case.NEVER_MODIFIED, null]
