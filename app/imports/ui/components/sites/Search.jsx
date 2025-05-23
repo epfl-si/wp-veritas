@@ -115,7 +115,7 @@ export default function Search () {
       url = url + '/';
     }
     setQueryURL(url);
-    navigate(`${location.pathname}/${url}`);
+    navigate(`/search/${url}`);
     actions.setSubmitting(false);
     actions.resetForm();
   };
