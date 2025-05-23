@@ -11,7 +11,7 @@ import { getUnitName } from "../../../api/methods/sites";
 
 function SearchResults_(props) {
   const { url, loading, error, thisSite, thisUnit } = props;
-  if (loading || !url) return "Plz wait!";
+  if (loading || !url) return <Loading />;
   if (error == "SITE_NOT_FOUND") {
     return (
       <div>
