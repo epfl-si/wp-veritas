@@ -13,39 +13,37 @@ import { getUnitName } from "../../../api/methods/sites";
 
 const Search_Units = new Mongo.Collection("Search_Units");
 
-function SearchResults(props) {
-  const { url } = props;
+function SearchResults({ queryURL, sites }) {
+  const matchingSites = sites
+    .filter((s) => queryURL.startsWith(s.url))
+    .sort((a, b) => b.url.length - a.url.length);
+  const site = matchingSites[0]; // Longest-prefix match
 
-  const { loading, error, thisSite, thisUnit } = useTracker(() => {
-    const thisSite = Sites.findOne({ url });
-
-    if (!thisSite) {
-      return {
-        error: `SITE_NOT_FOUND`,
-      };
-    }
-
-    const details = Meteor.subscribe("unit.details", thisSite.unitId, "Search_Units");
+  const { loading, error, thisUnit } = useTracker(() => {
+    if (!site) return {};
+    const details = Meteor.subscribe("unit.details", site.unitId, "Search_Units");
     return {
       loading: !details.ready(),
-      thisSite,
-      thisUnit: Search_Units.findOne({ id: thisSite.unitId }),
+      site,
+      thisUnit: Search_Units.findOne({ id: site.unitId }),
     };
-  }, [url]);
+  }, [site]);
 
-  if (loading || !url) return <Loading />;
-  if (error == "SITE_NOT_FOUND") {
+  if (loading || !sites) return <Loading />;
+  if (error) {
+    return <h1 style={{ "background-color": "pink" }}>{error}</h1>;
+  }
+
+  if (!matchingSites.length) {
     return (
       <div>
         <h5>Résultat</h5>
         <div className="py-1">
-          Désolé, l'URL <a href={url}>{url}</a> n'est pas un site de l'infrastructure WordPress géré
-          par la DSI.
+          Désolé, l'URL <a href={queryURL}>{queryURL}</a> n'est pas un site de l'infrastructure
+          WordPress géré par la DSI.
         </div>
       </div>
     );
-  } else if (error) {
-    return <h1 style={{ "background-color": "pink" }}>{error}</h1>;
   }
 
   return (
@@ -53,15 +51,15 @@ function SearchResults(props) {
       <h5>Résultats</h5>
       <div className="py-1">
         L'URL{" "}
-        <a target="_blank" href={url}>
-          {url}
+        <a target="_blank" href={queryURL}>
+          {queryURL}
         </a>{" "}
         a pour :
         <ul>
           <li>
             Login (pour les ayants droit) :&nbsp;
-            <a target="_blank" href={thisSite.url + "wp-admin/"}>
-              {thisSite.url + "wp-admin/"}
+            <a target="_blank" href={site.url + "wp-admin/"}>
+              {site.url + "wp-admin/"}
             </a>
           </li>
           {thisUnit ? (
@@ -85,9 +83,9 @@ function SearchResults(props) {
               </a>
             </li>
           ) : (
-            <li>Unité de rattachement :&nbsp; inconnue &nbsp;({thisSite.unitId})&nbsp;</li>
+            <li>Unité de rattachement :&nbsp; inconnue &nbsp;({site.unitId})&nbsp;</li>
           )}
-          <LastModifications siteUrl={thisSite.url} pageUrl={url} />
+          <LastModifications siteUrl={site.url} pageUrl={queryURL} />
         </ul>
       </div>
     </div>
@@ -100,7 +98,8 @@ export default function Search() {
     Meteor.subscribe("k8ssites.list");
     return Sites.find({}, { sort: { url: 1 } }).fetch();
   });
-  const { "*": queryURL_initial } = useParams();
+  const { "*": queryURL_raw } = useParams();
+  const queryURL_initial = `${queryURL_raw}${queryURL_raw.endsWith("/") ? "" : "/"}`;
   const [queryURL, setQueryURL] = useState(queryURL_initial);
 
   const navigate = useNavigate();
@@ -157,7 +156,9 @@ export default function Search() {
                 Rechercher
               </button>
             </div>
-            <div className="my-2">{queryURL ? <SearchResults url={queryURL} /> : <></>}</div>
+            <div className="my-2">
+              {queryURL ? <SearchResults sites={sites} queryURL={queryURL} /> : <></>}
+            </div>
           </form>
         )}
       </Formik>
