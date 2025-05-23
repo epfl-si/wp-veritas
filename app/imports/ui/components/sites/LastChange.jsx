@@ -29,7 +29,7 @@ function LastChange (props) {
         return response.json()
       })
       .then(data => {
-        if (data.data && data.data.status === 404) {
+        if ((data === 404 /* Wat? */) || (data?.data?.status === 404)) {
           setRequestStatus(Case.PLUGIN_NOT_RESPONDING)
         } else if (Array.isArray(data) && data.length === 0) {
           setRequestStatus(Case.NEVER_MODIFIED)
