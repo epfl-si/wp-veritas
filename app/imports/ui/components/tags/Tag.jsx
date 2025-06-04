@@ -28,8 +28,6 @@ export default function Tag(props) {
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   submit = async (values, actions) => {
-    console.log("submit", values);
-    console.log("state", state);
     if (values.type == "field-of-research") {
       let firstPartUrl = "https://www.epfl.ch/research/domains/cluster?field-of-research=";
       let nameFr = escape(values.name_fr);
@@ -37,7 +35,7 @@ export default function Tag(props) {
       values.url_fr = `${firstPartUrl}${nameFr}`;
       values.url_en = `${firstPartUrl}${nameEn}`;
     }
-    if (state.action === "add") {
+    if (!editing) {
       try {
         await insertTag(values);
         actions.resetForm();
@@ -53,10 +51,10 @@ export default function Tag(props) {
       } finally {
         actions.setSubmitting(false);
       }
-    } else if (editing) {
+    } else {
       try {
         await updateTag(values);
-        props.history.push("/tags");
+        // props.history.push("/tags");
         setSaveSuccess(true);
       } catch (errors) {
         if (!errors.details) throw errors;
@@ -130,7 +128,7 @@ export default function Tag(props) {
                              par exemple sur https://www.epfl.ch/research/domains/bioengineering/."
           />
         </h5>
-        {state.saveSuccess && msgSaveSuccess}
+        {saveSuccess ? msgSaveSuccess : ""}
         <Formik
           onSubmit={submit}
           enableReinitialize={true}
@@ -195,7 +193,7 @@ export default function Tag(props) {
               </Field>
               <ErrorMessage name="type" component={CustomError} />
 
-              {state.hideUrlsField ? (
+              {hideUrlsField ? (
                 ""
               ) : (
                 <Fragment>
