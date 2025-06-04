@@ -111,7 +111,7 @@ export async function createWPSite (site) {
       body,
     );
 
-    return { url: url.href + "/", statusCode: response.response.statusCode, message: response.response.statusMessage };
+    return { url: url.href.endsWith("/") ? url.href : url.href + "/", statusCode: response.response.statusCode, message: response.response.statusMessage };
   } catch (err) {
     console.error('Failed to create WP Site: ', err);
     if (err.response) {
