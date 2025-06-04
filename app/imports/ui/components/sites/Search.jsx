@@ -89,7 +89,10 @@ export default function Search () {
     return Sites.find({}, { sort: { url: 1 } }).fetch();
   });
   const { "*" : queryURL_raw } = useParams();
-  const queryURL_initial = `${ queryURL_raw }${ queryURL_raw.endsWith("/") ? "" : "/" }`;
+  const safeQueryURLRaw = typeof queryURL_raw === "string" ? queryURL_raw : "";
+  const queryURL_initial = safeQueryURLRaw
+    ? `${safeQueryURLRaw}${safeQueryURLRaw.endsWith("/") ? "" : "/"}`
+    : "";
   const [ queryURL, setQueryURL ] = useState(queryURL_initial);
 
   const navigate = useNavigate();
