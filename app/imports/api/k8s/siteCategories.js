@@ -681,3 +681,24 @@ export function getKubernetesPluginStruct (site) {
   }
   return plugins;
 }
+
+export function getCategoriesFromPlugins(pluginList, site) {
+  const categories = [];
+  const pluginSet = new Set(Object.keys(pluginList));
+  
+  for (const CategoryClass of OptionalCategories) {
+    const categoryInstance = new CategoryClass();
+    
+    const categoryPlugins = categoryInstance.getPlugins(site);
+    
+    const hasMatchingPlugin = Object.keys(categoryPlugins).some(plugin => 
+      pluginSet.has(plugin)
+    );
+    
+    if (hasMatchingPlugin) {
+      categories.push(CategoryClass.label);
+    }
+  }
+
+  return categories;
+}

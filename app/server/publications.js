@@ -9,6 +9,7 @@ import { check } from "meteor/check";
 import { Roles } from "meteor/alanning:roles";
 import { watchWPSites } from "./kubernetes";
 import Debug from "debug";
+import { getCategoriesFromPlugins } from "../imports/api/k8s/siteCategories";
 
 const debug = Debug("server/publications");
 // This show all the Distributed Data Protocol messages,
@@ -86,7 +87,7 @@ Meteor.publish("k8ssites.list", function () {
           title: site.spec.wordpress.title,
           tagline: site.spec.wordpress.tagline,
           type: 'kubernetes',
-          categories: [],
+          categories: getCategoriesFromPlugins(site.spec.wordpress.plugins, site),
           theme: site.spec.wordpress.theme,
           languages: site.spec.wordpress.languages,
           unitId: site.spec.owner.epfl.unitId,

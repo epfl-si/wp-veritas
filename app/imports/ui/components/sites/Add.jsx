@@ -95,6 +95,7 @@ class Add_ extends Component {
     }
 
     values.unitId = parseInt(values.unitId);
+    values.categories = values.categories.map((c) => c.value || c);
 
     try {
       this.setAlert("warning", "En cours de traitement...");
@@ -426,7 +427,6 @@ class Add_ extends Component {
                       component={CustomInput}
                     />
                     <ErrorMessage name="tagline" component={CustomError} />
-
                     <div className="form-group">
                       Catégories
                       <MyCategorySelect
@@ -716,16 +716,26 @@ class MyCategorySelect extends React.Component {
   render() {
     let content;
 
+    const options = this.props.options.map((category) => ({
+      value: category,
+      label: category.charAt(0).toUpperCase() + category.slice(1),
+    }));
+
+    const value = Array.isArray(this.props.value) 
+    ? this.props.value.map(val => ({
+        value: val,
+        label: val.charAt(0).toUpperCase() + val.slice(1)
+      }))
+    : [];
+
     content = (
       <div className="multiCategoriesSelectContainer" style={{ margin: "1rem 0" }}>
         <Select
           isMulti
           onChange={this.handleChange}
           onBlur={this.handleBlur}
-          value={this.props.value}
-          options={this.props.options}
-          getOptionLabel={(option) => option}
-          getOptionValue={(option) => option}
+          value={value}
+          options={options}
           placeholder={this.props.placeholder}
           isDisabled={this.props.isDisabled}
           styles={{
