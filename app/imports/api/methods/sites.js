@@ -134,11 +134,13 @@ const insertSite = new VeritasValidatedMethod({
       if (type.schema === "internal") {
         import { createWPSite } from "/server/kubernetes.js";
         const { statusCode, message, url } = await createWPSite(newSite);
-        await Sites.insertAsync({
-          snowNumber: newSite.snowNumber,
-          url: newSite.url.endsWith("/") ? newSite.url : newSite.url + "/",
-          comment: newSite.comment,
-        });
+        if (newSite.comment || newSite.snowNumber) {
+          await Sites.insertAsync({
+            url: newSite.url.endsWith("/") ? newSite.url : newSite.url + "/",
+            ...(newSite.snowNumber && { snowNumber: newSite.snowNumber }),
+            ...(newSite.comment && { comment: newSite.comment })
+          });
+        }
         return {
           statusCode, 
           message, 
