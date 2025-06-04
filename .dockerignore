@@ -1,8 +1,0 @@
-.git
-**/.meteor/local
-**/node_modules
-**/dump
-cli
-test
-doc
-ansible
