@@ -4,6 +4,7 @@ import Select from "react-select";
 import { Formik } from "formik";
 import { Tags, Sites } from "../../../api/collections";
 import { associateTagsToSite } from "../../../api/methods/sites";
+import { useParams } from "react-router";
 
 class SiteTags extends React.Component {
   constructor(props) {
@@ -54,8 +55,7 @@ class SiteTags extends React.Component {
   }
 
   getSite = () => {
-    let url = this.props.match.params[0];
-    return Sites.findOne({ url });
+    return Sites.findOne({ url: this.props.siteUrl });
   };
 
   getTagsBySiteUrl = (siteUrl, tagList) => {
@@ -183,6 +183,7 @@ class SiteTags extends React.Component {
 }
 
 export default withTracker(() => {
+  const { "*" : siteUrl } = useParams();
   Meteor.subscribe("tag.list");
   Meteor.subscribe("type.list");
   Meteor.subscribe("sites.list");
@@ -197,6 +198,7 @@ export default withTracker(() => {
     fieldOfResearchTags: fetchSortedTags("field-of-research"),
     doctoralProgramTags: fetchSortedTags("doctoral-program"),
     sites: Sites.find().fetch(),
+    siteUrl,
   };
 })(SiteTags);
 
