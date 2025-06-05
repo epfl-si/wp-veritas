@@ -1,12 +1,12 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Trash2, GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, LinkIcon } from 'lucide-react';
+import { Trash2, GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, LinkIcon, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { User } from 'next-auth';
 import { PERMISSIONS } from '@/constants/permissions';
-var pjson = require('/package.json');
+import pjson from '../../package.json';
 
 export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 	const pathname = usePathname();
@@ -36,6 +36,12 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			label: t('tags'),
 			icon: Bookmark,
 			permissions: PERMISSIONS.TAGS.LIST,
+		},
+		{
+			href: '/themes',
+			label: t('themes'),
+			icon: Palette,
+			permissions: PERMISSIONS.THEME.LIST,
 		},
 		{
 			href: '/trash',
