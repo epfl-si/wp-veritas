@@ -11,5 +11,44 @@
     "trash": "Deleted Sites",
     "logs": "Action Logs",
     "redirections": "Redirections"
+  },
+  "sites": {
+    "list": {
+      "title": "Source of truth for WordPress websites",
+      "error": {
+        "text": "An error occurred while loading websites",
+        "subText": "Please try again later",
+        "empty": "No websites found"
+      },
+      "tableHeaders": {
+        "title": "Title",
+        "description": "Description",
+        "type": "Type",
+        "languages": "Languages",
+        "plugins": "Plugins",
+        "actions": "Actions",
+        "expiration": "Expires In",
+        "created": "Created",
+        "status": "Status"
+      },
+      "actions": {
+        "delete": "Delete",
+        "visit": "Visit Site",
+        "extend": "Extend Time",
+        "details": "View Details"
+      },
+      "filters": {
+        "all": "All Sites",
+        "mine": "My Sites",
+        "expiringSoon": "Expiring Soon",
+        "search": "Search sites..."
+      },
+      "status": {
+        "active": "Active",
+        "expiringSoon": "Expiring Soon",
+        "expired": "Expired",
+        "creating": "Creating"
+      }
+    }
   }
 }
