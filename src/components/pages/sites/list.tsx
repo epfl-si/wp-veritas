@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SiteType } from '@/types/site';
 import { FileText, GlobeIcon, Info, Pencil, Tags, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TYPES } from '@/constants/types';
 import { Table, TableColumn } from '@/components/ui/table';
 import moment from 'moment';
-import 'moment/locale/fr'; // Import French locale
+import 'moment/locale/fr';
 
 export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 	const [search, setSearch] = useState({
@@ -22,9 +22,8 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 	const t = useTranslations('sites.list');
 	const locale = useLocale();
 
-	// Configure moment locale based on current locale
-	React.useEffect(() => {
-		moment.locale(locale === 'fr' ? 'fr' : 'en');
+	useEffect(() => {
+		moment.locale(locale);
 	}, [locale]);
 
 	const siteTypes = Array.from(new Set(sites.map((site) => site.type))).sort();
@@ -50,8 +49,9 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 		{
 			key: 'url',
 			label: 'Titre',
-			width: '',
+			width: 'min-w-0 flex-1',
 			align: 'left',
+			sortable: true,
 			render: (site) => (
 				<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
 					<GlobeIcon className="size-6 flex-shrink-0" />
@@ -62,36 +62,38 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 		{
 			key: 'type',
 			label: 'Type',
-			width: 'w-80',
+			width: 'w-48',
 			align: 'center',
+			sortable: true,
 			render: (site) => {
 				const typeConfig = getTypeConfig(site.type);
 				return (
-					<div className={'text-black p-2 h-9 flex gap-1.5 justify-center items-center border-2'} style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
-						{typeConfig?.ICON ? React.createElement(typeConfig.ICON, { className: 'size-4' }) : null}
+					<div className="text-black p-2 h-9 flex gap-1.5 justify-center items-center border-2" style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
+						{typeConfig?.ICON ? React.createElement(typeConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
 						<span className="text-sm font-semibold uppercase">{site.type}</span>
 					</div>
 				);
 			},
 		},
 		{
-			key: 'age',
-			label: 'Age',
-			width: 'w-80',
+			key: 'createdAt',
+			label: 'Âge',
+			width: 'w-42',
 			align: 'center',
-			render: (site) => {
-				return (
-					<div className="text-center">
-						<p className="text-sm font-medium text-gray-700">{formatRelativeDate(site.createdAt)}</p>
-					</div>
-				);
-			},
+			sortable: true,
+			sortKey: 'createdAt',
+			render: (site) => (
+				<div className="text-center">
+					<p className="text-sm font-medium text-gray-700">{formatRelativeDate(site.createdAt)}</p>
+				</div>
+			),
 		},
 		{
 			key: 'actions',
 			label: 'Actions',
-			width: 'w-80',
+			width: 'w-60',
 			align: 'left',
+			sortable: false,
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
 					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
@@ -163,8 +165,15 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 					</Select>
 				</div>
 			</div>
-			<div className="px-6 pb-0">
-				<Table data={filteredSites} columns={columns} />
+			<div className="px-6 pb-0 h-full">
+				<Table
+					data={filteredSites}
+					columns={columns}
+					defaultSort={{
+						key: 'createdAt',
+						direction: 'desc',
+					}}
+				/>
 			</div>
 		</div>
 	);
