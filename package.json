@@ -18,7 +18,8 @@
     "next-intl": "^4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.3.0"
+    "tailwind-merge": "^3.3.0",
+    "zed": "^0.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
