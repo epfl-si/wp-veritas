@@ -12,6 +12,8 @@ export const PERMISSIONS = {
 		UPDATE: 'tags:update',
 		DELETE: 'tags:delete',
 		LIST: 'tags:list',
+		ASSOCIATE: 'tags:associate',
+		DISSOCIATE: 'tags:dissociate',
 	},
 	LOGS: {
 		LISTS: 'logs:lists',
@@ -22,5 +24,10 @@ export const PERMISSIONS = {
 		UPDATE: 'redirections:update',
 		DELETE: 'redirections:delete',
 		LIST: 'redirections:list',
+	},
+	THEME: {
+		CREATE: 'theme:create',
+		DELETE: 'theme:delete',
+		LIST: 'theme:list',
 	},
 };
