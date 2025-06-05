@@ -1,32 +1,5 @@
+import { PERMISSIONS } from '@/constants/permissions';
 import { getUserGroups } from './auth';
-import { User } from 'next-auth';
-
-export const PERMISSIONS = {
-	SITE: {
-		READ: 'site:read',
-		CREATE: 'site:create',
-		UPDATE: 'site:update',
-		DELETE: 'site:delete',
-		LIST: 'site:list',
-	},
-	TAGS: {
-		READ: 'tags:read',
-		CREATE: 'tags:create',
-		UPDATE: 'tags:update',
-		DELETE: 'tags:delete',
-		LIST: 'tags:list',
-	},
-	LOGS: {
-		LISTS: 'logs:lists',
-	},
-	REDIRECTIONS: {
-		READ: 'redirections:read',
-		CREATE: 'redirections:create',
-		UPDATE: 'redirections:update',
-		DELETE: 'redirections:delete',
-		LIST: 'redirections:list',
-	},
-};
 
 export const GROUP_PERMISSIONS: Record<string, string[]> = {
 	'wp-veritas-admins_AppGrpU': [PERMISSIONS.SITE.READ, PERMISSIONS.SITE.CREATE, PERMISSIONS.SITE.UPDATE, PERMISSIONS.SITE.DELETE, PERMISSIONS.SITE.LIST, PERMISSIONS.TAGS.READ, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.UPDATE, PERMISSIONS.TAGS.DELETE, PERMISSIONS.TAGS.LIST, PERMISSIONS.LOGS.LISTS, PERMISSIONS.REDIRECTIONS.READ, PERMISSIONS.REDIRECTIONS.CREATE, PERMISSIONS.REDIRECTIONS.UPDATE, PERMISSIONS.REDIRECTIONS.DELETE, PERMISSIONS.REDIRECTIONS.LIST],

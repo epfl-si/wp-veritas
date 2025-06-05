@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { User } from 'next-auth';
-import { PERMISSIONS } from '@/services/policy';
+import { PERMISSIONS } from '@/constants/permissions';
 var pjson = require('/package.json');
 
 export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
