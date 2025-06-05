@@ -1,0 +1,14 @@
+{
+  "home": {
+    "title": "Welcome"
+  },
+  "sidebar": {
+    "home": "All Sites",
+    "new": "Create a New Site",
+    "info": "Site Information",
+    "tags": "Manage Tags",
+    "trash": "Deleted Sites",
+    "logs": "Action Logs",
+    "redirections": "Redirections"
+  }
+}
