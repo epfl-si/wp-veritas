@@ -1,6 +1,7 @@
-import { TAG_TYPES, TAGS } from '@/constants/tags';
-import { useZodErrorMessages } from '@/hooks/zod';
+import { TAG_TYPE_VALUES, TAG_TYPES } from '@/constants/tags';
+import { useZodErrorMessages, getZodErrorMessages } from '@/hooks/zod';
 import { z } from 'zod';
+import { ErrorMessages } from './error';
 
 export interface TagType {
 	id: string;
@@ -11,18 +12,25 @@ export interface TagType {
 	urlEn: string;
 }
 
-export type TagEnumType = (typeof TAGS)[number]['name'];
+export type TagEnumType = (typeof TAG_TYPES)[keyof typeof TAG_TYPES]['NAME'];
 
-export const TagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+const createTagSchemaBase = (errorMessages: ErrorMessages) => {
 	return z.object({
-		type: z.enum(TAG_TYPES, {
-			required_error: errorMessages.required_error,
-			invalid_type_error: errorMessages.invalid_enum(TAG_TYPES as unknown as string[]),
+		type: z.enum(TAG_TYPE_VALUES, {
+			errorMap: (issue, ctx) => {
+				if (issue.code === z.ZodIssueCode.invalid_enum_value) {
+					return { message: errorMessages.invalid_enum(TAG_TYPE_VALUES) };
+				}
+				if (issue.code === z.ZodIssueCode.invalid_type) {
+					return { message: errorMessages.invalid_type };
+				}
+				return { message: ctx.defaultError };
+			},
 		}),
 		nameFr: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_string,
 			})
 			.min(2, {
 				message: errorMessages.too_small(2),
@@ -32,8 +40,8 @@ export const TagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>)
 			}),
 		nameEn: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_string,
 			})
 			.min(2, {
 				message: errorMessages.too_small(2),
@@ -43,21 +51,30 @@ export const TagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>)
 			}),
 		urlFr: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_string,
 			})
 			.url({
 				message: errorMessages.invalid_url,
 			}),
 		urlEn: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_string,
 			})
 			.url({
 				message: errorMessages.invalid_url,
 			}),
 	});
+};
+
+export const TagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+	return createTagSchemaBase(errorMessages);
+};
+
+export const createTagSchema = async () => {
+	const errorMessages = await getZodErrorMessages();
+	return createTagSchemaBase(errorMessages);
 };
 
 export type TagFormType = z.infer<ReturnType<typeof TagSchema>>;
