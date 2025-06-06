@@ -1,34 +1,34 @@
 import { TagEnumType } from '@/types/tags';
 
-export const TAGS = [
-	{
-		name: 'doctoral-program',
-		label: {
+export const TAG_TYPES = {
+	DOCTORAL_PROGRAM: {
+		NAME: 'doctoral-program',
+		LABEL: {
 			en: 'Doctoral Program',
 			fr: 'Programme doctoral',
 		},
 	},
-	{
-		name: 'field-of-research',
-		label: {
+	FIELD_OF_RESEARCH: {
+		NAME: 'field-of-research',
+		LABEL: {
 			en: 'Field of Research',
 			fr: 'Domaine de recherche',
 		},
 	},
-	{
-		name: 'faculty',
-		label: {
+	FACULTY: {
+		NAME: 'faculty',
+		LABEL: {
 			en: 'Faculty',
 			fr: 'Faculté',
 		},
 	},
-	{
-		name: 'institute',
-		label: {
+	INSTITUTE: {
+		NAME: 'institute',
+		LABEL: {
 			en: 'Institute',
 			fr: 'Institut',
 		},
 	},
-];
+} as const;
 
-export const TAG_TYPES = TAGS.map((tag) => tag.name) as [TagEnumType, ...TagEnumType[]];
+export const TAG_TYPE_VALUES = Object.values(TAG_TYPES).map((tag) => tag.NAME) as [TagEnumType, ...TagEnumType[]];
