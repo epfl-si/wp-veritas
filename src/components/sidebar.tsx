@@ -59,7 +59,7 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			href: '/logs',
 			label: t('logs'),
 			icon: GalleryVerticalEnd,
-			permissions: PERMISSIONS.LOGS.LISTS,
+			permissions: PERMISSIONS.LOGS.LIST,
 		},
 	];
 
