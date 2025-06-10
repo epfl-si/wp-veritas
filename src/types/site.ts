@@ -6,6 +6,8 @@ export interface KubernetesSiteType {
 		uid: string;
 		name: string;
 		namespace: string;
+		labels?: Record<string, string>;
+		creationTimestamp: Date;
 	};
 	spec: {
 		owner: {
@@ -36,12 +38,14 @@ export interface KubernetesSiteType {
 export interface SiteType {
 	id: string;
 	url: string;
+	type: string;
 	tagline: string;
 	title: string;
 	theme: string;
 	unitId: number;
 	languages: string[];
 	categories: string[];
+	createdAt: Date;
 	downloadsProtectionScript?: string;
 	ticket?: string;
 	comment?: string;
@@ -51,40 +55,40 @@ export const SiteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>
 	return z.object({
 		url: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
 			})
 			.url({
 				message: errorMessages.invalid_url,
 			}),
 		tagline: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
 			})
 			.min(3, {
 				message: errorMessages.too_small(3),
 			}),
 		title: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
 			})
 			.min(3, {
 				message: errorMessages.too_small(3),
 			}),
 		theme: z
 			.string({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
 			})
 			.min(1, {
 				message: errorMessages.too_small(1),
 			}),
 		unitId: z
 			.number({
-				required_error: errorMessages.required_error,
-				invalid_type_error: errorMessages.invalid_type_error,
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
 			})
 			.positive({
 				message: errorMessages.too_small(1),
