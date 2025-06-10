@@ -1,197 +1,340 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { SiteType } from '@/types/site';
-import { FileText, GlobeIcon, Info, Pencil, Plus, Tags, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import React, { useEffect, useState, useCallback } from 'react';
+import { SearchSiteType } from '@/types/site';
+import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TYPES } from '@/constants/types';
-import { Table, TableColumn } from '@/components/ui/table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import moment from 'moment';
 import 'moment/locale/fr';
-import { PERMISSIONS } from '@/constants/permissions';
-import { THEMES } from '@/constants/theme';
-import { ThemeType } from '@/types/theme';
-import { TypeType } from '@/types/type';
 
-export const Sites: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
-	const [search, setSearch] = useState({
-		url: '',
-		type: '',
-		theme: '',
+interface SearchState {
+	url: string;
+}
+
+interface SearchResponse {
+	status: number;
+	message: string;
+	items?: SearchSiteType[];
+}
+
+export const SiteInfo: React.FC = () => {
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const pathname = usePathname();
+
+	const [search, setSearch] = useState<SearchState>({
+		url: searchParams.get('url') || '',
 	});
 
-	const t = useTranslations('sites');
+	const [sites, setSites] = useState<SearchSiteType[]>([]);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [hasSearched, setHasSearched] = useState(false);
+
+	const t = useTranslations('site');
 	const locale = useLocale();
 
 	useEffect(() => {
 		moment.locale(locale);
 	}, [locale]);
 
-	const getTypeConfig = (typeName: string) => {
-		return Object.values(TYPES).find((type) => type.NAME === typeName);
-	};
+	// Initialize search from URL parameters
+	useEffect(() => {
+		const urlParam = searchParams.get('url');
+		if (urlParam) {
+			setSearch({ url: urlParam });
+			setHasSearched(true);
+		}
+	}, [searchParams]);
 
-	const formatRelativeDate = (date: Date) => {
-		const relative = moment(date).fromNow();
-		return relative.charAt(0).toUpperCase() + relative.slice(1);
-	};
+	// Update URL when search changes
+	const updateURL = useCallback(
+		(newUrl: string) => {
+			const params = new URLSearchParams(searchParams);
+			if (newUrl.trim()) {
+				params.set('url', newUrl);
+			} else {
+				params.delete('url');
+			}
 
-	const filteredSites = sites.filter((site) => {
-		const matchesUrl = site.url.toLowerCase().includes(search.url.toLowerCase());
-		const matchesType = search.type === '' || site.type === search.type;
-		const matchesTheme = search.theme === '' || site.theme === search.theme;
-		return matchesUrl && matchesType && matchesTheme;
-	});
+			const newSearchParams = params.toString();
+			const newPathname = newSearchParams ? `${pathname}?${newSearchParams}` : pathname;
 
-	const columns: TableColumn<SiteType>[] = [
-		{
-			key: 'url',
-			label: t('list.column.url'),
-			width: 'min-w-0 flex-1',
-			align: 'left',
-			sortable: true,
-			render: (site) => (
-				<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
-					<GlobeIcon className="size-6 flex-shrink-0" />
-					<span className="text-base font-medium truncate">{site.url}</span>
-				</a>
-			),
+			router.replace(newPathname, { scroll: false });
 		},
-		{
-			key: 'type',
-			label: t('list.column.type'),
-			width: 'w-48',
-			align: 'center',
-			sortable: true,
-			render: (site) => {
-				const typeConfig = getTypeConfig(site.type);
-				return (
-					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
-						{typeConfig?.ICON ? React.createElement(typeConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
-						<span className="text-sm font-semibold uppercase">{site.type}</span>
+		[searchParams, pathname, router]
+	);
+
+	const searchSites = useCallback(
+		async (searchParams: SearchState) => {
+			if (!searchParams.url.trim()) {
+				setSites([]);
+				setHasSearched(false);
+				return;
+			}
+
+			setLoading(true);
+			setError(null);
+			setHasSearched(true);
+
+			try {
+				const queryParams = new URLSearchParams();
+				if (searchParams.url) queryParams.append('url', searchParams.url);
+
+				const response = await fetch(`/api/sites/search?${queryParams.toString()}`);
+				const data: SearchResponse = await response.json();
+
+				if (response.ok && data.items) {
+					setSites(data.items);
+				} else {
+					setError(data.message || t('error.server'));
+					setSites([]);
+				}
+			} catch (error) {
+				console.error('Error fetching sites:', error);
+				setError(t('error.connection'));
+				setSites([]);
+			} finally {
+				setLoading(false);
+			}
+		},
+		[t]
+	);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			searchSites(search);
+		}, 300);
+
+		return () => clearTimeout(timer);
+	}, [search, searchSites]);
+
+	const handleUrlChange = (value: string) => {
+		setSearch({ ...search, url: value });
+		updateURL(value);
+	};
+
+	const SiteCard: React.FC<{ site: SearchSiteType }> = ({ site }) => (
+		<Card className="w-full gap-2 border-l-4 border-l-blue-500">
+			<CardHeader className="pb-0">
+				<div className="flex items-start justify-between">
+					<div className="space-y-2 flex-1">
+						<div className="flex items-center gap-3">
+							<div className="p-2 size-12 flex justify-center items-center bg-blue-100">
+								<GlobeIcon className="w-6 h-6 text-blue-600" />
+							</div>
+							<div>
+								<CardTitle className="text-xl font-bold text-gray-900">{t('info.details.title')}</CardTitle>
+								<CardDescription className="text-base -mt-1 text-gray-600">{t('info.details.description')}</CardDescription>
+							</div>
+						</div>
 					</div>
-				);
-			},
-		},
-		{
-			key: 'createdAt',
-			label: t('list.column.createdAt'),
-			width: 'w-42',
-			align: 'center',
-			sortable: true,
-			sortKey: 'createdAt',
-			render: (site) => (
-				<div className="text-center">
-					<p className="text-sm font-medium text-gray-700">{formatRelativeDate(site.createdAt)}</p>
 				</div>
-			),
-		},
-		{
-			key: 'actions',
-			label: t('list.column.actions'),
-			width: 'w-60',
-			align: 'left',
-			sortable: false,
-			render: (site) => (
-				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITE.INFO) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
-							<Link href={`/info?s=${site.url}`}>
-								<Info strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+			</CardHeader>
 
-					{permissions.includes(PERMISSIONS.SITE.READ) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
-							<FileText strokeWidth={2.3} className="size-5" />
-						</Button>
-					)}
-
-					{permissions.includes(PERMISSIONS.SITE.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-							<Link href={`/edit/${site.id}`}>
-								<Pencil strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
-
-					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-							<Link href={`/site-tags/${site.id}`}>
-								<Tags strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
-
-					{permissions.includes(PERMISSIONS.SITE.DELETE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
-							<Trash2 strokeWidth={2.3} className="size-5" />
-						</Button>
-					)}
+			<CardContent className="space-y-4">
+				<div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+					<LinkIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+					<a href={site.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
+						{site.url}
+						<ExternalLink className="w-4 h-4" />
+					</a>
 				</div>
-			),
-		},
-	];
+
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-green-100 rounded-lg">
+							<Shield className="size-5 text-green-600" />
+						</div>
+						<div>
+							<div className="text-sm font-semibold text-gray-700">{t('info.details.loginUrl')}</div>
+							<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="mt-0 text-blue-600 hover:text-blue-800 underline text-sm inline-flex items-center gap-1">
+								{t('info.details.adminAccess')}
+								<ExternalLink className="w-3 h-3" strokeWidth={3} />
+							</a>
+						</div>
+					</div>
+
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-orange-100 rounded-lg">
+							<Users className="size-5 text-orange-600" />
+						</div>
+						<div>
+							<div className="text-sm font-semibold text-gray-700">{t('info.details.unit')}</div>
+							<span className="flex items-center gap-1">
+								<p className="text-sm font-medium text-gray-600">{site.unit.name}</p>
+								<p className="text-xs text-gray-500">{site.unit.id}</p>
+							</span>
+						</div>
+					</div>
+
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-purple-100 rounded-lg">
+							<Calendar className="size-5 text-purple-600" />
+						</div>
+						<div>
+							<div className="text-sm font-medium text-gray-700">{t('info.details.lastModified')}</div>
+							<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+								<div className="flex items-center gap-0.5">
+									<Clock className="size-4" strokeWidth={2} />
+									<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format('DD/MM/YYYY HH:mm')}</p>
+								</div>
+								<div className="flex items-center gap-0.5">
+									<User className="size-4" strokeWidth={2} />
+									<p className="text-sm leading-4 flex items-center h-4">{site.lastModified.user}</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{site.recentModifications && site.recentModifications.length > 0 && (
+					<div className="space-y-2">
+						<div className="flex items-center gap-2 px-2">
+							<Clock className="size-5 text-gray-500" />
+							<span className="text-sm font-semibold text-gray-700">{t('info.details.recentModifications')}</span>
+						</div>
+						<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
+							{site.recentModifications.map((mod, index) => (
+								<div key={index} className="flex items-start gap-2 text-xs">
+									<span className="text-gray-400 mt-1">•</span>
+									<div className="flex flex-wrap items-center gap-1">
+										<Badge variant="outline" className="text-xs">
+											{mod.user}
+										</Badge>
+										<span className="text-gray-600">{moment(mod.date).format('DD/MM HH:mm')}</span>
+										{mod.available ? (
+											<span className="text-gray-600">
+												- <span className="font-medium">{mod.page}</span>
+											</span>
+										) : (
+											<span className="text-gray-500 italic">- ({mod.page})</span>
+										)}
+									</div>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+
+				<Separator className="my-4" />
+
+				<div className="space-y-4">
+					<div className="flex items-center gap-2 px-2">
+						<Shield className="size-5 text-blue-600" />
+						<span className="text-sm font-semibold text-gray-700">{t('info.details.permissions')}</span>
+					</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<div className="p-3 bg-blue-50 rounded-lg">
+							<div className="flex items-center gap-2 mb-2">
+								<Edit className="w-4 h-4 text-blue-600" />
+								<span className="text-sm font-medium text-blue-900">{t('info.details.editors')}</span>
+								<Badge variant="outline" className="text-xs">
+									{site.permissions.editors.length}
+								</Badge>
+							</div>
+							<div className="flex flex-wrap gap-1">
+								{site.permissions.editors.map((editor, index) => (
+									<Badge key={index} variant="outline" className="text-xs">
+										{editor}
+									</Badge>
+								))}
+							</div>
+						</div>
+
+						<div className="p-3 bg-green-50 rounded-lg">
+							<div className="flex items-center gap-2 mb-2">
+								<Shield className="w-4 h-4 text-green-600" />
+								<span className="text-sm font-medium text-green-900">{t('info.details.accreditors')}</span>
+								<Badge variant="outline" className="text-xs">
+									{site.permissions.accreditors.length}
+								</Badge>
+							</div>
+							<div className="flex flex-wrap gap-1">
+								{site.permissions.accreditors.map((accreditor, index) => (
+									<Badge key={index} variant="secondary" className="text-xs">
+										{accreditor}
+									</Badge>
+								))}
+							</div>
+						</div>
+					</div>
+
+					<div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+						<p className="text-xs text-yellow-800">
+							<strong>{t('info.details.note')}:</strong> {t('info.details.permissionsNote')}
+						</p>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
+	);
 
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between">
-					<h1 className="text-3xl font-bold">{t('list.title')}</h1>
-					<Button className="h-10" asChild>
-						<Link href="/site/add">
-							<Plus className="size-5" />
-							{t('actions.add')}
-						</Link>
-					</Button>
+					<h1 className="text-3xl font-bold">{t('info.title')}</h1>
 				</div>
+
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} value={search.url} placeholder={t('list.search.url.placeholder')} className="flex-1 h-10" />
-
-					<Select onValueChange={(value) => setSearch({ ...search, type: value === 'all' ? '' : value })} value={search.type || 'all'}>
-						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('list.search.type.placeholder')} />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">{t('list.search.type.all')}</SelectItem>
-							{Object.values(TYPES).map((type: TypeType) => {
-								return (
-									<SelectItem key={type.NAME} value={type.NAME}>
-										{type?.LABEL[locale as 'fr' | 'en'] || type.NAME}
-									</SelectItem>
-								);
-							})}
-						</SelectContent>
-					</Select>
-
-					<Select onValueChange={(value) => setSearch({ ...search, theme: value === 'all' ? '' : value })} value={search.theme || 'all'}>
-						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('list.search.theme.placeholder')} />
-						</SelectTrigger>
-						<SelectContent>
-							<SelectItem value="all">{t('list.search.theme.all')}</SelectItem>
-							{Object.values(THEMES).map((theme: ThemeType) => (
-								<SelectItem key={theme.NAME} value={theme.NAME}>
-									{theme?.LABEL[locale as 'fr' | 'en'] || theme.NAME}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+					<div className="flex-1 relative">
+						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+						<Input onChange={(e) => handleUrlChange(e.target.value)} value={search.url} placeholder={t('info.search.url.placeholder')} className="pl-10 h-10" />
+					</div>
 				</div>
 			</div>
-			<div className="px-6 pb-0 h-full overflow-y-auto">
-				<Table
-					data={filteredSites}
-					columns={columns}
-					defaultSort={{
-						key: 'createdAt',
-						direction: 'desc',
-					}}
-				/>
+
+			<div className="px-6 pb-6 h-full overflow-y-auto">
+				{loading && (
+					<div className="flex items-center justify-center py-12">
+						<Loader2 className="w-6 h-6 animate-spin mr-2" />
+						<span>{t('info.loading')}</span>
+					</div>
+				)}
+
+				{error && (
+					<Alert variant="destructive" className="mb-4">
+						<AlertCircle className="h-4 w-4" />
+						<AlertDescription>{error}</AlertDescription>
+					</Alert>
+				)}
+
+				{!loading && !error && hasSearched && sites.length === 0 && (
+					<Card className="text-center py-12">
+						<CardContent className="pt-6">
+							<GlobeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+							<CardTitle className="text-xl mb-2">{t('info.noResults.title')}</CardTitle>
+							<CardDescription>{t('info.noResults.description')}</CardDescription>
+						</CardContent>
+					</Card>
+				)}
+
+				{!loading && !error && !hasSearched && (
+					<Card className="text-center py-12">
+						<CardContent className="pt-6">
+							<Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+							<CardTitle className="text-xl mb-2">{t('info.searchPrompt.title')}</CardTitle>
+							<CardDescription>{t('info.searchPrompt.description')}</CardDescription>
+						</CardContent>
+					</Card>
+				)}
+
+				{!loading && !error && sites.length > 0 && (
+					<div className="space-y-6">
+						<div className="grid gap-6">
+							{sites.map((site) => (
+								<SiteCard key={site.id} site={site} />
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);
