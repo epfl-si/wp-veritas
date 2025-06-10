@@ -12,43 +12,134 @@
     "logs": "Action Logs",
     "redirections": "Redirections"
   },
-  "sites": {
+  "site": {
     "list": {
       "title": "Source of truth for WordPress websites",
+      "search": {
+        "url": {
+          "placeholder": "Search for websites..."
+        },
+        "type": {
+          "placeholder": "Filter by type...",
+          "all": "All the types"
+        },
+        "theme": {
+          "placeholder": "Filter by theme...",
+          "all": "All themes"
+        }
+      },
       "error": {
         "text": "An error occurred while loading websites",
         "subText": "Please try again later",
         "empty": "No websites found"
       },
-      "tableHeaders": {
-        "title": "Title",
-        "description": "Description",
+      "column": {
+        "url": "URL",
         "type": "Type",
-        "languages": "Languages",
-        "plugins": "Plugins",
-        "actions": "Actions",
-        "expiration": "Expires In",
-        "created": "Created",
-        "status": "Status"
+        "createdAt": "Created At",
+        "actions": "Actions"
+      }
+    },
+    "actions": {
+      "add": "Add New Site",
+      "edit": "Edit Site",
+      "delete": "Delete Site",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    }
+  },
+  "tag": {
+    "list": {
+      "title": "Manage Tags",
+      "search": {
+        "name": {
+          "placeholder": "Search for tags..."
+        },
+        "type": {
+          "placeholder": "Filter by type...",
+          "all": "All the types"
+        }
       },
-      "actions": {
-        "delete": "Delete",
-        "visit": "Visit Site",
-        "extend": "Extend Time",
-        "details": "View Details"
+      "error": {
+        "text": "An error occurred while loading tags",
+        "subText": "Please try again later",
+        "empty": "No tags found"
+      }
+    },
+    "actions": {
+      "add": "Add New Tag",
+      "edit": "Edit Tag",
+      "delete": "Delete Tag",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    }
+  },
+  "log": {
+    "list": {
+      "title": "Action Logs",
+      "search": {
+        "message": {
+          "placeholder": "Search by message..."
+        },
+        "level": {
+          "placeholder": "Filter by level...",
+          "all": "All levels"
+        },
+        "action": {
+          "all": "All actions",
+          "selected": "Selected {count} actions"
+        }
       },
-      "filters": {
-        "all": "All Sites",
-        "mine": "My Sites",
-        "expiringSoon": "Expiring Soon",
-        "search": "Search sites..."
+      "error": {
+        "text": "An error occurred while loading logs",
+        "subText": "Please try again later",
+        "empty": "No logs found"
       },
-      "status": {
-        "active": "Active",
-        "expiringSoon": "Expiring Soon",
-        "expired": "Expired",
-        "creating": "Creating"
+      "column": {
+        "level": "Level",
+        "message": "Message",
+        "user": "User",
+        "timestamp": "Timestamp"
       }
     }
+  },
+  "theme": {
+    "list": {
+      "title": "Manage Themes",
+      "search": {
+        "name": {
+          "placeholder": "Search for themes..."
+        },
+        "type": {
+          "placeholder": "Filter by type...",
+          "all": "All the types"
+        }
+      },
+      "column": {
+        "name": "Name"
+      },
+      "error": {
+        "text": "An error occurred while loading themes",
+        "subText": "Please try again later",
+        "empty": "No themes found"
+      }
+    },
+    "actions": {
+      "add": "Add New Theme",
+      "edit": "Edit Theme",
+      "delete": "Delete Theme",
+      "save": "Save Changes",
+      "cancel": "Cancel"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidString": "This field must be a string",
+    "invalidType": "This field is invalid",
+    "url": "Please enter a valid URL",
+    "invalidEnum": "This field must be in : {options}",
+    "tooSmall": "Minimum length is {min} characters",
+    "tooBig": "Maximum length is {max} characters",
+    "pattern": "Invalid format"
   }
 }
