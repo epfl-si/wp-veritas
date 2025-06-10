@@ -7,6 +7,7 @@ export interface TableColumn<T> {
 	label: string;
 	width?: string;
 	align?: 'left' | 'center' | 'right';
+	display?: boolean;
 	render?: (item: T, index: number) => React.ReactNode;
 	className?: string;
 	sortable?: boolean;
@@ -38,6 +39,10 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		key: defaultSort?.key ? String(defaultSort.key) : null,
 		direction: defaultSort?.direction || 'asc',
 	});
+
+	const visibleColumns = useMemo(() => {
+		return columns.filter((column) => column.display !== false);
+	}, [columns]);
 
 	const getRowClassName = (item: T, index: number): string => {
 		const baseClasses = 'hover:bg-gray-50 transition-colors duration-150';
@@ -178,7 +183,6 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 	};
 
 	const getUniqueKey = (item: T, index: number): string | number => {
-		// Try to access 'id' property if it exists
 		if (typeof item === 'object' && item !== null && 'id' in item) {
 			const id = (item as { id: unknown }).id;
 			if (typeof id === 'string' || typeof id === 'number') {
@@ -195,7 +199,7 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 					<table className="min-w-full table-fixed">
 						<thead>
 							<tr className={headerClassName}>
-								{columns.map((column) => (
+								{visibleColumns.map((column) => (
 									<th key={String(column.key)} scope="col" className={`text-xs font-medium text-gray-700 uppercase tracking-wider ${getWidthClass(column.width)} ${getAlignmentClass(column.align)} ${column.className || ''} ${column.sortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`} onClick={() => handleSort(column)}>
 										<div className="px-2 py-2 flex items-center justify-between">
 											<span className={getAlignmentClass(column.align)}>{column.label}</span>
@@ -212,7 +216,7 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 						<tbody className="bg-white divide-y divide-gray-200">
 							{sortedData.map((item, index) => (
 								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(item, index)}>
-									{columns.map((column) => (
+									{visibleColumns.map((column) => (
 										<td key={String(column.key)} className={`${getWidthClass(column.width)} ${getAlignmentClass(column.align)} ${column.className || ''} truncate`}>
 											<div className={`px-2 py-2 ${getWidthClass(column.width)}`}>{renderCellContent(item, column, index)}</div>
 										</td>
