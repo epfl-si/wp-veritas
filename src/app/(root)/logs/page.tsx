@@ -1,13 +1,13 @@
 'use server';
 
 import { Error } from '@/components/error';
-import { LogsList } from '@/components/pages/logs/list';
+import { LogList } from '@/components/pages/log/list';
 import { listLogs } from '@/services/logs';
 import { CircleX } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
-export default async function LogsListPage() {
-	const t = await getTranslations('logs.list');
+export default async function LogListPage() {
+	const t = await getTranslations('log.list');
 	const { logs, error } = await listLogs();
 
 	if (error) {
@@ -22,5 +22,5 @@ export default async function LogsListPage() {
 		return <Error text={t('error.empty')} subText="" Icon={CircleX} color="text-red-500" />;
 	}
 
-	return <LogsList logs={logs} />;
+	return <LogList logs={logs} />;
 }
