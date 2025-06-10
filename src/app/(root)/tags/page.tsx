@@ -1,13 +1,13 @@
 'use server';
 
 import { Error } from '@/components/error';
-import { TagsList } from '@/components/pages/tags/list';
+import { TagList } from '@/components/pages/tag/list';
 import { listTags } from '@/services/tags';
 import { CircleX } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
-export default async function TagsListPage() {
-	const t = await getTranslations('tags.list');
+export default async function TagListPage() {
+	const t = await getTranslations('tag.list');
 	const { tags, error } = await listTags();
 
 	if (error) {
@@ -22,5 +22,5 @@ export default async function TagsListPage() {
 		return <Error text={t('error.empty')} subText="" Icon={CircleX} color="text-red-500" />;
 	}
 
-	return <TagsList tags={tags} />;
+	return <TagList tags={tags} />;
 }
