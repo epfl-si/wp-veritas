@@ -19,7 +19,7 @@ export async function hasPermission(permission: string): Promise<boolean> {
 	return false;
 }
 
-export async function getUserPermissions(groups: string[]): Promise<string[]> {
+export async function getPermissions(groups: string[]): Promise<string[]> {
 	const permissions: string[] = [];
 	for (const group of groups) {
 		if (GROUP_PERMISSIONS[group]) {

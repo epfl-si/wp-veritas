@@ -1,7 +1,7 @@
 import NextAuth, { Account, User } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
-import { getUserPermissions } from './policy';
+import { getPermissions } from './policy';
 
 const decodeJWT = (token: string) => JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 
@@ -54,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		},
 		session: async ({ session, token }) => {
 			const groups = [...(token?.groups || []), 'public'];
-			const permissions = await getUserPermissions(groups);
+			const permissions = await getPermissions(groups);
 			return {
 				...session,
 				user: {
