@@ -11,8 +11,9 @@ import { TYPES } from '@/constants/types';
 import { Table, TableColumn } from '@/components/ui/table';
 import moment from 'moment';
 import 'moment/locale/fr';
+import { PERMISSIONS } from '@/constants/permissions';
 
-export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
+export const SitesList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
 	const [search, setSearch] = useState({
 		url: '',
 		type: '',
@@ -96,31 +97,41 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 			sortable: false,
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
-						<Link href={`/info?s=${site.url}`}>
-							<Info strokeWidth={2.3} className="size-5" />
-						</Link>
-					</Button>
+					{permissions.includes(PERMISSIONS.SITE.INFO) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
+							<Link href={`/info?s=${site.url}`}>
+								<Info strokeWidth={2.3} className="size-5" />
+							</Link>
+						</Button>
+					)}
 
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
-						<FileText strokeWidth={2.3} className="size-5" />
-					</Button>
+					{permissions.includes(PERMISSIONS.SITE.READ) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
+							<FileText strokeWidth={2.3} className="size-5" />
+						</Button>
+					)}
 
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-						<Link href={`/edit/${site.id}`}>
-							<Pencil strokeWidth={2.3} className="size-5" />
-						</Link>
-					</Button>
+					{permissions.includes(PERMISSIONS.SITE.UPDATE) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+							<Link href={`/edit/${site.id}`}>
+								<Pencil strokeWidth={2.3} className="size-5" />
+							</Link>
+						</Button>
+					)}
 
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-						<Link href={`/site-tags/${site.id}`}>
-							<Tags strokeWidth={2.3} className="size-5" />
-						</Link>
-					</Button>
+					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+							<Link href={`/site-tags/${site.id}`}>
+								<Tags strokeWidth={2.3} className="size-5" />
+							</Link>
+						</Button>
+					)}
 
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
-						<Trash2 strokeWidth={2.3} className="size-5" />
-					</Button>
+					{permissions.includes(PERMISSIONS.SITE.DELETE) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
+							<Trash2 strokeWidth={2.3} className="size-5" />
+						</Button>
+					)}
 				</div>
 			),
 		},
