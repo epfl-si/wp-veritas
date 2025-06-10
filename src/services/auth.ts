@@ -91,3 +91,8 @@ export async function getUserGroups(): Promise<string[]> {
 	const user = await getUser();
 	return user.groups || [];
 }
+
+export async function getUserPermissions(): Promise<string[]> {
+	const user = await getUser();
+	return user.permissions || [];
+}
