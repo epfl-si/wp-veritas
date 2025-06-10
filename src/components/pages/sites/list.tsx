@@ -49,7 +49,7 @@ export const SitesList: React.FC<{ sites: SiteType[]; permissions: string[] }> =
 	const columns: TableColumn<SiteType>[] = [
 		{
 			key: 'url',
-			label: 'Titre',
+			label: t('list.column.url'),
 			width: 'min-w-0 flex-1',
 			align: 'left',
 			sortable: true,
@@ -62,7 +62,7 @@ export const SitesList: React.FC<{ sites: SiteType[]; permissions: string[] }> =
 		},
 		{
 			key: 'type',
-			label: 'Type',
+			label: t('list.column.type'),
 			width: 'w-48',
 			align: 'center',
 			sortable: true,
@@ -78,7 +78,7 @@ export const SitesList: React.FC<{ sites: SiteType[]; permissions: string[] }> =
 		},
 		{
 			key: 'createdAt',
-			label: 'Âge',
+			label: t('list.column.createdAt'),
 			width: 'w-42',
 			align: 'center',
 			sortable: true,
@@ -91,7 +91,7 @@ export const SitesList: React.FC<{ sites: SiteType[]; permissions: string[] }> =
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: t('list.column.actions'),
 			width: 'w-60',
 			align: 'left',
 			sortable: false,
