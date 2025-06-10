@@ -11,6 +11,8 @@ import moment from 'moment';
 import 'moment/locale/fr';
 import { TagType } from '@/types/tags';
 import { TAG_TYPES } from '@/constants/tags';
+import { TYPES } from '@/constants/types';
+import { TypeType } from '@/types/type';
 
 export const TagsList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 	const [search, setSearch] = useState({
@@ -18,14 +20,12 @@ export const TagsList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 		type: '',
 	});
 
-	const t = useTranslations('tags.list');
+	const t = useTranslations('tags');
 	const locale = useLocale();
 
 	useEffect(() => {
 		moment.locale(locale);
 	}, [locale]);
-
-	const tagsTypes = Object.values(TAG_TYPES).map((tag) => tag.NAME) as string[];
 
 	const getTypeConfig = (typeName: string) => {
 		return Object.values(TAG_TYPES).find((type) => type.NAME === typeName);
@@ -41,59 +41,46 @@ export const TagsList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 		{
 			key: 'nameEn',
 			label: 'Nom (EN)',
-			width: 'w-32',
+			width: 'w-md',
 			align: 'left',
 			sortable: true,
-			render: (tag) => <span className="text-base font-medium truncate">{tag.nameEn}</span>,
+			render: (tag) => (
+				<div className="text-base font-medium truncate" title={tag.nameEn}>
+					{tag.nameEn}
+				</div>
+			),
 		},
 		{
 			key: 'nameFr',
 			label: 'Nom (FR)',
-			width: 'w-32',
+			width: 'w-md',
 			align: 'left',
 			sortable: true,
-			render: (tag) => <span className="text-base font-medium truncate">{tag.nameFr}</span>,
+			render: (tag) => (
+				<div className="text-base font-medium truncate" title={tag.nameFr}>
+					{tag.nameFr}
+				</div>
+			),
 		},
 		{
 			key: 'type',
 			label: 'Type',
-			width: 'w-32',
+			width: 'w-48',
 			align: 'left',
 			sortable: true,
-			render: (tag) => <span className="text-base font-medium truncate">{tag.type}</span>,
-		},
-		{
-			key: 'urlEn',
-			label: 'URL (EN)',
-			width: 'w-32',
-			align: 'left',
-			sortable: true,
-			render: (tag) => (
-				<span className="text-base font-medium truncate">
-					<Link href={tag.urlEn} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
-						{tag.urlEn}
-					</Link>
-				</span>
-			),
-		},
-		{
-			key: 'urlFr',
-			label: 'URL (FR)',
-			width: 'w-32',
-			align: 'left',
-			sortable: true,
-			render: (tag) => (
-				<span className="text-base font-medium truncate">
-					<Link href={tag.urlFr} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
-						{tag.urlFr}
-					</Link>
-				</span>
-			),
+			render: (tag) => {
+				const typeConfig = getTypeConfig(tag.type);
+				return (
+					<div className="flex items-center gap-2" title={typeConfig?.LABEL[locale as 'fr' | 'en'] || tag.type}>
+						{typeConfig?.LABEL[locale as 'fr' | 'en'] || tag.type}
+					</div>
+				);
+			},
 		},
 		{
 			key: 'actions',
 			label: 'Actions',
-			width: 'w-32',
+			width: 'w-36',
 			align: 'left',
 			sortable: false,
 			render: (tag) => (
@@ -116,7 +103,7 @@ export const TagsList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between">
-					<h1 className="text-3xl font-bold">{t('title')}</h1>
+					<h1 className="text-3xl font-bold">{t('list.title')}</h1>
 					<Button className="h-10" asChild>
 						<Link href="/tag/add">
 							<Plus className="size-5" />
@@ -125,18 +112,17 @@ export const TagsList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 					</Button>
 				</div>
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => setSearch({ ...search, name: e.target.value })} value={search.name} placeholder={t('search.name.placeholder')} className="flex-1 h-10" />
+					<Input onChange={(e) => setSearch({ ...search, name: e.target.value })} value={search.name} placeholder={t('list.search.name.placeholder')} className="flex-1 h-10" />
 					<Select onValueChange={(value) => setSearch({ ...search, type: value === 'all' ? '' : value })} value={search.type || 'all'}>
 						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('search.type.placeholder')} />
+							<SelectValue placeholder={t('list.search.type.placeholder')} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t('search.type.all')}</SelectItem>
-							{tagsTypes.map((typeName: string) => {
-								const typeConfig = getTypeConfig(typeName);
+							<SelectItem value="all">{t('list.search.type.all')}</SelectItem>
+							{Object.values(TYPES).map((type: TypeType) => {
 								return (
-									<SelectItem key={typeName} value={typeName}>
-										{typeConfig?.LABEL[locale as 'fr' | 'en'] || typeName}
+									<SelectItem key={type.NAME} value={type.NAME}>
+										{type?.LABEL[locale as 'fr' | 'en'] || type.NAME}
 									</SelectItem>
 								);
 							})}
