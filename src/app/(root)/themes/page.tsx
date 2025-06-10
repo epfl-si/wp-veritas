@@ -1,10 +1,10 @@
 'use server';
 
-import { ThemesList } from '@/components/pages/themes/list';
+import { ThemeList } from '@/components/pages/theme/list';
 import { THEMES } from '@/constants/theme';
 
-export default async function ThemesListPage() {
+export default async function ThemeListPage() {
 	const themes = Object.values(THEMES);
 
-	return <ThemesList themes={themes} />;
+	return <ThemeList themes={themes} />;
 }
