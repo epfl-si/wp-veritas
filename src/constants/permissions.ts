@@ -5,6 +5,8 @@ export const PERMISSIONS = {
 		UPDATE: 'site:update',
 		DELETE: 'site:delete',
 		LIST: 'site:list',
+		INFO: 'site:info',
+		DETAIL: 'site:detail',
 	},
 	TAGS: {
 		READ: 'tags:read',
@@ -16,7 +18,7 @@ export const PERMISSIONS = {
 		DISSOCIATE: 'tags:dissociate',
 	},
 	LOGS: {
-		LISTS: 'logs:lists',
+		LIST: 'logs:list',
 	},
 	REDIRECTIONS: {
 		READ: 'redirections:read',
