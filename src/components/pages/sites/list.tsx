@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { SiteType } from '@/types/site';
-import { FileText, GlobeIcon, Info, Pencil, Tags, Trash2 } from 'lucide-react';
+import { FileText, GlobeIcon, Info, Pencil, Plus, Tags, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -19,7 +19,7 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 		theme: '',
 	});
 
-	const t = useTranslations('sites.list');
+	const t = useTranslations('sites');
 	const locale = useLocale();
 
 	useEffect(() => {
@@ -68,7 +68,7 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 			render: (site) => {
 				const typeConfig = getTypeConfig(site.type);
 				return (
-					<div className="text-black p-2 h-9 flex gap-1.5 justify-center items-center border-2" style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
+					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
 						{typeConfig?.ICON ? React.createElement(typeConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
 						<span className="text-sm font-semibold uppercase">{site.type}</span>
 					</div>
@@ -129,16 +129,24 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<h1 className="text-3xl font-bold">{t('title')}</h1>
+				<div className="flex items-center justify-between">
+					<h1 className="text-3xl font-bold">{t('list.title')}</h1>
+					<Button className="h-10" asChild>
+						<Link href="/site/add">
+							<Plus className="size-5" />
+							{t('actions.add')}
+						</Link>
+					</Button>
+				</div>
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} value={search.url} placeholder={t('search.url.placeholder')} className="flex-1 h-10" />
+					<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} value={search.url} placeholder={t('list.search.url.placeholder')} className="flex-1 h-10" />
 
 					<Select onValueChange={(value) => setSearch({ ...search, type: value === 'all' ? '' : value })} value={search.type || 'all'}>
 						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('search.type.placeholder')} />
+							<SelectValue placeholder={t('list.search.type.placeholder')} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t('search.type.all')}</SelectItem>
+							<SelectItem value="all">{t('list.search.type.all')}</SelectItem>
 							{siteTypes.map((typeName: string) => {
 								const typeConfig = getTypeConfig(typeName);
 								return (
@@ -152,10 +160,10 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 
 					<Select onValueChange={(value) => setSearch({ ...search, theme: value === 'all' ? '' : value })} value={search.theme || 'all'}>
 						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('search.theme.placeholder')} />
+							<SelectValue placeholder={t('list.search.theme.placeholder')} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t('search.theme.all')}</SelectItem>
+							<SelectItem value="all">{t('list.search.theme.all')}</SelectItem>
 							{siteThemes.map((theme: string) => (
 								<SelectItem key={theme} value={theme}>
 									{theme}
@@ -165,7 +173,7 @@ export const SitesList: React.FC<{ sites: SiteType[] }> = ({ sites }) => {
 					</Select>
 				</div>
 			</div>
-			<div className="px-6 pb-0 h-full">
+			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Table
 					data={filteredSites}
 					columns={columns}
