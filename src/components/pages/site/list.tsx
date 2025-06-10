@@ -99,7 +99,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 				<div className="flex gap-1.5 items-center py-1">
 					{permissions.includes(PERMISSIONS.SITE.INFO) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
-							<Link href={`/info?s=${site.url}`}>
+							<Link href={`/info?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
