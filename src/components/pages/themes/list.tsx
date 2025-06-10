@@ -19,7 +19,6 @@ export const ThemesList: React.FC<{ themes: ThemeType[] }> = ({ themes }) => {
 			label: t('list.column.name'),
 			width: 'flex-1',
 			align: 'left',
-			sortable: true,
 			render: (theme) => (
 				<div className="text-base font-medium truncate" title={theme.NAME}>
 					{theme?.LABEL[locale as 'fr' | 'en'] || theme.NAME}
