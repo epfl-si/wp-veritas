@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Pencil, Plus, TagIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -14,8 +14,9 @@ import { TAG_TYPES } from '@/constants/tags';
 import { TYPES } from '@/constants/types';
 import { TypeType } from '@/types/type';
 import { PERMISSIONS } from '@/constants/permissions';
+import { DeleteDialog } from '@/components/dialog/delete';
 
-export const TagList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
+export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ tags, permissions }) => {
 	const [search, setSearch] = useState({
 		name: '',
 		type: '',
@@ -94,9 +95,7 @@ export const TagList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 						</Button>
 					)}
 
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
-						<Trash2 strokeWidth={2.3} className="size-5" />
-					</Button>
+					{permissions.includes(PERMISSIONS.SITE.DELETE) && <DeleteDialog icon={TagIcon} displayName={locale === 'fr' ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />}
 				</div>
 			),
 		},
