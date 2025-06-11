@@ -21,7 +21,7 @@ export const TagList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 		type: '',
 	});
 
-	const t = useTranslations('tags');
+	const t = useTranslations('tag');
 	const locale = useLocale();
 
 	useEffect(() => {
