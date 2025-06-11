@@ -51,6 +51,33 @@ export interface SiteType {
 	comment?: string;
 }
 
+export interface SearchSiteType {
+	id: string;
+	url: string;
+	loginUrl: string;
+	unit: {
+		id: string;
+		name: string;
+	};
+	lastModified: {
+		date: string;
+		user: string;
+	};
+	recentModifications: Array<{
+		date: string;
+		user: string;
+		page: string;
+		available: boolean;
+	}>;
+	permissions: {
+		editors: {
+			userId: string;
+			name: string;
+		}[];
+		accreditors: string[];
+	};
+}
+
 export const SiteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
 	return z.object({
 		url: z
