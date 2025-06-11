@@ -1,7 +1,7 @@
 'use server';
 
 import { Error } from '@/components/error';
-import { SiteList } from '@/components/pages/site/list';
+import { SiteList } from '@/components/pages/sites/list';
 import { getUserPermissions } from '@/services/auth';
 import { listSites } from '@/services/site';
 import { CircleX } from 'lucide-react';

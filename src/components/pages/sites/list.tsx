@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { SiteType } from '@/types/site';
-import { FileText, GlobeIcon, Info, Pencil, Plus, Tags, Trash2 } from 'lucide-react';
+import { FileText, GlobeIcon, Info, Pencil, Plus, Tags } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ import { PERMISSIONS } from '@/constants/permissions';
 import { THEMES } from '@/constants/theme';
 import { ThemeType } from '@/types/theme';
 import { TypeType } from '@/types/type';
+import { DeleteDialog } from '@/components/dialog/delete';
 
 export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
 	const [search, setSearch] = useState({
@@ -79,7 +80,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'createdAt',
 			label: t('list.column.createdAt'),
-			width: 'w-42',
+			width: 'w-48',
 			align: 'center',
 			sortable: true,
 			sortKey: 'createdAt',
@@ -97,7 +98,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			sortable: false,
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITE.INFO) && (
+					{permissions.includes(PERMISSIONS.SITES.INFO) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
 							<Link href={`/info?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
@@ -105,13 +106,13 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITE.READ) && (
+					{permissions.includes(PERMISSIONS.SITES.READ) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
 							<FileText strokeWidth={2.3} className="size-5" />
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITE.UPDATE) && (
+					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
 							<Link href={`/edit/${site.id}`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
@@ -127,11 +128,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITE.DELETE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
-							<Trash2 strokeWidth={2.3} className="size-5" />
-						</Button>
-					)}
+					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" apiEndpoint={`/api/sites/${site.id}`} />}
 				</div>
 			),
 		},

@@ -1,12 +1,12 @@
 export const PERMISSIONS = {
-	SITE: {
-		READ: 'site:read',
-		CREATE: 'site:create',
-		UPDATE: 'site:update',
-		DELETE: 'site:delete',
-		LIST: 'site:list',
-		INFO: 'site:info',
-		DETAIL: 'site:detail',
+	SITES: {
+		READ: 'sites:read',
+		CREATE: 'sites:create',
+		UPDATE: 'sites:update',
+		DELETE: 'sites:delete',
+		LIST: 'sites:list',
+		INFO: 'sites:info',
+		DETAIL: 'sites:detail',
 	},
 	TAGS: {
 		READ: 'tags:read',

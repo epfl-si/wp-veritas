@@ -1,7 +1,7 @@
 'use server';
 
 import { Error } from '@/components/error';
-import { TagList } from '@/components/pages/tag/list';
+import { TagList } from '@/components/pages/tags/list';
 import { getUserPermissions } from '@/services/auth';
 import { listTags } from '@/services/tags';
 import { CircleX } from 'lucide-react';

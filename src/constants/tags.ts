@@ -1,4 +1,4 @@
-import { TagEnumType } from '@/types/tags';
+import { TagEnumType } from '@/types/tag';
 
 export const TAG_TYPES = {
 	DOCTORAL_PROGRAM: {

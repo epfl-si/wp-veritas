@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableColumn } from '@/components/ui/table';
 import moment from 'moment';
 import 'moment/locale/fr';
-import { TagType } from '@/types/tags';
+import { TagType } from '@/types/tag';
 import { TAG_TYPES } from '@/constants/tags';
 import { TYPES } from '@/constants/types';
 import { TypeType } from '@/types/type';
@@ -95,7 +95,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITE.DELETE) && <DeleteDialog icon={TagIcon} displayName={locale === 'fr' ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />}
+					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={TagIcon} displayName={locale === 'fr' ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />}
 				</div>
 			),
 		},

@@ -1,6 +1,6 @@
 'use server';
 
-import { ThemeList } from '@/components/pages/theme/list';
+import { ThemeList } from '@/components/pages/themes/list';
 import { THEMES } from '@/constants/theme';
 
 export default async function ThemeListPage() {

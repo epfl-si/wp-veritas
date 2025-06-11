@@ -17,19 +17,19 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			href: '/',
 			label: t('home'),
 			icon: House,
-			permissions: PERMISSIONS.SITE.LIST,
+			permissions: PERMISSIONS.SITES.LIST,
 		},
 		{
 			href: '/new',
 			label: t('new'),
 			icon: CirclePlus,
-			permissions: PERMISSIONS.SITE.CREATE,
+			permissions: PERMISSIONS.SITES.CREATE,
 		},
 		{
 			href: '/info',
 			label: t('info'),
 			icon: BadgeInfo,
-			permissions: PERMISSIONS.SITE.READ,
+			permissions: PERMISSIONS.SITES.READ,
 		},
 		{
 			href: '/tags',
@@ -47,7 +47,7 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			href: '/trash',
 			label: t('trash'),
 			icon: Trash2,
-			permissions: PERMISSIONS.SITE.DELETE,
+			permissions: PERMISSIONS.SITES.DELETE,
 		},
 		{
 			href: '/redirections',

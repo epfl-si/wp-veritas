@@ -68,7 +68,7 @@ const createTagSchemaBase = (errorMessages: ErrorMessages) => {
 	});
 };
 
-export const TagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+export const tagSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
 	return createTagSchemaBase(errorMessages);
 };
 
@@ -77,4 +77,4 @@ export const createTagSchema = async () => {
 	return createTagSchemaBase(errorMessages);
 };
 
-export type TagFormType = z.infer<ReturnType<typeof TagSchema>>;
+export type TagFormType = z.infer<ReturnType<typeof tagSchema>>;
