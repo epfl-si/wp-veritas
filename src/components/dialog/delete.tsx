@@ -38,8 +38,9 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 			}
 
 			setIsOpen(false);
-
-			router.refresh();
+			setTimeout(() => {
+				router.refresh();
+			}, 500);
 		} catch (error) {
 			setError(error instanceof Error ? error.message : t('error', { object: type }));
 		} finally {
