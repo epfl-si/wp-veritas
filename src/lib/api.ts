@@ -13,3 +13,23 @@ async function makeRequest<T>(url: string, options: RequestInit = {}): Promise<T
 
 	return response.json();
 }
+
+export async function getNamesFromUserIds(userIds: string[]): Promise<{ userId: string; name: string }[]> {
+	if (!userIds?.length) return [];
+
+	const url = `${process.env.EPFL_API_URL}/persons?ids=${userIds.join(',')}`;
+
+	try {
+		const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(url, {
+			method: 'GET',
+		});
+
+		return data.persons.map((person) => ({
+			userId: person.id,
+			name: `${person.firstname} ${person.lastname}`,
+		}));
+	} catch (error) {
+		console.error('Error fetching user names:', error);
+		throw new Error('Failed to fetch user names');
+	}
+}
