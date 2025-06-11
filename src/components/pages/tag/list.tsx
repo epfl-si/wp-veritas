@@ -13,6 +13,7 @@ import { TagType } from '@/types/tags';
 import { TAG_TYPES } from '@/constants/tags';
 import { TYPES } from '@/constants/types';
 import { TypeType } from '@/types/type';
+import { PERMISSIONS } from '@/constants/permissions';
 
 export const TagList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 	const [search, setSearch] = useState({
@@ -85,11 +86,13 @@ export const TagList: React.FC<{ tags: TagType[] }> = ({ tags }) => {
 			sortable: false,
 			render: (tag) => (
 				<div className="flex gap-1.5 items-center py-1">
-					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-						<Link href={`/tag/edit/${tag.id}`}>
-							<Pencil strokeWidth={2.3} className="size-5" />
-						</Link>
-					</Button>
+					{permissions.includes(PERMISSIONS.TAGS.UPDATE) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+							<Link href={`/tag/edit/${tag.id}`}>
+								<Pencil strokeWidth={2.3} className="size-5" />
+							</Link>
+						</Button>
+					)}
 
 					<Button variant="outline" className="p-1 w-9 h-9 border-2 border-red-500 text-red-500 hover:text-white hover:bg-red-500">
 						<Trash2 strokeWidth={2.3} className="size-5" />
