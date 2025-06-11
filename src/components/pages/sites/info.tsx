@@ -242,7 +242,7 @@ export const SiteInfo: React.FC = () => {
 							<div className="flex flex-wrap gap-1">
 								{site.permissions.editors.map((editor, index) => (
 									<Badge key={index} variant="outline" className="text-xs">
-										{editor}
+										{editor.name}
 									</Badge>
 								))}
 							</div>
