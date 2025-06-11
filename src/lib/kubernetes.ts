@@ -2,6 +2,7 @@ import { KubernetesSiteType, SiteType } from '@/types/site';
 import * as k8s from '@kubernetes/client-node';
 import { getCategoriesFromPlugins } from './plugins';
 import { ensureSlashAtEnd } from './utils';
+import { TYPES } from '@/constants/types';
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -58,11 +59,13 @@ export async function getWordpressSites(): Promise<SiteType[] | null> {
 		return response.items.map((item: KubernetesSiteType) => ({
 			id: item.metadata.uid,
 			url: ensureSlashAtEnd(new URL('https://' + item.spec.hostname + item.spec.path).href),
+			type: item.metadata.labels?.['app.kubernetes.io/managed-by'] === 'wp-kleenex' ? TYPES.TEMPORARY.NAME : TYPES.KUBERNETES.NAME,
 			tagline: item.spec.wordpress.tagline,
 			title: item.spec.wordpress.title,
 			theme: item.spec.wordpress.theme,
 			unitId: item.spec.owner?.epfl?.unitId || 0,
 			languages: item.spec.wordpress.languages || [],
+			createdAt: new Date(item.metadata.creationTimestamp),
 			categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		}));
 	} catch (error) {
