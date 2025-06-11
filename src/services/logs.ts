@@ -5,7 +5,7 @@ import db from '@/lib/mongo';
 import { info, error, warn } from '@/lib/log';
 import { LogType } from '@/types/log';
 import { ILog, LogModel } from '@/models/Log';
-import { getNamesFromUserIds } from '@/lib/api';
+import { getNames } from '@/lib/api';
 
 export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }> {
 	try {
@@ -15,7 +15,7 @@ export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }
 				action: 'list',
 				error: 'Forbidden - insufficient permissions',
 			});
-			return { error: { status: 403, message: 'Forbidden' } };
+			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
 		await db.connect();
@@ -29,7 +29,7 @@ export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }
 		});
 
 		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === 'string'));
-		const users = await getNamesFromUserIds(Array.from(userIds));
+		const users = await getNames(Array.from(userIds));
 
 		return {
 			logs: logs.map((log) => ({
@@ -54,6 +54,6 @@ export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }
 			action: 'list',
 			error: errorData instanceof Error ? errorData.message : 'Unknown error',
 		});
-		return { error: { status: 500, message: 'Internal Server Error' } };
+		return { error: { status: 500, message: 'Internal Server Error', success: false } };
 	}
 }
