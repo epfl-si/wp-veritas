@@ -107,7 +107,7 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 			align: 'left',
 			sortable: true,
 			render: (log) => (
-				<div className="text-sm truncate max-w-md" title={log.message}>
+				<div className="text-sm truncate" title={log.message}>
 					{parseMessage(log.message)}
 				</div>
 			),
