@@ -1,4 +1,5 @@
 export interface APIError {
+	success: boolean;
 	status: number;
 	message: string;
 }
