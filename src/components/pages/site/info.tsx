@@ -279,7 +279,7 @@ export const SiteInfo: React.FC = () => {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<div className="flex items-center justify-between">
+				<div className="flex items-center justify-between h-10">
 					<h1 className="text-3xl font-bold">{t('info.title')}</h1>
 				</div>
 
