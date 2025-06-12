@@ -13,6 +13,59 @@
     "redirections": "Redirections"
   },
   "site": {
+    "info": {
+      "title": "Search for website information",
+      "search": {
+        "url": {
+          "placeholder": "Search for websites..."
+        },
+        "type": {
+          "placeholder": "Filter by type...",
+          "all": "All the types"
+        },
+        "theme": {
+          "placeholder": "Filter by theme...",
+          "all": "All themes"
+        }
+      },
+      "loading": "Loading websites...",
+      "noResults": {
+        "title": "No websites found",
+        "description": "Try adjusting your search criteria or check your spelling."
+      },
+      "searchPrompt": {
+        "title": "Search for websites",
+        "description": "Enter a URL or keyword to find matching websites."
+      },
+      "resultsCount": "Found {count} website(s)",
+      "sortInfo": "Sorted by creation date (newest first)",
+      "error": {
+        "title": "An error occurred while loading websites",
+        "description": "Please try again later",
+        "connection": "Connection error",
+        "server": "Server error",
+        "notFound": "No websites found matching your criteria"
+      },
+      "details": {
+        "title": "Website Details",
+        "description": "Information and permissions",
+        "loginUrl": "WordPress Login",
+        "adminAccess": "Admin access",
+        "unit": "Affiliated unit",
+        "lastModified": "Last modified",
+        "recentModifications": "Recent modifications",
+        "permissions": "Permissions and rights",
+        "editors": "WordPress editors",
+        "accreditors": "Unit accreditors",
+        "note": "Note",
+        "permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
+      },
+      "meta": {
+        "mainInfo": "Main Information",
+        "additionalInfo": "Additional Information",
+        "metadata": "Metadata"
+      }
+    },
     "list": {
       "title": "Source of truth for WordPress websites",
       "search": {
@@ -45,8 +98,18 @@
       "edit": "Edit Site",
       "delete": "Delete Site",
       "save": "Save Changes",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "view": "View Details",
+      "viewSite": "Visit Website"
     }
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "error": "Error",
+    "success": "Success",
+    "notFound": "Not found"
   },
   "tag": {
     "list": {
@@ -130,6 +193,19 @@
       "delete": "Delete Theme",
       "save": "Save Changes",
       "cancel": "Cancel"
+    }
+  },
+  "actions": {
+    "delete": {
+      "title": "Delete {object}",
+      "description": "Are you sure you want to delete this {object}?",
+      "warning": "This action will permanently delete the {object}.",
+      "irreversible": "This action cannot be undone.",
+      "deleting": "Deleting...",
+      "success": "{object} deleted successfully",
+      "cancel": "Cancel",
+      "confirm": "Delete {object}",
+      "error": "Error deleting {object}"
     }
   },
   "validation": {
