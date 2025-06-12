@@ -20,9 +20,5 @@ export default async function TagListPage() {
 		return <Error text={t('error.text')} subText={t('error.subText')} Icon={CircleX} color="text-red-500" />;
 	}
 
-	if (tags.length === 0) {
-		return <Error text={t('error.empty')} subText="" Icon={CircleX} color="text-red-500" />;
-	}
-
 	return <TagList tags={tags} permissions={permissions} />;
 }
