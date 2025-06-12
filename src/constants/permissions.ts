@@ -28,8 +28,6 @@ export const PERMISSIONS = {
 		LIST: 'redirections:list',
 	},
 	THEME: {
-		CREATE: 'theme:create',
-		DELETE: 'theme:delete',
 		LIST: 'theme:list',
 	},
 };
