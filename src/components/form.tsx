@@ -57,6 +57,7 @@ export interface FormConfig<T extends FieldValues> {
 	method?: 'POST' | 'PUT' | 'PATCH';
 	onSuccess?: (data: T, response: unknown) => void;
 	onError?: (error: Error) => void;
+	reset?: boolean;
 	submitButtonText?: string;
 	resetButtonText?: string;
 	loadingText?: string;
@@ -258,7 +259,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 			setSubmissionResult(successResult);
 			config.onSuccess?.(data, result);
-			form.reset();
+			if (config.reset !== false) form.reset();
 			setHasSubmitted(false);
 		} catch (error) {
 			const elapsedTime = Date.now() - startTime;
@@ -328,18 +329,21 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 					)}
 
 					<div className="flex justify-end gap-2 pt-6 items-end">
-						<Button
-							variant="outline"
-							type="button"
-							onClick={() => {
-								form.reset();
-								setHasSubmitted(false);
-								setSubmissionResult(null);
-							}}
-							disabled={isSubmitting}>
-							{config.resetButtonText || 'Reset'}
-						</Button>
-						<Button type="submit" disabled={isSubmitting} className="min-w-32">
+						{config.reset !== false && (
+							<Button
+								variant="outline"
+								type="button"
+								onClick={() => {
+									form.reset();
+									setHasSubmitted(false);
+									setSubmissionResult(null);
+								}}
+								className="cursor-pointer"
+								disabled={isSubmitting}>
+								{config.resetButtonText || 'Reset'}
+							</Button>
+						)}
+						<Button type="submit" disabled={isSubmitting} className="min-w-32 gap-1 cursor-pointer">
 							{isSubmitting ? (
 								<>
 									<Loader2 className="h-4 w-4 animate-spin" />
