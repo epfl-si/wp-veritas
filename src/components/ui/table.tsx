@@ -87,25 +87,6 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		}
 	};
 
-	const getSortValue = (item: T, sortKey: string): SortableValue => {
-		const keys = sortKey.split('.');
-		let value: unknown = item;
-
-		for (const key of keys) {
-			if (value && typeof value === 'object' && !Array.isArray(value) && key in value) {
-				value = (value as Record<string, unknown>)[key];
-			} else {
-				return undefined;
-			}
-		}
-
-		if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value instanceof Date || value === null || value === undefined) {
-			return value;
-		}
-
-		return String(value);
-	};
-
 	const compareSortableValues = (a: SortableValue, b: SortableValue, direction: 'asc' | 'desc'): number => {
 		if (a == null && b == null) return 0;
 		if (a == null) return direction === 'asc' ? 1 : -1;
@@ -139,8 +120,27 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		if (!sortState.key) return data;
 
 		return [...data].sort((a, b) => {
-			const aValue = getSortValue(a, sortState.key!);
-			const bValue = getSortValue(b, sortState.key!);
+			const extractValue = (item: T, sortKey: string): SortableValue => {
+				const keys = sortKey.split('.');
+				let value: unknown = item;
+
+				for (const key of keys) {
+					if (value && typeof value === 'object' && !Array.isArray(value) && key in value) {
+						value = (value as Record<string, unknown>)[key];
+					} else {
+						return undefined;
+					}
+				}
+
+				if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value instanceof Date || value === null || value === undefined) {
+					return value;
+				}
+
+				return String(value);
+			};
+
+			const aValue = extractValue(a, sortState.key!);
+			const bValue = extractValue(b, sortState.key!);
 			return compareSortableValues(aValue, bValue, sortState.direction);
 		});
 	}, [data, sortState]);
@@ -215,7 +215,7 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 					<table className="min-w-full table-fixed">
 						<tbody className="bg-white divide-y divide-gray-200">
 							{sortedData.map((item, index) => (
-								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(item, index)}>
+								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''} h-16`} onClick={() => onRowClick?.(item, index)}>
 									{visibleColumns.map((column) => (
 										<td key={String(column.key)} className={`${getWidthClass(column.width)} ${getAlignmentClass(column.align)} ${column.className || ''} truncate`}>
 											<div className={`px-2 py-2 ${getWidthClass(column.width)}`}>{renderCellContent(item, column, index)}</div>
