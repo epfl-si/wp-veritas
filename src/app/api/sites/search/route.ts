@@ -1,14 +1,14 @@
 import { searchSites } from '@/services/site';
 import { PERMISSIONS } from '@/constants/permissions';
-import { getUser } from '@/services/auth';
+import { auth } from '@/services/auth';
 import { hasPermission } from '@/services/policy';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
-		const user = await getUser();
-		if (!user) return NextResponse.json({ status: 401, message: 'Unauthorized' }, { status: 401 });
-		if (!(await hasPermission(PERMISSIONS.SITE.LIST))) return NextResponse.json({ status: 403, message: 'Forbidden' }, { status: 403 });
+		const session = await auth();
+		if (!session?.user) return NextResponse.json({ status: 401, message: 'Unauthorized' }, { status: 401 });
+		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) return NextResponse.json({ status: 403, message: 'Forbidden' }, { status: 403 });
 
 		const { searchParams } = new URL(request.url);
 		const url = searchParams.get('url');
