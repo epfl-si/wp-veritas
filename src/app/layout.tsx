@@ -6,7 +6,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 export const dynamic = 'force-dynamic';
 import { SessionProvider } from '@/components/session-provider';
-import { Session } from 'next-auth';
+import { auth } from '@/services/auth';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,9 +22,11 @@ export const metadata: Metadata = {
 	},
 };
 
-export default async function RootLayout({ children, session }: Readonly<{ children: React.ReactNode; session: Session }>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const locale = await getLocale();
 	const messages = await getMessages();
+
+	const session = await auth();
 
 	return (
 		<html lang={locale} className="h-full">
