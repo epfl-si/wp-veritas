@@ -34,9 +34,9 @@ export async function getUnits(unitIds: string[]): Promise<{ unitId: string; nam
 
 export async function getUnit(unitId: string): Promise<{ id: string; name: string }> {
 	try {
-		const data = await makeRequest<{ unit: { id: string; name: string } }>(`${process.env.EPFL_API_URL}/units/${unitId}`, { method: 'GET' });
-		if (!data.unit) throw new Error(`Unit not found: ${unitId}`);
-		return { id: data.unit.id, name: data.unit.name };
+		const data = await makeRequest<{ id: string; name: string }>(`${process.env.EPFL_API_URL}/units/${unitId}`, { method: 'GET' });
+		if (!data.id) throw new Error(`Unit not found: ${unitId}`);
+		return { id: data.id, name: data.name };
 	} catch (error) {
 		console.error('Error fetching unit:', error);
 		return { id: unitId, name: 'Unknown' };
@@ -53,7 +53,7 @@ export async function getEditors(unitId: string): Promise<{ userId: string; name
 		const names = await getNames(personIds);
 		const nameMap = new Map(names.map((n) => [n.userId, n.name]));
 
-		return data.authorizations.filter((a) => a.attribution !== 'inherited').map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || 'Unknown' }));
+		return data.authorizations.map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || 'Unknown' }));
 	} catch (error) {
 		console.error('Error fetching editors:', error);
 		return [];
