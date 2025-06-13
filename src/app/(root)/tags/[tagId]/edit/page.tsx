@@ -8,9 +8,9 @@ import { getTranslations } from 'next-intl/server';
 export default async function TagUpdatePage({
 	params,
 }: {
-	params: {
+	params: Promise<{
 		tagId: string;
-	};
+	}>;
 }) {
 	const t = await getTranslations('tag.update');
 	const { tagId } = await params;
