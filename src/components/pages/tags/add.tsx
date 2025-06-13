@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { TAG_TYPES } from '@/constants/tags';
 import Form, { FormConfig, FieldConfig, SectionConfig } from '@/components/form';
-import { tagSchema, TagFormType, TagEnumType } from '@/types/tag';
+import { tagSchema, TagFormType, TagCategoryEnumType } from '@/types/tag';
 import { useZodErrorMessages } from '@/hooks/zod';
+import { TAG_CATEGORIES } from '@/constants/tags';
 
 export const TagAdd: React.FC = () => {
 	const t = useTranslations('tag');
@@ -20,7 +20,7 @@ export const TagAdd: React.FC = () => {
 				label: t('form.type.label'),
 				section: 'general',
 				width: 'full',
-				options: Object.values(TAG_TYPES).map((type) => ({
+				options: Object.values(TAG_CATEGORIES).map((type) => ({
 					value: type.NAME,
 					label: type.LABEL[locale as 'fr' | 'en'] || type.NAME,
 					color: type.COLOR,
@@ -79,7 +79,7 @@ export const TagAdd: React.FC = () => {
 			fields,
 			sections,
 			defaultValues: {
-				type: '' as TagEnumType,
+				type: '' as TagCategoryEnumType,
 				nameFr: '',
 				nameEn: '',
 				urlFr: '',
