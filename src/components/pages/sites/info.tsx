@@ -5,6 +5,7 @@ import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Cl
 import { useLocale, useTranslations } from 'next-intl';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -43,16 +44,15 @@ export const SiteInfo: React.FC = () => {
 		moment.locale(locale);
 	}, [locale]);
 
-	// Initialize search from URL parameters
 	useEffect(() => {
 		const urlParam = searchParams.get('url');
 		if (urlParam) {
 			setSearch({ url: urlParam });
-			setHasSearched(true);
+
+			searchSites({ url: urlParam });
 		}
 	}, [searchParams]);
 
-	// Update URL when search changes
 	const updateURL = useCallback(
 		(newUrl: string) => {
 			const params = new URLSearchParams(searchParams);
@@ -106,17 +106,19 @@ export const SiteInfo: React.FC = () => {
 		[t]
 	);
 
-	useEffect(() => {
-		const timer = setTimeout(() => {
-			searchSites(search);
-		}, 300);
+	const handleSearch = () => {
+		updateURL(search.url);
+		searchSites(search);
+	};
 
-		return () => clearTimeout(timer);
-	}, [search, searchSites]);
+	const handleKeyPress = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter') {
+			handleSearch();
+		}
+	};
 
 	const handleUrlChange = (value: string) => {
 		setSearch({ ...search, url: value });
-		updateURL(value);
 	};
 
 	const SiteCard: React.FC<{ site: SearchSiteType }> = ({ site }) => (
@@ -286,8 +288,12 @@ export const SiteInfo: React.FC = () => {
 				<div className="flex gap-2 mt-6">
 					<div className="flex-1 relative">
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-						<Input onChange={(e) => handleUrlChange(e.target.value)} value={search.url} placeholder={t('info.search.url.placeholder')} className="pl-10 h-10" />
+						<Input onChange={(e) => handleUrlChange(e.target.value)} onKeyPress={handleKeyPress} value={search.url} placeholder={t('info.search.url.placeholder')} className="pl-10 h-10" />
 					</div>
+					<Button onClick={handleSearch} className="h-10" disabled={!search.url.trim() || loading}>
+						{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+						{t('info.search.button')}
+					</Button>
 				</div>
 			</div>
 
