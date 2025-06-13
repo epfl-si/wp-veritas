@@ -1,7 +1,7 @@
-import { TAG_TYPE_VALUES, TAG_TYPES } from '@/constants/tags';
 import { useZodErrorMessages, getZodErrorMessages } from '@/hooks/zod';
 import { z } from 'zod';
 import { ErrorMessages } from './error';
+import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from '@/constants/tags';
 
 export interface TagType {
 	id: string;
@@ -12,14 +12,15 @@ export interface TagType {
 	urlEn: string;
 }
 
-export type TagEnumType = (typeof TAG_TYPES)[keyof typeof TAG_TYPES]['NAME'];
+export type TagCategoryEnumType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES]['NAME'];
+export type TagCategoryType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES];
 
 const createTagSchemaBase = (errorMessages: ErrorMessages) => {
 	return z.object({
-		type: z.enum(TAG_TYPE_VALUES, {
+		type: z.enum(TAG_CATEGORIES_VALUES, {
 			errorMap: (issue, ctx) => {
 				if (issue.code === z.ZodIssueCode.invalid_enum_value) {
-					return { message: errorMessages.invalid_enum(TAG_TYPE_VALUES) };
+					return { message: errorMessages.invalid_enum(TAG_CATEGORIES_VALUES) };
 				}
 				if (issue.code === z.ZodIssueCode.invalid_type) {
 					return { message: errorMessages.invalid_type };

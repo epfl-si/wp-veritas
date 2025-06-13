@@ -1,7 +1,7 @@
-import { TagEnumType } from '@/types/tag';
+import { TagCategoryEnumType } from '@/types/tag';
 import { GraduationCap, Microscope, Building2, University } from 'lucide-react';
 
-export const TAG_TYPES = {
+export const TAG_CATEGORIES = {
 	DOCTORAL_PROGRAM: {
 		NAME: 'doctoral-program',
 		ICON: GraduationCap,
@@ -40,4 +40,4 @@ export const TAG_TYPES = {
 	},
 } as const;
 
-export const TAG_TYPE_VALUES = Object.values(TAG_TYPES).map((tag) => tag.NAME) as [TagEnumType, ...TagEnumType[]];
+export const TAG_CATEGORIES_VALUES = Object.values(TAG_CATEGORIES).map((tag) => tag.NAME) as [TagCategoryEnumType, ...TagCategoryEnumType[]];
