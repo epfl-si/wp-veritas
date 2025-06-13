@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { TAG_TYPES } from '@/constants/tags';
+import { TAG_CATEGORIES } from '@/constants/tags';
 import Form, { FormConfig, FieldConfig, SectionConfig } from '@/components/form';
-import { tagSchema, TagFormType, TagEnumType, TagType } from '@/types/tag';
+import { tagSchema, TagFormType, TagType, TagCategoryEnumType } from '@/types/tag';
 import { useZodErrorMessages } from '@/hooks/zod';
 
 interface TagUpdateProps {
@@ -23,7 +23,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 				label: t('form.type.label'),
 				section: 'general',
 				width: 'full',
-				options: Object.values(TAG_TYPES).map((type) => ({
+				options: Object.values(TAG_CATEGORIES).map((type) => ({
 					value: type.NAME,
 					label: type.LABEL[locale as 'fr' | 'en'] || type.NAME,
 					color: type.COLOR,
@@ -82,7 +82,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 			fields,
 			sections,
 			defaultValues: {
-				type: (tag.type || '') as TagEnumType,
+				type: (tag.type || '') as TagCategoryEnumType,
 				nameFr: tag.nameFr || '',
 				nameEn: tag.nameEn || '',
 				urlFr: tag.urlFr || '',
