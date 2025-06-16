@@ -75,7 +75,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			const { siteId, error: kubernetesError } = await createKubernetesSite(site);
 			if (kubernetesError) {
 				console.error(`Error creating Kubernetes site:`, kubernetesError);
-				await error(`Failed to create Kubernetes site`, {
+				await error(`Failed to create site`, {
 					type: 'site',
 					action: 'create',
 					object: site,
@@ -91,7 +91,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 					await createDatabaseSiteExtras(siteId, extras);
 				}
 
-				await info(`New Kubernetes site **${site.url}** created successfully`, {
+				await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
 					type: 'site',
 					action: 'create',
 					id: siteId,
@@ -107,7 +107,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 		if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
 			const { siteId, error: databaseError } = await createDatabaseSite(site);
 			if (databaseError) {
-				await error(`Failed to create database site`, {
+				await error(`Failed to create site`, {
 					type: 'site',
 					action: 'create',
 					object: site,
@@ -117,7 +117,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			}
 
 			if (siteId) {
-				await info(`New database site **${site.url}** created successfully`, {
+				await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
 					type: 'site',
 					action: 'create',
 					id: siteId,
@@ -169,7 +169,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
 			const { error: databaseError } = await updateDatabaseSite(siteId, site);
 			if (databaseError) {
-				await error(`Failed to update database site`, {
+				await error(`Failed to update site`, {
 					type: 'site',
 					action: 'update',
 					id: siteId,
@@ -179,7 +179,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				return { error: databaseError };
 			}
 
-			await info(`Database site **${site.url}** updated successfully`, {
+			await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
 				type: 'site',
 				action: 'update',
 				id: siteId,
@@ -190,7 +190,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		if (persistence === INFRASTRUCTURES.KUBERNETES.PERSISTENCE) {
 			const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
 			if (kubernetesError) {
-				await error(`Failed to update Kubernetes site`, {
+				await error(`Failed to update site`, {
 					type: 'site',
 					action: 'update',
 					id: siteId,
@@ -220,7 +220,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				}
 			}
 
-			await info(`Kubernetes site **${site.url}** updated successfully`, {
+			await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
 				type: 'site',
 				action: 'update',
 				id: siteId,
@@ -284,7 +284,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 		if (persistence === INFRASTRUCTURES.KUBERNETES.PERSISTENCE) {
 			const { error: kubernetesError } = await deleteKubernetesSite(siteId);
 			if (kubernetesError) {
-				await error(`Failed to delete Kubernetes site`, {
+				await error(`Failed to delete site`, {
 					type: 'site',
 					action: 'delete',
 					id: siteId,
@@ -305,7 +305,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 				console.error(`Error deleting site extras`, extrasError);
 			}
 
-			await info(`Kubernetes site **${site.url}** deleted successfully`, {
+			await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
 				type: 'site',
 				action: 'delete',
 				id: siteId,
@@ -316,7 +316,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 		} else if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
 			const { error: databaseError } = await deleteDatabaseSite(siteId);
 			if (databaseError) {
-				await error(`Failed to delete database site`, {
+				await error(`Failed to delete site`, {
 					type: 'site',
 					action: 'delete',
 					id: siteId,
@@ -326,7 +326,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 				return { error: databaseError };
 			}
 
-			await info(`Database site **${site.url}** deleted successfully`, {
+			await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
 				type: 'site',
 				action: 'delete',
 				id: siteId,
@@ -366,7 +366,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			const { site: dbSite } = await getDatabaseSite(siteId);
 			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite);
 
-			await info(`Kubernetes site **${mergedSite.url}** retrieved successfully`, {
+			await info(`The **${mergedSite.infrastructure}** site **${mergedSite.url}** retrieved successfully`, {
 				type: 'site',
 				action: 'read',
 				id: siteId,
@@ -387,7 +387,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 		}
 
 		if (databaseSite) {
-			await info(`Database site **${databaseSite.url}** retrieved successfully`, {
+			await info(`The **${databaseSite.infrastructure}** site **${databaseSite.url}** retrieved successfully`, {
 				type: 'site',
 				action: 'read',
 				id: siteId,
