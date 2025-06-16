@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,11 +9,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FormField, Form as UiForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
-import { CircleAlert, CircleCheck, Loader2, X } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-export type FieldType = 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'multi-checkbox' | 'boxes';
+export type FieldType = 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'multi-checkbox' | 'multiselect' | 'boxes';
 
 export interface SelectOption {
 	value: string | number;
@@ -24,8 +25,10 @@ export interface SelectOption {
 
 export interface FieldCondition {
 	field: string;
-	operator: 'equals' | 'includes' | 'not_equals' | 'not_includes';
+	operator: 'equals' | 'includes' | 'not_equals' | 'not_includes' | 'regex' | 'not_regex';
 	value: unknown;
+	type?: 'display' | 'default' | 'disabled';
+	defaultValue?: unknown;
 }
 
 export interface FieldConfig {
@@ -37,6 +40,7 @@ export interface FieldConfig {
 	required?: boolean;
 	options?: SelectOption[];
 	conditions?: FieldCondition[];
+	disabled?: boolean;
 	width?: 'half' | 'full';
 	section?: string;
 }
@@ -46,6 +50,7 @@ export interface SectionConfig {
 	title: string;
 	description?: string;
 	columns?: 1 | 2;
+	conditions?: FieldCondition[];
 }
 
 export interface FormConfig<T extends FieldValues> {
@@ -91,36 +96,89 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 	const watchedValues = form.watch();
 
+	const evaluateCondition = (condition: FieldCondition): boolean => {
+		const fieldValue = watchedValues[condition.field as keyof T];
+		const fieldValueStr = String(fieldValue || '');
+
+		switch (condition.operator) {
+			case 'equals':
+				return fieldValue === condition.value;
+			case 'not_equals':
+				return fieldValue !== condition.value;
+			case 'includes':
+				return Array.isArray(fieldValue) ? fieldValue.includes(condition.value) : false;
+			case 'not_includes':
+				return Array.isArray(fieldValue) ? !fieldValue.includes(condition.value) : true;
+			case 'regex': {
+				try {
+					const regex = typeof condition.value === 'string' ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+					return regex ? regex.test(fieldValueStr) : false;
+				} catch {
+					return false;
+				}
+			}
+			case 'not_regex': {
+				try {
+					const regex = typeof condition.value === 'string' ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+					return regex ? !regex.test(fieldValueStr) : true;
+				} catch {
+					return true;
+				}
+			}
+			default:
+				return true;
+		}
+	};
+
 	const shouldShowField = (field: FieldConfig): boolean => {
 		if (!field.conditions || field.conditions.length === 0) return true;
 
-		return field.conditions.every((condition) => {
-			const fieldValue = watchedValues[condition.field as keyof T];
-			switch (condition.operator) {
-				case 'equals':
-					return fieldValue === condition.value;
-				case 'not_equals':
-					return fieldValue !== condition.value;
-				case 'includes':
-					return Array.isArray(fieldValue) ? fieldValue.includes(condition.value) : false;
-				case 'not_includes':
-					return Array.isArray(fieldValue) ? !fieldValue.includes(condition.value) : true;
-				default:
-					return true;
-			}
-		});
+		return field.conditions.filter((condition) => !condition.type || condition.type === 'display').every(evaluateCondition);
 	};
 
-	const BoxOption = ({ option, isSelected, onClick }: { option: SelectOption; isSelected: boolean; onClick: () => void }) => {
+	const shouldDisableField = (field: FieldConfig): boolean => {
+		if (field.disabled) return true;
+		if (!field.conditions || field.conditions.length === 0) return false;
+
+		return field.conditions.filter((condition) => condition.type === 'disabled').some(evaluateCondition);
+	};
+
+	const getConditionalDefault = (field: FieldConfig): unknown => {
+		if (!field.conditions || field.conditions.length === 0) return undefined;
+
+		const defaultCondition = field.conditions.filter((condition) => condition.type === 'default').find(evaluateCondition);
+
+		return defaultCondition?.defaultValue;
+	};
+
+	useEffect(() => {
+		config.fields.forEach((field) => {
+			const conditionalDefault = getConditionalDefault(field);
+			if (conditionalDefault !== undefined) {
+				const currentValue = form.getValues(field.name as Path<T>);
+
+				if (currentValue === undefined || currentValue === '') {
+					form.setValue(field.name as Path<T>, conditionalDefault as never);
+				}
+			}
+		});
+	}, [watchedValues, config.fields, form]);
+
+	const shouldShowSection = (section: SectionConfig): boolean => {
+		if (!section.conditions || section.conditions.length === 0) return true;
+		return section.conditions.filter((condition) => !condition.type || condition.type === 'display').every(evaluateCondition);
+	};
+
+	const BoxOption = ({ option, isSelected, onClick, disabled }: { option: SelectOption; isSelected: boolean; onClick: () => void; disabled?: boolean }) => {
 		const IconComponent = option.icon;
 		return (
 			<div
-				className={cn('relative cursor-pointer rounded-lg border-3 p-4 transition-all duration-200 hover:shadow-md', isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-gray-300')}
+				className={cn('relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200', disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md', isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-gray-300')}
 				style={{
 					borderColor: isSelected && option.color ? option.color : undefined,
 					backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
 				}}
-				onClick={onClick}>
+				onClick={disabled ? undefined : onClick}>
 				<div className="flex flex-col items-center text-center space-y-2">
 					{IconComponent && (
 						<div
@@ -138,24 +196,124 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 		);
 	};
 
-	const renderField = (fieldConfig: FieldConfig) => {
-		const { name, type, label, placeholder, description, options, width = 'half' } = fieldConfig;
+	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = 'Select options...' }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string }) => {
+		const [isOpen, setIsOpen] = useState(false);
+
+		const handleOptionToggle = (optionValue: string | number, e?: React.MouseEvent) => {
+			e?.stopPropagation();
+			if (disabled) return;
+			const newValue = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
+			onChange(newValue);
+		};
+
+		const handleRemoveItem = (optionValue: string | number, e: React.MouseEvent) => {
+			e.stopPropagation();
+			if (disabled) return;
+			const newValue = value.filter((v) => v !== optionValue);
+			onChange(newValue);
+		};
+
+		const selectedOptions = options.filter((option) => value.includes(option.value));
 
 		return (
-			<div key={name} className={`min-h-[90px] flex flex-col ${width === 'full' ? 'col-span-full' : ''}`}>
+			<div className="w-full">
+				<Popover open={isOpen} onOpenChange={setIsOpen}>
+					<PopoverTrigger asChild>
+						<Button variant="outline" className={cn('w-full h-auto min-h-10 p-2 justify-between text-left font-normal', disabled && 'cursor-not-allowed opacity-50')} disabled={disabled}>
+							<div className="flex-1 min-w-0">
+								{selectedOptions.length === 0 ? (
+									<span className="text-muted-foreground">{placeholder}</span>
+								) : (
+									<div className="flex flex-wrap gap-1">
+										{selectedOptions.map((option) => {
+											const IconComponent = option.icon;
+											return (
+												<div
+													key={option.value}
+													className="flex items-center space-x-1 bg-gray-100 border rounded px-1.5 py-0.5 text-xs"
+													style={{
+														borderColor: option.color || '#e5e7eb',
+														backgroundColor: option.color ? `${option.color}15` : '#f3f4f6',
+													}}>
+													{IconComponent && (
+														<div
+															className="size-3 flex items-center justify-center rounded-sm"
+															style={{
+																backgroundColor: option.color ? `${option.color}30` : '#e5e7eb',
+																color: option.color || '#6b7280',
+															}}>
+															{typeof IconComponent === 'string' ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
+														</div>
+													)}
+													<span className="font-medium truncate max-w-20">{option.label}</span>
+													{!disabled && (
+														<button type="button" onClick={(e) => handleRemoveItem(option.value, e)} className="cursor-pointer p-0.5 transition-colors ml-0.5">
+															<X className="w-2 h-2" />
+														</button>
+													)}
+												</div>
+											);
+										})}
+									</div>
+								)}
+							</div>
+							<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }} align="start">
+						<div className="max-h-64 overflow-y-auto">
+							{options.map((option) => {
+								const IconComponent = option.icon;
+								return (
+									<div key={option.value} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onClick={(e) => handleOptionToggle(option.value, e)}>
+										<Checkbox id={`option-${option.value}`} checked={value.includes(option.value)} onCheckedChange={() => handleOptionToggle(option.value)} />
+										<div className="flex items-center space-x-2 flex-1">
+											{IconComponent && (
+												<div
+													className="size-6 flex items-center justify-center"
+													style={{
+														backgroundColor: option.color ? `${option.color}20` : '#f3f4f6',
+														color: option.color || '#6b7280',
+													}}>
+													{typeof IconComponent === 'string' ? <span className="text-sm">{IconComponent}</span> : <IconComponent className="w-4 h-4" />}
+												</div>
+											)}
+											<label htmlFor={`option-${option.value}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+												{option.label}
+											</label>
+										</div>
+									</div>
+								);
+							})}
+							{options.length === 0 && <div className="p-4 text-sm text-gray-500 text-center">No options available</div>}
+						</div>
+					</PopoverContent>
+				</Popover>
+			</div>
+		);
+	};
+
+	const renderField = (fieldConfig: FieldConfig) => {
+		const { name, type, label, placeholder, description, options, width = 'half' } = fieldConfig;
+		const isDisabled = shouldDisableField(fieldConfig);
+
+		return (
+			<div key={name} className={`min-h-[85px] flex flex-col ${width === 'full' ? 'col-span-full' : ''}`}>
 				<FormField
 					control={form.control}
 					name={name as Path<T>}
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>{label}</FormLabel>
+							{type !== 'checkbox' && type !== 'multi-checkbox' && <FormLabel className={cn('text-sm font-medium', isDisabled && 'text-muted-foreground')}>{label}</FormLabel>}
 							<FormControl>
 								{type === 'text' || type === 'email' || type === 'password' ? (
-									<Input type={type} placeholder={placeholder} {...field} />
+									<Input className="h-10" type={type} placeholder={placeholder} disabled={isDisabled} {...field} />
 								) : type === 'number' ? (
 									<Input
 										type="number"
+										className="h-10"
 										placeholder={placeholder}
+										disabled={isDisabled}
 										value={field.value || ''}
 										onChange={(e) => {
 											const value = e.target.value === '' ? undefined : parseInt(e.target.value);
@@ -163,10 +321,10 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 										}}
 									/>
 								) : type === 'textarea' ? (
-									<Textarea placeholder={placeholder} {...field} />
+									<Textarea placeholder={placeholder} disabled={isDisabled} {...field} className="h-10" />
 								) : type === 'select' ? (
-									<Select onValueChange={field.onChange} value={field.value?.toString() || ''}>
-										<SelectTrigger>
+									<Select onValueChange={field.onChange} value={field.value?.toString() || ''} disabled={isDisabled}>
+										<SelectTrigger className="w-full !h-10">
 											<SelectValue placeholder={placeholder || `Select ${label.toLowerCase()}`} />
 										</SelectTrigger>
 										<SelectContent>
@@ -177,15 +335,18 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 											))}
 										</SelectContent>
 									</Select>
+								) : type === 'multiselect' ? (
+									<MultiSelectField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} />
 								) : type === 'boxes' ? (
 									<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
 										{options?.map((option) => (
-											<BoxOption key={option.value} option={option} isSelected={field.value === option.value} onClick={() => field.onChange(option.value)} />
+											<BoxOption key={option.value} option={option} isSelected={field.value === option.value} onClick={() => field.onChange(option.value)} disabled={isDisabled} />
 										))}
 									</div>
 								) : type === 'checkbox' ? (
 									<div className="flex items-center space-x-2">
-										<Checkbox checked={Boolean(field.value)} onCheckedChange={field.onChange} />
+										<Checkbox checked={Boolean(field.value)} onCheckedChange={field.onChange} disabled={isDisabled} />
+										<FormLabel className={cn(isDisabled && 'text-muted-foreground')}>{label}</FormLabel>
 									</div>
 								) : type === 'multi-checkbox' ? (
 									<div className="grid grid-cols-2 gap-4">
@@ -194,13 +355,14 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 												<Checkbox
 													id={`${name}-${option.value}`}
 													checked={Array.isArray(field.value) ? field.value.includes(option.value) : false}
+													disabled={isDisabled}
 													onCheckedChange={(checked) => {
 														const currentValues = Array.isArray(field.value) ? field.value : [];
 														const newValue = checked ? [...currentValues, option.value] : currentValues.filter((v: unknown) => v !== option.value);
 														field.onChange(newValue);
 													}}
 												/>
-												<label htmlFor={`${name}-${option.value}`} className="text-sm font-medium">
+												<label htmlFor={`${name}-${option.value}`} className={cn('text-sm font-medium', isDisabled && 'text-muted-foreground')}>
 													{option.label}
 												</label>
 											</div>
@@ -208,7 +370,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 									</div>
 								) : null}
 							</FormControl>
-							{description && <FormDescription>{description}</FormDescription>}
+							{description && <FormDescription className={cn(isDisabled && 'text-muted-foreground')}>{description}</FormDescription>}
 							<FormMessage className="-mt-1" />
 						</FormItem>
 					)}
@@ -223,6 +385,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 		acc[section].push(field);
 		return acc;
 	}, {} as Record<string, FieldConfig[]>);
+
 	const onSubmit: SubmitHandler<T> = async (data) => {
 		setHasSubmitted(true);
 		setIsSubmitting(true);
@@ -310,7 +473,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					{config.sections && config.sections.length > 0 ? (
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-							{config.sections.map((section) => {
+							{config.sections.filter(shouldShowSection).map((section) => {
 								const sectionFields = fieldsBySection[section.name] || [];
 								const visibleFields = sectionFields.filter(shouldShowField);
 								if (visibleFields.length === 0) return null;
@@ -318,8 +481,8 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 								return (
 									<div key={section.name} className="space-y-6 bg-white">
 										<h2 className="text-xl font-semibold mb-2">{section.title}</h2>
-										<Separator className="mb-6" />
-										<div className={`grid gap-3 ${section.columns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>{visibleFields.map(renderField)}</div>
+										<Separator className="mb-5" />
+										<div className={`grid gap-x-3 ${section.columns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>{visibleFields.map(renderField)}</div>
 									</div>
 								);
 							})}
