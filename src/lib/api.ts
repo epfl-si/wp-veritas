@@ -10,13 +10,28 @@ async function makeRequest<T>(url: string, options: RequestInit = {}): Promise<T
 	return response.json();
 }
 
-export async function getNames(userIds: string[]): Promise<{ userId: string; name: string }[]> {
+export async function getNames(userIds: string[], type?: string): Promise<{ userId: string; name: string }[]> {
 	try {
 		if (!userIds?.length) return [];
+
+		if (type === 'username') {
+			const results = await Promise.all(
+				userIds.map(async (username) => {
+					if (username === 'admin') return { userId: username, name: 'Admin' };
+					try {
+						const data = await makeRequest<{ firstname: string; lastname: string }>(`${process.env.EPFL_API_URL}/persons/${username}`, { method: 'GET' });
+						return { userId: username, name: `${data.firstname} ${data.lastname}`.trim() };
+					} catch {
+						return { userId: username, name: 'Unknown' };
+					}
+				})
+			);
+			return results;
+		}
+
 		const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(`${process.env.EPFL_API_URL}/persons?ids=${userIds.join(',')}`, { method: 'GET' });
-		return data.persons.map((p: { id: string; firstname: string; lastname: string }) => ({ userId: p.id, name: `${p.firstname} ${p.lastname}`.trim() }));
-	} catch (error) {
-		console.error('Error fetching names:', error);
+		return data.persons.map((p) => ({ userId: p.id, name: `${p.firstname} ${p.lastname}`.trim() }));
+	} catch {
 		return userIds.map((id) => ({ userId: id, name: 'Unknown' }));
 	}
 }
