@@ -63,10 +63,12 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		}
 	};
 
-	const getWidthClass = (width?: string): string => {
-		if (!width) return '';
-		if (width.startsWith('w-')) return width;
-		return width;
+	const getWidthClass = (column: TableColumn<T>): string => {
+		return column.width || '';
+	};
+
+	const getCellContentClasses = (column: TableColumn<T>): string => {
+		return `px-2 py-3 text-sm text-gray-900 ${getAlignmentClass(column.align)}`;
 	};
 
 	const handleSort = (column: TableColumn<T>): void => {
@@ -200,8 +202,19 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 						<thead>
 							<tr className={headerClassName}>
 								{visibleColumns.map((column) => (
-									<th key={String(column.key)} scope="col" className={`text-xs font-medium text-gray-700 uppercase tracking-wider ${getWidthClass(column.width)} ${getAlignmentClass(column.align)} ${column.className || ''} ${column.sortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}`} onClick={() => handleSort(column)}>
-										<div className="px-2 py-2 flex items-center justify-between">
+									<th
+										key={String(column.key)}
+										scope="col"
+										className={`
+											text-xs font-medium text-gray-700 uppercase tracking-wider 
+											${getWidthClass(column)} 
+											${getAlignmentClass(column.align)} 
+											${column.className || ''} 
+											${column.sortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}
+											px-2 py-2
+										`}
+										onClick={() => handleSort(column)}>
+										<div className="flex items-center justify-between">
 											<span className={getAlignmentClass(column.align)}>{column.label}</span>
 											{renderSortIcon(column)}
 										</div>
@@ -215,10 +228,16 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 					<table className="min-w-full table-fixed">
 						<tbody className="bg-white divide-y divide-gray-200">
 							{sortedData.map((item, index) => (
-								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''} h-16`} onClick={() => onRowClick?.(item, index)}>
+								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''} h-auto min-h-[4rem]`} onClick={() => onRowClick?.(item, index)}>
 									{visibleColumns.map((column) => (
-										<td key={String(column.key)} className={`${getWidthClass(column.width)} ${getAlignmentClass(column.align)} ${column.className || ''} truncate`}>
-											<div className={`px-2 py-2 ${getWidthClass(column.width)}`}>{renderCellContent(item, column, index)}</div>
+										<td
+											key={String(column.key)}
+											className={`
+												${getWidthClass(column)} 
+												${getAlignmentClass(column.align)} 
+												${column.className || ''} 
+											`}>
+											<div className={getCellContentClasses(column)}>{renderCellContent(item, column, index)}</div>
 										</td>
 									))}
 								</tr>
