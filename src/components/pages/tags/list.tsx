@@ -41,11 +41,11 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 		{
 			key: 'nameEn',
 			label: 'Nom (EN)',
-			width: 'w-md',
+			width: 'w-[30%]',
 			align: 'left',
 			sortable: true,
 			render: (tag) => (
-				<div className="text-base font-medium truncate" title={tag.nameEn}>
+				<div className="text-base font-medium leading-relaxed" title={tag.nameEn}>
 					{tag.nameEn}
 				</div>
 			),
@@ -53,11 +53,11 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 		{
 			key: 'nameFr',
 			label: 'Nom (FR)',
-			width: 'w-md',
+			width: 'w-[30%]',
 			align: 'left',
 			sortable: true,
 			render: (tag) => (
-				<div className="text-base font-medium truncate" title={tag.nameFr}>
+				<div className="text-base font-medium leading-relaxed" title={tag.nameFr}>
 					{tag.nameFr}
 				</div>
 			),
@@ -65,7 +65,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 		{
 			key: 'type',
 			label: 'Type',
-			width: 'w-48',
+			width: 'w-[15%]',
 			align: 'left',
 			sortable: true,
 			render: (tag) => {
@@ -80,7 +80,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 		{
 			key: 'actions',
 			label: 'Actions',
-			width: 'w-36',
+			width: 'w-[10%]',
 			align: 'left',
 			sortable: false,
 			render: (tag) => (
