@@ -219,7 +219,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 			<div className="w-full">
 				<Popover open={isOpen} onOpenChange={setIsOpen}>
 					<PopoverTrigger asChild>
-						<Button variant="outline" className={cn('w-full h-auto min-h-10 p-2 justify-between text-left font-normal', disabled && 'cursor-not-allowed opacity-50')} disabled={disabled}>
+						<Button variant="outline" className={cn('w-full h-auto min-h-10 py-0 justify-between text-left font-normal', disabled && 'cursor-not-allowed opacity-50')} disabled={disabled}>
 							<div className="flex-1 min-w-0">
 								{selectedOptions.length === 0 ? (
 									<span className="text-muted-foreground">{placeholder}</span>
