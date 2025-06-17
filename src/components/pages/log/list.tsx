@@ -32,7 +32,7 @@ const parseMessage = (message: string) => {
 
 const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCase());
 
-const DEFAULT_SELECTED_ACTIONS = ['create', 'update', 'delete'];
+const DEFAULT_SELECTED_ACTIONS = ['create', 'update', 'delete', 'associate', 'disassociate'];
 
 export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 	const availableActions = useMemo(() => {
