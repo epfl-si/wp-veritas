@@ -6,6 +6,8 @@ import { SiteFormType, siteSchema, SiteType } from '@/types/site';
 import { useZodErrorMessages } from '@/hooks/zod';
 import { INFRASTRUCTURES } from '@/constants/infrastructures';
 import { THEMES } from '@/constants/theme';
+import { LANGUAGES } from '@/constants/languages';
+import { OPTIONAL_CATEGORIES } from '@/constants/categories';
 
 interface SiteUpdateProps {
 	site: SiteType;
@@ -127,12 +129,10 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				section: 'details',
 				width: 'half',
 				disabled: true,
-				options: [
-					{ value: 'fr', label: 'Français' },
-					{ value: 'en', label: 'English' },
-					{ value: 'de', label: 'Deutsch' },
-					{ value: 'es', label: 'Español' },
-				],
+				options: Object.values(LANGUAGES).map((lang) => ({
+					value: lang.flag,
+					label: lang.name,
+				})),
 				conditions: [
 					{
 						field: 'infrastructure',
@@ -148,12 +148,10 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				label: t('form.categories.label'),
 				section: 'details',
 				width: 'full',
-				options: [
-					{ value: 'education', label: t('form.categories.options.education') },
-					{ value: 'business', label: t('form.categories.options.business') },
-					{ value: 'personal', label: t('form.categories.options.personal') },
-					{ value: 'portfolio', label: t('form.categories.options.portfolio') },
-				],
+				options: Object.values(OPTIONAL_CATEGORIES).map((category) => ({
+					value: category.NAME,
+					label: category.LABEL,
+				})),
 				conditions: [
 					{
 						field: 'infrastructure',
