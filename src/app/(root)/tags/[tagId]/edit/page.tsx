@@ -1,7 +1,7 @@
 'use server';
 import { Error } from '@/components/error';
 import { TagUpdate } from '@/components/pages/tags/update';
-import { getTag } from '@/services/tags';
+import { getTag } from '@/services/tag';
 import { CircleX } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 

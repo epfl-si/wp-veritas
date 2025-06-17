@@ -1,7 +1,7 @@
 import { PERMISSIONS } from '@/constants/permissions';
 import { auth } from '@/services/auth';
 import { hasPermission } from '@/services/policy';
-import { createTag, listTags } from '@/services/tags';
+import { createTag, listTags } from '@/services/tag';
 import { createTagSchema } from '@/types/tag';
 import { NextResponse } from 'next/server';
 import { v4 as uuid } from 'uuid';

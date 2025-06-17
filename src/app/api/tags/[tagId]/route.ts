@@ -2,7 +2,7 @@ import { PERMISSIONS } from '@/constants/permissions';
 import { isValidUUID } from '@/lib/utils';
 import { auth } from '@/services/auth';
 import { hasPermission } from '@/services/policy';
-import { deleteTag, updateTag } from '@/services/tags';
+import { deleteTag, updateTag } from '@/services/tag';
 import { createTagSchema } from '@/types/tag';
 import { NextRequest, NextResponse } from 'next/server';
 

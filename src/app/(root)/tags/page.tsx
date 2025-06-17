@@ -3,7 +3,7 @@
 import { Error } from '@/components/error';
 import { TagList } from '@/components/pages/tags/list';
 import { getUserPermissions } from '@/services/auth';
-import { listTags } from '@/services/tags';
+import { listTags } from '@/services/tag';
 import { CircleX } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 
