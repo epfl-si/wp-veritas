@@ -186,7 +186,7 @@ export const WP_CATEGORIES = {
 					},
 				],
 				polylang: {
-					languages: (site.languages ?? []).map((l) => ({ slug: l, ...Object.values(LANGUAGES).find((lang) => lang.locale === l) })),
+					languages: (site.languages ?? []).map((l) => ({ slug: l, ...Object.values(LANGUAGES).find((lang) => lang.flag === l) })),
 				},
 			},
 			redirection: {
