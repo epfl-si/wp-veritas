@@ -7,6 +7,8 @@ import { ITag, TagModel } from '@/models/Tag';
 import { v4 as uuidv4 } from 'uuid';
 import { isValidUUID } from '@/lib/utils';
 import { info, warn, error } from '@/lib/log';
+import { SiteModel } from '@/models/Site';
+import { getSite } from './site';
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
@@ -34,7 +36,7 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 
 		const savedTag = await newTag.save();
 
-		await info(`New tag **${tag.nameEn}** created successfully`, {
+		await info(`The **${tag.type}** tag **${tag.nameEn}** created successfully`, {
 			type: 'tag',
 			action: 'create',
 			id: tagId,
@@ -91,7 +93,7 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 			return { error: { status: 404, message: 'Tag not found', success: false } };
 		}
 
-		await info(`Tag **${tag.nameEn}** updated successfully`, {
+		await info(`The **${tag.type}** tag **${tag.nameEn}** updated successfully`, {
 			type: 'tag',
 			action: 'update',
 			id: tagId,
@@ -139,7 +141,7 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 
 		await TagModel.deleteOne({ id: tagId });
 
-		await info(`Tag **${tag.nameEn}** deleted successfully`, {
+		await info(`The **${tag.type}** tag **${tag.nameEn}** deleted successfully`, {
 			type: 'tag',
 			action: 'delete',
 			id: tagId,
@@ -182,7 +184,7 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 			return { error: { status: 404, message: 'Tag not found', success: false } };
 		}
 
-		await info(`Tag **${tag.nameEn}** retrieved successfully`, {
+		await info(`The **${tag.type}** tag **${tag.nameEn}** retrieved successfully`, {
 			type: 'tag',
 			action: 'read',
 			id: tagId,
@@ -225,7 +227,7 @@ export async function listTags(): Promise<{ tags?: TagType[]; error?: APIError }
 
 		const tags = await TagModel.find<ITag>();
 
-		await info(`Tags listed successfully`, {
+		await info(`The tags listed successfully`, {
 			type: 'tag',
 			action: 'list',
 			count: tags.length,
@@ -239,6 +241,7 @@ export async function listTags(): Promise<{ tags?: TagType[]; error?: APIError }
 				nameEn: tag.nameEn,
 				urlFr: tag.urlFr,
 				urlEn: tag.urlEn,
+				sites: tag.sites || [],
 			})),
 		};
 	} catch (errorData) {
