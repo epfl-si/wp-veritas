@@ -80,58 +80,42 @@ export interface SearchSiteType {
 	};
 }
 
-export const SiteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
-	return z.object({
-		url: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.url({
-				message: errorMessages.invalid_url,
+export const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+	const availableInfras = Object.values(INFRASTRUCTURES)
+		.filter((infra) => infra.CREATED)
+		.map((infra) => infra.NAME) as [string, ...string[]];
+
+	const baseFields = {
+		infrastructure: z.enum(availableInfras, {
+			errorMap: (issue, ctx) => ({
+				message: issue.code === z.ZodIssueCode.invalid_enum_value ? errorMessages.invalid_enum(availableInfras) : issue.code === z.ZodIssueCode.invalid_type ? errorMessages.invalid_type : ctx.defaultError,
 			}),
-		tagline: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(3, {
-				message: errorMessages.too_small(3),
-			}),
-		title: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(3, {
-				message: errorMessages.too_small(3),
-			}),
-		theme: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(1, {
-				message: errorMessages.too_small(1),
-			}),
-		unitId: z
-			.number({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.positive({
-				message: errorMessages.too_small(1),
-			}),
-		languages: z.array(z.string()).min(1, {
-			message: errorMessages.too_small(1),
 		}),
-		categories: z.array(z.string()).min(1, {
-			message: errorMessages.too_small(1),
-		}),
-		downloadsProtectionScript: z.string().optional(),
+		url: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).url({ message: errorMessages.invalid_url }),
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
-	});
+	};
+
+	const persistenceFields = {
+		tagline: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
+		title: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
+		theme: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(1, { message: errorMessages.too_small(1) }),
+		languages: z.array(z.string()).min(1, { message: errorMessages.too_small(1) }),
+		categories: z.array(z.string()).min(1, { message: errorMessages.too_small(1) }),
+		unitId: z.number({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).positive({ message: errorMessages.too_small(1) }),
+		downloadsProtectionScript: z.boolean().optional(),
+	};
+
+	return z.discriminatedUnion('infrastructure', [z.object({ ...baseFields, ...persistenceFields, infrastructure: z.literal(INFRASTRUCTURES.KUBERNETES.PERSISTENCE) }), ...availableInfras.filter((name) => name !== INFRASTRUCTURES.KUBERNETES.PERSISTENCE).map((name) => z.object({ ...baseFields, infrastructure: z.literal(name) }))]);
 };
 
-export type SiteFormType = z.infer<ReturnType<typeof SiteSchema>>;
+export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+	return createSiteSchemaBase(errorMessages);
+};
+
+export const createSiteSchema = async () => {
+	const errorMessages = await getZodErrorMessages();
+	return createSiteSchemaBase(errorMessages);
+};
+
+export type SiteFormType = z.infer<ReturnType<typeof siteSchema>>;
