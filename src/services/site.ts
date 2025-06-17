@@ -546,10 +546,12 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					url: site.url,
 					loginUrl: site.url.endsWith('/') ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
 					unit: await getUnit(site.unitId?.toString() || ''),
-					lastModified: {
-						date: lastChange?.[0]?.last_modified || '',
-						user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || '',
-					},
+					lastModified: lastChange?.[0]?.last_modified
+						? {
+								date: lastChange?.[0]?.last_modified || '',
+								user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || '',
+						  }
+						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({
 							date: r.last_modified,
