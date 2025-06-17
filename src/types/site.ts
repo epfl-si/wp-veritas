@@ -1,4 +1,5 @@
-import { useZodErrorMessages } from '@/hooks/zod';
+import { INFRASTRUCTURES } from '@/constants/infrastructures';
+import { getZodErrorMessages, useZodErrorMessages } from '@/hooks/zod';
 import { z } from 'zod';
 
 export interface KubernetesSiteType {
@@ -19,7 +20,7 @@ export interface KubernetesSiteType {
 		path: string;
 		wordpress: {
 			debug: boolean;
-			downloadsProtectionScript: string;
+			downloadsProtectionScript?: string;
 			languages: string[];
 			plugins: Record<string, object>;
 			tagline: string;
@@ -38,15 +39,16 @@ export interface KubernetesSiteType {
 export interface SiteType {
 	id: string;
 	url: string;
-	type: string;
-	tagline: string;
-	title: string;
-	theme: string;
-	unitId: number;
-	languages: string[];
-	categories: string[];
+	infrastructure: string;
 	createdAt: Date;
-	downloadsProtectionScript?: string;
+	tagline?: string;
+	title?: string;
+	theme?: string;
+	unitId?: number;
+	languages?: string[];
+	categories?: string[];
+	downloadsProtectionScript?: boolean;
+	tags: string[];
 	ticket?: string;
 	comment?: string;
 }
