@@ -64,7 +64,7 @@ export interface SearchSiteType {
 	lastModified: {
 		date: string;
 		user: string;
-	};
+	} | null;
 	recentModifications: Array<{
 		date: string;
 		user: string;
@@ -106,7 +106,15 @@ export const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErro
 		downloadsProtectionScript: z.boolean().optional(),
 	};
 
-	return z.discriminatedUnion('infrastructure', [z.object({ ...baseFields, ...persistenceFields, infrastructure: z.literal(INFRASTRUCTURES.KUBERNETES.PERSISTENCE) }), ...availableInfras.filter((name) => name !== INFRASTRUCTURES.KUBERNETES.PERSISTENCE).map((name) => z.object({ ...baseFields, infrastructure: z.literal(name) }))]);
+	return z.discriminatedUnion('infrastructure', [
+		z.object({ ...baseFields, ...persistenceFields, infrastructure: z.literal('Kubernetes') }),
+		...availableInfras
+			.filter((name) => {
+				const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === name);
+				return infra?.PERSISTENCE === INFRASTRUCTURES.EXTERNAL.PERSISTENCE;
+			})
+			.map((name) => z.object({ ...baseFields, infrastructure: z.literal(name) })),
+	]);
 };
 
 export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
