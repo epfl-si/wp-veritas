@@ -16,6 +16,7 @@
     "info": {
       "title": "Search for website information",
       "search": {
+        "button": "Search",
         "url": {
           "placeholder": "Search for websites..."
         },
@@ -72,9 +73,9 @@
         "url": {
           "placeholder": "Search for websites..."
         },
-        "type": {
-          "placeholder": "Filter by type...",
-          "all": "All the types"
+        "infrastructure": {
+          "placeholder": "Filter by infrastructure...",
+          "all": "All the infrastructures"
         },
         "theme": {
           "placeholder": "Filter by theme...",
@@ -88,9 +89,102 @@
       },
       "column": {
         "url": "URL",
-        "type": "Type",
+        "infrastructure": "Infrastructure",
         "createdAt": "Created At",
         "actions": "Actions"
+      }
+    },
+    "add": {
+      "title": "Add New Site",
+      "success": {
+        "title": "Website created successfully",
+        "message": "The new website has been added to the system."
+      },
+      "error": {
+        "title": "An error occurred while creating the website",
+        "description": "Please try again later"
+      }
+    },
+    "tags": {
+      "title": "Manage Site Tags",
+      "siteUrl": "Site URL",
+      "success": {
+        "title": "Tags Updated Successfully",
+        "message": "The site tags have been updated successfully."
+      },
+      "error": {
+        "title": "Error Updating Tags",
+        "message": "An error occurred while updating the tags. Please try again.",
+        "unknown": "An unknown error occurred"
+      },
+      "actions": {
+        "save": "Save Changes",
+        "saving": "Saving",
+        "reset": "Reset"
+      }
+    },
+    "form": {
+      "infrastructure": {
+        "label": "Infrastructure",
+        "placeholder": "Select website infrastructure..."
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "https://example.com"
+      },
+      "title": {
+        "label": "Website Title",
+        "placeholder": "Enter website title..."
+      },
+      "tagline": {
+        "label": "Tagline",
+        "placeholder": "Enter website tagline..."
+      },
+      "theme": {
+        "label": "Theme",
+        "placeholder": "Enter theme name..."
+      },
+      "unitId": {
+        "label": "Unit ID",
+        "placeholder": "Enter unit identifier..."
+      },
+      "languages": {
+        "label": "Languages"
+      },
+      "categories": {
+        "label": "Categories",
+        "options": {
+          "education": "Education",
+          "business": "Business",
+          "personal": "Personal",
+          "portfolio": "Portfolio"
+        }
+      },
+      "downloadsProtectionScript": {
+        "label": "Downloads Protection Script",
+        "placeholder": "Enter protection script..."
+      },
+      "ticket": {
+        "label": "Ticket",
+        "placeholder": "Enter ticket reference..."
+      },
+      "comment": {
+        "label": "Comment",
+        "placeholder": "Enter additional comments..."
+      },
+      "sections": {
+        "general": {
+          "title": "General Information"
+        },
+        "details": {
+          "title": "Website Details"
+        },
+        "advanced": {
+          "title": "Advanced Configuration"
+        },
+        "metadata": {
+          "title": "Metadata"
+        }
       }
     },
     "actions": {
@@ -100,7 +194,10 @@
       "save": "Save Changes",
       "cancel": "Cancel",
       "view": "View Details",
-      "viewSite": "Visit Website"
+      "viewSite": "Visit Website",
+      "create": "Create",
+      "reset": "Reset",
+      "creating": "Creating"
     }
   },
   "status": {
@@ -114,6 +211,13 @@
   "tag": {
     "list": {
       "title": "Manage Tags",
+      "subtitle": "Create and manage your tags to organize your content",
+      "empty": {
+        "title": "No tags created",
+        "description": "Start by creating your first tag to organize your content"
+      },
+      "no_results": "No tags found",
+      "no_results_description": "No tags match your search criteria",
       "search": {
         "name": {
           "placeholder": "Search for tags..."
