@@ -7,20 +7,20 @@ import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TYPES } from '@/constants/types';
 import { Table, TableColumn } from '@/components/ui/table';
 import moment from 'moment';
 import 'moment/locale/fr';
 import { PERMISSIONS } from '@/constants/permissions';
 import { THEMES } from '@/constants/theme';
 import { ThemeType } from '@/types/theme';
-import { TypeType } from '@/types/type';
 import { DeleteDialog } from '@/components/dialog/delete';
+import { INFRASTRUCTURES } from '@/constants/infrastructures';
+import { InfrastructureType } from '@/types/infrastructure';
 
 export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
 	const [search, setSearch] = useState({
 		url: '',
-		type: '',
+		infrastructure: '',
 		theme: '',
 	});
 
@@ -31,8 +31,8 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		moment.locale(locale);
 	}, [locale]);
 
-	const getTypeConfig = (typeName: string) => {
-		return Object.values(TYPES).find((type) => type.NAME === typeName);
+	const getInfrastructureConfig = (typeName: string): InfrastructureType | undefined => {
+		return Object.values(INFRASTRUCTURES).find((infrastructure) => infrastructure.NAME === typeName);
 	};
 
 	const formatRelativeDate = (date: Date) => {
@@ -42,7 +42,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 	const filteredSites = sites.filter((site) => {
 		const matchesUrl = site.url.toLowerCase().includes(search.url.toLowerCase());
-		const matchesType = search.type === '' || site.type === search.type;
+		const matchesType = search.infrastructure === '' || site.infrastructure === search.infrastructure;
 		const matchesTheme = search.theme === '' || site.theme === search.theme;
 		return matchesUrl && matchesType && matchesTheme;
 	});
@@ -51,28 +51,28 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'url',
 			label: t('list.column.url'),
-			width: 'min-w-0 flex-1',
+			width: 'w-[60%]',
 			align: 'left',
 			sortable: true,
 			render: (site) => (
 				<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
 					<GlobeIcon className="size-6 flex-shrink-0" />
-					<span className="text-base font-medium truncate">{site.url}</span>
+					<span className="text-base font-medium leading-relaxed">{site.url}</span>
 				</a>
 			),
 		},
 		{
-			key: 'type',
-			label: t('list.column.type'),
-			width: 'w-48',
+			key: 'infrastructure',
+			label: t('list.column.infrastructure'),
+			width: 'w-[15%]',
 			align: 'center',
 			sortable: true,
 			render: (site) => {
-				const typeConfig = getTypeConfig(site.type);
+				const infrastructureConfig = getInfrastructureConfig(site.infrastructure);
 				return (
-					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: typeConfig?.COLOR, color: typeConfig?.COLOR }}>
-						{typeConfig?.ICON ? React.createElement(typeConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
-						<span className="text-sm font-semibold uppercase">{site.type}</span>
+					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: infrastructureConfig?.COLOR, color: infrastructureConfig?.COLOR }}>
+						{infrastructureConfig?.ICON ? React.createElement(infrastructureConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
+						<span className="text-sm font-semibold uppercase">{infrastructureConfig?.LABEL[locale as 'fr' | 'en'] || infrastructureConfig?.NAME}</span>
 					</div>
 				);
 			},
@@ -80,7 +80,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'createdAt',
 			label: t('list.column.createdAt'),
-			width: 'w-48',
+			width: 'w-[10%]',
 			align: 'center',
 			sortable: true,
 			sortKey: 'createdAt',
@@ -93,12 +93,12 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'actions',
 			label: t('list.column.actions'),
-			width: 'w-60',
+			width: 'w-[15%]',
 			align: 'left',
 			sortable: false,
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITES.INFO) && (
+					{permissions.includes(PERMISSIONS.SITES.READ) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
 							<Link href={`/info?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
@@ -106,7 +106,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITES.READ) && (
+					{permissions.includes(PERMISSIONS.SITES.INFO) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
 							<FileText strokeWidth={2.3} className="size-5" />
 						</Button>
@@ -114,7 +114,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-							<Link href={`/edit/${site.id}`}>
+							<Link href={`/sites/${site.id}/edit`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
@@ -122,7 +122,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
-							<Link href={`/site-tags/${site.id}`}>
+							<Link href={`/sites/${site.id}/tags`}>
 								<Tags strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
@@ -140,7 +140,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold">{t('list.title')}</h1>
 					<Button className="h-10" asChild>
-						<Link href="/site/add">
+						<Link href="/new">
 							<Plus className="size-5" />
 							{t('actions.add')}
 						</Link>
@@ -149,16 +149,16 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 				<div className="flex gap-2 mt-6">
 					<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} value={search.url} placeholder={t('list.search.url.placeholder')} className="flex-1 h-10" />
 
-					<Select onValueChange={(value) => setSearch({ ...search, type: value === 'all' ? '' : value })} value={search.type || 'all'}>
+					<Select onValueChange={(value) => setSearch({ ...search, infrastructure: value === 'all' ? '' : value })} value={search.infrastructure || 'all'}>
 						<SelectTrigger className="w-48 !h-10">
-							<SelectValue placeholder={t('list.search.type.placeholder')} />
+							<SelectValue placeholder={t('list.search.infrastructure.placeholder')} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t('list.search.type.all')}</SelectItem>
-							{Object.values(TYPES).map((type: TypeType) => {
+							<SelectItem value="all">{t('list.search.infrastructure.all')}</SelectItem>
+							{Object.values(INFRASTRUCTURES).map((infrastructure: InfrastructureType) => {
 								return (
-									<SelectItem key={type.NAME} value={type.NAME}>
-										{type?.LABEL[locale as 'fr' | 'en'] || type.NAME}
+									<SelectItem key={infrastructure.NAME} value={infrastructure.NAME}>
+										{infrastructure?.LABEL[locale as 'fr' | 'en'] || infrastructure.NAME}
 									</SelectItem>
 								);
 							})}
