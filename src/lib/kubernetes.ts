@@ -1,6 +1,6 @@
 import { KubernetesSiteType, SiteFormType, SiteType } from '@/types/site';
 import * as k8s from '@kubernetes/client-node';
-import { getCategoriesFromPlugins, getPluginsFromCategories } from './plugins';
+import { getCategoriesFromPlugins, getKubernetesPluginStruct } from './plugins';
 import { ensureSlashAtEnd } from './utils';
 import { INFRASTRUCTURES } from '@/constants/infrastructures';
 import { APIError } from '@/types/error';
@@ -100,7 +100,9 @@ function mapKubernetesToSite(item: KubernetesSiteType): SiteType {
 
 function createSiteSpec(site: SiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
-	const plugins = getPluginsFromCategories(site.categories || []);
+	console.log('Creating site spec for:', name, 'in namespace:', namespace);
+	console.log('site:', site);
+	const plugins = getKubernetesPluginStruct(site as SiteType);
 
 	return {
 		apiVersion: `${WORDPRESS_GROUP}/${WORDPRESS_VERSION}`,
@@ -239,7 +241,8 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 
 		const categoriesChanged = JSON.stringify(siteData.categories?.sort()) !== JSON.stringify(existingSite.categories?.sort());
 		if (categoriesChanged) {
-			const plugins = getPluginsFromCategories(siteData.categories || []);
+			const plugins = getKubernetesPluginStruct(siteData as SiteType);
+			console.log('Updating plugins:', plugins);
 			patchOperations.push({
 				op: 'replace',
 				path: '/spec/wordpress/plugins',
