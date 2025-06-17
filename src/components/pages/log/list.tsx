@@ -75,7 +75,7 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 		{
 			key: 'timestamp',
 			label: t('list.column.timestamp'),
-			width: 'w-40',
+			width: 'w-[10%]',
 			align: 'left',
 			sortable: true,
 			render: (log) => (
@@ -87,15 +87,20 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 		{
 			key: 'level',
 			label: t('list.column.level'),
-			width: 'w-32',
+			width: 'w-[10%]',
 			align: 'left',
 			sortable: true,
 			render: (log) => {
 				const levelConfig = getLogLevelConfig(log.level);
 				return (
-					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: levelConfig?.COLOR, color: levelConfig?.COLOR }}>
-						{levelConfig?.ICON ? React.createElement(levelConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
-						<span className="text-sm font-semibold uppercase">{levelConfig?.LABEL[locale as 'fr' | 'en'] || log.level}</span>
+					<div className="text-black p-1.5 sm:p-2 h-8 sm:h-9 flex gap-0.5 sm:gap-1 justify-center items-center border-2 rounded-sm" style={{ borderColor: levelConfig?.COLOR, color: levelConfig?.COLOR }}>
+						{levelConfig?.ICON
+							? React.createElement(levelConfig.ICON, {
+									className: 'size-3 sm:size-4',
+									strokeWidth: 2.3,
+							  })
+							: null}
+						<span className="text-xs sm:text-sm font-semibold uppercase hidden sm:inline">{levelConfig?.LABEL[locale as 'fr' | 'en'] || log.level}</span>
 					</div>
 				);
 			},
@@ -103,11 +108,11 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 		{
 			key: 'message',
 			label: t('list.column.message'),
-			width: 'flex-1',
+			width: 'w-[50%]',
 			align: 'left',
 			sortable: true,
 			render: (log) => (
-				<div className="text-sm truncate" title={log.message}>
+				<div className="text-sm py-1 leading-relaxed" title={log.message}>
 					{parseMessage(log.message)}
 				</div>
 			),
@@ -115,14 +120,14 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 		{
 			key: 'userId',
 			label: t('list.column.user'),
-			width: 'w-52',
+			width: 'w-[18%]',
 			align: 'left',
 			sortable: true,
 			render: (log) => (
 				<div className="text-sm text-gray-600 flex items-center gap-1" title={log.user?.name || '-'}>
 					{log.user ? (
-						<Link href={`https://people.epfl.ch/${log.user.userId}`} className="flex items-center justify-center gap-1 hover:underline">
-							<UserRound className="size-4" />
+						<Link href={`https://people.epfl.ch/${log.user.userId}`} className="flex items-center justify-center gap-1 hover:underline min-w-0">
+							<UserRound className="size-3 sm:size-4 flex-shrink-0" />
 							<p className="truncate">{log.user.name}</p>
 						</Link>
 					) : (
@@ -180,8 +185,11 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 					</Popover>
 				</div>
 			</div>
-			<div className="px-6 pb-0 h-full overflow-y-auto">
-				<Table data={filteredLogs} columns={columns} defaultSort={{ key: 'timestamp', direction: 'desc' }} />
+
+			<div className="px-3 sm:px-4 md:px-6 pb-0 h-full overflow-hidden">
+				<div className="h-full overflow-auto">
+					<Table data={filteredLogs} columns={columns} defaultSort={{ key: 'timestamp', direction: 'desc' }} />
+				</div>
 			</div>
 		</div>
 	);
