@@ -1,10 +1,10 @@
 'use server';
 import { APIError } from '@/types/error';
-import { SearchSiteType, SiteFormType, SiteType } from '@/types/site';
+import { SearchSiteType, SiteFormType, SiteType, KubernetesSite, DatabaseSite, isKubernetesSite, isDatabaseSite, getSitePersistence, isCreatableInfrastructure } from '@/types/site';
 import { hasPermission } from './policy';
 import { PERMISSIONS } from '@/constants/permissions';
 import { getEditors, getNames, getUnit } from '@/lib/api';
-import { INFRASTRUCTURES } from '@/constants/infrastructures';
+import { getInfrastructureByName } from '@/constants/infrastructures';
 import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite } from '@/lib/kubernetes';
 import { createDatabaseSite, listDatabaseSites, getDatabaseSite, updateDatabaseSite, deleteDatabaseSite, createDatabaseSiteExtras, updateDatabaseSiteExtras, deleteDatabaseSiteExtras } from '@/lib/database';
 import { getTagsBySite } from '@/services/tag';
@@ -27,18 +27,14 @@ function extractExtras(site: SiteFormType): Partial<Record<SiteExtra, string>> {
 	return extras;
 }
 
-function mergeSiteWithExtras(kubernetesSite: SiteType, dbSite?: SiteType): SiteType {
+function mergeSiteWithExtras(kubernetesSite: KubernetesSite, dbSite?: DatabaseSite): KubernetesSite {
 	if (!dbSite) return kubernetesSite;
 
-	const merged = { ...kubernetesSite };
-
-	SITE_EXTRAS.forEach((extra) => {
-		if (dbSite[extra as keyof SiteType]) {
-			(merged as Record<string, unknown>)[extra] = dbSite[extra as keyof SiteType];
-		}
-	});
-
-	return merged;
+	return {
+		...kubernetesSite,
+		ticket: dbSite.ticket,
+		comment: dbSite.comment,
+	};
 }
 
 async function enrichSiteWithTags(site: SiteType): Promise<SiteType> {
@@ -69,91 +65,91 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
+		const infrastructure = getInfrastructureByName(site.infrastructure);
+		if (!infrastructure) {
+			return { error: { status: 400, message: 'Invalid infrastructure', success: false } };
+		}
+
+		if (!isCreatableInfrastructure(site.infrastructure)) {
+			return { error: { status: 400, message: 'Infrastructure is not creatable', success: false } };
+		}
+
 		const { sites } = await listSites();
 		const siteUrl = ensureSlashAtEnd(site.url);
 		if (sites && sites.some((s) => s.url === siteUrl)) {
 			return { error: { status: 409, message: 'Site already exists', success: false } };
 		}
 
-		const infrastructure = Object.values(INFRASTRUCTURES).find((infra) => infra.NAME === site.infrastructure);
-		const persistence = infrastructure?.PERSISTENCE;
+		const persistence = getSitePersistence(site.infrastructure);
 
-		if (!persistence || persistence === 'none') {
-			await warn(`Invalid infrastructure specified for site creation`, {
-				type: 'site',
-				action: 'create',
-				object: site,
-				error: 'Invalid infrastructure',
-			});
-			return { error: { status: 400, message: 'Invalid infrastructure', success: false } };
-		}
-
-		if (persistence === INFRASTRUCTURES.KUBERNETES.PERSISTENCE) {
-			const { siteId, error: kubernetesError } = await createKubernetesSite(site);
-			if (kubernetesError) {
-				console.error(`Error creating Kubernetes site:`, kubernetesError);
-				await error(`Failed to create site`, {
-					type: 'site',
-					action: 'create',
-					object: site,
-					error: kubernetesError.message,
-				});
-				return { error: kubernetesError };
-			}
-
-			if (siteId) {
-				const extras = extractExtras(site);
-				if (Object.keys(extras).length > 0) {
-					await createDatabaseSiteExtras(siteId, extras);
+		switch (persistence) {
+			case 'kubernetes': {
+				const { siteId, error: kubernetesError } = await createKubernetesSite(site);
+				if (kubernetesError) {
+					console.error(`Error creating Kubernetes site:`, kubernetesError);
+					await error(`Failed to create site`, {
+						type: 'site',
+						action: 'create',
+						object: site,
+						error: kubernetesError.message,
+					});
+					return { error: kubernetesError };
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
-					type: 'site',
-					action: 'create',
-					id: siteId,
-					object: site,
-				});
+				if (siteId) {
+					const extras = extractExtras(site);
+					if (Object.keys(extras).length > 0) {
+						await createDatabaseSiteExtras(siteId, extras);
+					}
+
+					await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
+						type: 'site',
+						action: 'create',
+						id: siteId,
+						object: site,
+					});
+				}
+
+				await sendSiteCreatedMessage(site.url, site.infrastructure);
+				return { siteId };
 			}
 
-			await sendSiteCreatedMessage(site.url, site.infrastructure);
+			case 'database': {
+				const { siteId, error: databaseError } = await createDatabaseSite(site);
+				if (databaseError) {
+					await error(`Failed to create site`, {
+						type: 'site',
+						action: 'create',
+						object: site,
+						error: databaseError.message,
+					});
+					return { error: databaseError };
+				}
 
-			return { siteId };
+				if (siteId) {
+					await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
+						type: 'site',
+						action: 'create',
+						id: siteId,
+						object: site,
+					});
+				}
+
+				await sendSiteCreatedMessage(site.url, site.infrastructure);
+				return { siteId };
+			}
+
+			case 'none':
+			default:
+				await warn(`Unsupported persistence type for site creation`, {
+					type: 'site',
+					action: 'create',
+					object: site,
+					persistence,
+					error: 'Not implemented',
+				});
+				return { error: { status: 501, message: 'Not implemented', success: false } };
 		}
-
-		if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
-			const { siteId, error: databaseError } = await createDatabaseSite(site);
-			if (databaseError) {
-				await error(`Failed to create site`, {
-					type: 'site',
-					action: 'create',
-					object: site,
-					error: databaseError.message,
-				});
-				return { error: databaseError };
-			}
-
-			if (siteId) {
-				await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
-					type: 'site',
-					action: 'create',
-					id: siteId,
-					object: site,
-				});
-			}
-
-			await sendSiteCreatedMessage(site.url, site.infrastructure);
-
-			return { siteId };
-		}
-
-		await warn(`Unsupported persistence type for site creation`, {
-			type: 'site',
-			action: 'create',
-			object: site,
-			persistence,
-			error: 'Not implemented',
-		});
-		return { error: { status: 501, message: 'Not implemented', success: false } };
 	} catch (errorData) {
 		await error(`Failed to create site`, {
 			type: 'site',
@@ -179,83 +175,84 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
-		const infrastructure = Object.values(INFRASTRUCTURES).find((infra) => infra.NAME === site.infrastructure);
-		const persistence = infrastructure?.PERSISTENCE;
+		const persistence = getSitePersistence(site.infrastructure);
 
-		if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
-			const { error: databaseError } = await updateDatabaseSite(siteId, site);
-			if (databaseError) {
-				await error(`Failed to update site`, {
-					type: 'site',
-					action: 'update',
-					id: siteId,
-					object: site,
-					error: databaseError.message,
-				});
-				return { error: databaseError };
-			}
-
-			await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
-				type: 'site',
-				action: 'update',
-				id: siteId,
-				object: site,
-			});
-		}
-
-		if (persistence === INFRASTRUCTURES.KUBERNETES.PERSISTENCE) {
-			const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
-			if (kubernetesError) {
-				await error(`Failed to update site`, {
-					type: 'site',
-					action: 'update',
-					id: siteId,
-					object: site,
-					error: kubernetesError.message,
-				});
-				return { error: kubernetesError };
-			}
-
-			const extras = extractExtras(site);
-			if (Object.keys(extras).length > 0) {
-				try {
-					await updateDatabaseSiteExtras(siteId, extras);
-					await info(`Site extras updated successfully for site **${siteId}**`, {
+		switch (persistence) {
+			case 'database': {
+				const { error: databaseError } = await updateDatabaseSite(siteId, site);
+				if (databaseError) {
+					await error(`Failed to update site`, {
 						type: 'site',
-						action: 'update_extras',
+						action: 'update',
 						id: siteId,
-						extras,
+						object: site,
+						error: databaseError.message,
 					});
-				} catch (extrasError) {
-					await warn(`Failed to update site extras, but site was updated`, {
-						type: 'site',
-						action: 'update_extras',
-						id: siteId,
-						error: extrasError instanceof Error ? extrasError.message : 'Unknown error',
-					});
+					return { error: databaseError };
 				}
+
+				await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
+					type: 'site',
+					action: 'update',
+					id: siteId,
+					object: site,
+				});
+				break;
 			}
 
-			await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
-				type: 'site',
-				action: 'update',
-				id: siteId,
-				object: site,
-			});
+			case 'kubernetes': {
+				const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
+				if (kubernetesError) {
+					await error(`Failed to update site`, {
+						type: 'site',
+						action: 'update',
+						id: siteId,
+						object: site,
+						error: kubernetesError.message,
+					});
+					return { error: kubernetesError };
+				}
 
-			return {};
-		}
+				const extras = extractExtras(site);
+				if (Object.keys(extras).length > 0) {
+					try {
+						await updateDatabaseSiteExtras(siteId, extras);
+						await info(`Site extras updated successfully for site **${siteId}**`, {
+							type: 'site',
+							action: 'update_extras',
+							id: siteId,
+							extras,
+						});
+					} catch (extrasError) {
+						await warn(`Failed to update site extras, but site was updated`, {
+							type: 'site',
+							action: 'update_extras',
+							id: siteId,
+							error: extrasError instanceof Error ? extrasError.message : 'Unknown error',
+						});
+					}
+				}
 
-		if (!persistence || persistence === 'none') {
-			await warn(`Unsupported persistence type for site update`, {
-				type: 'site',
-				action: 'update',
-				id: siteId,
-				object: site,
-				persistence,
-				error: 'Not implemented',
-			});
-			return { error: { status: 501, message: 'Not implemented', success: false } };
+				await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
+					type: 'site',
+					action: 'update',
+					id: siteId,
+					object: site,
+				});
+				break;
+			}
+
+			case 'none':
+			default:
+				await warn(`Unsupported persistence type for site update`, {
+					type: 'site',
+					action: 'update',
+					id: siteId,
+					object: site,
+					persistence,
+					error: 'Not implemented',
+				});
+				return { error: { status: 501, message: 'Not implemented', success: false } };
 		}
 
 		return {};
@@ -294,57 +291,66 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 			return { error: { status: 404, message: 'Site not found', success: false } };
 		}
 
-		const infrastructure = Object.values(INFRASTRUCTURES).find((infra) => infra.NAME === site.infrastructure);
-		const persistence = infrastructure?.PERSISTENCE;
+		const persistence = getSitePersistence(site.infrastructure);
 
-		if (persistence === INFRASTRUCTURES.KUBERNETES.PERSISTENCE) {
-			const { error: kubernetesError } = await deleteKubernetesSite(siteId);
-			if (kubernetesError) {
-				await error(`Failed to delete site`, {
+		switch (persistence) {
+			case 'kubernetes': {
+				const { error: kubernetesError } = await deleteKubernetesSite(siteId);
+				if (kubernetesError) {
+					await error(`Failed to delete site`, {
+						type: 'site',
+						action: 'delete',
+						id: siteId,
+						site: site.url,
+						error: kubernetesError.message,
+					});
+					return { error: kubernetesError };
+				}
+
+				try {
+					await deleteDatabaseSiteExtras(siteId);
+				} catch (extrasError) {
+					console.error(`Error deleting site extras`, extrasError);
+				}
+
+				await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
 					type: 'site',
 					action: 'delete',
 					id: siteId,
 					site: site.url,
-					error: kubernetesError.message,
 				});
-				return { error: kubernetesError };
+
+				await sendSiteDeletedMessage(site.url, site.infrastructure);
+				break;
 			}
 
-			try {
-				await deleteDatabaseSiteExtras(siteId);
-			} catch (extrasError) {
-				console.error(`Error deleting site extras`, extrasError);
-			}
+			case 'database': {
+				const { error: databaseError } = await deleteDatabaseSite(siteId);
+				if (databaseError) {
+					await error(`Failed to delete site`, {
+						type: 'site',
+						action: 'delete',
+						id: siteId,
+						site: site.url,
+						error: databaseError.message,
+					});
+					return { error: databaseError };
+				}
 
-			await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
-				type: 'site',
-				action: 'delete',
-				id: siteId,
-				site: site.url,
-			});
-
-			await sendSiteDeletedMessage(site.url, site.infrastructure);
-		} else if (persistence === INFRASTRUCTURES.EXTERNAL.PERSISTENCE) {
-			const { error: databaseError } = await deleteDatabaseSite(siteId);
-			if (databaseError) {
-				await error(`Failed to delete site`, {
+				await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
 					type: 'site',
 					action: 'delete',
 					id: siteId,
 					site: site.url,
-					error: databaseError.message,
 				});
-				return { error: databaseError };
+
+				await sendSiteDeletedMessage(site.url, site.infrastructure);
+				break;
 			}
 
-			await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
-				type: 'site',
-				action: 'delete',
-				id: siteId,
-				site: site.url,
-			});
-
-			await sendSiteDeletedMessage(site.url, site.infrastructure);
+			case 'none':
+			default:
+				return { error: { status: 501, message: 'Cannot delete sites with no persistence', success: false } };
 		}
 
 		return {};
@@ -373,9 +379,9 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 
 		const { site: kubernetesSite } = await getKubernetesSite(siteId);
 
-		if (kubernetesSite) {
+		if (kubernetesSite && isKubernetesSite(kubernetesSite)) {
 			const { site: dbSite } = await getDatabaseSite(siteId);
-			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite);
+			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite as DatabaseSite);
 			const enrichedSite = await enrichSiteWithTags(mergedSite);
 
 			await info(`The **${enrichedSite.infrastructure}** site **${enrichedSite.url}** retrieved successfully`, {
@@ -411,7 +417,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			return { site: enrichedSite };
 		}
 
-		return { site: databaseSite };
+		return { error: { status: 404, message: 'Site not found', success: false } };
 	} catch (errorData) {
 		await error(`Failed to get site`, {
 			type: 'site',
@@ -442,10 +448,12 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 		const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
 
 		const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
-			const dbSite = databaseSiteMap.get(kubernetesSite.id);
-			if (dbSite) {
-				databaseSiteMap.delete(kubernetesSite.id);
-				return mergeSiteWithExtras(kubernetesSite, dbSite);
+			if (isKubernetesSite(kubernetesSite)) {
+				const dbSite = databaseSiteMap.get(kubernetesSite.id);
+				if (dbSite && isDatabaseSite(dbSite)) {
+					databaseSiteMap.delete(kubernetesSite.id);
+					return mergeSiteWithExtras(kubernetesSite, dbSite);
+				}
 			}
 			return kubernetesSite;
 		});
@@ -462,26 +470,15 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 			return { error: { status: 404, message: 'No sites found', success: false } };
 		}
 
-		const enrichedSites = await Promise.all(
-			allSites.map(async (site) => {
-				try {
-					return await enrichSiteWithTags(site);
-				} catch (enrichError) {
-					console.warn(`Failed to enrich site ${site.id} with tags:`, enrichError);
-					return site;
-				}
-			})
-		);
-
 		await info(`Sites listed successfully`, {
 			type: 'site',
 			action: 'list',
-			count: enrichedSites.length,
+			count: allSites.length,
 			kubernetesCount: kubernetesSites.length,
 			databaseCount: databaseSites.length,
 		});
 
-		return { sites: enrichedSites };
+		return { sites: allSites };
 	} catch (errorData) {
 		await error(`Failed to list sites`, {
 			type: 'site',
@@ -541,11 +538,16 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 				const names = userIds.length ? await getNames([...new Set(userIds)], 'username') : [];
 				const nameMap = new Map(names.map((n) => [n.userId, n.name]));
 
+				let unitId = '0';
+				if (isKubernetesSite(site)) {
+					unitId = site.unitId?.toString() || '0';
+				}
+
 				return {
 					id: site.id,
 					url: site.url,
 					loginUrl: site.url.endsWith('/') ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
-					unit: await getUnit(site.unitId?.toString() || ''),
+					unit: await getUnit(unitId),
 					lastModified: lastChange?.[0]?.last_modified
 						? {
 								date: lastChange?.[0]?.last_modified || '',
@@ -560,7 +562,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 							available: Boolean(r.post_title && r.post_url),
 						})) || [],
 					permissions: {
-						editors: await getEditors(site.unitId?.toString() || ''),
+						editors: await getEditors(unitId),
 						accreditors: ['admin.epfl', 'mediacom.admin'],
 					},
 				};
