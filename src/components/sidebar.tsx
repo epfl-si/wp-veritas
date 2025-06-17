@@ -1,6 +1,6 @@
 'use client';
 import { useTranslations } from 'next-intl';
-import { Trash2, GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, LinkIcon, Palette } from 'lucide-react';
+import { GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, Palette } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -43,18 +43,18 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			icon: Palette,
 			permissions: PERMISSIONS.THEME.LIST,
 		},
-		{
-			href: '/trash',
-			label: t('trash'),
-			icon: Trash2,
-			permissions: PERMISSIONS.SITES.DELETE,
-		},
-		{
-			href: '/redirections',
-			label: t('redirections'),
-			icon: LinkIcon,
-			permissions: PERMISSIONS.REDIRECTIONS.LIST,
-		},
+		// {
+		// 	href: '/trash',
+		// 	label: t('trash'),
+		// 	icon: Trash2,
+		// 	permissions: PERMISSIONS.SITES.DELETE,
+		// },
+		// {
+		// 	href: '/redirections',
+		// 	label: t('redirections'),
+		// 	icon: LinkIcon,
+		// 	permissions: PERMISSIONS.REDIRECTIONS.LIST,
+		// },
 		{
 			href: '/logs',
 			label: t('logs'),
