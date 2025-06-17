@@ -8,6 +8,7 @@ export interface ITag extends Document {
 	nameEn: string;
 	urlFr: string;
 	urlEn: string;
+	sites?: string[];
 }
 
 const tagSchema = new mongoose.Schema<ITag>(
@@ -18,6 +19,7 @@ const tagSchema = new mongoose.Schema<ITag>(
 		nameEn: { type: String, required: true },
 		urlFr: { type: String, required: true },
 		urlEn: { type: String, required: true },
+		sites: { type: [String], default: [] },
 	},
 	{
 		timestamps: true,
