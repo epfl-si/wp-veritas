@@ -59,6 +59,7 @@
         "editors": "WordPress editors",
         "accreditors": "Unit accreditors",
         "note": "Note",
+        "neverModified": "This website has never been modified.",
         "permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
       },
       "meta": {
@@ -103,6 +104,20 @@
       "error": {
         "title": "An error occurred while creating the website",
         "description": "Please try again later"
+      }
+    },
+    "update": {
+      "title": "Edit Site",
+      "subtitle": "Modify the information of this site",
+      "success": {
+        "title": "Site updated successfully",
+        "message": "The changes have been saved successfully."
+      },
+      "error": {
+        "text": "An error occurred while loading the site",
+        "subText": "Please try again later",
+        "empty": "No sites found",
+        "title": "Error updating site"
       }
     },
     "tags": {
@@ -191,6 +206,8 @@
       "add": "Add New Site",
       "edit": "Edit Site",
       "delete": "Delete Site",
+      "update": "Update Site",
+      "updating": "Updating",
       "save": "Save Changes",
       "cancel": "Cancel",
       "view": "View Details",
@@ -392,5 +409,11 @@
     "tooSmall": "Minimum length is {min} characters",
     "tooBig": "Maximum length is {max} characters",
     "pattern": "Invalid format"
+  },
+  "notFound": {
+    "title": "Oops! It looks like this page doesn't exist",
+    "home": "Back to home",
+    "back": "Previous page",
+    "contact": "If you think this is an error, contact the team"
   }
 }
