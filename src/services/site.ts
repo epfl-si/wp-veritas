@@ -3,10 +3,11 @@ import { APIError } from '@/types/error';
 import { SearchSiteType, SiteFormType, SiteType } from '@/types/site';
 import { hasPermission } from './policy';
 import { PERMISSIONS } from '@/constants/permissions';
-import { getEditors, getUnit } from '@/lib/api';
+import { getEditors, getNames, getUnit } from '@/lib/api';
 import { INFRASTRUCTURES } from '@/constants/infrastructures';
 import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite } from '@/lib/kubernetes';
 import { createDatabaseSite, listDatabaseSites, getDatabaseSite, updateDatabaseSite, deleteDatabaseSite, createDatabaseSiteExtras, updateDatabaseSiteExtras, deleteDatabaseSiteExtras } from '@/lib/database';
+import { getTagsBySite } from '@/services/tag';
 import { info, warn, error } from '@/lib/log';
 import { ensureSlashAtEnd } from '@/lib/utils';
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from './telegram';
@@ -38,6 +39,22 @@ function mergeSiteWithExtras(kubernetesSite: SiteType, dbSite?: SiteType): SiteT
 	});
 
 	return merged;
+}
+
+async function enrichSiteWithTags(site: SiteType): Promise<SiteType> {
+	try {
+		if (await hasPermission(PERMISSIONS.TAGS.READ)) {
+			const { tags } = await getTagsBySite(site.id);
+			return {
+				...site,
+				tags: tags?.map((tag) => tag.id) || [],
+			};
+		}
+	} catch (tagError) {
+		console.warn(`Failed to load tags for site ${site.id}:`, tagError);
+	}
+
+	return site;
 }
 
 export async function createSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
@@ -86,7 +103,6 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 			if (siteId) {
 				const extras = extractExtras(site);
-				console.log('Extracted extras for site:', extras);
 				if (Object.keys(extras).length > 0) {
 					await createDatabaseSiteExtras(siteId, extras);
 				}
@@ -296,11 +312,6 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 
 			try {
 				await deleteDatabaseSiteExtras(siteId);
-				await info(`Site extras deleted successfully for site **${siteId}**`, {
-					type: 'site',
-					action: 'delete_extras',
-					id: siteId,
-				});
 			} catch (extrasError) {
 				console.error(`Error deleting site extras`, extrasError);
 			}
@@ -365,14 +376,16 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 		if (kubernetesSite) {
 			const { site: dbSite } = await getDatabaseSite(siteId);
 			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite);
+			const enrichedSite = await enrichSiteWithTags(mergedSite);
 
-			await info(`The **${mergedSite.infrastructure}** site **${mergedSite.url}** retrieved successfully`, {
+			await info(`The **${enrichedSite.infrastructure}** site **${enrichedSite.url}** retrieved successfully`, {
 				type: 'site',
 				action: 'read',
 				id: siteId,
+				infrastructure: enrichedSite.infrastructure,
 			});
 
-			return { site: mergedSite };
+			return { site: enrichedSite };
 		}
 
 		const { site: databaseSite, error: databaseError } = await getDatabaseSite(siteId);
@@ -387,11 +400,15 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 		}
 
 		if (databaseSite) {
-			await info(`The **${databaseSite.infrastructure}** site **${databaseSite.url}** retrieved successfully`, {
+			const enrichedSite = await enrichSiteWithTags(databaseSite);
+
+			await info(`The **${enrichedSite.infrastructure}** site **${enrichedSite.url}** retrieved successfully`, {
 				type: 'site',
 				action: 'read',
 				id: siteId,
 			});
+
+			return { site: enrichedSite };
 		}
 
 		return { site: databaseSite };
@@ -445,15 +462,26 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 			return { error: { status: 404, message: 'No sites found', success: false } };
 		}
 
+		const enrichedSites = await Promise.all(
+			allSites.map(async (site) => {
+				try {
+					return await enrichSiteWithTags(site);
+				} catch (enrichError) {
+					console.warn(`Failed to enrich site ${site.id} with tags:`, enrichError);
+					return site;
+				}
+			})
+		);
+
 		await info(`Sites listed successfully`, {
 			type: 'site',
 			action: 'list',
-			count: allSites.length,
+			count: enrichedSites.length,
 			kubernetesCount: kubernetesSites.length,
 			databaseCount: databaseSites.length,
 		});
 
-		return { sites: allSites };
+		return { sites: enrichedSites };
 	} catch (errorData) {
 		await error(`Failed to list sites`, {
 			type: 'site',
@@ -467,34 +495,12 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 export async function searchSites(url: string): Promise<{ sites?: SearchSiteType[]; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
-			await warn(`Permission denied for sites search`, {
-				type: 'site',
-				action: 'search',
-				url,
-				error: 'Forbidden - insufficient permissions',
-			});
 			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
 		const { sites, error: listError } = await listSites();
-		if (listError) {
-			await error(`Failed to get sites list for search`, {
-				type: 'site',
-				action: 'search',
-				url,
-				error: listError.message,
-			});
-			return { error: listError };
-		}
-
-		if (!sites || sites.length === 0) {
-			await info(`No sites available for search`, {
-				type: 'site',
-				action: 'search',
-				url,
-				count: 0,
-			});
-			return { error: { status: 404, message: 'No sites found', success: false } };
+		if (listError || !sites?.length) {
+			return { error: listError || { status: 404, message: 'No sites found', success: false } };
 		}
 
 		const filteredSites = sites
@@ -502,84 +508,66 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 				try {
 					const [siteUrl, searchUrl] = [new URL(site.url), new URL(url)];
 					if (siteUrl.hostname !== searchUrl.hostname) return false;
-
 					const [sitePath, searchPath] = [siteUrl.pathname.replace(/\/$/, '') || '/', searchUrl.pathname.replace(/\/$/, '') || '/'];
-
 					return sitePath === searchPath || (searchPath.startsWith(sitePath) && sitePath !== '/');
-				} catch (urlError) {
-					console.error(`Error parsing URL for site search`, urlError);
+				} catch {
 					return false;
 				}
 			})
 			.sort((a, b) => b.url.length - a.url.length)
 			.slice(0, 1);
 
-		if (filteredSites.length === 0) {
-			await info(`No sites found matching the URL`, {
-				type: 'site',
-				action: 'search',
-				url,
-				totalSites: sites.length,
-			});
+		if (!filteredSites.length) {
 			return { error: { status: 404, message: 'No sites found matching the URL', success: false } };
 		}
 
+		const fetchWpData = async (endpoint: string, siteUrl: string) => {
+			try {
+				const response = await fetch(`${siteUrl}wp-json/epfl/v1/${endpoint}`);
+				if (response.status === 404) return null;
+				const data = await response.json();
+				return data?.data?.status === 404 || (Array.isArray(data) && !data.length) ? null : data;
+			} catch {
+				return null;
+			}
+		};
+
 		const searchSites = await Promise.all(
 			filteredSites.map(async (site) => {
-				try {
-					const searchSite: SearchSiteType = {
-						id: site.id,
-						url: site.url,
-						loginUrl: site.url.endsWith('/') ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
-						unit: await getUnit(site.unitId?.toString() || ''),
-						lastModified: {
-							date: '2025-05-21 15:35:50',
-							user: 'obieler',
-						},
-						recentModifications: [
-							{ date: '2025-06-06 14:49:29', user: 'Dominique Quatravaux', page: 'Auto Draft', available: true },
-							{ date: '2025-05-27 09:24:38', user: 'Saskya Panchaud', page: 'page non disponible', available: false },
-							{ date: '2025-05-27 09:24:37', user: 'Saskya Panchaud', page: 'page non disponible', available: false },
-							{ date: '2025-05-27 09:15:26', user: 'Saskya Panchaud', page: 'page non disponible', available: false },
-							{ date: '2025-05-23 12:07:46', user: 'Jérémy Würsch', page: 'Memento FR', available: true },
-						],
-						permissions: {
-							editors: await getEditors(site.unitId?.toString() || ''),
-							accreditors: ['admin.epfl', 'mediacom.admin'],
-						},
-					};
+				const [revisions, lastChange] = await Promise.all([fetchWpData('lastrevisions', site.url), fetchWpData(`lastchange?url=${url}`, site.url)]);
 
-					return searchSite;
-				} catch (siteError) {
-					await warn(`Error processing site for search results`, {
-						type: 'site',
-						action: 'search',
-						url,
-						siteId: site.id,
-						siteUrl: site.url,
-						error: siteError instanceof Error ? siteError.message : 'Unknown error',
-					});
-					throw siteError;
-				}
+				type Revision = { username: string; last_modified: string; post_title?: string; post_url?: string };
+				const userIds = [...(revisions?.map((r: Revision) => r.username).filter(Boolean) || []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
+				const names = userIds.length ? await getNames([...new Set(userIds)], 'username') : [];
+				const nameMap = new Map(names.map((n) => [n.userId, n.name]));
+
+				return {
+					id: site.id,
+					url: site.url,
+					loginUrl: site.url.endsWith('/') ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
+					unit: await getUnit(site.unitId?.toString() || ''),
+					lastModified: {
+						date: lastChange?.[0]?.last_modified || '',
+						user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || '',
+					},
+					recentModifications:
+						revisions?.slice(0, 5).map((r: Revision) => ({
+							date: r.last_modified,
+							user: nameMap.get(r.username) || r.username,
+							page: r.post_title || 'page non disponible',
+							available: Boolean(r.post_title && r.post_url),
+						})) || [],
+					permissions: {
+						editors: await getEditors(site.unitId?.toString() || ''),
+						accreditors: ['admin.epfl', 'mediacom.admin'],
+					},
+				};
 			})
 		);
 
-		await info(`Sites search completed successfully`, {
-			type: 'site',
-			action: 'search',
-			url,
-			matchingCount: searchSites.length,
-			totalSearched: sites.length,
-		});
-
 		return { sites: searchSites };
 	} catch (errorData) {
-		await error(`Failed to search sites`, {
-			type: 'site',
-			action: 'search',
-			url,
-			error: errorData instanceof Error ? errorData.message : 'Unknown error',
-		});
+		console.error('Error searching sites:', errorData);
 		return { error: { status: 500, message: 'Internal Server Error', success: false } };
 	}
 }
