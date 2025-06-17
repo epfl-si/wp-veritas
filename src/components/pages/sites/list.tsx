@@ -51,7 +51,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'url',
 			label: t('list.column.url'),
-			width: 'w-[60%]',
+			width: 'w-[55%]',
 			align: 'left',
 			sortable: true,
 			render: (site) => (
@@ -80,7 +80,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		{
 			key: 'createdAt',
 			label: t('list.column.createdAt'),
-			width: 'w-[10%]',
+			width: 'w-[15%]',
 			align: 'center',
 			sortable: true,
 			sortKey: 'createdAt',
