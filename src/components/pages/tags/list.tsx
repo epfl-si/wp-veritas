@@ -9,12 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableColumn } from '@/components/ui/table';
 import moment from 'moment';
 import 'moment/locale/fr';
-import { TagType } from '@/types/tag';
-import { TAG_TYPES } from '@/constants/tags';
-import { TYPES } from '@/constants/types';
-import { TypeType } from '@/types/type';
+import { TagCategoryType, TagType } from '@/types/tag';
 import { PERMISSIONS } from '@/constants/permissions';
 import { DeleteDialog } from '@/components/dialog/delete';
+import { TAG_CATEGORIES } from '@/constants/tags';
 
 export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ tags, permissions }) => {
 	const [search, setSearch] = useState({
@@ -30,7 +28,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 	}, [locale]);
 
 	const getTypeConfig = (typeName: string) => {
-		return Object.values(TAG_TYPES).find((type) => type.NAME === typeName);
+		return Object.values(TAG_CATEGORIES).find((type) => type.NAME === typeName);
 	};
 
 	const filteredTags = tags.filter((tag) => {
@@ -106,12 +104,14 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold">{t('list.title')}</h1>
-					<Button className="h-10" asChild>
-						<Link href="/tags/add">
-							<Plus className="size-5" />
-							{t('actions.add')}
-						</Link>
-					</Button>
+					{permissions.includes(PERMISSIONS.TAGS.CREATE) && (
+						<Button className="h-10" asChild>
+							<Link href="/tags/add">
+								<Plus className="size-5" />
+								{t('actions.add')}
+							</Link>
+						</Button>
+					)}
 				</div>
 				<div className="flex gap-2 mt-6">
 					<Input onChange={(e) => setSearch({ ...search, name: e.target.value })} value={search.name} placeholder={t('list.search.name.placeholder')} className="flex-1 h-10" />
@@ -121,7 +121,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="all">{t('list.search.type.all')}</SelectItem>
-							{Object.values(TYPES).map((type: TypeType) => {
+							{Object.values(TAG_CATEGORIES).map((type: TagCategoryType) => {
 								return (
 									<SelectItem key={type.NAME} value={type.NAME}>
 										{type?.LABEL[locale as 'fr' | 'en'] || type.NAME}
