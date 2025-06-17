@@ -70,7 +70,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			render: (site) => {
 				const infrastructureConfig = getInfrastructureConfig(site.infrastructure);
 				return (
-					<div className="text-black p-2 h-9 flex gap-1 justify-center items-center border-2" style={{ borderColor: infrastructureConfig?.COLOR, color: infrastructureConfig?.COLOR }}>
+					<div className="p-2 h-9 flex gap-1 justify-center items-center border-2 border-gray-200 text-gray-600">
 						{infrastructureConfig?.ICON ? React.createElement(infrastructureConfig.ICON, { className: 'size-4', strokeWidth: 2.3 }) : null}
 						<span className="text-sm font-semibold uppercase">{infrastructureConfig?.LABEL[locale as 'fr' | 'en'] || infrastructureConfig?.NAME}</span>
 					</div>
@@ -99,21 +99,21 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
 					{permissions.includes(PERMISSIONS.SITES.READ) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500" asChild>
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
 							<Link href={`/info?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
 					)}
 
-					{permissions.includes(PERMISSIONS.SITES.INFO) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-500 hover:text-white hover:bg-green-500">
+					{/* {permissions.includes(PERMISSIONS.SITES.INFO) && (
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200">
 							<FileText strokeWidth={2.3} className="size-5" />
 						</Button>
-					)}
+					)} */}
 
 					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
 							<Link href={`/sites/${site.id}/edit`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
 							</Link>
@@ -121,7 +121,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 					)}
 
 					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
 							<Link href={`/sites/${site.id}/tags`}>
 								<Tags strokeWidth={2.3} className="size-5" />
 							</Link>
@@ -150,7 +150,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 					<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} value={search.url} placeholder={t('list.search.url.placeholder')} className="flex-1 h-10" />
 
 					<Select onValueChange={(value) => setSearch({ ...search, infrastructure: value === 'all' ? '' : value })} value={search.infrastructure || 'all'}>
-						<SelectTrigger className="w-48 !h-10">
+						<SelectTrigger className="w-64 !h-10">
 							<SelectValue placeholder={t('list.search.infrastructure.placeholder')} />
 						</SelectTrigger>
 						<SelectContent>
