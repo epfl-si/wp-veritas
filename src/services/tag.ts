@@ -255,7 +255,56 @@ export async function listTags(): Promise<{ tags?: TagType[]; error?: APIError }
 	}
 }
 
-export async function associateTagWithSite(tagId: string, siteId: string): Promise<APIError> {
+export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[]; error?: APIError }> {
+	try {
+		if (!(await hasPermission(PERMISSIONS.TAGS.READ))) {
+			await warn(`Permission denied for tags by site`, {
+				type: 'tag',
+				action: 'read',
+				siteId,
+				error: 'Forbidden - insufficient permissions',
+			});
+			return { error: { status: 403, message: 'Forbidden', success: false } };
+		}
+
+		await db.connect();
+
+		if (!isValidUUID(siteId)) {
+			return { error: { status: 400, message: 'Invalid site ID format', success: false } };
+		}
+
+		const tags = await TagModel.find({ sites: siteId });
+		const site = await SiteModel.findOne({ id: siteId });
+
+		await info(`Tags for site **${site?.url || 'Unknown Site'}** retrieved successfully`, {
+			type: 'tag',
+			action: 'read',
+			siteId,
+			count: tags.length,
+		});
+
+		return {
+			tags: tags.map((tag) => ({
+				id: tag.id,
+				type: tag.type,
+				nameFr: tag.nameFr,
+				nameEn: tag.nameEn,
+				urlFr: tag.urlFr,
+				urlEn: tag.urlEn,
+			})),
+		};
+	} catch (errorData) {
+		console.error('Error getting tags by site:', errorData);
+		await error(`Failed to get tags by site`, {
+			type: 'tag',
+			action: 'read',
+			siteId,
+			error: errorData instanceof Error ? errorData.message : 'Unknown error',
+		});
+		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+	}
+}
+export async function associateTagWithSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.TAGS.ASSOCIATE))) {
 			await warn(`Permission denied for tag-site association`, {
@@ -265,23 +314,57 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 				siteId,
 				error: 'Forbidden - insufficient permissions',
 			});
-			return { status: 403, message: 'Forbidden', success: false };
+			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
 		await db.connect();
 
-		// TODO: Implement the actual association logic here
+		if (!isValidUUID(tagId)) {
+			return { error: { status: 400, message: 'Invalid tag ID format', success: false } };
+		}
 
-		await info(`Tag associated with site successfully`, {
+		if (!isValidUUID(siteId)) {
+			return { error: { status: 400, message: 'Invalid site ID format', success: false } };
+		}
+
+		const tag = await TagModel.findOne({ id: tagId });
+		if (!tag) {
+			await warn(`Tag not found for association`, {
+				type: 'tag',
+				action: 'associate',
+				tagId,
+				siteId,
+				error: 'Tag not found',
+			});
+			return { error: { status: 404, message: 'Tag not found', success: false } };
+		}
+
+		if (tag.sites && tag.sites.includes(siteId)) {
+			await warn(`Site already associated with tag`, {
+				type: 'tag',
+				action: 'associate',
+				tagId,
+				siteId,
+				error: 'Site already associated',
+			});
+			return { error: { status: 409, message: 'Site already associated with this tag', success: false } };
+		}
+
+		await TagModel.findOneAndUpdate({ id: tagId }, { $addToSet: { sites: siteId } }, { new: true });
+
+		const { site } = await getSite(siteId);
+
+		await info(`The **${tag.type}** tag **${tag.nameEn}** associated with site **${site?.url}** successfully`, {
 			type: 'tag',
 			action: 'associate',
 			tagId,
 			siteId,
+			tagName: tag.nameEn,
+			tagType: tag.type,
 		});
 
-		return { success: true, message: 'Tag associated with site successfully', status: 201 };
+		return {};
 	} catch (errorData) {
-		console.error('Error associating tag with site:', errorData);
 		await error(`Failed to associate tag with site`, {
 			type: 'tag',
 			action: 'associate',
@@ -289,44 +372,77 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 			siteId,
 			error: errorData instanceof Error ? errorData.message : 'Unknown error',
 		});
-		return { status: 500, message: 'Internal Server Error', success: false };
+		return { error: { status: 500, message: 'Internal Server Error', success: false } };
 	}
 }
 
-export async function dissociateTagFromSite(tagId: string, siteId: string): Promise<APIError> {
+export async function disassociateTagFromSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.TAGS.DISSOCIATE))) {
 			await warn(`Permission denied for tag-site dissociation`, {
 				type: 'tag',
-				action: 'dissociate',
+				action: 'disassociate',
 				tagId,
 				siteId,
 				error: 'Forbidden - insufficient permissions',
 			});
-			return { status: 403, message: 'Forbidden', success: false };
+			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
 		await db.connect();
 
-		// TODO: Implement the actual dissociation logic here
+		if (!isValidUUID(tagId)) {
+			return { error: { status: 400, message: 'Invalid tag ID format', success: false } };
+		}
 
-		await info(`Tag dissociated from site successfully`, {
+		if (!isValidUUID(siteId)) {
+			return { error: { status: 400, message: 'Invalid site ID format', success: false } };
+		}
+
+		const tag = await TagModel.findOne({ id: tagId });
+		if (!tag) {
+			await warn(`Tag not found for dissociation`, {
+				type: 'tag',
+				action: 'disassociate',
+				tagId,
+				siteId,
+				error: 'Tag not found',
+			});
+			return { error: { status: 404, message: 'Tag not found', success: false } };
+		}
+
+		if (!tag.sites || !tag.sites.includes(siteId)) {
+			await warn(`Site not associated with tag`, {
+				type: 'tag',
+				action: 'disassociate',
+				tagId,
+				siteId,
+				error: 'Site not associated',
+			});
+			return { error: { status: 404, message: 'Site is not associated with this tag', success: false } };
+		}
+
+		await TagModel.findOneAndUpdate({ id: tagId }, { $pull: { sites: siteId } }, { new: true });
+		const { site } = await getSite(siteId);
+
+		await info(`The **${tag.type}** tag **${tag.nameEn}** disassociated from site **${site?.url}** successfully`, {
 			type: 'tag',
-			action: 'dissociate',
+			action: 'disassociate',
 			tagId,
 			siteId,
+			tagName: tag.nameEn,
+			tagType: tag.type,
 		});
 
-		return { success: true, message: 'Tag dissociated from site successfully', status: 200 };
+		return {};
 	} catch (errorData) {
-		console.error('Error dissociating tag from site:', errorData);
-		await error(`Failed to dissociate tag from site`, {
+		await error(`Failed to disassociate tag from site`, {
 			type: 'tag',
-			action: 'dissociate',
+			action: 'disassociate',
 			tagId,
 			siteId,
 			error: errorData instanceof Error ? errorData.message : 'Unknown error',
 		});
-		return { status: 500, message: 'Internal Server Error', success: false };
+		return { error: { status: 500, message: 'Internal Server Error', success: false } };
 	}
 }
