@@ -181,16 +181,20 @@ export const SiteInfo: React.FC = () => {
 						</div>
 						<div>
 							<div className="text-sm font-medium text-gray-700">{t('info.details.lastModified')}</div>
-							<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
-								<div className="flex items-center gap-0.5">
-									<Clock className="size-4" strokeWidth={2} />
-									<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format('DD/MM/YYYY HH:mm')}</p>
+							{site.lastModified ? (
+								<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+									<div className="flex items-center gap-0.5">
+										<Clock className="size-4" strokeWidth={2} />
+										<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format('DD/MM/YYYY HH:mm')}</p>
+									</div>
+									<div className="flex items-center gap-0.5">
+										<User className="size-4" strokeWidth={2} />
+										<p className="text-sm leading-4 flex items-center h-4">{site.lastModified.user}</p>
+									</div>
 								</div>
-								<div className="flex items-center gap-0.5">
-									<User className="size-4" strokeWidth={2} />
-									<p className="text-sm leading-4 flex items-center h-4">{site.lastModified.user}</p>
-								</div>
-							</div>
+							) : (
+								<p className="text-sm text-gray-500">{t('info.details.neverModified')}</p>
+							)}
 						</div>
 					</div>
 				</div>
