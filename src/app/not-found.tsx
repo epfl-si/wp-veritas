@@ -19,7 +19,7 @@ export default function NotFoundPage() {
 				</div>
 				<div className="mb-12">
 					<h2 className="text-[16rem] font-bold text-gray-800 mb-6">
-						4<span className="text-red-600">0</span>4
+						4<span className="text-gray-800 ml-1.5">0</span>4
 					</h2>
 					<p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">{t('title')}</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
