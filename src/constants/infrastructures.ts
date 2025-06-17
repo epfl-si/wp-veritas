@@ -1,11 +1,12 @@
 import { ArchiveIcon, BoxIcon, CloudIcon, ExternalLinkIcon, TimerIcon } from 'lucide-react';
+import type { InfrastructureType } from '@/types/infrastructure';
 
 export const INFRASTRUCTURES = {
 	KUBERNETES: {
 		NAME: 'Kubernetes',
 		LABEL: { fr: 'Kubernetes', en: 'Kubernetes' },
 		ICON: CloudIcon,
-		COLOR: '#3a85c7',
+		COLOR: '#000000', // '#3a85c7',
 		CREATED: true,
 		PERSISTENCE: 'kubernetes',
 	},
@@ -13,7 +14,7 @@ export const INFRASTRUCTURES = {
 		NAME: 'External',
 		LABEL: { fr: 'Externe', en: 'External' },
 		ICON: ExternalLinkIcon,
-		COLOR: '#5c8a8a',
+		COLOR: '#000000', // '#5c8a8a',
 		CREATED: true,
 		PERSISTENCE: 'database',
 	},
@@ -21,7 +22,7 @@ export const INFRASTRUCTURES = {
 		NAME: 'LAMP',
 		LABEL: { fr: 'LAMP', en: 'LAMP' },
 		ICON: BoxIcon,
-		COLOR: '#9d5fcf',
+		COLOR: '#000000', // '#9d5fcf',
 		CREATED: true,
 		PERSISTENCE: 'database',
 	},
@@ -29,7 +30,7 @@ export const INFRASTRUCTURES = {
 		NAME: 'Temporary',
 		LABEL: { fr: 'Temporaire', en: 'Temporary' },
 		ICON: TimerIcon,
-		COLOR: '#e67043',
+		COLOR: '#000000', // '#e67043',
 		CREATED: false,
 		PERSISTENCE: 'none',
 	},
@@ -37,8 +38,20 @@ export const INFRASTRUCTURES = {
 		NAME: 'Archived',
 		LABEL: { fr: 'Archivé', en: 'Archived' },
 		ICON: ArchiveIcon,
-		COLOR: '#b5774a',
-		CREATED: true,
+		COLOR: '#000000', // '#b5774a',
+		CREATED: false,
 		PERSISTENCE: 'database',
 	},
+} as const satisfies Record<string, InfrastructureType>;
+
+export const getInfrastructureByName = (name: string): InfrastructureType | undefined => {
+	return Object.values(INFRASTRUCTURES).find((infra) => infra.NAME === name);
+};
+
+export const getInfrastructuresByPersistence = (persistence: InfrastructureType['PERSISTENCE']): InfrastructureType[] => {
+	return Object.values(INFRASTRUCTURES).filter((infra) => infra.PERSISTENCE === persistence);
+};
+
+export const getCreatableInfrastructures = (): InfrastructureType[] => {
+	return Object.values(INFRASTRUCTURES).filter((infra) => infra.CREATED);
 };
