@@ -129,12 +129,83 @@
         "empty": "No tags found"
       }
     },
+    "add": {
+      "title": "Create New Tag",
+      "success": {
+        "title": "Tag Created Successfully",
+        "message": "The new tag has been created and is now available"
+      },
+      "error": {
+        "title": "Error Creating Tag",
+        "message": "An error occurred while creating the tag. Please try again."
+      }
+    },
+    "update": {
+      "title": "Edit Tag",
+      "subtitle": "Modify this tag's information",
+      "success": {
+        "title": "Tag Updated Successfully",
+        "message": "Changes have been saved successfully"
+      },
+      "error": {
+        "text": "An error occurred while loading Tag",
+        "subText": "Please try again later",
+        "empty": "No tags found",
+        "title": "Error Updating Tag"
+      }
+    },
+    "form": {
+      "type": {
+        "label": "Type of Tag",
+        "description": "Select the appropriate tag type",
+        "placeholder": "Choose a tag type..."
+      },
+      "nameFr": {
+        "label": "Name (French)",
+        "placeholder": "Tag name in French",
+        "description": "The tag name displayed in French"
+      },
+      "nameEn": {
+        "label": "Name (English)",
+        "placeholder": "Tag name in English",
+        "description": "The tag name displayed in English"
+      },
+      "urlFr": {
+        "label": "URL (French)",
+        "placeholder": "https://epfl.ch/xxx",
+        "description": "The destination URL for the French version"
+      },
+      "urlEn": {
+        "label": "URL (English)",
+        "placeholder": "https://epfl.ch/xxx",
+        "description": "The destination URL for the English version"
+      },
+      "sections": {
+        "general": {
+          "title": "Tag Type"
+        },
+        "names": {
+          "title": "Information"
+        }
+      }
+    },
     "actions": {
       "add": "Add New Tag",
+      "add_first": "Create First Tag",
       "edit": "Edit Tag",
       "delete": "Delete Tag",
       "save": "Save Changes",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "create": "Create Tag",
+      "update": "Update Tag",
+      "reset": "Reset Form",
+      "back_to_list": "Back to List",
+      "creating": "Creating",
+      "updating": "Updating",
+      "view_details": "View Details",
+      "duplicate": "Duplicate Tag",
+      "export": "Export Tags",
+      "import": "Import Tags"
     }
   },
   "log": {
