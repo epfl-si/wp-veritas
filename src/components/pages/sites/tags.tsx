@@ -193,15 +193,12 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 										{typeTags.map((tag) => {
 											const isSelected = selectedTags.includes(tag.id);
 											const displayName = locale === 'fr' ? tag.nameFr || tag.nameEn : tag.nameEn || tag.nameFr;
-											const displayUrl = locale === 'fr' ? tag.urlFr || tag.urlEn : tag.urlEn || tag.urlFr;
-
 											return (
 												<div key={tag.id} className={cn('relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200', isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md', isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-gray-300')} onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}>
 													<div className="flex items-start space-x-3">
 														<Checkbox checked={isSelected} disabled={isSubmitting} className="mt-0.5" />
 														<div className="flex-1 min-w-0">
 															<div className="text-sm font-medium text-gray-900">{displayName}</div>
-															{displayUrl && <div className="text-xs text-blue-600 mt-1 truncate">{displayUrl}</div>}
 														</div>
 													</div>
 												</div>
