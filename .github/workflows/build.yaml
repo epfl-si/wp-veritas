@@ -2,7 +2,7 @@ name: Build and Release on Package Changes
 on:
     push:
         branches:
-            - main
+            - master
         paths:
             - 'package.json'
             - 'package-lock.json'
