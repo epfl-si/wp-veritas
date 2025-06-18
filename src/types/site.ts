@@ -1,6 +1,7 @@
-import { INFRASTRUCTURES } from '@/constants/infrastructures';
-import { getZodErrorMessages, useZodErrorMessages } from '@/hooks/zod';
 import { z } from 'zod';
+import { getZodErrorMessages, useZodErrorMessages } from '@/hooks/zod';
+import type { KubernetesInfrastructureName, DatabaseInfrastructureName, NoneInfrastructureName, InfrastructureName } from '@/types/infrastructure';
+import { INFRASTRUCTURES, getCreatableInfrastructures } from '@/constants/infrastructures';
 
 export interface KubernetesSiteType {
 	metadata: {
@@ -8,7 +9,7 @@ export interface KubernetesSiteType {
 		name: string;
 		namespace: string;
 		labels?: Record<string, string>;
-		creationTimestamp: Date;
+		creationTimestamp: string;
 	};
 	spec: {
 		owner: {
@@ -28,30 +29,43 @@ export interface KubernetesSiteType {
 			title: string;
 		};
 	};
-	status: {
-		wordpresssite: {
-			lastCronJobRuntime: string;
-			plugins: Record<string, object>;
+	status?: {
+		wordpresssite?: {
+			lastCronJobRuntime?: string;
+			plugins?: Record<string, object>;
 		};
 	};
 }
 
-export interface SiteType {
+interface BaseSiteType {
 	id: string;
 	url: string;
-	infrastructure: string;
 	createdAt: Date;
-	tagline?: string;
-	title?: string;
-	theme?: string;
-	unitId?: number;
-	languages?: string[];
-	categories?: string[];
-	downloadsProtectionScript?: boolean;
 	tags: string[];
 	ticket?: string;
 	comment?: string;
 }
+
+export interface KubernetesSite extends BaseSiteType {
+	infrastructure: KubernetesInfrastructureName;
+	tagline: string;
+	title: string;
+	theme: string;
+	unitId: number;
+	languages: string[];
+	categories: string[];
+	downloadsProtectionScript: boolean;
+}
+
+export interface DatabaseSite extends BaseSiteType {
+	infrastructure: DatabaseInfrastructureName;
+}
+
+export interface NoneSite extends BaseSiteType {
+	infrastructure: NoneInfrastructureName;
+}
+
+export type SiteType = KubernetesSite | DatabaseSite | NoneSite;
 
 export interface SearchSiteType {
 	id: string;
@@ -80,41 +94,103 @@ export interface SearchSiteType {
 	};
 }
 
-export const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
-	const availableInfras = Object.values(INFRASTRUCTURES)
-		.filter((infra) => infra.CREATED)
-		.map((infra) => infra.NAME) as [string, ...string[]];
+interface BaseSiteFormType {
+	url: string;
+	ticket?: string;
+	comment?: string;
+}
+
+export interface KubernetesSiteFormType extends BaseSiteFormType {
+	infrastructure: KubernetesInfrastructureName;
+	tagline: string;
+	title: string;
+	theme: string;
+	unitId: number;
+	languages: string[];
+	categories: string[];
+	downloadsProtectionScript?: boolean;
+}
+
+export interface DatabaseSiteFormType extends BaseSiteFormType {
+	infrastructure: DatabaseInfrastructureName;
+}
+
+export interface NoneSiteFormType extends BaseSiteFormType {
+	infrastructure: NoneInfrastructureName;
+}
+
+export type SiteFormType = KubernetesSiteFormType | DatabaseSiteFormType | NoneSiteFormType;
+
+const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+	const creatableInfras = getCreatableInfrastructures();
 
 	const baseFields = {
-		infrastructure: z.enum(availableInfras, {
-			errorMap: (issue, ctx) => ({
-				message: issue.code === z.ZodIssueCode.invalid_enum_value ? errorMessages.invalid_enum(availableInfras) : issue.code === z.ZodIssueCode.invalid_type ? errorMessages.invalid_type : ctx.defaultError,
-			}),
-		}),
-		url: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).url({ message: errorMessages.invalid_url }),
+		url: z
+			.string({
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.url({ message: errorMessages.invalid_url }),
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
 	};
 
-	const persistenceFields = {
-		tagline: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
-		title: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
-		theme: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(1, { message: errorMessages.too_small(1) }),
+	const kubernetesFields = {
+		tagline: z
+			.string({
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.min(3, { message: errorMessages.too_small(3) }),
+		title: z
+			.string({
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.min(3, { message: errorMessages.too_small(3) }),
+		theme: z
+			.string({
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.min(1, { message: errorMessages.too_small(1) }),
 		languages: z.array(z.string()).min(1, { message: errorMessages.too_small(1) }),
-		categories: z.array(z.string()).min(1, { message: errorMessages.too_small(1) }),
-		unitId: z.number({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).positive({ message: errorMessages.too_small(1) }),
-		downloadsProtectionScript: z.boolean().optional(),
+		categories: z.array(z.string()).optional().default([]),
+		unitId: z
+			.number({
+				required_error: errorMessages.required,
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.positive({ message: errorMessages.too_small(1) }),
+		downloadsProtectionScript: z.boolean().optional().default(false),
 	};
 
-	return z.discriminatedUnion('infrastructure', [
-		z.object({ ...baseFields, ...persistenceFields, infrastructure: z.literal('Kubernetes') }),
-		...availableInfras
-			.filter((name) => {
-				const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === name);
-				return infra?.PERSISTENCE === INFRASTRUCTURES.EXTERNAL.PERSISTENCE;
-			})
-			.map((name) => z.object({ ...baseFields, infrastructure: z.literal(name) })),
-	]);
+	const schemas: z.ZodDiscriminatedUnionOption<'infrastructure'>[] = [];
+
+	creatableInfras.forEach((infra) => {
+		if (infra.PERSISTENCE === 'kubernetes') {
+			schemas.push(
+				z.object({
+					...baseFields,
+					...kubernetesFields,
+					infrastructure: z.literal(infra.NAME),
+				})
+			);
+		} else if (infra.PERSISTENCE === 'database') {
+			schemas.push(
+				z.object({
+					...baseFields,
+					infrastructure: z.literal(infra.NAME),
+				})
+			);
+		}
+	});
+
+	if (schemas.length === 0) {
+		throw new Error('No creatable infrastructures found');
+	}
+
+	return z.discriminatedUnion('infrastructure', schemas as [z.ZodDiscriminatedUnionOption<'infrastructure'>, ...z.ZodDiscriminatedUnionOption<'infrastructure'>[]]);
 };
 
 export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
@@ -126,4 +202,25 @@ export const createSiteSchema = async () => {
 	return createSiteSchemaBase(errorMessages);
 };
 
-export type SiteFormType = z.infer<ReturnType<typeof siteSchema>>;
+export const isKubernetesSite = (site: SiteType): site is KubernetesSite => {
+	return site.infrastructure === 'Kubernetes';
+};
+
+export const isDatabaseSite = (site: SiteType): site is DatabaseSite => {
+	const dbInfras: DatabaseInfrastructureName[] = ['External', 'LAMP', 'Archived'];
+	return dbInfras.includes(site.infrastructure as DatabaseInfrastructureName);
+};
+
+export const isNoneSite = (site: SiteType): site is NoneSite => {
+	return site.infrastructure === 'Temporary';
+};
+
+export const getSitePersistence = (infrastructure: InfrastructureName): 'kubernetes' | 'database' | 'none' => {
+	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
+	return infra?.PERSISTENCE || 'none';
+};
+
+export const isCreatableInfrastructure = (infrastructure: string): boolean => {
+	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
+	return infra?.CREATED || false;
+};
