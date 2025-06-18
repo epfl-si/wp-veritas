@@ -165,7 +165,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 export async function updateSite(siteId: string, site: SiteFormType): Promise<{ error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
-			await warn(`Permission denied for site update`, {
+			await warn(`Permission denied to update the site`, {
 				type: 'site',
 				action: 'update',
 				id: siteId,
@@ -175,27 +175,91 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
+		const { site: existingSite, error: fetchError } = await getSite(siteId);
+		if (fetchError || !existingSite) {
+			await error(`Could not retrieve the site to update`, {
+				type: 'site',
+				action: 'update',
+				id: siteId,
+				error: fetchError?.message || 'Site not found',
+			});
+			return { error: fetchError || { status: 404, message: 'Site not found', success: false } };
+		}
+
 		const persistence = getSitePersistence(site.infrastructure);
+		const changes: string[] = [];
+		const changeDetails: Record<string, { from: unknown; to: unknown }> = {};
+
+		if (site.infrastructure === 'Kubernetes' && 'categories' in site) {
+			const oldCategories = (existingSite as KubernetesSite).categories || [];
+			const newCategories = site.categories || [];
+
+			const added = newCategories.filter((c) => !oldCategories.includes(c));
+			const removed = oldCategories.filter((c) => !newCategories.includes(c));
+
+			if (added.length > 0) {
+				changes.push(`Some categories were added: **${added.join(', ')}**`);
+			}
+			if (removed.length > 0) {
+				changes.push(`Some categories were removed: **${removed.join(', ')}**`);
+			}
+			if (added.length > 0 || removed.length > 0) {
+				changeDetails.categories = { from: oldCategories, to: newCategories };
+			}
+		}
+
+		if (site.ticket !== existingSite.ticket) {
+			if (site.ticket && !existingSite.ticket) {
+				changes.push(`A ticket was added: **${site.ticket}**`);
+			} else if (!site.ticket && existingSite.ticket) {
+				changes.push(`The ticket was removed: **${existingSite.ticket}**`);
+			} else {
+				changes.push(`The ticket was changed: **${existingSite.ticket} → ${site.ticket}**`);
+			}
+			changeDetails.ticket = { from: existingSite.ticket, to: site.ticket };
+		}
+
+		if (site.comment !== existingSite.comment) {
+			if (site.comment && !existingSite.comment) {
+				changes.push(`A comment was added: **${site.comment}**`);
+			} else if (!site.comment && existingSite.comment) {
+				changes.push(`The comment was removed: **${existingSite.comment}**`);
+			} else {
+				changes.push(`The comment was changed: **${existingSite.comment} → ${site.comment}**`);
+			}
+			changeDetails.comment = { from: existingSite.comment, to: site.comment };
+		}
+
+		if (changes.length === 0) {
+			await info(`No changes were detected for the site **${existingSite.url}**`, {
+				type: 'site',
+				action: 'update',
+				id: siteId,
+				result: 'no_changes',
+			});
+			return {};
+		}
 
 		switch (persistence) {
 			case 'database': {
 				const { error: databaseError } = await updateDatabaseSite(siteId, site);
 				if (databaseError) {
-					await error(`Failed to update site`, {
+					await error(`Failed to update the site **${site.url}**`, {
 						type: 'site',
 						action: 'update',
 						id: siteId,
 						object: site,
+						changes: changeDetails,
 						error: databaseError.message,
 					});
 					return { error: databaseError };
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
+				await info(`The **${site.infrastructure}** site **${site.url}** was updated. ${changes.join('. ')}`, {
 					type: 'site',
 					action: 'update',
 					id: siteId,
-					object: site,
+					changes: changeDetails,
 				});
 				break;
 			}
@@ -203,28 +267,25 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			case 'kubernetes': {
 				const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
 				if (kubernetesError) {
-					await error(`Failed to update site`, {
+					await error(`Failed to update the site **${site.url}**`, {
 						type: 'site',
 						action: 'update',
 						id: siteId,
 						object: site,
+						changes: changeDetails,
 						error: kubernetesError.message,
 					});
 					return { error: kubernetesError };
 				}
 
 				const extras = extractExtras(site);
+				console.log(`Extracted extras for site ${siteId}:`, extras);
 				if (Object.keys(extras).length > 0) {
 					try {
 						await updateDatabaseSiteExtras(siteId, extras);
-						await info(`Site extras updated successfully for site **${siteId}**`, {
-							type: 'site',
-							action: 'update_extras',
-							id: siteId,
-							extras,
-						});
 					} catch (extrasError) {
-						await warn(`Failed to update site extras, but site was updated`, {
+						console.error(`Error updating site extras for ${siteId}:`, extrasError);
+						await warn(`The extras could not be updated but the site update succeeded: **${site.url}**`, {
 							type: 'site',
 							action: 'update_extras',
 							id: siteId,
@@ -233,18 +294,18 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					}
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** updated successfully`, {
+				await info(`The **${site.infrastructure}** site **${site.url}** was updated. ${changes.join('. ')}`, {
 					type: 'site',
 					action: 'update',
 					id: siteId,
-					object: site,
+					changes: changeDetails,
 				});
 				break;
 			}
 
 			case 'none':
 			default:
-				await warn(`Unsupported persistence type for site update`, {
+				await warn(`This type of site cannot be updated: **${site.url}**`, {
 					type: 'site',
 					action: 'update',
 					id: siteId,
@@ -252,12 +313,12 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					persistence,
 					error: 'Not implemented',
 				});
-				return { error: { status: 501, message: 'Not implemented', success: false } };
+				return { error: { status: 400, message: 'Bad Request', success: false } };
 		}
 
 		return {};
 	} catch (errorData) {
-		await error(`Failed to update site`, {
+		await error(`The site could not be updated due to an error: **${site.url}**`, {
 			type: 'site',
 			action: 'update',
 			id: siteId,
