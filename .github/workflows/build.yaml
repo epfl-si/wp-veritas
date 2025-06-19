@@ -81,16 +81,12 @@ jobs:
             - name: Create ESLint Summary
               if: always()
               run: |
-                  echo "## 🔍 ESLint Code Quality Report" >> $GITHUB_STEP_SUMMARY
-                  echo "" >> $GITHUB_STEP_SUMMARY
-                  
                   if [ -f "eslint-results/results.json" ]; then
                     ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
                     WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
                     TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
                     CLEAN_FILES=$(jq '[.[] | select(.messages | length == 0)] | length' eslint-results/results.json)
                     
-                    echo "### 📊 Summary" >> $GITHUB_STEP_SUMMARY
                     echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
                     echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
                     echo "| 🔴 Errors | $ERROR_COUNT |" >> $GITHUB_STEP_SUMMARY
@@ -98,40 +94,6 @@ jobs:
                     echo "| 📁 Files with issues | $TOTAL_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "| ✅ Clean files | $CLEAN_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "" >> $GITHUB_STEP_SUMMARY
-                    
-                    if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
-                      echo "### 🔍 Most Common Issues" >> $GITHUB_STEP_SUMMARY
-                      echo "| Rule | Occurrences | Type |" >> $GITHUB_STEP_SUMMARY
-                      echo "|------|-------------|------|" >> $GITHUB_STEP_SUMMARY
-                      jq -r '.[] | .messages[] | [(.ruleId // "no-rule"), .severity] | @tsv' eslint-results/results.json | \
-                        sort | uniq -c | sort -nr | head -5 | \
-                        while read count rule severity; do
-                          if [ "$severity" = "2" ]; then
-                            echo "| \`$rule\` | $count | 🔴 Error |" >> $GITHUB_STEP_SUMMARY
-                          else
-                            echo "| \`$rule\` | $count | 🟡 Warning |" >> $GITHUB_STEP_SUMMARY
-                          fi
-                        done
-                      echo "" >> $GITHUB_STEP_SUMMARY
-                      
-                      if [ "$TOTAL_FILES" -gt 0 ]; then
-                        echo "### 📁 Files with Most Issues" >> $GITHUB_STEP_SUMMARY
-                        echo "| File | Errors | Warnings |" >> $GITHUB_STEP_SUMMARY
-                        echo "|------|--------|----------|" >> $GITHUB_STEP_SUMMARY
-                        jq -r '.[] | select(.messages | length > 0) | [
-                          (.filePath | sub("^.*/"; "")), 
-                          (.messages | map(select(.severity == 2)) | length),
-                          (.messages | map(select(.severity == 1)) | length)
-                        ] | @tsv' eslint-results/results.json | \
-                        sort -k2 -nr | head -5 | \
-                        while IFS=$'\t' read file errors warnings; do
-                          echo "| \`$file\` | $errors | $warnings |" >> $GITHUB_STEP_SUMMARY
-                        done
-                      fi
-                    else
-                      echo "### 🎉 Excellent!" >> $GITHUB_STEP_SUMMARY
-                      echo "No ESLint errors or warnings found. Your code quality is perfect! ✨" >> $GITHUB_STEP_SUMMARY
-                    fi
                   else
                     echo "### ❌ Error" >> $GITHUB_STEP_SUMMARY
                     echo "Could not process ESLint results. Check your configuration." >> $GITHUB_STEP_SUMMARY
