@@ -506,21 +506,25 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 		const kubernetesSites = kubernetesResult.sites || [];
 		const databaseSites = databaseResult.sites || [];
 
-		const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
+		const siteMap = new Map<string, SiteType>();
 
-		const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
-			if (isKubernetesSite(kubernetesSite)) {
-				const dbSite = databaseSiteMap.get(kubernetesSite.id);
-				if (dbSite && isDatabaseSite(dbSite)) {
-					databaseSiteMap.delete(kubernetesSite.id);
-					return mergeSiteWithExtras(kubernetesSite, dbSite);
-				}
+		databaseSites.forEach((site) => {
+			if (isDatabaseSite(site)) {
+				siteMap.set(site.id, site);
 			}
-			return kubernetesSite;
 		});
 
-		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
-		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
+		kubernetesSites.forEach((kubernetesSite) => {
+			console.log(`Processing Kubernetes site: ${kubernetesSite.id} - ${kubernetesSite.url}`);
+			console.log(kubernetesSite);
+			if (isKubernetesSite(kubernetesSite)) {
+				const dbSite = siteMap.get(kubernetesSite.id);
+				const mergedSite = dbSite && isDatabaseSite(dbSite) ? mergeSiteWithExtras(kubernetesSite, dbSite) : kubernetesSite;
+				siteMap.set(kubernetesSite.id, mergedSite);
+			}
+		});
+
+		const allSites = Array.from(siteMap.values());
 
 		if (allSites.length === 0) {
 			await info(`No sites found`, {
