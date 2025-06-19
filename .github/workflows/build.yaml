@@ -139,7 +139,6 @@ jobs:
 
     detect-version:
         name: Detect Version
-        needs: code-quality
         runs-on: ubuntu-24.04
         permissions:
             contents: read
