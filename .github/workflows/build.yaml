@@ -273,46 +273,48 @@ jobs:
                   if [ -z "$LAST_TAG" ]; then
                     COMMITS_COUNT=$(git rev-list HEAD --count)
                     AUTHORS=$(git log --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ',' | sed 's/,/, /g')
+                    COMMITS=$(git log --oneline -10 --pretty=format:"%h %s")
                     echo "Initial release v$VERSION with $COMMITS_COUNT commits by $AUTHORS." >> release_notes.txt
                   else
                     COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
                     AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ',' | sed 's/,/, /g')
+                    COMMITS=$(git log --oneline ${LAST_TAG}..HEAD --pretty=format:"%h %s")
                     echo "Release v$VERSION includes $COMMITS_COUNT commits since $LAST_TAG by $AUTHORS." >> release_notes.txt
                   fi
 
                   FEATURE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(add|feat|feature)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$FEATURE_COMMITS" ]; then
+                    echo "" >> release_notes.txt
                     echo "### ✨ Features" >> release_notes.txt
                     echo "$FEATURE_COMMITS" >> release_notes.txt
-                    echo "" >> release_notes.txt
                   fi
                   
                   FIX_COMMITS=$(echo "$COMMITS" | grep -iE "\[(fix|bugfix|hotfix)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$FIX_COMMITS" ]; then
+                    echo "" >> release_notes.txt
                     echo "### 🐛 Bug Fixes" >> release_notes.txt
                     echo "$FIX_COMMITS" >> release_notes.txt
-                    echo "" >> release_notes.txt
                   fi
                   
                   MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(version|refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$MAINTENANCE_COMMITS" ]; then
+                    echo "" >> release_notes.txt
                     echo "### 🔧 Maintenance" >> release_notes.txt
                     echo "$MAINTENANCE_COMMITS" >> release_notes.txt
-                    echo "" >> release_notes.txt
                   fi
                   
                   DOC_COMMITS=$(echo "$COMMITS" | grep -iE "\[(docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$DOC_COMMITS" ]; then
+                    echo "" >> release_notes.txt
                     echo "### 📚 Documentation" >> release_notes.txt
                     echo "$DOC_COMMITS" >> release_notes.txt
-                    echo "" >> release_notes.txt
                   fi
 
                   OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(add|feat|feature|fix|bugfix|hotfix|version|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$OTHER_COMMITS" ]; then
+                    echo "" >> release_notes.txt
                     echo "### 🔄 Other Changes" >> release_notes.txt
                     echo "$OTHER_COMMITS" >> release_notes.txt
-                    echo "" >> release_notes.txt
                   fi
 
             - name: Create Release
