@@ -56,21 +56,6 @@ jobs:
                     
                     GITHUB_WORKSPACE_RELATIVE=$(pwd)
                     
-                    jq -r --arg workspace "$GITHUB_WORKSPACE_RELATIVE" '
-                      .[] | 
-                      select(.messages | length > 0) | 
-                      .filePath as $file | 
-                      (.filePath | sub($workspace + "/"; "")) as $relative_file |
-                      .messages[] | 
-                      if .severity == 2 then
-                        "::error file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Error (\(.ruleId // "unknown"))::\(.message)"
-                      elif .severity == 1 then
-                        "::warning file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Warning (\(.ruleId // "unknown"))::\(.message)"
-                      else
-                        "::notice file=\($relative_file),line=\(.line),col=\(.column),title=ESLint Info (\(.ruleId // "unknown"))::\(.message)"
-                      end
-                    ' eslint-results/results.json
-                    
                     ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
                     WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
                     TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
