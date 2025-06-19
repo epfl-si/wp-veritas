@@ -294,7 +294,7 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
                   
-                  MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
+                  MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(version|refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$MAINTENANCE_COMMITS" ]; then
                     echo "### 🔧 Maintenance" >> release_notes.txt
                     echo "$MAINTENANCE_COMMITS" >> release_notes.txt
@@ -308,7 +308,7 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
 
-                  OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(add|feat|feature|fix|bugfix|hotfix|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
+                  OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(add|feat|feature|fix|bugfix|hotfix|version|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$OTHER_COMMITS" ]; then
                     echo "### 🔄 Other Changes" >> release_notes.txt
                     echo "$OTHER_COMMITS" >> release_notes.txt
