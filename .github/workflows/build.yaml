@@ -1,12 +1,9 @@
-name: Build and Release on Package Changes
+name: Smart Build and Release
 on:
     push:
         branches:
             - master
-        paths:
-            - 'package.json'
-            - 'package-lock.json'
-            - 'Dockerfile'
+            - main
 
 env:
     REPOSITORY: 'quay-its.epfl.ch'
@@ -14,11 +11,181 @@ env:
     REGISTRY_PATH: 'quay-its.epfl.ch/svc0041/wp-veritas'
 
 jobs:
+    code-quality:
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: read
+            checks: write
+            pull-requests: write
+        outputs:
+            eslint_passed: ${{ steps.eslint_check.outputs.passed }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: |
+                  echo "📦 Installing dependencies..."
+                  npm ci
+
+            - name: Run ESLint with annotations
+              id: eslint_check
+              run: |
+                  echo "🔍 Running ESLint analysis..."
+                  
+                  mkdir -p eslint-results
+                  
+                  set +e
+                  
+                  npm run lint -- --format json --output-file eslint-results/results.json
+                  ESLINT_EXIT_CODE=$?
+                  
+                  echo "📋 ESLint Console Output:"
+                  npm run lint -- --format stylish
+                  
+                  if [ -f "eslint-results/results.json" ]; then
+                    echo "📊 Processing ESLint results for GitHub annotations..."
+                    
+                    GITHUB_WORKSPACE_RELATIVE=$(pwd)
+                    
+                    jq -r --arg workspace "$GITHUB_WORKSPACE_RELATIVE" '
+                      .[] | 
+                      select(.messages | length > 0) | 
+                      .filePath as $file | 
+                      (.filePath | sub($workspace + "/"; "")) as $relative_file |
+                      .messages[] | 
+                      if .severity == 2 then
+                        "::error file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Error (\(.ruleId // "unknown"))::\(.message)"
+                      elif .severity == 1 then
+                        "::warning file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Warning (\(.ruleId // "unknown"))::\(.message)"
+                      else
+                        "::notice file=\($relative_file),line=\(.line),col=\(.column),title=ESLint Info (\(.ruleId // "unknown"))::\(.message)"
+                      end
+                    ' eslint-results/results.json
+                    
+                    ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
+                    WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
+                    TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
+                    
+                    echo "📈 ESLint Summary:"
+                    echo "  - Files with issues: $TOTAL_FILES"
+                    echo "  - Errors: $ERROR_COUNT"
+                    echo "  - Warnings: $WARNING_COUNT"
+                    
+                    if [ "$ERROR_COUNT" -gt 0 ]; then
+                      echo "::error title=❌ ESLint Failed::Found $ERROR_COUNT errors and $WARNING_COUNT warnings across $TOTAL_FILES files"
+                      echo "passed=false" >> $GITHUB_OUTPUT
+                      
+                      echo "🔥 Files with most errors:"
+                      jq -r '.[] | select(.messages | length > 0) | "\(.filePath | sub("^.*/"; "")): \(.messages | map(select(.severity == 2)) | length) errors, \(.messages | map(select(.severity == 1)) | length) warnings"' eslint-results/results.json | sort -k2 -nr | head -5
+                      
+                    elif [ "$WARNING_COUNT" -gt 0 ]; then
+                      echo "::warning title=⚠️ ESLint Warnings::Found $WARNING_COUNT warnings across $TOTAL_FILES files (no errors)"
+                      echo "passed=true" >> $GITHUB_OUTPUT
+                      
+                      echo "📊 Most common warning rules:"
+                      jq -r '.[] | .messages[] | select(.severity == 1) | .ruleId // "no-rule"' eslint-results/results.json | sort | uniq -c | sort -nr | head -3 | sed 's/^[[:space:]]*/::notice title=Warning Rule::/'
+                      
+                    else
+                      echo "::notice title=✅ ESLint Success::No errors or warnings found! Code quality is excellent 🎉"
+                      echo "passed=true" >> $GITHUB_OUTPUT
+                    fi
+                    
+                    if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+                      echo "📋 Most frequent issues:"
+                      jq -r '.[] | .messages[] | .ruleId // "no-rule"' eslint-results/results.json | sort | uniq -c | sort -nr | head -3 | while read count rule; do
+                        echo "::notice title=🔍 Rule Statistics::$rule: $count occurrences"
+                      done
+                    fi
+                    
+                  else
+                    echo "::error title=💥 ESLint Configuration Error::Failed to generate ESLint results - check your ESLint configuration"
+                    echo "passed=false" >> $GITHUB_OUTPUT
+                  fi
+                  
+                  if [ "$ESLINT_EXIT_CODE" -eq 2 ]; then
+                    echo "❌ ESLint found errors - failing the build"
+                    exit 1
+                  elif [ "$ESLINT_EXIT_CODE" -eq 1 ]; then
+                    echo "⚠️  ESLint found warnings - continuing build"
+                    exit 0
+                  else
+                    echo "✅ ESLint passed successfully"
+                    exit 0
+                  fi
+
+            - name: Create ESLint Summary
+              if: always()
+              run: |
+                  echo "## 🔍 ESLint Code Quality Report" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  
+                  if [ -f "eslint-results/results.json" ]; then
+                    ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
+                    WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
+                    TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
+                    CLEAN_FILES=$(jq '[.[] | select(.messages | length == 0)] | length' eslint-results/results.json)
+                    
+                    echo "### 📊 Summary" >> $GITHUB_STEP_SUMMARY
+                    echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+                    echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+                    echo "| 🔴 Errors | $ERROR_COUNT |" >> $GITHUB_STEP_SUMMARY
+                    echo "| 🟡 Warnings | $WARNING_COUNT |" >> $GITHUB_STEP_SUMMARY
+                    echo "| 📁 Files with issues | $TOTAL_FILES |" >> $GITHUB_STEP_SUMMARY
+                    echo "| ✅ Clean files | $CLEAN_FILES |" >> $GITHUB_STEP_SUMMARY
+                    echo "" >> $GITHUB_STEP_SUMMARY
+                    
+                    if [ "$ERROR_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+                      echo "### 🔍 Most Common Issues" >> $GITHUB_STEP_SUMMARY
+                      echo "| Rule | Occurrences | Type |" >> $GITHUB_STEP_SUMMARY
+                      echo "|------|-------------|------|" >> $GITHUB_STEP_SUMMARY
+                      jq -r '.[] | .messages[] | [(.ruleId // "no-rule"), .severity] | @tsv' eslint-results/results.json | \
+                        sort | uniq -c | sort -nr | head -5 | \
+                        while read count rule severity; do
+                          if [ "$severity" = "2" ]; then
+                            echo "| \`$rule\` | $count | 🔴 Error |" >> $GITHUB_STEP_SUMMARY
+                          else
+                            echo "| \`$rule\` | $count | 🟡 Warning |" >> $GITHUB_STEP_SUMMARY
+                          fi
+                        done
+                      echo "" >> $GITHUB_STEP_SUMMARY
+                      
+                      if [ "$TOTAL_FILES" -gt 0 ]; then
+                        echo "### 📁 Files with Most Issues" >> $GITHUB_STEP_SUMMARY
+                        echo "| File | Errors | Warnings |" >> $GITHUB_STEP_SUMMARY
+                        echo "|------|--------|----------|" >> $GITHUB_STEP_SUMMARY
+                        jq -r '.[] | select(.messages | length > 0) | [
+                          (.filePath | sub("^.*/"; "")), 
+                          (.messages | map(select(.severity == 2)) | length),
+                          (.messages | map(select(.severity == 1)) | length)
+                        ] | @tsv' eslint-results/results.json | \
+                        sort -k2 -nr | head -5 | \
+                        while IFS=$'\t' read file errors warnings; do
+                          echo "| \`$file\` | $errors | $warnings |" >> $GITHUB_STEP_SUMMARY
+                        done
+                      fi
+                    else
+                      echo "### 🎉 Excellent!" >> $GITHUB_STEP_SUMMARY
+                      echo "No ESLint errors or warnings found. Your code quality is perfect! ✨" >> $GITHUB_STEP_SUMMARY
+                    fi
+                  else
+                    echo "### ❌ Error" >> $GITHUB_STEP_SUMMARY
+                    echo "Could not process ESLint results. Check your configuration." >> $GITHUB_STEP_SUMMARY
+                  fi
+
     detect-version:
+        needs: code-quality
         runs-on: ubuntu-24.04
         outputs:
             version: ${{ steps.get_version.outputs.version }}
             should_build: ${{ steps.check_version.outputs.should_build }}
+            version_exists: ${{ steps.check_version.outputs.version_exists }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -28,8 +195,18 @@ jobs:
             - name: Get Version from package.json
               id: get_version
               run: |
+                  if [ ! -f "package.json" ]; then
+                    echo "❌ package.json not found!"
+                    exit 1
+                  fi
+                  
                   version=$(jq -r .version package.json)
-                  echo "Version from package.json: $version"
+                  if [ "$version" = "null" ] || [ -z "$version" ]; then
+                    echo "❌ No version found in package.json!"
+                    exit 1
+                  fi
+                  
+                  echo "📦 Version from package.json: $version"
                   echo "version=$version" >> $GITHUB_OUTPUT
 
             - name: Set up Docker CLI
@@ -44,32 +221,66 @@ jobs:
                   username: ${{ secrets.QUAY_ROBOT_USERNAME }}
                   password: ${{ secrets.QUAY_ROBOT_PASSWORD }}
 
-            - name: Check if version exists
+            - name: Smart Version Check
               id: check_version
               run: |
                   VERSION="${{ steps.get_version.outputs.version }}"
-                  echo "Checking if version $VERSION exists..."
+                  echo "🔍 Checking if version $VERSION exists on registry..."
 
                   if docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION > /dev/null 2>&1; then
-                    echo "Version $VERSION already exists, skipping build"
-                    echo "should_build=false" >> $GITHUB_OUTPUT
+                    echo "version_exists=true" >> $GITHUB_OUTPUT
+                    echo "📋 Version $VERSION exists on registry"
+                    
+                    LAST_TAG="v$VERSION"
+                    if git rev-parse --verify "$LAST_TAG" >/dev/null 2>&1; then
+                      echo "🏷️  Tag $LAST_TAG exists in git"
+                      
+                      COMMITS_SINCE_TAG=$(git rev-list ${LAST_TAG}..HEAD --count)
+                      
+                      if [ "$COMMITS_SINCE_TAG" -gt 0 ]; then
+                        echo "🔄 Found $COMMITS_SINCE_TAG commits since last tag - rebuild needed"
+                        echo "should_build=true" >> $GITHUB_OUTPUT
+                        echo "💡 Reason: Code changes detected since last build"
+                      else
+                        echo "✅ No changes since last build - skipping"
+                        echo "should_build=false" >> $GITHUB_OUTPUT
+                      fi
+                    else
+                      echo "🔄 No git tag found for version - rebuild needed"
+                      echo "should_build=true" >> $GITHUB_OUTPUT
+                      echo "💡 Reason: No git tag found (possible failed previous build)"
+                    fi
                   else
-                    echo "Version $VERSION doesn't exist, proceeding with build"
+                    echo "version_exists=false" >> $GITHUB_OUTPUT
+                    echo "🆕 Version $VERSION doesn't exist - build needed"
                     echo "should_build=true" >> $GITHUB_OUTPUT
+                    echo "💡 Reason: New version detected"
                   fi
+                  
+                  echo "📊 Summary:"
+                  echo "  - Version: $VERSION"
+                  echo "  - Exists on registry: $([ '${{ steps.check_version.outputs.version_exists }}' = 'true' ] && echo 'Yes' || echo 'No')"
+                  echo "  - Should build: $([ '${{ steps.check_version.outputs.should_build }}' = 'true' ] && echo 'Yes' || echo 'No')"
 
     build-and-push:
-        needs: detect-version
-        if: needs.detect-version.outputs.should_build == 'true'
+        needs: [code-quality, detect-version]
+        if: needs.detect-version.outputs.should_build == 'true' && needs.code-quality.outputs.eslint_passed == 'true'
         runs-on: ubuntu-24.04
         permissions:
             contents: read
             packages: write
         outputs:
             version: ${{ needs.detect-version.outputs.version }}
+            build_success: ${{ steps.build_result.outputs.success }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Build Info
+              run: |
+                  echo "🚀 Starting build for version: ${{ needs.detect-version.outputs.version }}"
+                  echo "📅 Build triggered at: $(date)"
+                  echo "🌟 Build reason: $([ '${{ needs.detect-version.outputs.version_exists }}' = 'true' ] && echo 'Rebuild after changes' || echo 'New version build')"
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
@@ -92,26 +303,56 @@ jobs:
                   tags: |
                       type=raw,value=latest
                       type=raw,value=${{ needs.detect-version.outputs.version }}
+                  labels: |
+                      org.opencontainers.image.title=${{ env.APP_NAME }}
+                      org.opencontainers.image.description=WordPress Veritas Application
+                      org.opencontainers.image.version=${{ needs.detect-version.outputs.version }}
 
             - name: Build and push Docker image
+              id: build_push
               uses: docker/build-push-action@v5
               with:
                   context: .
                   file: ./Dockerfile
                   push: true
                   tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
                   platforms: linux/amd64
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
+                  build-args: |
+                      VERSION=${{ needs.detect-version.outputs.version }}
+                      BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+                      GIT_SHA=${{ github.sha }}
+
+            - name: Verify Build Success
+              id: build_result
+              run: |
+                  VERSION="${{ needs.detect-version.outputs.version }}"
+                  echo "🔍 Verifying build success..."
+                  
+                  if docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION > /dev/null 2>&1; then
+                    echo "✅ Build and push successful!"
+                    echo "success=true" >> $GITHUB_OUTPUT
+                    echo "🐳 Image available at: ${{ env.REGISTRY_PATH }}:$VERSION"
+                  else
+                    echo "❌ Build verification failed!"
+                    echo "success=false" >> $GITHUB_OUTPUT
+                    exit 1
+                  fi
 
             - name: Output Build Information
               run: |
-                  echo "Built and pushed image with version: ${{ needs.detect-version.outputs.version }}"
-                  echo "Tags: ${{ steps.meta.outputs.tags }}"
+                  echo "📋 Build Summary:"
+                  echo "  - Version: ${{ needs.detect-version.outputs.version }}"
+                  echo "  - Image: ${{ env.REGISTRY_PATH }}:${{ needs.detect-version.outputs.version }}"
+                  echo "  - Tags: ${{ steps.meta.outputs.tags }}"
+                  echo "  - Build ID: ${{ steps.build_push.outputs.imageid }}"
+                  echo "  - Digest: ${{ steps.build_push.outputs.digest }}"
 
     create-release:
-        needs: [detect-version, build-and-push]
-        if: needs.detect-version.outputs.should_build == 'true'
+        needs: [code-quality, detect-version, build-and-push]
+        if: needs.detect-version.outputs.should_build == 'true' && needs.build-and-push.outputs.build_success == 'true' && needs.code-quality.outputs.eslint_passed == 'true'
         runs-on: ubuntu-24.04
         permissions:
             contents: write
@@ -121,68 +362,95 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Generate release notes from git log
+            - name: Generate Smart Release Notes
               id: generate_notes
               run: |
                   VERSION="${{ needs.detect-version.outputs.version }}"
+                  echo "📝 Generating release notes for version $VERSION"
 
-                  # Get the last tag to determine the range
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                  
+                  echo "# 🚀 Release v$VERSION" > release_notes.txt
+                  echo "" >> release_notes.txt
+                  echo "**Released on:** $(date +'%Y-%m-%d %H:%M:%S UTC')" >> release_notes.txt
+                  echo "**Docker Image:** \`${{ env.REGISTRY_PATH }}:$VERSION\`" >> release_notes.txt
+                  echo "" >> release_notes.txt
 
                   if [ -z "$LAST_TAG" ]; then
-                    echo "No previous tag found, using last 10 commits"
+                    echo "📋 No previous tag found, using last 10 commits"
+                    echo "## 📦 Initial Release" >> release_notes.txt
+                    echo "" >> release_notes.txt
                     COMMITS=$(git log --oneline -10 --pretty=format:"%h %s")
                   else
-                    echo "Getting commits since last tag: $LAST_TAG"
+                    echo "📋 Getting commits since last tag: $LAST_TAG"
+                    COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
+                    echo "## 🔄 Changes since $LAST_TAG ($COMMITS_COUNT commits)" >> release_notes.txt
+                    echo "" >> release_notes.txt
                     COMMITS=$(git log --oneline ${LAST_TAG}..HEAD --pretty=format:"%h %s")
                   fi
 
-                  # Format commits in the requested style
-                  FORMATTED_NOTES=""
-                  while IFS= read -r commit; do
-                    if [ -n "$commit" ]; then
-                      # Extract commit hash and message
-                      HASH=$(echo "$commit" | cut -d' ' -f1)
-                      MESSAGE=$(echo "$commit" | cut -d' ' -f2-)
-                      
-                      # Determine commit type based on message
-                      if [[ "$MESSAGE" =~ ^(fix|Fix|FIX) ]]; then
-                        TYPE="fix"
-                      elif [[ "$MESSAGE" =~ ^(feat|feature|Feature|FEATURE) ]]; then
-                        TYPE="feature"
-                      elif [[ "$MESSAGE" =~ ^(chore|Chore|CHORE) ]]; then
-                        TYPE="chore"
-                      elif [[ "$MESSAGE" =~ ^(docs|Docs|DOCS) ]]; then
-                        TYPE="docs"
-                      else
-                        TYPE="update"
-                      fi
-                      
-                      # Clean up the message (remove type prefix if present)
-                      CLEAN_MESSAGE=$(echo "$MESSAGE" | sed -E 's/^(fix|Fix|FIX|feat|feature|Feature|FEATURE|chore|Chore|CHORE|docs|Docs|DOCS):?\s*//')
-                      
-                      FORMATTED_NOTES="${FORMATTED_NOTES}${HASH} [${TYPE}] ${CLEAN_MESSAGE}\n"
-                    fi
-                  done <<< "$COMMITS"
+                  echo "### ✨ Features" >> release_notes.txt
+                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (feat|feature|Feature|FEATURE)" | sed 's/^/- /' >> release_notes.txt || echo "- No new features" >> release_notes.txt
+                  echo "" >> release_notes.txt
+                  
+                  echo "### 🐛 Bug Fixes" >> release_notes.txt
+                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (fix|Fix|FIX)" | sed 's/^/- /' >> release_notes.txt || echo "- No bug fixes" >> release_notes.txt
+                  echo "" >> release_notes.txt
+                  
+                  echo "### 🔧 Maintenance" >> release_notes.txt
+                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (chore|Chore|CHORE|refactor|style|perf)" | sed 's/^/- /' >> release_notes.txt || echo "- No maintenance changes" >> release_notes.txt
+                  echo "" >> release_notes.txt
+                  
+                  echo "### 📚 Documentation" >> release_notes.txt
+                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (docs|Docs|DOCS)" | sed 's/^/- /' >> release_notes.txt || echo "- No documentation changes" >> release_notes.txt
+                  echo "" >> release_notes.txt
 
-                  # Remove trailing newline and save to file
-                  echo -e "$FORMATTED_NOTES" | sed '$d' > release_notes.txt
+                  echo "### 🔄 Other Changes" >> release_notes.txt
+                  echo "$COMMITS" | grep -vE "^[a-f0-9]+ (feat|feature|Feature|FEATURE|fix|Fix|FIX|chore|Chore|CHORE|docs|Docs|DOCS|refactor|style|perf)" | sed 's/^/- /' >> release_notes.txt || echo "- No other changes" >> release_notes.txt
+                  echo "" >> release_notes.txt
 
-                  echo "Generated release notes:"
+                  echo "---" >> release_notes.txt
+                  echo "**Technical Details:**" >> release_notes.txt
+                  echo "- Build SHA: \`${{ github.sha }}\`" >> release_notes.txt
+                  echo "- Workflow: [\`${{ github.workflow }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> release_notes.txt
+
+                  echo "📄 Generated release notes:"
                   cat release_notes.txt
 
-            - name: Create Release
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create/Update Release
+              uses: softprops/action-gh-release@v1
               with:
                   tag_name: v${{ needs.detect-version.outputs.version }}
-                  release_name: Release v${{ needs.detect-version.outputs.version }}
+                  name: "🚀 Release v${{ needs.detect-version.outputs.version }}"
                   body_path: release_notes.txt
                   draft: false
                   prerelease: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Output Release Information
               run: |
-                  echo "Created release for version: ${{ needs.detect-version.outputs.version }}"
-                  echo "Docker image available at: ${{ env.REGISTRY_PATH }}:${{ needs.detect-version.outputs.version }}"
+                  echo "🎉 Release Summary:"
+                  echo "  - Version: v${{ needs.detect-version.outputs.version }}"
+                  echo "  - Tag: v${{ needs.detect-version.outputs.version }}"
+                  echo "  - Docker Image: ${{ env.REGISTRY_PATH }}:${{ needs.detect-version.outputs.version }}"
+                  echo "  - Release URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.detect-version.outputs.version }}"
+
+    cleanup:
+        needs: [code-quality, detect-version, build-and-push, create-release]
+        if: always() && needs.detect-version.outputs.should_build == 'true'
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Cleanup Summary
+              run: |
+                  echo "🧹 Cleanup Summary:"
+                  echo "  - Code Quality: ${{ needs.code-quality.result }}"
+                  echo "  - Build Status: ${{ needs.build-and-push.result }}"
+                  echo "  - Release Status: ${{ needs.create-release.result }}"
+                  
+                  if [ "${{ needs.code-quality.result }}" = "success" ] && [ "${{ needs.build-and-push.result }}" = "success" ] && [ "${{ needs.create-release.result }}" = "success" ]; then
+                    echo "✅ Pipeline completed successfully!"
+                  else
+                    echo "⚠️  Pipeline completed with issues - check previous jobs"
+                    echo "    - ESLint: ${{ needs.code-quality.outputs.eslint_passed }}"
+                  fi
