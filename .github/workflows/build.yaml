@@ -272,23 +272,12 @@ jobs:
 
                   if [ -z "$LAST_TAG" ]; then
                     COMMITS_COUNT=$(git rev-list HEAD --count)
-                    AUTHORS=$(git log --pretty=format:"%an" | sort -u | tr '\n' ', ' | sed 's/, $//')
+                    AUTHORS=$(git log --pretty=format:"%an" | sort -u | paste -sd ', ')
                     echo "Initial release v$VERSION with $COMMITS_COUNT commits by $AUTHORS." >> release_notes.txt
                   else
                     COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
-                    AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | tr '\n' ', ' | sed 's/, $//')
+                    AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | paste -sd ', ')
                     echo "Release v$VERSION includes $COMMITS_COUNT commits since $LAST_TAG by $AUTHORS." >> release_notes.txt
-                  fi
-
-                  if [ -z "$LAST_TAG" ]; then
-                    echo "## 📦 Initial Release" >> release_notes.txt
-                    echo "" >> release_notes.txt
-                    COMMITS=$(git log --oneline -10 --pretty=format:"%h %s")
-                  else
-                    COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
-                    echo "## 🔄 Changes since $LAST_TAG ($COMMITS_COUNT commits)" >> release_notes.txt
-                    echo "" >> release_notes.txt
-                    COMMITS=$(git log --oneline ${LAST_TAG}..HEAD --pretty=format:"%h %s")
                   fi
 
                   FEATURE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(add|feat|feature)\]" | sed 's/^/- /' || echo "")
