@@ -272,11 +272,11 @@ jobs:
 
                   if [ -z "$LAST_TAG" ]; then
                     COMMITS_COUNT=$(git rev-list HEAD --count)
-                    AUTHORS=$(git log --pretty=format:"%an" | sort -u | paste -sd ', ')
+                    AUTHORS=$(git log --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ',' | sed 's/,/, /g')
                     echo "Initial release v$VERSION with $COMMITS_COUNT commits by $AUTHORS." >> release_notes.txt
                   else
                     COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
-                    AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | paste -sd ', ')
+                    AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ',' | sed 's/,/, /g')
                     echo "Release v$VERSION includes $COMMITS_COUNT commits since $LAST_TAG by $AUTHORS." >> release_notes.txt
                   fi
 
