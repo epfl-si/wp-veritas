@@ -12,6 +12,7 @@ env:
 
 jobs:
     code-quality:
+        name: Code Quality Check
         runs-on: ubuntu-24.04
         permissions:
             contents: read
@@ -180,6 +181,7 @@ jobs:
                   fi
 
     detect-version:
+        name: Detect Version
         needs: code-quality
         runs-on: ubuntu-24.04
         outputs:
@@ -263,6 +265,7 @@ jobs:
                   echo "  - Should build: $([ '${{ steps.check_version.outputs.should_build }}' = 'true' ] && echo 'Yes' || echo 'No')"
 
     build-and-push:
+        name: Build and Push
         needs: [code-quality, detect-version]
         if: needs.detect-version.outputs.should_build == 'true' && needs.code-quality.outputs.eslint_passed == 'true'
         runs-on: ubuntu-24.04
@@ -303,11 +306,6 @@ jobs:
                   tags: |
                       type=raw,value=latest
                       type=raw,value=${{ needs.detect-version.outputs.version }}
-                  labels: |
-                      org.opencontainers.image.title=${{ env.APP_NAME }}
-                      org.opencontainers.image.description=WordPress Veritas Application
-                      org.opencontainers.image.version=${{ needs.detect-version.outputs.version }}
-
             - name: Build and push Docker image
               id: build_push
               uses: docker/build-push-action@v5
@@ -325,22 +323,6 @@ jobs:
                       BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
                       GIT_SHA=${{ github.sha }}
 
-            - name: Verify Build Success
-              id: build_result
-              run: |
-                  VERSION="${{ needs.detect-version.outputs.version }}"
-                  echo "🔍 Verifying build success..."
-                  
-                  if docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION > /dev/null 2>&1; then
-                    echo "✅ Build and push successful!"
-                    echo "success=true" >> $GITHUB_OUTPUT
-                    echo "🐳 Image available at: ${{ env.REGISTRY_PATH }}:$VERSION"
-                  else
-                    echo "❌ Build verification failed!"
-                    echo "success=false" >> $GITHUB_OUTPUT
-                    exit 1
-                  fi
-
             - name: Output Build Information
               run: |
                   echo "📋 Build Summary:"
@@ -351,6 +333,7 @@ jobs:
                   echo "  - Digest: ${{ steps.build_push.outputs.digest }}"
 
     create-release:
+        name: Create Release
         needs: [code-quality, detect-version, build-and-push]
         if: needs.detect-version.outputs.should_build == 'true' && needs.build-and-push.outputs.build_success == 'true' && needs.code-quality.outputs.eslint_passed == 'true'
         runs-on: ubuntu-24.04
@@ -437,6 +420,7 @@ jobs:
                   echo "  - Release URL: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.detect-version.outputs.version }}"
 
     cleanup:
+        name: Cleanup Summary
         needs: [code-quality, detect-version, build-and-push, create-release]
         if: always() && needs.detect-version.outputs.should_build == 'true'
         runs-on: ubuntu-24.04
