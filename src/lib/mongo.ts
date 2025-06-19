@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/wp-veritas';
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/wp-veritas";
 
 //@ts-expect-error global is not defined in TypeScript, but it is available in Node.js
 let cached = global.mongoose;

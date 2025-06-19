@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId } from 'mongoose';
+import mongoose, { Document, ObjectId } from "mongoose";
 
 export interface ILog extends Document {
 	_id: ObjectId;
@@ -13,7 +13,7 @@ export interface ILog extends Document {
 		count?: number;
 		[key: string]: string | number | boolean | object | undefined;
 	};
-	level: 'info' | 'error' | 'warn' | 'debug' | 'system';
+	level: "info" | "error" | "warn" | "debug" | "system";
 	timestamp: Date;
 	userId?: string;
 }
@@ -26,18 +26,18 @@ const logSchema = new mongoose.Schema<ILog>({
 		required: true,
 		validate: {
 			validator: function (v: object) {
-				return typeof v === 'object' && v !== null && 'type' in v && 'action' in v && typeof v.type === 'string' && typeof v.action === 'string';
+				return typeof v === "object" && v !== null && "type" in v && "action" in v && typeof v.type === "string" && typeof v.action === "string";
 			},
-			message: 'Data must contain at least type and action fields',
+			message: "Data must contain at least type and action fields",
 		},
 	},
 	level: {
 		type: String,
-		enum: ['info', 'error', 'warn', 'debug', 'system'],
+		enum: ["info", "error", "warn", "debug", "system"],
 		required: true,
 	},
 	timestamp: { type: Date, default: Date.now },
 	userId: { type: String, required: false },
 });
 
-export const LogModel = mongoose.models.Log || mongoose.model<ILog>('Log', logSchema);
+export const LogModel = mongoose.models.Log || mongoose.model<ILog>("Log", logSchema);

@@ -1,5 +1,5 @@
-import { KubernetesSite } from '@/types/site';
-import { OPTIONAL_CATEGORIES, WP_CATEGORIES } from '@/constants/categories';
+import { KubernetesSite } from "@/types/site";
+import { OPTIONAL_CATEGORIES, WP_CATEGORIES } from "@/constants/categories";
 
 export function getCategoriesFromPlugins(plugins: Record<string, object>): string[] {
 	const categories = [];

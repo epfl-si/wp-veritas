@@ -1,4 +1,4 @@
-import mongoose, { Document, ObjectId } from 'mongoose';
+import mongoose, { Document, ObjectId } from "mongoose";
 
 export interface ITheme extends Document {
 	_id: ObjectId;
@@ -9,4 +9,4 @@ const themeSchema = new mongoose.Schema<ITheme>({
 	name: { type: String, required: true, unique: true },
 });
 
-export const ThemeModel = mongoose.models.Theme || mongoose.model<ITheme>('Theme', themeSchema);
+export const ThemeModel = mongoose.models.Theme || mongoose.model<ITheme>("Theme", themeSchema);

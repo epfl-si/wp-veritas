@@ -1,15 +1,23 @@
 import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
  * /api/v1/tags:
  *   get:
- *     summary: Retrieve all tags
- *     description: Fetches all tags from the database with their multilingual properties.
+ *     summary: Retrieve all tags with optional type filtering
+ *     description: Fetches all tags from the database with their multilingual properties. Optionally filter by tag type.
  *     tags:
  *       - Tags
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Filter tags by type (e.g., "category", "skill", "topic")
+ *         example: "category"
  *     responses:
  *       200:
  *         description: A list of tags retrieved successfully.
@@ -44,12 +52,6 @@ import { NextResponse } from "next/server";
  *                     type: string
  *                     description: English URL slug for the tag.
  *                     example: "technology"
- *                   sites:
- *                     type: array
- *                     description: List of sites associated with this tag.
- *                     items:
- *                       type: string
- *                     example: ["site1", "site2"]
  *             example:
  *               - id: "507f1f77bcf86cd799439011"
  *                 type: "category"
@@ -57,7 +59,6 @@ import { NextResponse } from "next/server";
  *                 name_en: "Technology"
  *                 url_fr: "technologie"
  *                 url_en: "technology"
- *                 sites: ["blog", "news"]
  *       404:
  *         description: No tags found in the database.
  *         content:
@@ -86,11 +87,20 @@ import { NextResponse } from "next/server";
  *                   example: "Internal Server Error"
  */
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
 		await db.connect();
-		const tags = await TagModel.find({}, { _id: 0, __v: 0 });
-		if (!tags) {return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });}
+		const { searchParams } = new URL(request.url);
+		const typeFilter = searchParams.get("type");
+		const query = typeFilter ? { type: typeFilter } : {};
+		const tags = await TagModel.find(query, { __id: 0, __v: 0 });
+
+		if (!tags || tags.length === 0) {
+			return NextResponse.json(
+				{ status: 404, message: "No tags found" },
+				{ status: 404 },
+			);
+		}
 
 		const formattedTags = tags.map((tag) => ({
 			id: tag.id,
@@ -104,6 +114,9 @@ export async function GET(): Promise<NextResponse> {
 		return NextResponse.json(formattedTags, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving tags:", error);
-		return NextResponse.json({ status: 500, message: "Internal Server Error" }, { status: 500 });
+		return NextResponse.json(
+			{ status: 500, message: "Internal Server Error" },
+			{ status: 500 },
+		);
 	}
 }

@@ -1,17 +1,17 @@
-'use client';
-import React, { useEffect, useState, useCallback } from 'react';
-import { SearchSiteType } from '@/types/site';
-import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import moment from 'moment';
-import 'moment/locale/fr';
+"use client";
+import React, { useEffect, useState, useCallback } from "react";
+import { SearchSiteType } from "@/types/site";
+import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import moment from "moment";
+import "moment/locale/fr";
 
 interface SearchState {
 	url: string;
@@ -29,7 +29,7 @@ export const SiteInfo: React.FC = () => {
 	const pathname = usePathname();
 
 	const [search, setSearch] = useState<SearchState>({
-		url: searchParams.get('url') || '',
+		url: searchParams.get("url") || "",
 	});
 
 	const [sites, setSites] = useState<SearchSiteType[]>([]);
@@ -37,7 +37,7 @@ export const SiteInfo: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [hasSearched, setHasSearched] = useState(false);
 
-	const t = useTranslations('site');
+	const t = useTranslations("site");
 	const locale = useLocale();
 
 	useEffect(() => {
@@ -45,7 +45,7 @@ export const SiteInfo: React.FC = () => {
 	}, [locale]);
 
 	useEffect(() => {
-		const urlParam = searchParams.get('url');
+		const urlParam = searchParams.get("url");
 		if (urlParam) {
 			setSearch({ url: urlParam });
 
@@ -57,9 +57,9 @@ export const SiteInfo: React.FC = () => {
 		(newUrl: string) => {
 			const params = new URLSearchParams(searchParams);
 			if (newUrl.trim()) {
-				params.set('url', newUrl);
+				params.set("url", newUrl);
 			} else {
-				params.delete('url');
+				params.delete("url");
 			}
 
 			const newSearchParams = params.toString();
@@ -67,7 +67,7 @@ export const SiteInfo: React.FC = () => {
 
 			router.replace(newPathname, { scroll: false });
 		},
-		[searchParams, pathname, router]
+		[searchParams, pathname, router],
 	);
 
 	const searchSites = useCallback(
@@ -84,7 +84,7 @@ export const SiteInfo: React.FC = () => {
 
 			try {
 				const queryParams = new URLSearchParams();
-				if (searchParams.url) queryParams.append('url', searchParams.url);
+				if (searchParams.url) queryParams.append("url", searchParams.url);
 
 				const response = await fetch(`/api/sites/search?${queryParams.toString()}`);
 				const data: SearchResponse = await response.json();
@@ -92,18 +92,18 @@ export const SiteInfo: React.FC = () => {
 				if (response.ok && data.items) {
 					setSites(data.items);
 				} else {
-					setError(data.message || t('error.server'));
+					setError(data.message || t("error.server"));
 					setSites([]);
 				}
 			} catch (error) {
-				console.error('Error fetching sites:', error);
-				setError(t('error.connection'));
+				console.error("Error fetching sites:", error);
+				setError(t("error.connection"));
 				setSites([]);
 			} finally {
 				setLoading(false);
 			}
 		},
-		[t]
+		[t],
 	);
 
 	const handleSearch = () => {
@@ -112,7 +112,7 @@ export const SiteInfo: React.FC = () => {
 	};
 
 	const handleKeyPress = (e: React.KeyboardEvent) => {
-		if (e.key === 'Enter') {
+		if (e.key === "Enter") {
 			handleSearch();
 		}
 	};
@@ -131,8 +131,8 @@ export const SiteInfo: React.FC = () => {
 								<GlobeIcon className="w-6 h-6 text-blue-600" />
 							</div>
 							<div>
-								<CardTitle className="text-xl font-bold text-gray-900">{t('info.details.title')}</CardTitle>
-								<CardDescription className="text-base -mt-1 text-gray-600">{t('info.details.description')}</CardDescription>
+								<CardTitle className="text-xl font-bold text-gray-900">{t("info.details.title")}</CardTitle>
+								<CardDescription className="text-base -mt-1 text-gray-600">{t("info.details.description")}</CardDescription>
 							</div>
 						</div>
 					</div>
@@ -163,9 +163,9 @@ export const SiteInfo: React.FC = () => {
 							<Shield className="size-5 text-green-600" />
 						</div>
 						<div>
-							<div className="text-sm font-semibold text-gray-700">{t('info.details.loginUrl')}</div>
+							<div className="text-sm font-semibold text-gray-700">{t("info.details.loginUrl")}</div>
 							<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="mt-0 text-blue-600 hover:text-blue-800 underline text-sm inline-flex items-center gap-1">
-								{t('info.details.adminAccess')}
+								{t("info.details.adminAccess")}
 								<ExternalLink className="w-3 h-3" strokeWidth={3} />
 							</a>
 						</div>
@@ -176,7 +176,7 @@ export const SiteInfo: React.FC = () => {
 							<Users className="size-5 text-orange-600" />
 						</div>
 						<div>
-							<div className="text-sm font-semibold text-gray-700">{t('info.details.unit')}</div>
+							<div className="text-sm font-semibold text-gray-700">{t("info.details.unit")}</div>
 							<span className="flex items-center gap-1">
 								<p className="text-sm font-medium text-gray-600">{site.unit.name}</p>
 								<p className="text-xs text-gray-500">{site.unit.id}</p>
@@ -189,12 +189,12 @@ export const SiteInfo: React.FC = () => {
 							<Calendar className="size-5 text-purple-600" />
 						</div>
 						<div>
-							<div className="text-sm font-medium text-gray-700">{t('info.details.lastModified')}</div>
+							<div className="text-sm font-medium text-gray-700">{t("info.details.lastModified")}</div>
 							{site.lastModified ? (
 								<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
 									<div className="flex items-center gap-0.5">
 										<Clock className="size-4" strokeWidth={2} />
-										<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format('DD/MM/YYYY HH:mm')}</p>
+										<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format("DD/MM/YYYY HH:mm")}</p>
 									</div>
 									<div className="flex items-center gap-0.5">
 										<User className="size-4" strokeWidth={2} />
@@ -202,7 +202,7 @@ export const SiteInfo: React.FC = () => {
 									</div>
 								</div>
 							) : (
-								<p className="text-sm text-gray-500">{t('info.details.neverModified')}</p>
+								<p className="text-sm text-gray-500">{t("info.details.neverModified")}</p>
 							)}
 						</div>
 					</div>
@@ -212,7 +212,7 @@ export const SiteInfo: React.FC = () => {
 					<div className="space-y-2">
 						<div className="flex items-center gap-2 px-2">
 							<Clock className="size-5 text-gray-500" />
-							<span className="text-sm font-semibold text-gray-700">{t('info.details.recentModifications')}</span>
+							<span className="text-sm font-semibold text-gray-700">{t("info.details.recentModifications")}</span>
 						</div>
 						<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
 							{site.recentModifications.map((mod, index) => (
@@ -222,7 +222,7 @@ export const SiteInfo: React.FC = () => {
 										<Badge variant="outline" className="text-xs">
 											{mod.user}
 										</Badge>
-										<span className="text-gray-600">{moment(mod.date).format('DD/MM HH:mm')}</span>
+										<span className="text-gray-600">{moment(mod.date).format("DD/MM HH:mm")}</span>
 										{mod.available ? (
 											<span className="text-gray-600">
 												- <span className="font-medium">{mod.page}</span>
@@ -242,14 +242,14 @@ export const SiteInfo: React.FC = () => {
 				<div className="space-y-4">
 					<div className="flex items-center gap-2 px-2">
 						<Shield className="size-5 text-blue-600" />
-						<span className="text-sm font-semibold text-gray-700">{t('info.details.permissions')}</span>
+						<span className="text-sm font-semibold text-gray-700">{t("info.details.permissions")}</span>
 					</div>
 
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 						<div className="p-3 bg-blue-50 rounded-lg">
 							<div className="flex items-center gap-2 mb-2">
 								<Edit className="w-4 h-4 text-blue-600" />
-								<span className="text-sm font-medium text-blue-900">{t('info.details.editors')}</span>
+								<span className="text-sm font-medium text-blue-900">{t("info.details.editors")}</span>
 								<Badge variant="outline" className="text-xs">
 									{site.permissions.editors.length}
 								</Badge>
@@ -266,7 +266,7 @@ export const SiteInfo: React.FC = () => {
 						<div className="p-3 bg-green-50 rounded-lg">
 							<div className="flex items-center gap-2 mb-2">
 								<Shield className="w-4 h-4 text-green-600" />
-								<span className="text-sm font-medium text-green-900">{t('info.details.accreditors')}</span>
+								<span className="text-sm font-medium text-green-900">{t("info.details.accreditors")}</span>
 								<Badge variant="outline" className="text-xs">
 									{site.permissions.accreditors.length}
 								</Badge>
@@ -283,7 +283,7 @@ export const SiteInfo: React.FC = () => {
 
 					<div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
 						<p className="text-xs text-yellow-800">
-							<strong>{t('info.details.note')}:</strong> {t('info.details.permissionsNote')}
+							<strong>{t("info.details.note")}:</strong> {t("info.details.permissionsNote")}
 						</p>
 					</div>
 				</div>
@@ -295,17 +295,17 @@ export const SiteInfo: React.FC = () => {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t('info.title')}</h1>
+					<h1 className="text-3xl font-bold">{t("info.title")}</h1>
 				</div>
 
 				<div className="flex gap-2 mt-6">
 					<div className="flex-1 relative">
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-						<Input onChange={(e) => handleUrlChange(e.target.value)} onKeyPress={handleKeyPress} value={search.url} placeholder={t('info.search.url.placeholder')} className="pl-10 h-10" />
+						<Input onChange={(e) => handleUrlChange(e.target.value)} onKeyPress={handleKeyPress} value={search.url} placeholder={t("info.search.url.placeholder")} className="pl-10 h-10" />
 					</div>
 					<Button onClick={handleSearch} className="h-10" disabled={!search.url.trim() || loading}>
 						{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-						{t('info.search.button')}
+						{t("info.search.button")}
 					</Button>
 				</div>
 			</div>
@@ -314,7 +314,7 @@ export const SiteInfo: React.FC = () => {
 				{loading && (
 					<div className="flex items-center justify-center py-12">
 						<Loader2 className="w-6 h-6 animate-spin mr-2" />
-						<span>{t('info.loading')}</span>
+						<span>{t("info.loading")}</span>
 					</div>
 				)}
 
@@ -329,8 +329,8 @@ export const SiteInfo: React.FC = () => {
 					<Card className="text-center py-12">
 						<CardContent className="pt-6">
 							<GlobeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<CardTitle className="text-xl mb-2">{t('info.noResults.title')}</CardTitle>
-							<CardDescription>{t('info.noResults.description')}</CardDescription>
+							<CardTitle className="text-xl mb-2">{t("info.noResults.title")}</CardTitle>
+							<CardDescription>{t("info.noResults.description")}</CardDescription>
 						</CardContent>
 					</Card>
 				)}
@@ -339,8 +339,8 @@ export const SiteInfo: React.FC = () => {
 					<Card className="text-center py-12">
 						<CardContent className="pt-6">
 							<Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<CardTitle className="text-xl mb-2">{t('info.searchPrompt.title')}</CardTitle>
-							<CardDescription>{t('info.searchPrompt.description')}</CardDescription>
+							<CardTitle className="text-xl mb-2">{t("info.searchPrompt.title")}</CardTitle>
+							<CardDescription>{t("info.searchPrompt.description")}</CardDescription>
 						</CardContent>
 					</Card>
 				)}

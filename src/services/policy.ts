@@ -1,9 +1,9 @@
-import { PERMISSIONS } from '@/constants/permissions';
-import { getUserGroups } from './auth';
+import { PERMISSIONS } from "@/constants/permissions";
+import { getUserGroups } from "./auth";
 
 export const GROUP_PERMISSIONS: Record<string, string[]> = {
-	'wp-veritas-admins_AppGrpU': Object.values(PERMISSIONS).flatMap((category) => Object.values(category)),
-	'wp-veritas-editor_AppGrpU': [PERMISSIONS.SITES.READ, PERMISSIONS.TAGS.ASSOCIATE, PERMISSIONS.TAGS.DISSOCIATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.DELETE, PERMISSIONS.TAGS.UPDATE],
+	"wp-veritas-admins_AppGrpU": Object.values(PERMISSIONS).flatMap((category) => Object.values(category)),
+	"wp-veritas-editor_AppGrpU": [PERMISSIONS.SITES.READ, PERMISSIONS.TAGS.ASSOCIATE, PERMISSIONS.TAGS.DISSOCIATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.DELETE, PERMISSIONS.TAGS.UPDATE],
 	public: [PERMISSIONS.SITES.SEARCH],
 };
 

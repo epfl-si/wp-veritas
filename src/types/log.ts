@@ -10,7 +10,7 @@ export interface LogType {
 		count?: number;
 		[key: string]: string | number | boolean | object | undefined;
 	};
-	level: 'debug' | 'info' | 'warn' | 'error' | 'system';
+	level: "debug" | "info" | "warn" | "error" | "system";
 	timestamp: Date;
 	user?: {
 		userId: string;

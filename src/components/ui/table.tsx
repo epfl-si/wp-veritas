@@ -1,12 +1,13 @@
-'use client';
-import React, { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+"use client";
+/* eslint no-unused-vars: "off" */
+import React, { useState, useMemo } from "react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 export interface TableColumn<T> {
 	key: keyof T | string;
 	label: string;
 	width?: string;
-	align?: 'left' | 'center' | 'right';
+	align?: "left" | "center" | "right";
 	display?: boolean;
 	render?: (item: T, index: number) => React.ReactNode;
 	className?: string;
@@ -23,21 +24,21 @@ export interface TableProps<T> {
 	onRowClick?: (item: T, index: number) => void;
 	defaultSort?: {
 		key: keyof T | string;
-		direction: 'asc' | 'desc';
+		direction: "asc" | "desc";
 	};
 }
 
 type SortState = {
 	key: string | null;
-	direction: 'asc' | 'desc';
+	direction: "asc" | "desc";
 };
 
 type SortableValue = string | number | Date | boolean | null | undefined;
 
-export const Table = <T extends object>({ data, columns, className = '', headerClassName = '', rowClassName = '', onRowClick, defaultSort }: TableProps<T>) => {
+export const Table = <T extends object>({ data, columns, className = "", headerClassName = "", rowClassName = "", onRowClick, defaultSort }: TableProps<T>) => {
 	const [sortState, setSortState] = useState<SortState>({
 		key: defaultSort?.key ? String(defaultSort.key) : null,
-		direction: defaultSort?.direction || 'asc',
+		direction: defaultSort?.direction || "asc",
 	});
 
 	const visibleColumns = useMemo(() => {
@@ -45,26 +46,26 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 	}, [columns]);
 
 	const getRowClassName = (item: T, index: number): string => {
-		const baseClasses = 'hover:bg-gray-50 transition-colors duration-150';
-		if (typeof rowClassName === 'function') {
+		const baseClasses = "hover:bg-gray-50 transition-colors duration-150";
+		if (typeof rowClassName === "function") {
 			return `${baseClasses} ${rowClassName(item, index)}`;
 		}
 		return `${baseClasses} ${rowClassName}`;
 	};
 
-	const getAlignmentClass = (align?: 'left' | 'center' | 'right'): string => {
+	const getAlignmentClass = (align?: "left" | "center" | "right"): string => {
 		switch (align) {
-			case 'center':
-				return 'text-center';
-			case 'right':
-				return 'text-right';
+			case "center":
+				return "text-center";
+			case "right":
+				return "text-right";
 			default:
-				return 'text-left';
+				return "text-left";
 		}
 	};
 
 	const getWidthClass = (column: TableColumn<T>): string => {
-		return column.width || '';
+		return column.width || "";
 	};
 
 	const getCellContentClasses = (column: TableColumn<T>): string => {
@@ -79,43 +80,43 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		if (sortState.key === sortKey) {
 			setSortState({
 				key: sortKey,
-				direction: sortState.direction === 'asc' ? 'desc' : 'asc',
+				direction: sortState.direction === "asc" ? "desc" : "asc",
 			});
 		} else {
 			setSortState({
 				key: sortKey,
-				direction: 'asc',
+				direction: "asc",
 			});
 		}
 	};
 
-	const compareSortableValues = (a: SortableValue, b: SortableValue, direction: 'asc' | 'desc'): number => {
-		if (a == null && b == null) return 0;
-		if (a == null) return direction === 'asc' ? 1 : -1;
-		if (b == null) return direction === 'asc' ? -1 : 1;
+	const compareSortableValues = (a: SortableValue, b: SortableValue, direction: "asc" | "desc"): number => {
+		if (a === null && b === null) return 0;
+		if (a === null) return direction === "asc" ? 1 : -1;
+		if (b === null) return direction === "asc" ? -1 : 1;
 
 		if (a instanceof Date && b instanceof Date) {
 			const result = a.getTime() - b.getTime();
-			return direction === 'asc' ? result : -result;
+			return direction === "asc" ? result : -result;
 		}
 
-		if (typeof a === 'string' && typeof b === 'string') {
+		if (typeof a === "string" && typeof b === "string") {
 			const result = a.localeCompare(b);
-			return direction === 'asc' ? result : -result;
+			return direction === "asc" ? result : -result;
 		}
 
-		if (typeof a === 'number' && typeof b === 'number') {
+		if (typeof a === "number" && typeof b === "number") {
 			const result = a - b;
-			return direction === 'asc' ? result : -result;
+			return direction === "asc" ? result : -result;
 		}
 
-		if (typeof a === 'boolean' && typeof b === 'boolean') {
+		if (typeof a === "boolean" && typeof b === "boolean") {
 			const result = Number(a) - Number(b);
-			return direction === 'asc' ? result : -result;
+			return direction === "asc" ? result : -result;
 		}
 
 		const result = String(a).localeCompare(String(b));
-		return direction === 'asc' ? result : -result;
+		return direction === "asc" ? result : -result;
 	};
 
 	const sortedData = useMemo(() => {
@@ -123,18 +124,18 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 
 		return [...data].sort((a, b) => {
 			const extractValue = (item: T, sortKey: string): SortableValue => {
-				const keys = sortKey.split('.');
+				const keys = sortKey.split(".");
 				let value: unknown = item;
 
 				for (const key of keys) {
-					if (value && typeof value === 'object' && !Array.isArray(value) && key in value) {
+					if (value && typeof value === "object" && !Array.isArray(value) && key in value) {
 						value = (value as Record<string, unknown>)[key];
 					} else {
 						return undefined;
 					}
 				}
 
-				if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value instanceof Date || value === null || value === undefined) {
+				if (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || value instanceof Date || value === null || value === undefined) {
 					return value;
 				}
 
@@ -156,10 +157,10 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 		const value = item[key];
 
 		if (value === null || value === undefined) {
-			return '';
+			return "";
 		}
 
-		if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+		if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
 			return String(value);
 		}
 
@@ -178,16 +179,16 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 
 		return (
 			<div className="flex flex-col ml-1">
-				<ChevronUp className={`h-3 w-3 ${isActive && sortState.direction === 'asc' ? 'text-red-600' : 'text-gray-400'}`} />
-				<ChevronDown className={`h-3 w-3 -mt-1 ${isActive && sortState.direction === 'desc' ? 'text-red-600' : 'text-gray-400'}`} />
+				<ChevronUp className={`h-3 w-3 ${isActive && sortState.direction === "asc" ? "text-red-600" : "text-gray-400"}`} />
+				<ChevronDown className={`h-3 w-3 -mt-1 ${isActive && sortState.direction === "desc" ? "text-red-600" : "text-gray-400"}`} />
 			</div>
 		);
 	};
 
 	const getUniqueKey = (item: T, index: number): string | number => {
-		if (typeof item === 'object' && item !== null && 'id' in item) {
+		if (typeof item === "object" && item !== null && "id" in item) {
 			const id = (item as { id: unknown }).id;
-			if (typeof id === 'string' || typeof id === 'number') {
+			if (typeof id === "string" || typeof id === "number") {
 				return id;
 			}
 		}
@@ -209,8 +210,8 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 											text-xs font-medium text-gray-700 uppercase tracking-wider 
 											${getWidthClass(column)} 
 											${getAlignmentClass(column.align)} 
-											${column.className || ''} 
-											${column.sortable ? 'cursor-pointer hover:bg-gray-100 transition-colors' : ''}
+											${column.className || ""} 
+											${column.sortable ? "cursor-pointer hover:bg-gray-100 transition-colors" : ""}
 											px-2 py-2
 										`}
 										onClick={() => handleSort(column)}>
@@ -228,14 +229,14 @@ export const Table = <T extends object>({ data, columns, className = '', headerC
 					<table className="min-w-full table-fixed">
 						<tbody className="bg-white divide-y divide-gray-200">
 							{sortedData.map((item, index) => (
-								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? 'cursor-pointer' : ''} h-auto min-h-[4rem]`} onClick={() => onRowClick?.(item, index)}>
+								<tr key={getUniqueKey(item, index)} className={`${getRowClassName(item, index)} ${onRowClick ? "cursor-pointer" : ""} h-auto min-h-[4rem]`} onClick={() => onRowClick?.(item, index)}>
 									{visibleColumns.map((column) => (
 										<td
 											key={String(column.key)}
 											className={`
 												${getWidthClass(column)} 
 												${getAlignmentClass(column.align)} 
-												${column.className || ''} 
+												${column.className || ""} 
 											`}>
 											<div className={getCellContentClasses(column)}>{renderCellContent(item, column, index)}</div>
 										</td>

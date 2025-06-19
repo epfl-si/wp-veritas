@@ -1,9 +1,9 @@
-import NextAuth, { Account, User } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
-import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
-import { getPermissions } from './policy';
+import NextAuth, { Account, User } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
+import { getPermissions } from "./policy";
 
-const decodeJWT = (token: string) => JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+const decodeJWT = (token: string) => JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: [
@@ -13,7 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 			issuer: process.env.AUTH_MICROSOFT_ENTRA_ISSUER!,
 			authorization: {
 				params: {
-					scope: 'openid email profile',
+					scope: "openid email profile",
 				},
 			},
 		}),
@@ -30,14 +30,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 						...token,
 						access_token: account.access_token,
 						expires_at: account.expires_at,
-						oid: idToken.oid || '',
-						tid: accessToken.tid || '',
+						oid: idToken.oid || "",
+						tid: accessToken.tid || "",
 						email: idToken.email,
-						picture: token.picture || '',
+						picture: token.picture || "",
 						uniqueid: idToken.uniqueid,
-						username: idToken.gaspar || '',
+						username: idToken.gaspar || "",
 						groups: idToken.groups || [],
-						name: `${idToken.given_name ?? ''} ${idToken.family_name ?? ''}`.trim(),
+						name: `${idToken.given_name ?? ""} ${idToken.family_name ?? ""}`.trim(),
 					};
 				}
 
@@ -46,25 +46,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 					return token;
 				}
 
-				return { ...token, error: 'TokenExpired' };
+				return { ...token, error: "TokenExpired" };
 			} catch (error) {
-				console.error('Error processing tokens:', error);
-				return { ...token, error: 'TokenProcessingError' };
+				console.error("Error processing tokens:", error);
+				return { ...token, error: "TokenProcessingError" };
 			}
 		},
 		session: async ({ session, token }) => {
-			const groups = [...(token?.groups || []), 'public'];
+			const groups = [...(token?.groups || []), "public"];
 			const permissions = await getPermissions(groups);
 			return {
 				...session,
 				user: {
-					email: token?.email || session.user?.email || '',
-					name: token?.name || '',
+					email: token?.email || session.user?.email || "",
+					name: token?.name || "",
 					image: session.user?.image || null,
-					userId: token?.uniqueid || '',
-					username: token?.username || '',
-					oid: token.oid || '',
-					tid: token.tid || '',
+					userId: token?.uniqueid || "",
+					username: token?.username || "",
+					oid: token.oid || "",
+					tid: token.tid || "",
 					groups: groups,
 					permissions: permissions,
 				},
@@ -72,17 +72,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		},
 	},
 	session: {
-		strategy: 'jwt',
+		strategy: "jwt",
 	},
 	pages: {
-		signIn: '/api/auth/',
+		signIn: "/api/auth/",
 	},
 });
 
 export async function getUser(): Promise<User> {
 	const session = await auth();
 	if (!session?.user) {
-		throw new Error('User not authenticated');
+		throw new Error("User not authenticated");
 	}
 	return session.user;
 }

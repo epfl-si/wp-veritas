@@ -1,13 +1,13 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { SiteType } from '@/types/site';
-import { TagType } from '@/types/tag';
-import { CircleAlert, CircleCheck, Loader2, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { TAG_CATEGORIES } from '@/constants/tags';
+"use client";
+import React, { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { SiteType } from "@/types/site";
+import { TagType } from "@/types/tag";
+import { CircleAlert, CircleCheck, Loader2, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { TAG_CATEGORIES } from "@/constants/tags";
 
 interface SiteTagsUpdateProps {
 	site: SiteType;
@@ -21,7 +21,7 @@ interface ApiResponse {
 }
 
 export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) => {
-	const t = useTranslations('site.tags');
+	const t = useTranslations("site.tags");
 	const locale = useLocale();
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [originalTags, setOriginalTags] = useState<string[]>([]);
@@ -51,18 +51,18 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 
 	const updateTagAssociations = async (tagId: string, shouldAssociate: boolean) => {
 		const endpoint = `/api/tags/${tagId}/sites/${site.id}`;
-		const method = shouldAssociate ? 'POST' : 'DELETE';
+		const method = shouldAssociate ? "POST" : "DELETE";
 
 		const response = await fetch(endpoint, {
 			method,
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
 		});
 
 		if (!response.ok) {
 			const error = await response.json();
-			throw new Error(error.message || `Failed to ${shouldAssociate ? 'associate' : 'dissociate'} tag`);
+			throw new Error(error.message || `Failed to ${shouldAssociate ? "associate" : "dissociate"} tag`);
 		}
 
 		return response.json();
@@ -93,7 +93,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 
 			const successResult: ApiResponse = {
 				success: true,
-				message: t('success.message'),
+				message: t("success.message"),
 			};
 
 			setSubmissionResult(successResult);
@@ -106,7 +106,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 
 			const errorResult: ApiResponse = {
 				success: false,
-				message: error instanceof Error ? error.message : t('error.unknown'),
+				message: error instanceof Error ? error.message : t("error.unknown"),
 			};
 
 			setSubmissionResult(errorResult);
@@ -124,16 +124,16 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 	}, {} as Record<string, TagType[]>);
 
 	Object.keys(tagsByType).forEach((type) => {
-		tagsByType[type].sort((a, b) => (locale === 'fr' ? (a.nameFr || a.nameEn).localeCompare(b.nameFr || b.nameEn) : (a.nameEn || a.nameFr).localeCompare(b.nameEn || b.nameFr)));
+		tagsByType[type].sort((a, b) => (locale === "fr" ? (a.nameFr || a.nameEn).localeCompare(b.nameFr || b.nameEn) : (a.nameEn || a.nameFr).localeCompare(b.nameEn || b.nameFr)));
 	});
 
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t('title')}</h1>
+					<h1 className="text-3xl font-bold">{t("title")}</h1>
 					<div className="text-sm text-muted-foreground">
-						{t('siteUrl')}: <span className="font-medium">{site.url}</span>
+						{t("siteUrl")}: <span className="font-medium">{site.url}</span>
 					</div>
 				</div>
 			</div>
@@ -146,7 +146,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 								<CircleCheck className="h-6 w-6 text-green-600" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<h3 className="text-sm font-semibold text-green-800">{t('success.title')}</h3>
+								<h3 className="text-sm font-semibold text-green-800">{t("success.title")}</h3>
 							</div>
 						</div>
 					</div>
@@ -157,7 +157,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 						<div className="flex items-start gap-2">
 							<CircleAlert className="h-5 w-5 flex-shrink-0 mt-0.5" />
 							<div className="flex-1">
-								<p className="font-medium">{t('error.title')}</p>
+								<p className="font-medium">{t("error.title")}</p>
 								<p className="text-sm">{submissionResult.message}</p>
 							</div>
 							<Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-red-100 flex-shrink-0" onClick={() => setSubmissionResult(null)}>
@@ -180,21 +180,21 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 											<div
 												className="size-8 flex items-center justify-center rounded"
 												style={{
-													backgroundColor: categoryConfig.COLOR ? `${categoryConfig.COLOR}20` : '#f3f4f6',
-													color: categoryConfig.COLOR || '#6b7280',
+													backgroundColor: categoryConfig.COLOR ? `${categoryConfig.COLOR}20` : "#f3f4f6",
+													color: categoryConfig.COLOR || "#6b7280",
 												}}>
 												<CategoryIcon className="w-5 h-5" />
 											</div>
 										)}
-										<h3 className="text-lg font-semibold">{categoryConfig?.LABEL[locale as 'fr' | 'en']}</h3>
+										<h3 className="text-lg font-semibold">{categoryConfig?.LABEL[locale as "fr" | "en"]}</h3>
 									</div>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 										{typeTags.map((tag) => {
 											const isSelected = selectedTags.includes(tag.id);
-											const displayName = locale === 'fr' ? tag.nameFr || tag.nameEn : tag.nameEn || tag.nameFr;
+											const displayName = locale === "fr" ? tag.nameFr || tag.nameEn : tag.nameEn || tag.nameFr;
 											return (
-												<div key={tag.id} className={cn('relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200', isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md', isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-gray-300')} onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}>
+												<div key={tag.id} className={cn("relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200", isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:shadow-md", isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")} onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}>
 													<div className="flex items-start space-x-3">
 														<Checkbox checked={isSelected} disabled={isSubmitting} className="mt-0.5" />
 														<div className="flex-1 min-w-0">
@@ -212,16 +212,16 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 
 					<div className="flex justify-end gap-2 pt-6 border-t">
 						<Button variant="outline" onClick={handleReset} disabled={isSubmitting || !hasChanges()}>
-							{t('actions.reset')}
+							{t("actions.reset")}
 						</Button>
 						<Button onClick={onSubmit} disabled={isSubmitting || !hasChanges()} className="min-w-32 gap-1 cursor-pointer">
 							{isSubmitting ? (
 								<>
 									<Loader2 className="h-4 w-4 animate-spin" />
-									{t('actions.saving')}...
+									{t("actions.saving")}...
 								</>
 							) : (
-								t('actions.save')
+								t("actions.save")
 							)}
 						</Button>
 					</div>

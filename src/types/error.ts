@@ -1,3 +1,5 @@
+/* eslint no-unused-vars: "off" */
+
 export interface APIError {
 	success: boolean;
 	status: number;

@@ -1,7 +1,7 @@
-import { useZodErrorMessages, getZodErrorMessages } from '@/hooks/zod';
-import { z } from 'zod';
-import { ErrorMessages } from './error';
-import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from '@/constants/tags';
+import { useZodErrorMessages, getZodErrorMessages } from "@/hooks/zod";
+import { z } from "zod";
+import { ErrorMessages } from "./error";
+import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from "@/constants/tags";
 
 export interface TagType {
 	id: string;
@@ -12,7 +12,7 @@ export interface TagType {
 	urlEn: string;
 }
 
-export type TagCategoryEnumType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES]['NAME'];
+export type TagCategoryEnumType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES]["NAME"];
 export type TagCategoryType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES];
 
 const createTagSchemaBase = (errorMessages: ErrorMessages) => {

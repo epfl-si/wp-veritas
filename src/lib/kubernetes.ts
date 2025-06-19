@@ -1,8 +1,8 @@
-import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType } from '@/types/site';
-import * as k8s from '@kubernetes/client-node';
-import { getCategoriesFromPlugins, getKubernetesPluginStruct } from './plugins';
-import { ensureSlashAtEnd } from './utils';
-import { APIError } from '@/types/error';
+import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType } from "@/types/site";
+import * as k8s from "@kubernetes/client-node";
+import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
+import { ensureSlashAtEnd } from "./utils";
+import { APIError } from "@/types/error";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -10,11 +10,11 @@ kc.loadFromDefault();
 export const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
 export const customObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
-const WORDPRESS_GROUP = 'wordpress.epfl.ch';
-const WORDPRESS_VERSION = 'v2';
-const WORDPRESS_PLURAL = 'wordpresssites';
-const DEFAULT_NAMESPACE = 'default';
-const FALLBACK_NAMESPACE = 'svc0041t-wordpress';
+const WORDPRESS_GROUP = "wordpress.epfl.ch";
+const WORDPRESS_VERSION = "v2";
+const WORDPRESS_PLURAL = "wordpresssites";
+const DEFAULT_NAMESPACE = "default";
+const FALLBACK_NAMESPACE = "svc0041t-wordpress";
 
 export async function getNamespace(): Promise<string> {
 	try {
@@ -23,25 +23,25 @@ export async function getNamespace(): Promise<string> {
 		}
 		return FALLBACK_NAMESPACE;
 	} catch (error) {
-		console.warn('Could not determine namespace, using default:', error);
+		console.warn("Could not determine namespace, using default:", error);
 		return DEFAULT_NAMESPACE;
 	}
 }
 
 function generateSiteName(site: KubernetesSiteFormType): string {
 	const url = new URL(site.url);
-	let name = url.hostname.replace(/\.epfl\.ch$/, '');
+	let name = url.hostname.replace(/\.epfl\.ch$/, "");
 
-	name = `${name}${url.pathname}`.replace(/\/$/, '').replaceAll('/', '-');
+	name = `${name}${url.pathname}`.replace(/\/$/, "").replaceAll("/", "-");
 
 	let segmentIndex = 1;
-	while (name.length >= 50 && segmentIndex < name.split('-').length) {
-		const segments = name.split('-');
+	while (name.length >= 50 && segmentIndex < name.split("-").length) {
+		const segments = name.split("-");
 		const abbreviated = segments
 			.slice(0, segmentIndex)
 			.map((segment) => segment[0])
 			.concat(segments.slice(segmentIndex))
-			.join('-');
+			.join("-");
 
 		name = abbreviated;
 		segmentIndex++;
@@ -62,34 +62,34 @@ async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: Kuberne
 
 		const items = response.items as KubernetesSiteType[];
 		if (!items || items.length === 0) {
-			return { error: { status: 404, message: 'No sites found', success: false } };
+			return { error: { status: 404, message: "No sites found", success: false } };
 		}
 
 		const k8sSite = items.find((item: KubernetesSiteType) => item.metadata.uid === uid);
 		if (!k8sSite) {
-			return { error: { status: 404, message: 'Site not found', success: false } };
+			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
 		return { k8sSite };
 	} catch (error) {
-		console.error('Error finding Kubernetes site by UID:', error);
-		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+		console.error("Error finding Kubernetes site by UID:", error);
+		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
 
 function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
-	const isTemporary = item.metadata.labels?.['app.kubernetes.io/managed-by'] === 'wp-kleenex';
+	const isTemporary = item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-kleenex";
 	if (isTemporary) {
-		throw new Error('Temporary sites should not be mapped as Kubernetes sites');
+		throw new Error("Temporary sites should not be mapped as Kubernetes sites");
 	}
 
 	return {
 		id: item.metadata.uid,
 		url: ensureSlashAtEnd(`https://${item.spec.hostname}${item.spec.path}`),
-		infrastructure: 'Kubernetes',
-		tagline: item.status?.wordpresssite?.tagline || item.spec.wordpress.tagline || '',
-		title: item.status?.wordpresssite?.title || item.spec.wordpress.title || '',
-		theme: item.spec.wordpress.theme || '',
+		infrastructure: "Kubernetes",
+		tagline: item.status?.wordpresssite?.tagline || item.spec.wordpress.tagline || "",
+		title: item.status?.wordpresssite?.title || item.spec.wordpress.title || "",
+		theme: item.spec.wordpress.theme || "",
 		unitId: item.spec.owner?.epfl?.unitId || 0,
 		languages: item.spec.wordpress.languages || [],
 		createdAt: new Date(item.metadata.creationTimestamp),
@@ -104,9 +104,9 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
 	const tempSite: KubernetesSite = {
-		id: 'temp',
+		id: "temp",
 		url: site.url,
-		infrastructure: 'Kubernetes',
+		infrastructure: "Kubernetes",
 		tagline: site.tagline,
 		title: site.title,
 		theme: site.theme,
@@ -122,12 +122,12 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 
 	return {
 		apiVersion: `${WORDPRESS_GROUP}/${WORDPRESS_VERSION}`,
-		kind: 'WordpressSite',
+		kind: "WordpressSite",
 		metadata: {
 			name,
 			namespace,
 			labels: {
-				'app.kubernetes.io/managed-by': 'wp-veritas',
+				"app.kubernetes.io/managed-by": "wp-veritas",
 			},
 		},
 		spec: {
@@ -143,10 +143,10 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 				theme: site.theme,
 				languages: site.languages,
 				plugins,
-				...(site.downloadsProtectionScript && { downloadsProtectionScript: '/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php' }),
+				...(site.downloadsProtectionScript && { downloadsProtectionScript: "/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php" }),
 			},
 			hostname: url.hostname,
-			path: url.pathname.replace(/\/$/, '') || '/',
+			path: url.pathname.replace(/\/$/, "") || "/",
 		},
 	};
 }
@@ -157,25 +157,25 @@ export async function getKubernetesSite(id: string): Promise<{ site?: Kubernetes
 		if (error) return { error };
 
 		if (!sites || sites.length === 0) {
-			return { error: { status: 404, message: 'No sites found', success: false } };
+			return { error: { status: 404, message: "No sites found", success: false } };
 		}
 
 		const site = sites.find((s) => s.id === id);
 		if (!site) {
-			return { error: { status: 404, message: 'Site not found', success: false } };
+			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
 		return { site };
 	} catch (error) {
-		console.error('Error fetching WordPress site:', error);
-		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+		console.error("Error fetching WordPress site:", error);
+		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
 
 export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
 	try {
-		if (site.infrastructure !== 'Kubernetes') {
-			return { error: { status: 400, message: 'Invalid infrastructure for Kubernetes creation', success: false } };
+		if (site.infrastructure !== "Kubernetes") {
+			return { error: { status: 400, message: "Invalid infrastructure for Kubernetes creation", success: false } };
 		}
 
 		const kubernetesSite = site as KubernetesSiteFormType;
@@ -193,28 +193,28 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 		});
 
 		if (!response) {
-			return { error: { status: 500, message: 'Failed to create WordPress site', success: false } };
+			return { error: { status: 500, message: "Failed to create WordPress site", success: false } };
 		}
 
 		const siteId = response.metadata?.uid;
 		if (!siteId) {
-			return { error: { status: 500, message: 'Site created but no ID returned', success: false } };
+			return { error: { status: 500, message: "Site created but no ID returned", success: false } };
 		}
 
 		return { siteId };
 	} catch (error) {
-		console.error('Error creating WordPress site:', error);
-		if (typeof error === 'object' && error !== null && 'response' in error && typeof (error as { response?: { statusCode?: number } }).response === 'object' && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: 'Site already exists', success: false } };
+		console.error("Error creating WordPress site:", error);
+		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
+			return { error: { status: 409, message: "Site already exists", success: false } };
 		}
-		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
 
 export async function updateKubernetesSite(id: string, siteData: SiteFormType): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
-		if (siteData.infrastructure !== 'Kubernetes') {
-			return { error: { status: 400, message: 'Invalid infrastructure for Kubernetes update', success: false } };
+		if (siteData.infrastructure !== "Kubernetes") {
+			return { error: { status: 400, message: "Invalid infrastructure for Kubernetes update", success: false } };
 		}
 
 		const kubernetesSiteData = siteData as KubernetesSiteFormType;
@@ -223,37 +223,37 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		const { site: existingSite, error: fetchError } = await getKubernetesSite(id);
 		if (fetchError) return { error: fetchError };
 		if (!existingSite) {
-			return { error: { status: 404, message: 'Site not found', success: false } };
+			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return { error: { status: 404, message: 'Site not found in Kubernetes', success: false } };
+			return { error: { status: 404, message: "Site not found in Kubernetes", success: false } };
 		}
 
 		const patchOperations = [];
 
 		if (kubernetesSiteData.title !== existingSite.title) {
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/wordpress/title',
+				op: "replace",
+				path: "/spec/wordpress/title",
 				value: kubernetesSiteData.title,
 			});
 		}
 
 		if (kubernetesSiteData.tagline !== existingSite.tagline) {
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/wordpress/tagline',
+				op: "replace",
+				path: "/spec/wordpress/tagline",
 				value: kubernetesSiteData.tagline,
 			});
 		}
 
 		if (kubernetesSiteData.theme !== existingSite.theme) {
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/wordpress/theme',
+				op: "replace",
+				path: "/spec/wordpress/theme",
 				value: kubernetesSiteData.theme,
 			});
 		}
@@ -261,8 +261,8 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		const languagesChanged = JSON.stringify(kubernetesSiteData.languages?.sort()) !== JSON.stringify(existingSite.languages?.sort());
 		if (languagesChanged) {
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/wordpress/languages',
+				op: "replace",
+				path: "/spec/wordpress/languages",
 				value: kubernetesSiteData.languages || [],
 			});
 		}
@@ -275,16 +275,16 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 			};
 			const plugins = getKubernetesPluginStruct(tempSite);
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/wordpress/plugins',
+				op: "replace",
+				path: "/spec/wordpress/plugins",
 				value: plugins,
 			});
 		}
 
 		if (kubernetesSiteData.unitId !== existingSite.unitId) {
 			patchOperations.push({
-				op: 'replace',
-				path: '/spec/owner/epfl/unitId',
+				op: "replace",
+				path: "/spec/owner/epfl/unitId",
 				value: kubernetesSiteData.unitId,
 			});
 		}
@@ -293,29 +293,29 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 			const newUrl = new URL(kubernetesSiteData.url);
 			patchOperations.push(
 				{
-					op: 'replace',
-					path: '/spec/hostname',
+					op: "replace",
+					path: "/spec/hostname",
 					value: newUrl.hostname,
 				},
 				{
-					op: 'replace',
-					path: '/spec/path',
-					value: newUrl.pathname.replace(/\/$/, '') || '/',
-				}
+					op: "replace",
+					path: "/spec/path",
+					value: newUrl.pathname.replace(/\/$/, "") || "/",
+				},
 			);
 		}
 
 		if (kubernetesSiteData.downloadsProtectionScript !== existingSite.downloadsProtectionScript) {
 			if (kubernetesSiteData.downloadsProtectionScript) {
 				patchOperations.push({
-					op: 'add',
-					path: '/spec/wordpress/downloadsProtectionScript',
-					value: '/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php',
+					op: "add",
+					path: "/spec/wordpress/downloadsProtectionScript",
+					value: "/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php",
 				});
 			} else {
 				patchOperations.push({
-					op: 'remove',
-					path: '/spec/wordpress/downloadsProtectionScript',
+					op: "remove",
+					path: "/spec/wordpress/downloadsProtectionScript",
 				});
 			}
 		}
@@ -338,11 +338,11 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 
 		return { site: updatedSite };
 	} catch (error) {
-		console.error('Error updating WordPress site:', error);
-		if (typeof error === 'object' && error !== null && 'response' in error && typeof (error as { response?: { statusCode?: number } }).response === 'object' && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: 'Site already exists', success: false } };
+		console.error("Error updating WordPress site:", error);
+		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
+			return { error: { status: 409, message: "Site already exists", success: false } };
 		}
-		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
 
@@ -353,7 +353,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return { error: { status: 404, message: 'Site not found', success: false } };
+			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
 		await customObjectsApi.deleteNamespacedCustomObject({
@@ -366,11 +366,11 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 
 		return { success: true };
 	} catch (error) {
-		console.error('Error deleting WordPress site:', error);
-		if (typeof error === 'object' && error !== null && 'response' in error && typeof (error as { response?: { statusCode?: number } }).response === 'object' && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: 'Site already exists', success: false } };
+		console.error("Error deleting WordPress site:", error);
+		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
+			return { error: { status: 409, message: "Site already exists", success: false } };
 		}
-		return { error: { status: 500, message: 'Internal Server Error', success: false } };
+		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
 
@@ -387,22 +387,22 @@ export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; 
 
 		if (!items) {
 			return {
-				error: { status: 404, message: 'No sites found', success: false },
+				error: { status: 404, message: "No sites found", success: false },
 			};
 		}
 
 		const kubernetesSites = items
 			.filter((item) => {
-				const managedBy = item.metadata.labels?.['app.kubernetes.io/managed-by'];
-				return !managedBy || managedBy !== 'wp-kleenex';
+				const managedBy = item.metadata.labels?.["app.kubernetes.io/managed-by"];
+				return !managedBy || managedBy !== "wp-kleenex";
 			})
 			.map(mapKubernetesToSite);
 
 		return { sites: kubernetesSites };
 	} catch (error) {
-		console.error('Error fetching Kubernetes sites:', error);
+		console.error("Error fetching Kubernetes sites:", error);
 		return {
-			error: { status: 500, message: 'Internal Server Error', success: false },
+			error: { status: 500, message: "Internal Server Error", success: false },
 		};
 	}
 }

@@ -1,6 +1,6 @@
-import mongoose, { Document, ObjectId } from 'mongoose';
-import type { InfrastructureName } from '@/types/infrastructure';
-import { INFRASTRUCTURES } from '@/constants/infrastructures';
+import mongoose, { Document, ObjectId } from "mongoose";
+import type { InfrastructureName } from "@/types/infrastructure";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
 
 export interface ISite extends Document {
 	_id: ObjectId;
@@ -25,4 +25,4 @@ const siteSchema = new mongoose.Schema<ISite>({
 	createdAt: { type: Date, required: true, default: Date.now },
 });
 
-export const SiteModel = mongoose.models.Site || mongoose.model<ISite>('Site', siteSchema);
+export const SiteModel = mongoose.models.Site || mongoose.model<ISite>("Site", siteSchema);

@@ -2,16 +2,32 @@ import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
  * /api/v1/sites:
  *   get:
- *     summary: Retrieve all sites
- *     description: Fetches all sites from Kubernetes and database, merging them and including their tags.
+ *     summary: Retrieve all sites with optional filtering
+ *     description: Fetches all sites from Kubernetes and database, merging them and including their tags. Supports filtering by tagged status and site URL.
  *     tags:
  *       - Sites
+ *     parameters:
+ *       - in: query
+ *         name: tagged
+ *         schema:
+ *           type: boolean
+ *         required: false
+ *         description: Filter sites by whether they have tags or not. Use 'true' to get only sites with tags, 'false' for sites without tags.
+ *         example: true
+ *       - in: query
+ *         name: site_url
+ *         schema:
+ *           type: string
+ *           format: uri
+ *         required: false
+ *         description: Filter sites by exact URL match (should be URL encoded).
+ *         example: "https%3A//example.com"
  *     responses:
  *       200:
  *         description: A list of sites retrieved successfully.
@@ -113,8 +129,15 @@ import { NextResponse } from "next/server";
  *                 - message
  */
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
+		const { searchParams } = new URL(request.url);
+		const taggedParam = searchParams.get("tagged");
+		const siteUrlParam = searchParams.get("site_url");
+		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
+		
+		const siteUrlFilter = siteUrlParam ? decodeURIComponent(siteUrlParam) : null;
+
 		const [kubernetesResult, databaseResult] = await Promise.all([
 			getKubernetesSites(), 
 			listDatabaseSites(),
@@ -122,7 +145,6 @@ export async function GET(): Promise<NextResponse> {
     
 		const kubernetesSites = kubernetesResult.sites || [];
 		const databaseSites = databaseResult.sites || [];
-    
 		const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
     
 		const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
@@ -134,13 +156,12 @@ export async function GET(): Promise<NextResponse> {
 			}
 			return kubernetesSite;
 		});
-    
+
 		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
 		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
-
 		const tags = await TagModel.find({}, { _id: 0, __v: 0 });
     
-		const sites = allSites.map((site) => ({
+		let sites = allSites.map((site) => ({
 			id: site.id,
 			...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
 			infrastructure: site.infrastructure,
@@ -156,6 +177,18 @@ export async function GET(): Promise<NextResponse> {
 				})),
 			createdAt: site.createdAt,
 		}));
+
+		if (siteUrlFilter) {
+			sites = sites.filter(site => site.url === siteUrlFilter);
+		}
+
+		if (taggedFilter !== null) {
+			if (taggedFilter) {
+				sites = sites.filter(site => site.tags.length > 0);
+			} else {
+				sites = sites.filter(site => site.tags.length === 0);
+			}
+		}
     
 		return NextResponse.json(sites, { status: 200 });
 	} catch (error) {

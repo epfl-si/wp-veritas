@@ -43,7 +43,9 @@ const rules = [
 			'space-in-parens': ['error', 'never'],
 			'space-before-blocks': ['error', 'always'],
 			'space-infix-ops': 'error',
-			'no-console': 'warn',
+			'no-console': ['error', {
+				allow: ['warn', 'error']
+			}],
 			'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 			eqeqeq: ['error', 'always'],
 			curly: ['error', 'multi-line'],

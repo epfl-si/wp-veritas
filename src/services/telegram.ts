@@ -1,7 +1,7 @@
-import { getUser } from './auth';
+import { getUser } from "./auth";
 
 function escapeMarkdownV2(text: string): string {
-	return text.replace(/[_*[\]()~`>#+=|{}.!-]/g, '\\$&');
+	return text.replace(/[_*[\]()~`>#+=|{}.!-]/g, "\\$&");
 }
 
 async function sendToAllChats(text: string): Promise<void> {
@@ -9,28 +9,28 @@ async function sendToAllChats(text: string): Promise<void> {
 	const telegramIds = process.env.TELEGRAM_IDS;
 
 	if (!token) {
-		throw new Error('Telegram bot token is not set');
+		throw new Error("Telegram bot token is not set");
 	}
 
 	if (!telegramIds) {
-		throw new Error('Telegram IDs are not set');
+		throw new Error("Telegram IDs are not set");
 	}
 
-	const chatIds = telegramIds.split(',').map((id) => id.trim());
+	const chatIds = telegramIds.split(",").map((id) => id.trim());
 	const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
 	const promises = chatIds.map(async (chatId) => {
 		const body = JSON.stringify({
 			chat_id: chatId,
 			text: text,
-			parse_mode: 'MarkdownV2',
+			parse_mode: "MarkdownV2",
 			disable_web_page_preview: true,
 		});
 
 		const response = await fetch(url, {
-			method: 'POST',
+			method: "POST",
 			headers: {
-				'Content-Type': 'application/json',
+				"Content-Type": "application/json",
 			},
 			body: body,
 		});

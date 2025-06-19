@@ -1,20 +1,22 @@
-'use client';
-import { useState, useEffect, useRef } from 'react';
-import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FormField, Form as UiForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from 'lucide-react';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
+"use client";
+/* eslint no-unused-vars: "off" */
 
-export type FieldType = 'text' | 'email' | 'password' | 'number' | 'textarea' | 'select' | 'checkbox' | 'multi-checkbox' | 'multiselect' | 'boxes';
+import { useState, useEffect, useRef } from "react";
+import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FormField, Form as UiForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+
+export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes";
 
 export interface SelectOption {
 	value: string | number;
@@ -25,9 +27,9 @@ export interface SelectOption {
 
 export interface FieldCondition {
 	field: string;
-	operator: 'equals' | 'includes' | 'not_equals' | 'not_includes' | 'regex' | 'not_regex';
+	operator: "equals" | "includes" | "not_equals" | "not_includes" | "regex" | "not_regex";
 	value: unknown;
-	type?: 'display' | 'default' | 'disabled';
+	type?: "display" | "default" | "disabled";
 	defaultValue?: unknown;
 }
 
@@ -41,7 +43,7 @@ export interface FieldConfig {
 	options?: SelectOption[];
 	conditions?: FieldCondition[];
 	disabled?: boolean;
-	width?: 'half' | 'full';
+	width?: "half" | "full";
 	section?: string;
 }
 
@@ -59,7 +61,7 @@ export interface FormConfig<T extends FieldValues> {
 	sections?: SectionConfig[];
 	defaultValues?: DefaultValues<T>;
 	apiEndpoint: string;
-	method?: 'POST' | 'PUT' | 'PATCH';
+	method?: "POST" | "PUT" | "PATCH";
 	onSuccess?: (data: T, response: unknown) => void;
 	onError?: (error: Error) => void;
 	reset?: boolean;
@@ -82,7 +84,7 @@ interface ReusableFormProps<T extends FieldValues> {
 	className?: string;
 }
 
-export default function Form<T extends FieldValues>({ config, className = '' }: ReusableFormProps<T>) {
+export default function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -91,36 +93,36 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 	const form = useForm<T>({
 		resolver: zodResolver(config.schema as never),
 		defaultValues: config.defaultValues,
-		mode: 'onSubmit',
-		reValidateMode: 'onChange',
+		mode: "onSubmit",
+		reValidateMode: "onChange",
 	});
 
 	const watchedValues = form.watch();
 
 	const evaluateCondition = (condition: FieldCondition): boolean => {
 		const fieldValue = watchedValues[condition.field as keyof T];
-		const fieldValueStr = String(fieldValue || '');
+		const fieldValueStr = String(fieldValue || "");
 
 		switch (condition.operator) {
-			case 'equals':
+			case "equals":
 				return fieldValue === condition.value;
-			case 'not_equals':
+			case "not_equals":
 				return fieldValue !== condition.value;
-			case 'includes':
+			case "includes":
 				return Array.isArray(fieldValue) ? fieldValue.includes(condition.value) : false;
-			case 'not_includes':
+			case "not_includes":
 				return Array.isArray(fieldValue) ? !fieldValue.includes(condition.value) : true;
-			case 'regex': {
+			case "regex": {
 				try {
-					const regex = typeof condition.value === 'string' ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+					const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
 					return regex ? regex.test(fieldValueStr) : false;
 				} catch {
 					return false;
 				}
 			}
-			case 'not_regex': {
+			case "not_regex": {
 				try {
-					const regex = typeof condition.value === 'string' ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+					const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
 					return regex ? !regex.test(fieldValueStr) : true;
 				} catch {
 					return true;
@@ -134,33 +136,33 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 	const shouldShowField = (field: FieldConfig): boolean => {
 		if (!field.conditions || field.conditions.length === 0) return true;
 
-		return field.conditions.filter((condition) => !condition.type || condition.type === 'display').every(evaluateCondition);
+		return field.conditions.filter((condition) => !condition.type || condition.type === "display").every(evaluateCondition);
 	};
 
 	const shouldDisableField = (field: FieldConfig): boolean => {
 		if (field.disabled) return true;
 		if (!field.conditions || field.conditions.length === 0) return false;
 
-		return field.conditions.filter((condition) => condition.type === 'disabled').some(evaluateCondition);
+		return field.conditions.filter((condition) => condition.type === "disabled").some(evaluateCondition);
 	};
 
 	const getConditionalDefault = (field: FieldConfig): unknown => {
 		if (!field.conditions || field.conditions.length === 0) return undefined;
 
-		const defaultCondition = field.conditions.filter((condition) => condition.type === 'default').find(evaluateCondition);
+		const defaultCondition = field.conditions.filter((condition) => condition.type === "default").find(evaluateCondition);
 
 		return defaultCondition?.defaultValue;
 	};
 
 	const isValueUnset = (value: unknown, fieldType: FieldType): boolean => {
-		if (fieldType === 'checkbox') {
+		if (fieldType === "checkbox") {
 			return value === undefined;
 		}
-		if (fieldType === 'multi-checkbox' || fieldType === 'multiselect') {
+		if (fieldType === "multi-checkbox" || fieldType === "multiselect") {
 			return value === undefined || (Array.isArray(value) && value.length === 0);
 		}
 
-		return value === undefined || value === '';
+		return value === undefined || value === "";
 	};
 
 	useEffect(() => {
@@ -171,7 +173,6 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 				const fieldKey = `${field.name}-${JSON.stringify(conditionalDefault)}`;
 
 				if (isValueUnset(currentValue, field.type) && !appliedDefaults.current.has(fieldKey)) {
-					console.log(`Setting conditional default for field ${field.name}:`, conditionalDefault);
 					form.setValue(field.name as Path<T>, conditionalDefault as never);
 					appliedDefaults.current.add(fieldKey);
 				}
@@ -184,7 +185,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 			const currentValues = form.getValues();
 			const isFormReset = Object.keys(currentValues).every((key) => {
 				const value = currentValues[key as keyof typeof currentValues];
-				return isValueUnset(value, config.fields.find((f) => f.name === key)?.type || 'text');
+				return isValueUnset(value, config.fields.find((f) => f.name === key)?.type || "text");
 			});
 
 			if (isFormReset) {
@@ -197,14 +198,14 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 	const shouldShowSection = (section: SectionConfig): boolean => {
 		if (!section.conditions || section.conditions.length === 0) return true;
-		return section.conditions.filter((condition) => !condition.type || condition.type === 'display').every(evaluateCondition);
+		return section.conditions.filter((condition) => !condition.type || condition.type === "display").every(evaluateCondition);
 	};
 
 	const BoxOption = ({ option, isSelected, onClick, disabled }: { option: SelectOption; isSelected: boolean; onClick: () => void; disabled?: boolean }) => {
 		const IconComponent = option.icon;
 		return (
 			<div
-				className={cn('relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200', disabled ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-md', isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-gray-200 hover:border-gray-300')}
+				className={cn("relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200", disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md", isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")}
 				style={{
 					borderColor: isSelected && option.color ? option.color : undefined,
 					backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
@@ -215,19 +216,19 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 						<div
 							className="size-9 flex items-center justify-center"
 							style={{
-								backgroundColor: option.color ? `${option.color}20` : '#f3f4f6',
-								color: option.color || '#6b7280',
+								backgroundColor: option.color ? `${option.color}20` : "#f3f4f6",
+								color: option.color || "#6b7280",
 							}}>
-							{typeof IconComponent === 'string' ? <span className="text-lg">{IconComponent}</span> : <IconComponent className="w-5 h-5" />}
+							{typeof IconComponent === "string" ? <span className="text-lg">{IconComponent}</span> : <IconComponent className="w-5 h-5" />}
 						</div>
 					)}
-					<span className={cn('text-sm font-medium transition-colors', isSelected ? 'text-gray-900' : 'text-gray-600')}>{option.label}</span>
+					<span className={cn("text-sm font-medium transition-colors", isSelected ? "text-gray-900" : "text-gray-600")}>{option.label}</span>
 				</div>
 			</div>
 		);
 	};
 
-	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = 'Select options...' }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string }) => {
+	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string }) => {
 		const [isOpen, setIsOpen] = useState(false);
 
 		const handleOptionToggle = (optionValue: string | number, e?: React.MouseEvent) => {
@@ -250,7 +251,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 			<div className="w-full">
 				<Popover open={isOpen} onOpenChange={setIsOpen}>
 					<PopoverTrigger asChild>
-						<Button variant="outline" className={cn('w-full h-auto min-h-10 py-0 justify-between text-left font-normal', disabled && 'cursor-not-allowed opacity-50')} disabled={disabled}>
+						<Button variant="outline" className={cn("w-full h-auto min-h-10 py-0 justify-between text-left font-normal", disabled && "cursor-not-allowed opacity-50")} disabled={disabled}>
 							<div className="flex-1 min-w-0">
 								{selectedOptions.length === 0 ? (
 									<span className="text-muted-foreground">{placeholder}</span>
@@ -263,17 +264,17 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 													key={option.value}
 													className="flex items-center space-x-1 bg-gray-100 border rounded px-1.5 py-0.5 text-xs"
 													style={{
-														borderColor: option.color || '#e5e7eb',
-														backgroundColor: option.color ? `${option.color}15` : '#f3f4f6',
+														borderColor: option.color || "#e5e7eb",
+														backgroundColor: option.color ? `${option.color}15` : "#f3f4f6",
 													}}>
 													{IconComponent && (
 														<div
 															className="size-3 flex items-center justify-center rounded-sm"
 															style={{
-																backgroundColor: option.color ? `${option.color}30` : '#e5e7eb',
-																color: option.color || '#6b7280',
+																backgroundColor: option.color ? `${option.color}30` : "#e5e7eb",
+																color: option.color || "#6b7280",
 															}}>
-															{typeof IconComponent === 'string' ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
+															{typeof IconComponent === "string" ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
 														</div>
 													)}
 													<span className="font-medium truncate max-w-20">{option.label}</span>
@@ -291,7 +292,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 							<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
 						</Button>
 					</PopoverTrigger>
-					<PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }} align="start">
+					<PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }} align="start">
 						<div className="max-h-64 overflow-y-auto">
 							{options.map((option) => {
 								const IconComponent = option.icon;
@@ -303,10 +304,10 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 												<div
 													className="size-6 flex items-center justify-center"
 													style={{
-														backgroundColor: option.color ? `${option.color}20` : '#f3f4f6',
-														color: option.color || '#6b7280',
+														backgroundColor: option.color ? `${option.color}20` : "#f3f4f6",
+														color: option.color || "#6b7280",
 													}}>
-													{typeof IconComponent === 'string' ? <span className="text-sm">{IconComponent}</span> : <IconComponent className="w-4 h-4" />}
+													{typeof IconComponent === "string" ? <span className="text-sm">{IconComponent}</span> : <IconComponent className="w-4 h-4" />}
 												</div>
 											)}
 											<label htmlFor={`option-${option.value}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
@@ -325,36 +326,36 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 	};
 
 	const renderField = (fieldConfig: FieldConfig) => {
-		const { name, type, label, placeholder, description, options, width = 'half' } = fieldConfig;
+		const { name, type, label, placeholder, description, options, width = "half" } = fieldConfig;
 		const isDisabled = shouldDisableField(fieldConfig);
 
 		return (
-			<div key={name} className={`min-h-[85px] flex flex-col ${width === 'full' ? 'col-span-full' : ''}`}>
+			<div key={name} className={`min-h-[85px] flex flex-col ${width === "full" ? "col-span-full" : ""}`}>
 				<FormField
 					control={form.control}
 					name={name as Path<T>}
 					render={({ field }) => (
 						<FormItem>
-							{type !== 'checkbox' && type !== 'multi-checkbox' && <FormLabel className={cn('text-sm font-medium', isDisabled && 'text-muted-foreground')}>{label}</FormLabel>}
+							{type !== "checkbox" && type !== "multi-checkbox" && <FormLabel className={cn("text-sm font-medium", isDisabled && "text-muted-foreground")}>{label}</FormLabel>}
 							<FormControl>
-								{type === 'text' || type === 'email' || type === 'password' ? (
+								{type === "text" || type === "email" || type === "password" ? (
 									<Input className="h-10" type={type} placeholder={placeholder} disabled={isDisabled} {...field} />
-								) : type === 'number' ? (
+								) : type === "number" ? (
 									<Input
 										type="number"
 										className="h-10"
 										placeholder={placeholder}
 										disabled={isDisabled}
-										value={field.value || ''}
+										value={field.value || ""}
 										onChange={(e) => {
-											const value = e.target.value === '' ? undefined : parseInt(e.target.value);
+											const value = e.target.value === "" ? undefined : parseInt(e.target.value);
 											field.onChange(value);
 										}}
 									/>
-								) : type === 'textarea' ? (
+								) : type === "textarea" ? (
 									<Textarea placeholder={placeholder} disabled={isDisabled} {...field} className="h-10" />
-								) : type === 'select' ? (
-									<Select onValueChange={field.onChange} value={field.value?.toString() || ''} disabled={isDisabled}>
+								) : type === "select" ? (
+									<Select onValueChange={field.onChange} value={field.value?.toString() || ""} disabled={isDisabled}>
 										<SelectTrigger className="w-full !h-10">
 											<SelectValue placeholder={placeholder || `Select ${label.toLowerCase()}`} />
 										</SelectTrigger>
@@ -366,20 +367,20 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 											))}
 										</SelectContent>
 									</Select>
-								) : type === 'multiselect' ? (
+								) : type === "multiselect" ? (
 									<MultiSelectField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} />
-								) : type === 'boxes' ? (
+								) : type === "boxes" ? (
 									<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
 										{options?.map((option) => (
 											<BoxOption key={option.value} option={option} isSelected={field.value === option.value} onClick={() => field.onChange(option.value)} disabled={isDisabled} />
 										))}
 									</div>
-								) : type === 'checkbox' ? (
+								) : type === "checkbox" ? (
 									<div className="flex items-center space-x-2">
 										<Checkbox checked={Boolean(field.value)} onCheckedChange={field.onChange} disabled={isDisabled} />
-										<FormLabel className={cn(isDisabled && 'text-muted-foreground')}>{label}</FormLabel>
+										<FormLabel className={cn(isDisabled && "text-muted-foreground")}>{label}</FormLabel>
 									</div>
-								) : type === 'multi-checkbox' ? (
+								) : type === "multi-checkbox" ? (
 									<div className="grid grid-cols-2 gap-4">
 										{options?.map((option) => (
 											<div key={option.value} className="flex items-center space-x-2">
@@ -393,7 +394,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 														field.onChange(newValue);
 													}}
 												/>
-												<label htmlFor={`${name}-${option.value}`} className={cn('text-sm font-medium', isDisabled && 'text-muted-foreground')}>
+												<label htmlFor={`${name}-${option.value}`} className={cn("text-sm font-medium", isDisabled && "text-muted-foreground")}>
 													{option.label}
 												</label>
 											</div>
@@ -401,7 +402,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 									</div>
 								) : null}
 							</FormControl>
-							{description && <FormDescription className={cn(isDisabled && 'text-muted-foreground')}>{description}</FormDescription>}
+							{description && <FormDescription className={cn(isDisabled && "text-muted-foreground")}>{description}</FormDescription>}
 							<FormMessage className="-mt-1" />
 						</FormItem>
 					)}
@@ -411,7 +412,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 	};
 
 	const fieldsBySection = config.fields.reduce((acc, field) => {
-		const section = field.section || 'default';
+		const section = field.section || "default";
 		if (!acc[section]) acc[section] = [];
 		acc[section].push(field);
 		return acc;
@@ -426,9 +427,9 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 		try {
 			const response = await fetch(config.apiEndpoint, {
-				method: config.method || 'POST',
+				method: config.method || "POST",
 				headers: {
-					'Content-Type': 'application/json',
+					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(data),
 			});
@@ -437,7 +438,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 			if (!response.ok) {
 				const errorResult = result as { message?: string };
-				throw new Error(errorResult.message || 'Error during submission');
+				throw new Error(errorResult.message || "Error during submission");
 			}
 
 			const elapsedTime = Date.now() - startTime;
@@ -447,7 +448,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 			const successResult: ApiResponse = {
 				success: true,
-				message: config.successMessage || 'Data saved successfully',
+				message: config.successMessage || "Data saved successfully",
 				data: result,
 			};
 
@@ -466,11 +467,11 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 			const errorResult: ApiResponse = {
 				success: false,
-				message: error instanceof Error ? error.message : 'An error occurred',
+				message: error instanceof Error ? error.message : "An error occurred",
 			};
 
 			setSubmissionResult(errorResult);
-			config.onError?.(error instanceof Error ? error : new Error('Unknown error'));
+			config.onError?.(error instanceof Error ? error : new Error("Unknown error"));
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -516,7 +517,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 									<div key={section.name} className="space-y-6 bg-white">
 										<h2 className="text-xl font-semibold mb-2">{section.title}</h2>
 										<Separator className="mb-5" />
-										<div className={`grid gap-x-3 ${section.columns === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>{visibleFields.map(renderField)}</div>
+										<div className={`grid gap-x-3 ${section.columns === 2 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"}`}>{visibleFields.map(renderField)}</div>
 									</div>
 								);
 							})}
@@ -538,17 +539,17 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 								}}
 								className="cursor-pointer"
 								disabled={isSubmitting}>
-								{config.resetButtonText || 'Reset'}
+								{config.resetButtonText || "Reset"}
 							</Button>
 						)}
 						<Button type="submit" disabled={isSubmitting} className="min-w-32 gap-1 cursor-pointer">
 							{isSubmitting ? (
 								<>
 									<Loader2 className="h-4 w-4 animate-spin" />
-									{config.loadingText || 'Saving'}...
+									{config.loadingText || "Saving"}...
 								</>
 							) : (
-								config.submitButtonText || 'Submit'
+								config.submitButtonText || "Submit"
 							)}
 						</Button>
 					</div>

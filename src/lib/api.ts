@@ -1,8 +1,8 @@
 async function makeRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
 	const response = await fetch(url, {
 		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Basic ${Buffer.from(`${process.env.EPFL_API_USERNAME}:${process.env.EPFL_API_PASSWORD}`).toString('base64')}`,
+			"Content-Type": "application/json",
+			Authorization: `Basic ${Buffer.from(`${process.env.EPFL_API_USERNAME}:${process.env.EPFL_API_PASSWORD}`).toString("base64")}`,
 		},
 		...options,
 	});
@@ -14,63 +14,63 @@ export async function getNames(userIds: string[], type?: string): Promise<{ user
 	try {
 		if (!userIds?.length) return [];
 
-		if (type === 'username') {
+		if (type === "username") {
 			const results = await Promise.all(
 				userIds.map(async (username) => {
-					if (username === 'admin') return { userId: username, name: 'Admin' };
+					if (username === "admin") return { userId: username, name: "Admin" };
 					try {
-						const data = await makeRequest<{ firstname: string; lastname: string }>(`${process.env.EPFL_API_URL}/persons/${username}`, { method: 'GET' });
+						const data = await makeRequest<{ firstname: string; lastname: string }>(`${process.env.EPFL_API_URL}/persons/${username}`, { method: "GET" });
 						return { userId: username, name: `${data.firstname} ${data.lastname}`.trim() };
 					} catch {
-						return { userId: username, name: 'Unknown' };
+						return { userId: username, name: "Unknown" };
 					}
-				})
+				}),
 			);
 			return results;
 		}
 
-		const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(`${process.env.EPFL_API_URL}/persons?ids=${userIds.join(',')}`, { method: 'GET' });
+		const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(`${process.env.EPFL_API_URL}/persons?ids=${userIds.join(",")}`, { method: "GET" });
 		return data.persons.map((p) => ({ userId: p.id, name: `${p.firstname} ${p.lastname}`.trim() }));
 	} catch {
-		return userIds.map((id) => ({ userId: id, name: 'Unknown' }));
+		return userIds.map((id) => ({ userId: id, name: "Unknown" }));
 	}
 }
 
 export async function getUnits(unitIds: string[]): Promise<{ unitId: string; name: string }[]> {
 	try {
 		if (!unitIds?.length) return [];
-		const data = await makeRequest<{ units: { id: string; name: string }[] }>(`${process.env.EPFL_API_URL}/units?ids=${unitIds.join(',')}`, { method: 'GET' });
+		const data = await makeRequest<{ units: { id: string; name: string }[] }>(`${process.env.EPFL_API_URL}/units?ids=${unitIds.join(",")}`, { method: "GET" });
 		return data.units.map((u: { id: string; name: string }) => ({ unitId: u.id, name: u.name }));
 	} catch (error) {
-		console.error('Error fetching units:', error);
-		return unitIds.map((id) => ({ unitId: id, name: 'Unknown' }));
+		console.error("Error fetching units:", error);
+		return unitIds.map((id) => ({ unitId: id, name: "Unknown" }));
 	}
 }
 
 export async function getUnit(unitId: string): Promise<{ id: string; name: string }> {
 	try {
-		const data = await makeRequest<{ id: string; name: string }>(`${process.env.EPFL_API_URL}/units/${unitId}`, { method: 'GET' });
+		const data = await makeRequest<{ id: string; name: string }>(`${process.env.EPFL_API_URL}/units/${unitId}`, { method: "GET" });
 		if (!data.id) throw new Error(`Unit not found: ${unitId}`);
 		return { id: data.id, name: data.name };
 	} catch (error) {
-		console.error('Error fetching unit:', error);
-		return { id: unitId, name: 'Unknown' };
+		console.error("Error fetching unit:", error);
+		return { id: unitId, name: "Unknown" };
 	}
 }
 
 export async function getEditors(unitId: string): Promise<{ userId: string; name: string }[]> {
 	try {
-		if (!unitId) throw new Error('Unit ID required');
-		const data = await makeRequest<{ authorizations: { persid: number; attribution?: string }[] }>(`${process.env.EPFL_API_URL}/authorizations?type=right&authid=WordPress.Editor&resid=${unitId}`, { method: 'GET' });
+		if (!unitId) throw new Error("Unit ID required");
+		const data = await makeRequest<{ authorizations: { persid: number; attribution?: string }[] }>(`${process.env.EPFL_API_URL}/authorizations?type=right&authid=WordPress.Editor&resid=${unitId}`, { method: "GET" });
 		if (!data.authorizations?.length) return [];
 
 		const personIds = [...new Set(data.authorizations.map((a: { persid: number; attribution?: string }) => a.persid.toString()))];
 		const names = await getNames(personIds);
 		const nameMap = new Map(names.map((n) => [n.userId, n.name]));
 
-		return data.authorizations.map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || 'Unknown' }));
+		return data.authorizations.map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || "Unknown" }));
 	} catch (error) {
-		console.error('Error fetching editors:', error);
+		console.error("Error fetching editors:", error);
 		return [];
 	}
 }

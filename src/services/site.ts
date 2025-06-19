@@ -496,8 +496,6 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 				infrastructure: enrichedSite.infrastructure,
 			});
 
-			console.log("Enriched site:", enrichedSite);
-
 			return { site: enrichedSite };
 		}
 
@@ -618,8 +616,6 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 		});
 
 		kubernetesSites.forEach((kubernetesSite) => {
-			console.log(`Processing Kubernetes site: ${kubernetesSite.id} - ${kubernetesSite.url}`);
-			console.log(kubernetesSite);
 			if (isKubernetesSite(kubernetesSite)) {
 				const dbSite = siteMap.get(kubernetesSite.id);
 				const mergedSite = dbSite && isDatabaseSite(dbSite) ? mergeSiteWithExtras(kubernetesSite, dbSite) : kubernetesSite;
@@ -685,7 +681,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 						? {
 							date: lastChange?.[0]?.last_modified || "",
 							user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || "",
-						  }
+						}
 						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({

@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { getZodErrorMessages, useZodErrorMessages } from '@/hooks/zod';
-import type { KubernetesInfrastructureName, DatabaseInfrastructureName, NoneInfrastructureName, InfrastructureName } from '@/types/infrastructure';
-import { INFRASTRUCTURES, getCreatableInfrastructures } from '@/constants/infrastructures';
+import { z } from "zod";
+import { getZodErrorMessages, useZodErrorMessages } from "@/hooks/zod";
+import type { KubernetesInfrastructureName, DatabaseInfrastructureName, NoneInfrastructureName, InfrastructureName } from "@/types/infrastructure";
+import { INFRASTRUCTURES, getCreatableInfrastructures } from "@/constants/infrastructures";
 
 export interface KubernetesSiteType {
 	metadata: {
@@ -168,40 +168,40 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 	};
 
 	const kubernetesSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === 'kubernetes')
+		.filter((infra) => infra.PERSISTENCE === "kubernetes")
 		.map((infra) =>
 			z.object({
 				...baseFields,
 				...kubernetesFields,
 				infrastructure: z.literal(infra.NAME as KubernetesInfrastructureName),
-			})
+			}),
 		);
 
 	const databaseSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === 'database')
+		.filter((infra) => infra.PERSISTENCE === "database")
 		.map((infra) =>
 			z.object({
 				...baseFields,
 				infrastructure: z.literal(infra.NAME as DatabaseInfrastructureName),
-			})
+			}),
 		);
 
 	const noneSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === 'none')
+		.filter((infra) => infra.PERSISTENCE === "none")
 		.map((infra) =>
 			z.object({
 				...baseFields,
 				infrastructure: z.literal(infra.NAME as NoneInfrastructureName),
-			})
+			}),
 		);
 
 	const allSchemas = [...kubernetesSchemas, ...databaseSchemas, ...noneSchemas];
 
 	if (allSchemas.length === 0) {
-		throw new Error('No creatable infrastructures found');
+		throw new Error("No creatable infrastructures found");
 	}
 
-	return z.discriminatedUnion('infrastructure', allSchemas as unknown as [z.ZodDiscriminatedUnionOption<'infrastructure'>, ...z.ZodDiscriminatedUnionOption<'infrastructure'>[]]) as unknown as z.ZodType<SiteFormType>;
+	return z.discriminatedUnion("infrastructure", allSchemas as unknown as [z.ZodDiscriminatedUnionOption<"infrastructure">, ...z.ZodDiscriminatedUnionOption<"infrastructure">[]]) as unknown as z.ZodType<SiteFormType>;
 };
 
 export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
@@ -214,21 +214,21 @@ export const createSiteSchema = async () => {
 };
 
 export const isKubernetesSite = (site: SiteType): site is KubernetesSite => {
-	return site.infrastructure === 'Kubernetes';
+	return site.infrastructure === "Kubernetes";
 };
 
 export const isDatabaseSite = (site: SiteType): site is DatabaseSite => {
-	const dbInfras: DatabaseInfrastructureName[] = ['External', 'LAMP', 'Archived'];
+	const dbInfras: DatabaseInfrastructureName[] = ["External", "LAMP", "Archived"];
 	return dbInfras.includes(site.infrastructure as DatabaseInfrastructureName);
 };
 
 export const isNoneSite = (site: SiteType): site is NoneSite => {
-	return site.infrastructure === 'Temporary';
+	return site.infrastructure === "Temporary";
 };
 
-export const getSitePersistence = (infrastructure: InfrastructureName): 'kubernetes' | 'database' | 'none' => {
+export const getSitePersistence = (infrastructure: InfrastructureName): "kubernetes" | "database" | "none" => {
 	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
-	return infra?.PERSISTENCE || 'none';
+	return infra?.PERSISTENCE || "none";
 };
 
 export const isCreatableInfrastructure = (infrastructure: string): boolean => {
