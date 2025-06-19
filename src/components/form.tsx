@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -86,6 +86,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
+	const appliedDefaults = useRef<Set<string>>(new Set());
 
 	const form = useForm<T>({
 		resolver: zodResolver(config.schema as never),
@@ -151,18 +152,48 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 		return defaultCondition?.defaultValue;
 	};
 
+	const isValueUnset = (value: unknown, fieldType: FieldType): boolean => {
+		if (fieldType === 'checkbox') {
+			return value === undefined;
+		}
+		if (fieldType === 'multi-checkbox' || fieldType === 'multiselect') {
+			return value === undefined || (Array.isArray(value) && value.length === 0);
+		}
+
+		return value === undefined || value === '';
+	};
+
 	useEffect(() => {
 		config.fields.forEach((field) => {
 			const conditionalDefault = getConditionalDefault(field);
 			if (conditionalDefault !== undefined) {
 				const currentValue = form.getValues(field.name as Path<T>);
+				const fieldKey = `${field.name}-${JSON.stringify(conditionalDefault)}`;
 
-				if (currentValue === undefined || currentValue === '') {
+				if (isValueUnset(currentValue, field.type) && !appliedDefaults.current.has(fieldKey)) {
+					console.log(`Setting conditional default for field ${field.name}:`, conditionalDefault);
 					form.setValue(field.name as Path<T>, conditionalDefault as never);
+					appliedDefaults.current.add(fieldKey);
 				}
 			}
 		});
 	}, [watchedValues, config.fields, form]);
+
+	useEffect(() => {
+		const subscription = form.watch(() => {
+			const currentValues = form.getValues();
+			const isFormReset = Object.keys(currentValues).every((key) => {
+				const value = currentValues[key as keyof typeof currentValues];
+				return isValueUnset(value, config.fields.find((f) => f.name === key)?.type || 'text');
+			});
+
+			if (isFormReset) {
+				appliedDefaults.current.clear();
+			}
+		});
+
+		return () => subscription.unsubscribe();
+	}, [form, config.fields]);
 
 	const shouldShowSection = (section: SectionConfig): boolean => {
 		if (!section.conditions || section.conditions.length === 0) return true;
@@ -422,7 +453,10 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 
 			setSubmissionResult(successResult);
 			config.onSuccess?.(data, result);
-			if (config.reset !== false) form.reset();
+			if (config.reset !== false) {
+				form.reset();
+				appliedDefaults.current.clear();
+			}
 			setHasSubmitted(false);
 		} catch (error) {
 			const elapsedTime = Date.now() - startTime;
@@ -498,6 +532,7 @@ export default function Form<T extends FieldValues>({ config, className = '' }: 
 								type="button"
 								onClick={() => {
 									form.reset();
+									appliedDefaults.current.clear();
 									setHasSubmitted(false);
 									setSubmissionResult(null);
 								}}
