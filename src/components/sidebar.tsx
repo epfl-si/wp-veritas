@@ -26,10 +26,10 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			permissions: PERMISSIONS.SITES.CREATE,
 		},
 		{
-			href: '/info',
+			href: '/search',
 			label: t('info'),
 			icon: BadgeInfo,
-			permissions: PERMISSIONS.SITES.READ,
+			permissions: PERMISSIONS.SITES.SEARCH,
 		},
 		{
 			href: '/tags',
