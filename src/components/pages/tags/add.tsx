@@ -3,7 +3,7 @@
 import React from "react";
 import { useLocale, useTranslations } from "next-intl";
 import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form";
-import { tagSchema, TagFormType, TagCategoryEnumType } from "@/types/tag";
+import { tagSchema, TagFormType } from "@/types/tag";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { TAG_CATEGORIES } from "@/constants/tags";
 
@@ -79,7 +79,7 @@ export const TagAdd: React.FC = () => {
 			fields,
 			sections,
 			defaultValues: {
-				type: "" as TagCategoryEnumType,
+				type: "faculty",
 				nameFr: "",
 				nameEn: "",
 				urlFr: "",

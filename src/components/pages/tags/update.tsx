@@ -82,7 +82,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 			fields,
 			sections,
 			defaultValues: {
-				type: (tag.type || "") as TagCategoryEnumType,
+				type: (tag.type || "faculty") as TagCategoryEnumType,
 				nameFr: tag.nameFr || "",
 				nameEn: tag.nameEn || "",
 				urlFr: tag.urlFr || "",
