@@ -22,12 +22,14 @@ const logSchema = new mongoose.Schema<ILog>({
 	id: { type: String, required: true, unique: true },
 	message: { type: String, required: true },
 	data: {
-		type: { type: String, required: true },
-		action: { type: String, required: true },
-		id: { type: String, required: false },
-		object: { type: mongoose.Schema.Types.Mixed, required: false },
-		error: { type: String, required: false },
-		count: { type: Number, required: false },
+		type: mongoose.Schema.Types.Mixed,
+		required: true,
+		validate: {
+			validator: function (v: object) {
+				return typeof v === 'object' && v !== null && 'type' in v && 'action' in v && typeof v.type === 'string' && typeof v.action === 'string';
+			},
+			message: 'Data must contain at least type and action fields',
+		},
 	},
 	level: {
 		type: String,
