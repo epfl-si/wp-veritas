@@ -141,15 +141,14 @@ jobs:
         name: Detect Version
         needs: code-quality
         runs-on: ubuntu-24.04
+        permissions:
+            contents: read
         outputs:
             version: ${{ steps.get_version.outputs.version }}
             should_build: ${{ steps.check_version.outputs.should_build }}
-            version_exists: ${{ steps.check_version.outputs.version_exists }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
 
             - name: Get Version from package.json
               id: get_version
@@ -168,49 +167,26 @@ jobs:
                   echo "📦 Version from package.json: $version"
                   echo "version=$version" >> $GITHUB_OUTPUT
 
-            - name: Set up Docker CLI
-              uses: docker/setup-buildx-action@v3
-
-            - name: Smart Version Check
+            - name: Check if release exists
               id: check_version
               run: |
                   VERSION="${{ steps.get_version.outputs.version }}"
-                  echo "🔍 Checking if version $VERSION exists on registry..."
-
-                  if docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION > /dev/null 2>&1; then
-                    echo "version_exists=true" >> $GITHUB_OUTPUT
-                    echo "📋 Version $VERSION exists on registry"
-                    
-                    LAST_TAG="v$VERSION"
-                    if git rev-parse --verify "$LAST_TAG" >/dev/null 2>&1; then
-                      echo "🏷️  Tag $LAST_TAG exists in git"
-                      
-                      COMMITS_SINCE_TAG=$(git rev-list ${LAST_TAG}..HEAD --count)
-                      
-                      if [ "$COMMITS_SINCE_TAG" -gt 0 ]; then
-                        echo "🔄 Found $COMMITS_SINCE_TAG commits since last tag - rebuild needed"
-                        echo "should_build=true" >> $GITHUB_OUTPUT
-                        echo "💡 Reason: Code changes detected since last build"
-                      else
-                        echo "✅ No changes since last build - skipping"
-                        echo "should_build=false" >> $GITHUB_OUTPUT
-                      fi
-                    else
-                      echo "🔄 No git tag found for version - rebuild needed"
-                      echo "should_build=true" >> $GITHUB_OUTPUT
-                      echo "💡 Reason: No git tag found (possible failed previous build)"
-                    fi
-                  else
-                    echo "version_exists=false" >> $GITHUB_OUTPUT
-                    echo "🆕 Version $VERSION doesn't exist - build needed"
-                    echo "should_build=true" >> $GITHUB_OUTPUT
-                    echo "💡 Reason: New version detected"
-                  fi
+                  TAG_NAME="v$VERSION"
                   
-                  echo "📊 Summary:"
-                  echo "  - Version: $VERSION"
-                  echo "  - Exists on registry: $([ '${{ steps.check_version.outputs.version_exists }}' = 'true' ] && echo 'Yes' || echo 'No')"
-                  echo "  - Should build: $([ '${{ steps.check_version.outputs.should_build }}' = 'true' ] && echo 'Yes' || echo 'No')"
+                  set +e
+                  gh release view "$TAG_NAME" >/dev/null 2>&1
+                  RELEASE_EXISTS=$?
+                  set -e
+
+                  if [ $RELEASE_EXISTS -eq 0 ]; then
+                    echo "should_build=false" >> $GITHUB_OUTPUT
+                    echo "✅ Release $TAG_NAME already exists - skipping build"
+                  else
+                    echo "should_build=true" >> $GITHUB_OUTPUT
+                    echo "🆕 Release $TAG_NAME doesn't exist - build needed"
+                  fi
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     build-and-push:
         name: Build and Push
@@ -231,7 +207,6 @@ jobs:
               run: |
                   echo "🚀 Starting build for version: ${{ needs.detect-version.outputs.version }}"
                   echo "📅 Build triggered at: $(date)"
-                  echo "🌟 Build reason: $([ '${{ needs.detect-version.outputs.version_exists }}' = 'true' ] && echo 'Rebuild after changes' || echo 'New version build')"
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3
@@ -269,20 +244,9 @@ jobs:
               id: build_result
               run: |
                   VERSION="${{ needs.detect-version.outputs.version }}"
-                  echo "🔍 Verifying build success..."
-                  
                   echo "✅ Build and push completed!"
                   echo "success=true" >> $GITHUB_OUTPUT
-                  echo "🐳 Image should be available at: ${{ env.REGISTRY_PATH }}:$VERSION"
-
-            - name: Output Build Information
-              run: |
-                  echo "📋 Build Summary:"
-                  echo "  - Version: ${{ needs.detect-version.outputs.version }}"
-                  echo "  - Image: ${{ env.REGISTRY_PATH }}:${{ needs.detect-version.outputs.version }}"
-                  echo "  - Tags: ${{ steps.meta.outputs.tags }}"
-                  echo "  - Build ID: ${{ steps.build_push.outputs.imageid }}"
-                  echo "  - Digest: ${{ steps.build_push.outputs.digest }}"
+                  echo "🐳 Image available at: ${{ env.REGISTRY_PATH }}:$VERSION"
 
     create-release:
         name: Create Release
@@ -297,30 +261,36 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Generate Smart Release Notes
+            - name: Generate Release Notes
               id: generate_notes
               run: |
                   VERSION="${{ needs.detect-version.outputs.version }}"
-                  echo "📝 Generating release notes for version $VERSION"
-
+                  
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
                   
                   touch release_notes.txt
 
                   if [ -z "$LAST_TAG" ]; then
-                    echo "📋 No previous tag found, using last 10 commits"
+                    COMMITS_COUNT=$(git rev-list HEAD --count)
+                    AUTHORS=$(git log --pretty=format:"%an" | sort -u | tr '\n' ', ' | sed 's/, $//')
+                    echo "Initial release v$VERSION with $COMMITS_COUNT commits by $AUTHORS." >> release_notes.txt
+                  else
+                    COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
+                    AUTHORS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%an" | sort -u | tr '\n' ', ' | sed 's/, $//')
+                    echo "Release v$VERSION includes $COMMITS_COUNT commits since $LAST_TAG by $AUTHORS." >> release_notes.txt
+                  fi
+
+                  if [ -z "$LAST_TAG" ]; then
                     echo "## 📦 Initial Release" >> release_notes.txt
                     echo "" >> release_notes.txt
                     COMMITS=$(git log --oneline -10 --pretty=format:"%h %s")
                   else
-                    echo "📋 Getting commits since last tag: $LAST_TAG"
                     COMMITS_COUNT=$(git rev-list ${LAST_TAG}..HEAD --count)
                     echo "## 🔄 Changes since $LAST_TAG ($COMMITS_COUNT commits)" >> release_notes.txt
                     echo "" >> release_notes.txt
                     COMMITS=$(git log --oneline ${LAST_TAG}..HEAD --pretty=format:"%h %s")
                   fi
 
-                  # Features
                   FEATURE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(add|feat|feature)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$FEATURE_COMMITS" ]; then
                     echo "### ✨ Features" >> release_notes.txt
@@ -328,7 +298,6 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
                   
-                  # Bug Fixes
                   FIX_COMMITS=$(echo "$COMMITS" | grep -iE "\[(fix|bugfix|hotfix)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$FIX_COMMITS" ]; then
                     echo "### 🐛 Bug Fixes" >> release_notes.txt
@@ -336,7 +305,6 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
                   
-                  # Maintenance
                   MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$MAINTENANCE_COMMITS" ]; then
                     echo "### 🔧 Maintenance" >> release_notes.txt
@@ -344,7 +312,6 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
                   
-                  # Documentation
                   DOC_COMMITS=$(echo "$COMMITS" | grep -iE "\[(docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$DOC_COMMITS" ]; then
                     echo "### 📚 Documentation" >> release_notes.txt
@@ -352,60 +319,27 @@ jobs:
                     echo "" >> release_notes.txt
                   fi
 
-                  # Other Changes
-                  OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(feat|feature|fix|bugfix|hotfix|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
+                  OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(add|feat|feature|fix|bugfix|hotfix|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$OTHER_COMMITS" ]; then
                     echo "### 🔄 Other Changes" >> release_notes.txt
                     echo "$OTHER_COMMITS" >> release_notes.txt
                     echo "" >> release_notes.txt
                   fi
-                  echo "" >> release_notes.txt
 
-                  echo "---" >> release_notes.txt
-                  echo "**Technical Details:**" >> release_notes.txt
-                  echo "- Relased on: \`$(date +'%Y-%m-%d %H:%M:%S UTC')\`" >> release_notes.txt
-                  echo "- Relased by: \`${{ github.actor }}\`" >> release_notes.txt
-                  echo "- Build SHA: \`${{ github.sha }}\`" >> release_notes.txt
-                  echo "- Workflow: [\`${{ github.workflow }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> release_notes.txt
-
-                  echo "📄 Generated release notes:"
-                  cat release_notes.txt
-
-            - name: Create/Update Release
+            - name: Create Release
               run: |
                   VERSION="${{ needs.detect-version.outputs.version }}"
                   TAG_NAME="v$VERSION"
                   RELEASE_TITLE="v$VERSION"
                   
-                  echo "🚀 Creating/updating release $TAG_NAME"
+                  gh release create "$TAG_NAME" \
+                    --title "$RELEASE_TITLE" \
+                    --notes-file release_notes.txt \
+                    --latest
                   
-                  if gh release view "$TAG_NAME" >/dev/null 2>&1; then
-                    echo "ℹ️  Release $TAG_NAME already exists, updating..."
-                    gh release edit "$TAG_NAME" \
-                      --title "$RELEASE_TITLE" \
-                      --notes-file release_notes.txt \
-                      --latest
-                    echo "✅ Release updated successfully"
-                  else
-                    echo "🆕 Creating new release $TAG_NAME"
-                    gh release create "$TAG_NAME" \
-                      --title "$RELEASE_TITLE" \
-                      --notes-file release_notes.txt \
-                      --latest
-                    echo "✅ Release created successfully"
-                  fi
-                  
-                  RELEASE_URL=$(gh release view "$TAG_NAME" --json url --jq .url)
-                  echo "🔗 Release URL: $RELEASE_URL"
+                  echo "✅ Release created successfully"
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Output Release Information
-              run: |
-                  echo "🎉 Release Summary:"
-                  echo "  - Version: v${{ needs.detect-version.outputs.version }}"
-                  echo "  - Tag: v${{ needs.detect-version.outputs.version }}"
-                  echo "  - Docker Image: ${{ env.REGISTRY_PATH }}:${{ needs.detect-version.outputs.version }}"
 
     cleanup:
         name: Cleanup Summary
@@ -423,6 +357,5 @@ jobs:
                   if [ "${{ needs.code-quality.result }}" = "success" ] && [ "${{ needs.build-and-push.result }}" = "success" ] && [ "${{ needs.create-release.result }}" = "success" ]; then
                     echo "✅ Pipeline completed successfully!"
                   else
-                    echo "⚠️  Pipeline completed with issues - check previous jobs"
-                    echo "    - ESLint: ${{ needs.code-quality.outputs.eslint_passed }}"
+                    echo "⚠️ Pipeline completed with issues - check previous jobs"
                   fi
