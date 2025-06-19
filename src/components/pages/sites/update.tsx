@@ -2,7 +2,7 @@
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import Form, { FormConfig, FieldConfig, SectionConfig } from '@/components/form';
-import { SiteFormType, siteSchema, SiteType } from '@/types/site';
+import { isKubernetesSite, SiteFormType, siteSchema, SiteType } from '@/types/site';
 import { useZodErrorMessages } from '@/hooks/zod';
 import { INFRASTRUCTURES } from '@/constants/infrastructures';
 import { THEMES } from '@/constants/theme';
@@ -175,20 +175,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 						value: 'Kubernetes',
 						type: 'display',
 					},
-					{
-						field: 'url',
-						operator: 'regex',
-						value: '^https?://inside[.]epfl[.]ch(/.*)?$',
-						type: 'default',
-						defaultValue: true,
-					},
-					{
-						field: 'url',
-						operator: 'regex',
-						value: '^https?://inside[.]epfl[.]ch(/.*)?$',
-						type: 'disabled',
-					},
 				],
+				disabled: true,
 			},
 			{
 				name: 'ticket',
@@ -252,15 +240,15 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			defaultValues: {
 				infrastructure: site.infrastructure || 'kubernetes',
 				url: site.url || '',
-				title: site.title || '',
-				tagline: site.tagline || '',
-				theme: site.theme || '',
-				unitId: site.unitId || 0,
-				languages: site.languages || [],
-				categories: site.categories || [],
-				downloadsProtectionScript: site.downloadsProtectionScript || false,
-				ticket: site.ticket || '',
-				comment: site.comment || '',
+				title: (isKubernetesSite(site) && site.title) || '',
+				tagline: (isKubernetesSite(site) && site.tagline) || '',
+				theme: (isKubernetesSite(site) && site.theme) || '',
+				unitId: (isKubernetesSite(site) && site.unitId) || 0,
+				languages: (isKubernetesSite(site) && site.languages) || [],
+				categories: (isKubernetesSite(site) && site.categories) || [],
+				downloadsProtectionScript: (isKubernetesSite(site) && site.downloadsProtectionScript) || false,
+				ticket: site.ticket || undefined,
+				comment: site.comment || undefined,
 			},
 			apiEndpoint: `/api/sites/${site.id}`,
 			method: 'PUT',
