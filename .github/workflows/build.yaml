@@ -4,6 +4,7 @@ on:
         branches:
             - master
             - main
+    workflow_dispatch:
 
 env:
     REPOSITORY: 'quay-its.epfl.ch'
@@ -212,6 +213,8 @@ jobs:
               run: |
                   VERSION="${{ steps.get_version.outputs.version }}"
                   echo "🔍 Checking if version $VERSION exists on registry..."
+
+                  echo $(docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION)
 
                   if docker manifest inspect ${{ env.REGISTRY_PATH }}:$VERSION > /dev/null 2>&1; then
                     echo "version_exists=true" >> $GITHUB_OUTPUT
