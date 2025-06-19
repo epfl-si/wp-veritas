@@ -56,6 +56,21 @@ jobs:
                     
                     GITHUB_WORKSPACE_RELATIVE=$(pwd)
                     
+                    jq -r --arg workspace "$GITHUB_WORKSPACE_RELATIVE" '
+                      .[] | 
+                      select(.messages | length > 0) | 
+                      .filePath as $file | 
+                      (.filePath | sub($workspace + "/"; "")) as $relative_file |
+                      .messages[] | 
+                      if .severity == 2 then
+                        "::error file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Error (\(.ruleId // "unknown"))::\(.message)"
+                      elif .severity == 1 then
+                        "::warning file=\($relative_file),line=\(.line),col=\(.column),endLine=\(.endLine // .line),endColumn=\(.endColumn // .column),title=ESLint Warning (\(.ruleId // "unknown"))::\(.message)"
+                      else
+                        "::notice file=\($relative_file),line=\(.line),col=\(.column),title=ESLint Info (\(.ruleId // "unknown"))::\(.message)"
+                      end
+                    ' eslint-results/results.json
+                    
                     ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
                     WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
                     TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
@@ -64,7 +79,20 @@ jobs:
                     echo "  - Files with issues: $TOTAL_FILES"
                     echo "  - Errors: $ERROR_COUNT"
                     echo "  - Warnings: $WARNING_COUNT"
-                                        
+                    
+                    if [ "$ERROR_COUNT" -gt 0 ]; then
+                      echo "::error title=❌ ESLint Failed::Found $ERROR_COUNT errors and $WARNING_COUNT warnings across $TOTAL_FILES files"
+                      echo "passed=false" >> $GITHUB_OUTPUT
+                      
+                    elif [ "$WARNING_COUNT" -gt 0 ]; then
+                      echo "::warning title=⚠️ ESLint Warnings::Found $WARNING_COUNT warnings across $TOTAL_FILES files (no errors)"
+                      echo "passed=true" >> $GITHUB_OUTPUT
+                      
+                    else
+                      echo "::notice title=✅ ESLint Success::No errors or warnings found! Code quality is excellent 🎉"
+                      echo "passed=true" >> $GITHUB_OUTPUT
+                    fi
+                    
                   else
                     echo "::error title=💥 ESLint Configuration Error::Failed to generate ESLint results - check your ESLint configuration"
                     echo "passed=false" >> $GITHUB_OUTPUT
@@ -305,11 +333,7 @@ jobs:
 
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
                   
-                  echo "# 🚀 Release v$VERSION" > release_notes.txt
-                  echo "" >> release_notes.txt
-                  echo "**Released on:** $(date +'%Y-%m-%d %H:%M:%S UTC')" >> release_notes.txt
-                  echo "**Docker Image:** \`${{ env.REGISTRY_PATH }}:$VERSION\`" >> release_notes.txt
-                  echo "" >> release_notes.txt
+                  touch release_notes.txt
 
                   if [ -z "$LAST_TAG" ]; then
                     echo "📋 No previous tag found, using last 10 commits"
@@ -324,28 +348,51 @@ jobs:
                     COMMITS=$(git log --oneline ${LAST_TAG}..HEAD --pretty=format:"%h %s")
                   fi
 
-                  echo "### ✨ Features" >> release_notes.txt
-                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (feat|feature|Feature|FEATURE)" | sed 's/^/- /' >> release_notes.txt || echo "- No new features" >> release_notes.txt
-                  echo "" >> release_notes.txt
+                  # Features
+                  FEATURE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(add|feat|feature)\]" | sed 's/^/- /' || echo "")
+                  if [ -n "$FEATURE_COMMITS" ]; then
+                    echo "### ✨ Features" >> release_notes.txt
+                    echo "$FEATURE_COMMITS" >> release_notes.txt
+                    echo "" >> release_notes.txt
+                  fi
                   
-                  echo "### 🐛 Bug Fixes" >> release_notes.txt
-                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (fix|Fix|FIX)" | sed 's/^/- /' >> release_notes.txt || echo "- No bug fixes" >> release_notes.txt
-                  echo "" >> release_notes.txt
+                  # Bug Fixes
+                  FIX_COMMITS=$(echo "$COMMITS" | grep -iE "\[(fix|bugfix|hotfix)\]" | sed 's/^/- /' || echo "")
+                  if [ -n "$FIX_COMMITS" ]; then
+                    echo "### 🐛 Bug Fixes" >> release_notes.txt
+                    echo "$FIX_COMMITS" >> release_notes.txt
+                    echo "" >> release_notes.txt
+                  fi
                   
-                  echo "### 🔧 Maintenance" >> release_notes.txt
-                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (chore|Chore|CHORE|refactor|style|perf)" | sed 's/^/- /' >> release_notes.txt || echo "- No maintenance changes" >> release_notes.txt
-                  echo "" >> release_notes.txt
+                  # Maintenance
+                  MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
+                  if [ -n "$MAINTENANCE_COMMITS" ]; then
+                    echo "### 🔧 Maintenance" >> release_notes.txt
+                    echo "$MAINTENANCE_COMMITS" >> release_notes.txt
+                    echo "" >> release_notes.txt
+                  fi
                   
-                  echo "### 📚 Documentation" >> release_notes.txt
-                  echo "$COMMITS" | grep -E "^[a-f0-9]+ (docs|Docs|DOCS)" | sed 's/^/- /' >> release_notes.txt || echo "- No documentation changes" >> release_notes.txt
-                  echo "" >> release_notes.txt
+                  # Documentation
+                  DOC_COMMITS=$(echo "$COMMITS" | grep -iE "\[(docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
+                  if [ -n "$DOC_COMMITS" ]; then
+                    echo "### 📚 Documentation" >> release_notes.txt
+                    echo "$DOC_COMMITS" >> release_notes.txt
+                    echo "" >> release_notes.txt
+                  fi
 
-                  echo "### 🔄 Other Changes" >> release_notes.txt
-                  echo "$COMMITS" | grep -vE "^[a-f0-9]+ (feat|feature|Feature|FEATURE|fix|Fix|FIX|chore|Chore|CHORE|docs|Docs|DOCS|refactor|style|perf)" | sed 's/^/- /' >> release_notes.txt || echo "- No other changes" >> release_notes.txt
+                  # Other Changes
+                  OTHER_COMMITS=$(echo "$COMMITS" | grep -viE "\[(feat|feature|fix|bugfix|hotfix|refactor|chore|style|perf|update|improve|docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
+                  if [ -n "$OTHER_COMMITS" ]; then
+                    echo "### 🔄 Other Changes" >> release_notes.txt
+                    echo "$OTHER_COMMITS" >> release_notes.txt
+                    echo "" >> release_notes.txt
+                  fi
                   echo "" >> release_notes.txt
 
                   echo "---" >> release_notes.txt
                   echo "**Technical Details:**" >> release_notes.txt
+                  echo "- Relased on: \`$(date +'%Y-%m-%d %H:%M:%S UTC')\`" >> release_notes.txt
+                  echo "- Relased by: \`${{ github.actor }}\`" >> release_notes.txt
                   echo "- Build SHA: \`${{ github.sha }}\`" >> release_notes.txt
                   echo "- Workflow: [\`${{ github.workflow }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> release_notes.txt
 
