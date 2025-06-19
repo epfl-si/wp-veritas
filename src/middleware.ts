@@ -6,7 +6,7 @@ import { getPermissions } from '@/services/policy';
 const ROUTE_PERMISSIONS: Record<string, string> = {
 	'/': PERMISSIONS.SITES.LIST,
 	'/new': PERMISSIONS.SITES.CREATE,
-	'/info': PERMISSIONS.SITES.READ,
+	'/search': PERMISSIONS.SITES.SEARCH,
 	'/tags': PERMISSIONS.TAGS.LIST,
 	'/tags/add': PERMISSIONS.TAGS.CREATE,
 	'/themes': PERMISSIONS.THEME.LIST,

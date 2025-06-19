@@ -7,6 +7,7 @@ export const PERMISSIONS = {
 		LIST: 'sites:list',
 		INFO: 'sites:info',
 		DETAIL: 'sites:detail',
+		SEARCH: 'sites:search',
 	},
 	TAGS: {
 		READ: 'tags:read',

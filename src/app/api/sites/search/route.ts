@@ -8,7 +8,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
 		const session = await auth();
 		if (!session?.user) return NextResponse.json({ status: 401, message: 'Unauthorized' }, { status: 401 });
-		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) return NextResponse.json({ status: 403, message: 'Forbidden' }, { status: 403 });
+		if (!(await hasPermission(PERMISSIONS.SITES.SEARCH))) return NextResponse.json({ status: 403, message: 'Forbidden' }, { status: 403 });
 
 		const { searchParams } = new URL(request.url);
 		const url = searchParams.get('url');

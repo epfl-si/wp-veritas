@@ -552,13 +552,37 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 
 export async function searchSites(url: string): Promise<{ sites?: SearchSiteType[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
+		if (!(await hasPermission(PERMISSIONS.SITES.SEARCH))) {
 			return { error: { status: 403, message: 'Forbidden', success: false } };
 		}
 
-		const { sites, error: listError } = await listSites();
-		if (listError || !sites?.length) {
-			return { error: listError || { status: 404, message: 'No sites found', success: false } };
+		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
+
+		const kubernetesSites = kubernetesResult.sites || [];
+		const databaseSites = databaseResult.sites || [];
+
+		const siteMap = new Map<string, SiteType>();
+
+		databaseSites.forEach((site) => {
+			if (isDatabaseSite(site)) {
+				siteMap.set(site.id, site);
+			}
+		});
+
+		kubernetesSites.forEach((kubernetesSite) => {
+			console.log(`Processing Kubernetes site: ${kubernetesSite.id} - ${kubernetesSite.url}`);
+			console.log(kubernetesSite);
+			if (isKubernetesSite(kubernetesSite)) {
+				const dbSite = siteMap.get(kubernetesSite.id);
+				const mergedSite = dbSite && isDatabaseSite(dbSite) ? mergeSiteWithExtras(kubernetesSite, dbSite) : kubernetesSite;
+				siteMap.set(kubernetesSite.id, mergedSite);
+			}
+		});
+
+		const sites = Array.from(siteMap.values());
+
+		if (!sites?.length) {
+			return { error: { status: 404, message: 'No sites found', success: false } };
 		}
 
 		const filteredSites = sites
