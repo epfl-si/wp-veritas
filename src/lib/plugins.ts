@@ -1,17 +1,7 @@
+import { KubernetesSite } from '@/types/site';
 import { OPTIONAL_CATEGORIES, WP_CATEGORIES } from '@/constants/categories';
-import { SiteType } from '@/types/site';
 
-export function getKubernetesPluginStruct(site: SiteType) {
-	const plugins = WP_CATEGORIES.DEFAULT.getPlugins(site);
-	for (const cat of OPTIONAL_CATEGORIES) {
-		if (site.categories.find((c) => c === cat.NAME)) {
-			Object.assign(plugins, cat.getPlugins(site));
-		}
-	}
-	return plugins;
-}
-
-export function getCategoriesFromPlugins(plugins) {
+export function getCategoriesFromPlugins(plugins: Record<string, object>): string[] {
 	const categories = [];
 
 	for (const category of OPTIONAL_CATEGORIES) {
@@ -25,4 +15,17 @@ export function getCategoriesFromPlugins(plugins) {
 	}
 
 	return categories;
+}
+export function getKubernetesPluginStruct(site: KubernetesSite): Record<string, object> {
+	let plugins = WP_CATEGORIES.DEFAULT.getPlugins(site);
+
+	site.categories.forEach((category) => {
+		const categoryConfig = Object.values(WP_CATEGORIES).find((cat) => cat.NAME === category);
+		if (categoryConfig) {
+			const categoryPlugins = categoryConfig.getPlugins(site);
+			plugins = { ...plugins, ...categoryPlugins };
+		}
+	});
+
+	return plugins;
 }
