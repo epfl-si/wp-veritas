@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { SiteType } from '@/types/site';
-import { FileText, GlobeIcon, Info, Pencil, Plus, Tags } from 'lucide-react';
+import { isKubernetesSite, SiteType } from '@/types/site';
+import { GlobeIcon, Info, Pencil, Plus, Tags } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
@@ -43,7 +43,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 	const filteredSites = sites.filter((site) => {
 		const matchesUrl = site.url.toLowerCase().includes(search.url.toLowerCase());
 		const matchesType = search.infrastructure === '' || site.infrastructure === search.infrastructure;
-		const matchesTheme = search.theme === '' || site.theme === search.theme;
+		const matchesTheme = search.theme === '' || (isKubernetesSite(site) && site.theme === search.theme);
 		return matchesUrl && matchesType && matchesTheme;
 	});
 
