@@ -120,7 +120,6 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				placeholder: t('form.unitId.placeholder'),
 				section: 'details',
 				width: 'half',
-				disabled: true,
 			},
 			{
 				name: 'languages',
