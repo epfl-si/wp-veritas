@@ -165,32 +165,41 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 		downloadsProtectionScript: z.boolean().optional().default(false),
 	};
 
-	const schemas: z.ZodDiscriminatedUnionOption<'infrastructure'>[] = [];
+	const kubernetesSchemas = creatableInfras
+		.filter((infra) => infra.PERSISTENCE === 'kubernetes')
+		.map((infra) =>
+			z.object({
+				...baseFields,
+				...kubernetesFields,
+				infrastructure: z.literal(infra.NAME as KubernetesInfrastructureName),
+			})
+		);
 
-	creatableInfras.forEach((infra) => {
-		if (infra.PERSISTENCE === 'kubernetes') {
-			schemas.push(
-				z.object({
-					...baseFields,
-					...kubernetesFields,
-					infrastructure: z.literal(infra.NAME),
-				})
-			);
-		} else if (infra.PERSISTENCE === 'database') {
-			schemas.push(
-				z.object({
-					...baseFields,
-					infrastructure: z.literal(infra.NAME),
-				})
-			);
-		}
-	});
+	const databaseSchemas = creatableInfras
+		.filter((infra) => infra.PERSISTENCE === 'database')
+		.map((infra) =>
+			z.object({
+				...baseFields,
+				infrastructure: z.literal(infra.NAME as DatabaseInfrastructureName),
+			})
+		);
 
-	if (schemas.length === 0) {
+	const noneSchemas = creatableInfras
+		.filter((infra) => infra.PERSISTENCE === 'none')
+		.map((infra) =>
+			z.object({
+				...baseFields,
+				infrastructure: z.literal(infra.NAME as NoneInfrastructureName),
+			})
+		);
+
+	const allSchemas = [...kubernetesSchemas, ...databaseSchemas, ...noneSchemas];
+
+	if (allSchemas.length === 0) {
 		throw new Error('No creatable infrastructures found');
 	}
 
-	return z.discriminatedUnion('infrastructure', schemas as [z.ZodDiscriminatedUnionOption<'infrastructure'>, ...z.ZodDiscriminatedUnionOption<'infrastructure'>[]]);
+	return z.discriminatedUnion('infrastructure', allSchemas as unknown as [z.ZodDiscriminatedUnionOption<'infrastructure'>, ...z.ZodDiscriminatedUnionOption<'infrastructure'>[]]) as unknown as z.ZodType<SiteFormType>;
 };
 
 export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
