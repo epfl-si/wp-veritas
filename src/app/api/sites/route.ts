@@ -11,7 +11,7 @@ export async function GET(): Promise<NextResponse> {
 		if (!session?.user) return NextResponse.json({ status: 401, message: 'Unauthorized' }, { status: 401 });
 		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) return NextResponse.json({ status: 403, message: 'Forbidden' }, { status: 403 });
 
-		const sites = await listSites();
+		const { sites } = await listSites();
 		if (!sites) return NextResponse.json({ status: 404, message: 'No sites found' }, { status: 404 });
 		return NextResponse.json({ status: 200, message: 'Sites retrieved successfully', items: sites }, { status: 200 });
 	} catch (error) {
