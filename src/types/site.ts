@@ -33,6 +33,8 @@ export interface KubernetesSiteType {
 		wordpresssite?: {
 			lastCronJobRuntime?: string;
 			plugins?: Record<string, object>;
+			tagline?: string;
+			title?: string;
 		};
 	};
 }
