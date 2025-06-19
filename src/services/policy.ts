@@ -4,7 +4,7 @@ import { getUserGroups } from './auth';
 export const GROUP_PERMISSIONS: Record<string, string[]> = {
 	'wp-veritas-admins_AppGrpU': Object.values(PERMISSIONS).flatMap((category) => Object.values(category)),
 	'wp-veritas-editor_AppGrpU': [PERMISSIONS.SITES.READ, PERMISSIONS.TAGS.ASSOCIATE, PERMISSIONS.TAGS.DISSOCIATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.CREATE, PERMISSIONS.TAGS.DELETE, PERMISSIONS.TAGS.UPDATE],
-	public: [PERMISSIONS.SITES.READ, PERMISSIONS.SITES.LIST, PERMISSIONS.TAGS.READ, PERMISSIONS.TAGS.LIST],
+	public: [PERMISSIONS.SITES.SEARCH],
 };
 
 export async function hasPermission(permission: string): Promise<boolean> {
