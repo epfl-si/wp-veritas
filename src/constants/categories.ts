@@ -1,11 +1,11 @@
-import { SiteType } from '@/types/site';
+import { KubernetesSite } from '@/types/site';
 import { LANGUAGES } from './languages';
 
 export const WP_CATEGORIES = {
 	DEFAULT: {
 		NAME: 'Default',
 		LABEL: 'Default',
-		getPlugins: (site: SiteType) => ({
+		getPlugins: (site: KubernetesSite) => ({
 			'epfl-404': {},
 			enlighter: {
 				wp_options: [
