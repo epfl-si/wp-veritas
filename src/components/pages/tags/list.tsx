@@ -86,7 +86,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 			render: (tag) => (
 				<div className="flex gap-1.5 items-center py-1">
 					{permissions.includes(PERMISSIONS.TAGS.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-500 text-blue-500 hover:text-white hover:bg-blue-500" asChild>
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
 							<Link href={`/tags/${tag.id}/edit`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
 							</Link>
