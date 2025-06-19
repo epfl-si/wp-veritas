@@ -1,12 +1,12 @@
 {
   "name": "wp-vertitas",
-  "version": "5.8.7",
+  "version": "5.8.8",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "npx eslint src"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
