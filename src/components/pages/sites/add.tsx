@@ -6,7 +6,7 @@ import { SiteFormType, siteSchema } from "@/types/site";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { THEMES } from "@/constants/theme";
-import { LANGUAGES } from "@/constants/languages";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 
 export const SiteAdd: React.FC = () => {
@@ -121,6 +121,7 @@ export const SiteAdd: React.FC = () => {
 				options: Object.values(LANGUAGES).map((lang) => ({
 					value: lang.locale,
 					label: lang.name,
+					default: DEFAULT_LANGUAGE.map((lang) => lang.locale).includes(lang.locale),
 				})),
 				conditions: [
 					{
