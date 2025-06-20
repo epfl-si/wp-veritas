@@ -7,3 +7,5 @@ export const LANGUAGES = {
 	EL: { name: "Ελληνικά", locale: "el", rtl: 0, term_group: 5, flag: "gr" },
 	RO: { name: "Română", locale: "ro_RO", rtl: 0, term_group: 6, flag: "ro" },
 };
+
+export const DEFAULT_LANGUAGE = [LANGUAGES.EN, LANGUAGES.FR, LANGUAGES.DE, LANGUAGES.IT];
