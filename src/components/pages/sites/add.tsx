@@ -120,7 +120,7 @@ export const SiteAdd: React.FC = () => {
 				width: "half",
 				options: Object.values(LANGUAGES).map((lang) => ({
 					value: lang.locale,
-					label: lang.name,
+					label: lang.common,
 					default: DEFAULT_LANGUAGE.map((lang) => lang.locale).includes(lang.locale),
 				})),
 				conditions: [
