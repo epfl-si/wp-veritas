@@ -127,9 +127,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				label: t("form.languages.label"),
 				section: "details",
 				width: "half",
-				disabled: true,
 				options: Object.values(LANGUAGES).map((lang) => ({
-					value: lang.flag,
+					value: lang.locale,
 					label: lang.name,
 				})),
 				conditions: [

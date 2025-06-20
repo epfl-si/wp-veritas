@@ -164,7 +164,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 export async function updateSite(siteId: string, site: SiteFormType): Promise<{ error?: APIError }> {
 	try {
-		const UPDATABLE_FIELDS = ["categories", "unitId", "ticket", "comment"];
+		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", "ticket", "comment"];
 
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
 			await warn("Permission denied to update the site", {

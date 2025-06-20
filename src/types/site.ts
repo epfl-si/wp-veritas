@@ -2,6 +2,12 @@ import { z } from "zod";
 import { getZodErrorMessages, useZodErrorMessages } from "@/hooks/zod";
 import type { KubernetesInfrastructureName, DatabaseInfrastructureName, NoneInfrastructureName, InfrastructureName } from "@/types/infrastructure";
 import { INFRASTRUCTURES, getCreatableInfrastructures } from "@/constants/infrastructures";
+import { PolylangPlugin } from "./languages";
+
+export interface WordPressPlugins {
+  polylang?: PolylangPlugin;
+  [key: string]: unknown;
+}
 
 export interface KubernetesSiteType {
 	metadata: {
@@ -22,8 +28,7 @@ export interface KubernetesSiteType {
 		wordpress: {
 			debug: boolean;
 			downloadsProtectionScript?: string;
-			languages: string[];
-			plugins: Record<string, object>;
+			plugins: WordPressPlugins;
 			tagline: string;
 			theme: string;
 			title: string;

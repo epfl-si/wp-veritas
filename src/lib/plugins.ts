@@ -1,7 +1,7 @@
-import { KubernetesSite } from "@/types/site";
+import { KubernetesSite, WordPressPlugins } from "@/types/site";
 import { OPTIONAL_CATEGORIES, WP_CATEGORIES } from "@/constants/categories";
 
-export function getCategoriesFromPlugins(plugins: Record<string, object>): string[] {
+export function getCategoriesFromPlugins(plugins: WordPressPlugins): string[] {
 	const categories = [];
 
 	for (const category of OPTIONAL_CATEGORIES) {
@@ -16,6 +16,7 @@ export function getCategoriesFromPlugins(plugins: Record<string, object>): strin
 
 	return categories;
 }
+
 export function getKubernetesPluginStruct(site: KubernetesSite): Record<string, object> {
 	let plugins = WP_CATEGORIES.DEFAULT.getPlugins(site);
 
