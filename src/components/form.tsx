@@ -155,37 +155,163 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 	};
 
 	const isValueUnset = (value: unknown, fieldType: FieldType): boolean => {
-		if (fieldType === "checkbox") {
-			return value === undefined;
+		switch (fieldType) {
+			case "checkbox":
+				return value === undefined;
+			
+			case "multi-checkbox":
+			case "multiselect":
+				return value === undefined || value === null;
+			
+			case "number":
+				return value === undefined || value === null || value === "";
+			
+			default:
+				return value === undefined || value === null || value === "";
 		}
-		if (fieldType === "multi-checkbox" || fieldType === "multiselect") {
-			return value === undefined || (Array.isArray(value) && value.length === 0);
+	};
+
+	const getSchemaDefaultValue = (fieldName: string): unknown => {
+		const defaultValues = config.defaultValues as Record<string, unknown>;
+		return defaultValues?.[fieldName];
+	};
+
+	const resetConditionalValue = (field: FieldConfig, currentValue: unknown, conditionalDefault: unknown, schemaDefault: unknown) => {
+		if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(currentValue) && Array.isArray(conditionalDefault)) {
+			const filteredValue = currentValue.filter(item => !conditionalDefault.includes(item));
+			form.setValue(field.name as Path<T>, filteredValue as never);
+			return;
+		}
+		
+		if (schemaDefault !== undefined) {
+			form.setValue(field.name as Path<T>, schemaDefault as never);
+		} else {
+			switch (field.type) {
+				case "checkbox":
+					form.setValue(field.name as Path<T>, false as never);
+					break;
+				case "multi-checkbox":
+				case "multiselect":
+					form.setValue(field.name as Path<T>, [] as never);
+					break;
+				case "number":
+					form.setValue(field.name as Path<T>, undefined as never);
+					break;
+				default:
+					form.setValue(field.name as Path<T>, "" as never);
+					break;
+			}
+		}
+	};
+
+	const shouldApplyDefault = (field: FieldConfig, currentValue: unknown, defaultValue: unknown, isConditional: boolean = false): boolean => {
+		if (defaultValue === undefined) {
+			return false;
 		}
 
-		return value === undefined || value === "";
+		if (isConditional) {
+			if (field.type === "checkbox" && typeof defaultValue === "boolean") {
+				return currentValue !== defaultValue;
+			}
+			
+			if ((field.type === "multi-checkbox" || field.type === "multiselect") && Array.isArray(defaultValue)) {
+				if (!Array.isArray(currentValue)) {
+					return true;
+				}
+				return !defaultValue.every(item => currentValue.includes(item));
+			}
+			
+			return currentValue !== defaultValue;
+		}
+
+		if (!isValueUnset(currentValue, field.type)) {
+			return false;
+		}
+
+		if (field.type === "checkbox" && typeof defaultValue === "boolean") {
+			return true;
+		}
+
+		if ((field.type === "multi-checkbox" || field.type === "multiselect") && Array.isArray(defaultValue)) {
+			return true;
+		}
+
+		return defaultValue !== "" && defaultValue !== null;
 	};
 
 	useEffect(() => {
 		config.fields.forEach((field) => {
+			const currentValue = form.getValues(field.name as Path<T>);
 			const conditionalDefault = getConditionalDefault(field);
+			const schemaDefault = getSchemaDefaultValue(field.name);
+			
+			const conditionalKey = conditionalDefault !== undefined ? `${field.name}-conditional-${JSON.stringify(conditionalDefault)}` : null;
+			const schemaKey = `${field.name}-schema-${JSON.stringify(schemaDefault)}`;
+			
+			const hadConditionalDefault = Array.from(appliedDefaults.current).some(key => key.startsWith(`${field.name}-conditional-`));
+			
 			if (conditionalDefault !== undefined) {
-				const currentValue = form.getValues(field.name as Path<T>);
-				const fieldKey = `${field.name}-${JSON.stringify(conditionalDefault)}`;
-
-				if (isValueUnset(currentValue, field.type) && !appliedDefaults.current.has(fieldKey)) {
-					form.setValue(field.name as Path<T>, conditionalDefault as never);
-					appliedDefaults.current.add(fieldKey);
+				if (conditionalKey && shouldApplyDefault(field, currentValue, conditionalDefault, true) && !appliedDefaults.current.has(conditionalKey)) {
+					if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(conditionalDefault) && Array.isArray(currentValue)) {
+						const newValue = [...new Set([...currentValue, ...conditionalDefault])];
+						form.setValue(field.name as Path<T>, newValue as never);
+					} else {
+						form.setValue(field.name as Path<T>, conditionalDefault as never);
+					}
+					
+					appliedDefaults.current.add(conditionalKey);
+					
+					Array.from(appliedDefaults.current).forEach(key => {
+						if (key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey) {
+							appliedDefaults.current.delete(key);
+						}
+					});
+				}
+			} else if (hadConditionalDefault) {
+				const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key => key.startsWith(`${field.name}-conditional-`));
+				
+				const previousConditionalKey = previousConditionalKeys[0];
+				let previousConditionalValue: unknown;
+				if (previousConditionalKey) {
+					const keyValue = previousConditionalKey.replace(`${field.name}-conditional-`, "");
+					try {
+						previousConditionalValue = JSON.parse(keyValue);
+					} catch {
+						previousConditionalValue = undefined;
+					}
+				}
+				
+				previousConditionalKeys.forEach(key => appliedDefaults.current.delete(key));
+				
+				resetConditionalValue(field, currentValue, previousConditionalValue, schemaDefault);
+				
+				if (schemaDefault !== undefined) {
+					appliedDefaults.current.add(schemaKey);
+				}
+			} else {
+				if (schemaDefault !== undefined && shouldApplyDefault(field, currentValue, schemaDefault, false) && !appliedDefaults.current.has(schemaKey)) {
+					form.setValue(field.name as Path<T>, schemaDefault as never);
+					appliedDefaults.current.add(schemaKey);
 				}
 			}
 		});
-	}, [watchedValues, config.fields, form]);
+	}, [watchedValues, config.fields, form, config.defaultValues]);
 
 	useEffect(() => {
 		const subscription = form.watch(() => {
 			const currentValues = form.getValues();
 			const isFormReset = Object.keys(currentValues).every((key) => {
 				const value = currentValues[key as keyof typeof currentValues];
-				return isValueUnset(value, config.fields.find((f) => f.name === key)?.type || "text");
+				const field = config.fields.find((f) => f.name === key);
+				if (!field) return true;
+				
+				if (field.type === "checkbox") {
+					return value === undefined;
+				}
+				if (field.type === "multi-checkbox" || field.type === "multiselect") {
+					return value === undefined || value === null;
+				}
+				return value === undefined || value === null || value === "";
 			});
 
 			if (isFormReset) {
