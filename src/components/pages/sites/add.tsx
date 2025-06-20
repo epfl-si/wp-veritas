@@ -243,7 +243,7 @@ export const SiteAdd: React.FC = () => {
 				url: "",
 				title: "",
 				tagline: "",
-				theme: "",
+				theme: "wp-theme-2018",
 				unitId: 0,
 				languages: [],
 				categories: [],
