@@ -245,8 +245,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				languages: (isKubernetesSite(site) && site.languages) || [],
 				categories: (isKubernetesSite(site) && site.categories) || [],
 				downloadsProtectionScript: (isKubernetesSite(site) && site.downloadsProtectionScript) || false,
-				ticket: site.ticket || undefined,
-				comment: site.comment || undefined,
+				ticket: site.ticket || "",
+				comment: site.comment || "",
 			},
 			apiEndpoint: `/api/sites/${site.id}`,
 			method: "PUT",
@@ -271,6 +271,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 					<h1 className="text-3xl font-bold">{t("update.title")}</h1>
 				</div>
 			</div>
+			{JSON.stringify(site)}
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Form config={getFormConfig()} />
 			</div>
