@@ -3,6 +3,7 @@ import * as k8s from "@kubernetes/client-node";
 import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
 import { ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
+import { extractLanguages } from "./languages";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -91,8 +92,8 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		title: item.status?.wordpresssite?.title || item.spec.wordpress.title || "",
 		theme: item.spec.wordpress.theme || "",
 		unitId: item.spec.owner?.epfl?.unitId || 0,
-		languages: item.spec.wordpress.languages || [],
 		createdAt: new Date(item.metadata.creationTimestamp),
+		languages: extractLanguages(item.spec.wordpress.plugins),
 		categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		downloadsProtectionScript: Boolean(item.spec.wordpress.downloadsProtectionScript),
 		tags: [],
@@ -259,18 +260,12 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		}
 
 		const languagesChanged = JSON.stringify(kubernetesSiteData.languages?.sort()) !== JSON.stringify(existingSite.languages?.sort());
-		if (languagesChanged) {
-			patchOperations.push({
-				op: "replace",
-				path: "/spec/wordpress/languages",
-				value: kubernetesSiteData.languages || [],
-			});
-		}
 
 		const categoriesChanged = JSON.stringify(kubernetesSiteData.categories?.sort()) !== JSON.stringify(existingSite.categories?.sort());
-		if (categoriesChanged) {
+		if (categoriesChanged || languagesChanged) {
 			const tempSite: KubernetesSite = {
 				...existingSite,
+				languages: kubernetesSiteData.languages || [],
 				categories: kubernetesSiteData.categories || [],
 			};
 			const plugins = getKubernetesPluginStruct(tempSite);
