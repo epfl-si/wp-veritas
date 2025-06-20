@@ -152,7 +152,7 @@
         "placeholder": "Enter website title..."
       },
       "tagline": {
-        "label": "Tagline",
+        "label": "Tagline (Name)",
         "placeholder": "Enter website tagline..."
       },
       "theme": {

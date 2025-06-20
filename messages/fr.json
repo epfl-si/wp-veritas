@@ -152,7 +152,7 @@
         "placeholder": "Entrer le titre du site..."
       },
       "tagline": {
-        "label": "Slogan",
+        "label": "Tagline (Nom)",
         "placeholder": "Entrer le slogan du site..."
       },
       "theme": {
