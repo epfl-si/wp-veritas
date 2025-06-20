@@ -194,6 +194,7 @@ export const WP_CATEGORIES = {
 							rtl: lang?.rtl ? 1 : 0,
 							term_group: lang?.term_group || 0,
 							flag: lang?.flag || "unknown",
+							slug: lang?.slug || l,
 						};
 					}),
 				},
