@@ -415,5 +415,8 @@
     "home": "Retour à l'accueil",
     "back": "Page précédente",
     "contact": "Si vous pensez qu'il s'agit d'une erreur, contactez l'équipe"
+  },
+  "form": {
+    "showMore": "Afficher plus"
   }
 }
