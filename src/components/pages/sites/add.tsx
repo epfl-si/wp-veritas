@@ -148,6 +148,13 @@ export const SiteAdd: React.FC = () => {
 						value: "Kubernetes",
 						type: "display",
 					},
+					{
+						field: "url",
+						operator: "regex",
+						value: "^https?://www[.]epfl[.]ch(/.*)?$",
+						type: "default",
+						defaultValue: ["epfl-menus"],
+					},
 				],
 			},
 			{
