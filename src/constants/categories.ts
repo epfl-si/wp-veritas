@@ -186,7 +186,16 @@ export const WP_CATEGORIES = {
 					},
 				],
 				polylang: {
-					languages: (site.languages ?? []).map((l) => ({ slug: l, ...Object.values(LANGUAGES).find((lang) => lang.locale === l) })),
+					languages: (site.languages ?? []).map((l) => {
+						const lang = Object.values(LANGUAGES).find((lang) => lang.locale === l);
+						return {
+							name: lang?.name,
+							locale: lang?.locale,
+							rtl: lang?.rtl ? 1 : 0,
+							term_group: lang?.term_group || 0,
+							flag: lang?.flag || "unknown",
+						};
+					}),
 				},
 			},
 			redirection: {
