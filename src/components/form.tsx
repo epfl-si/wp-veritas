@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes";
 
@@ -23,6 +24,7 @@ export interface SelectOption {
 	label: string;
 	color?: string;
 	icon?: React.ComponentType<{ className?: string }> | string;
+	default?: boolean;
 }
 
 export interface FieldCondition {
@@ -89,6 +91,8 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
+
+	const t = useTranslations("form");
 
 	const form = useForm<T>({
 		resolver: zodResolver(config.schema as never),
@@ -354,13 +358,24 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		);
 	};
 
-	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string }) => {
+	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string;}) => {
 		const [isOpen, setIsOpen] = useState(false);
+		const [showAll, setShowAll] = useState(false);
+
+		const defaultOptions = options.filter(option => option.default === true);
+		const nonDefaultOptions = options.filter(option => option.default !== true);
+		const hasDefaultOptions = defaultOptions.length > 0;
+
+		const visibleOptions = showAll || !hasDefaultOptions 
+			? options 
+			: defaultOptions;
 
 		const handleOptionToggle = (optionValue: string | number, e?: React.MouseEvent) => {
 			e?.stopPropagation();
 			if (disabled) return;
-			const newValue = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
+			const newValue = value.includes(optionValue) 
+				? value.filter((v) => v !== optionValue) 
+				: [...value, optionValue];
 			onChange(newValue);
 		};
 
@@ -371,13 +386,25 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			onChange(newValue);
 		};
 
+		const handleShowMore = (e: React.MouseEvent) => {
+			e.stopPropagation();
+			setShowAll(true);
+		};
+
 		const selectedOptions = options.filter((option) => value.includes(option.value));
 
 		return (
 			<div className="w-full">
 				<Popover open={isOpen} onOpenChange={setIsOpen}>
 					<PopoverTrigger asChild>
-						<Button variant="outline" className={cn("w-full h-auto min-h-10 py-0 justify-between text-left font-normal", disabled && "cursor-not-allowed opacity-50")} disabled={disabled}>
+						<Button 
+							variant="outline" 
+							className={cn(
+								"w-full h-auto min-h-10 py-0 justify-between text-left font-normal", 
+								disabled && "cursor-not-allowed opacity-50",
+							)} 
+							disabled={disabled}
+						>
 							<div className="flex-1 min-w-0">
 								{selectedOptions.length === 0 ? (
 									<span className="text-muted-foreground">{placeholder}</span>
@@ -392,20 +419,30 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 													style={{
 														borderColor: option.color || "#e5e7eb",
 														backgroundColor: option.color ? `${option.color}15` : "#f3f4f6",
-													}}>
+													}}
+												>
 													{IconComponent && (
 														<div
 															className="size-3 flex items-center justify-center rounded-sm"
 															style={{
 																backgroundColor: option.color ? `${option.color}30` : "#e5e7eb",
 																color: option.color || "#6b7280",
-															}}>
-															{typeof IconComponent === "string" ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
+															}}
+														>
+															{typeof IconComponent === "string" ? (
+																<span className="text-xs">{IconComponent}</span>
+															) : (
+																<IconComponent className="w-2 h-2" />
+															)}
 														</div>
 													)}
 													<span className="font-medium truncate max-w-20">{option.label}</span>
 													{!disabled && (
-														<button type="button" onClick={(e) => handleRemoveItem(option.value, e)} className="cursor-pointer p-0.5 transition-colors ml-0.5">
+														<button 
+															type="button" 
+															onClick={(e) => handleRemoveItem(option.value, e)} 
+															className="cursor-pointer p-0.5 transition-colors ml-0.5"
+														>
 															<X className="w-2 h-2" />
 														</button>
 													)}
@@ -418,13 +455,25 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
 						</Button>
 					</PopoverTrigger>
-					<PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }} align="start">
+					<PopoverContent 
+						className="p-0" 
+						style={{ width: "var(--radix-popover-trigger-width)" }} 
+						align="start"
+					>
 						<div className="max-h-64 overflow-y-auto">
-							{options.map((option) => {
+							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div key={option.value} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onClick={(e) => handleOptionToggle(option.value, e)}>
-										<Checkbox id={`option-${option.value}`} checked={value.includes(option.value)} onCheckedChange={() => handleOptionToggle(option.value)} />
+									<div 
+										key={option.value} 
+										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" 
+										onClick={(e) => handleOptionToggle(option.value, e)}
+									>
+										<Checkbox 
+											id={`option-${option.value}`} 
+											checked={value.includes(option.value)} 
+											onCheckedChange={() => handleOptionToggle(option.value)} 
+										/>
 										<div className="flex items-center space-x-2 flex-1">
 											{IconComponent && (
 												<div
@@ -432,18 +481,44 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 													style={{
 														backgroundColor: option.color ? `${option.color}20` : "#f3f4f6",
 														color: option.color || "#6b7280",
-													}}>
-													{typeof IconComponent === "string" ? <span className="text-sm">{IconComponent}</span> : <IconComponent className="w-4 h-4" />}
+													}}
+												>
+													{typeof IconComponent === "string" ? (
+														<span className="text-sm">{IconComponent}</span>
+													) : (
+														<IconComponent className="w-4 h-4" />
+													)}
 												</div>
 											)}
-											<label htmlFor={`option-${option.value}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
+											<label 
+												htmlFor={`option-${option.value}`} 
+												className="text-sm font-medium leading-none cursor-pointer flex-1"
+											>
 												{option.label}
 											</label>
 										</div>
 									</div>
 								);
 							})}
-							{options.length === 0 && <div className="p-4 text-sm text-gray-500 text-center">No options available</div>}
+						
+							{!showAll && hasDefaultOptions && nonDefaultOptions.length > 0 && (
+								<div className="border-t border-gray-100">
+									<button
+										type="button"
+										onClick={handleShowMore}
+										className="w-full p-3 text-sm text-blue-600 hover:bg-blue-50 cursor-pointer transition-colors flex items-center justify-center gap-2"
+									>
+										<span>{t("showMore")}</span>
+										<ChevronDown className="w-4 h-4" />
+									</button>
+								</div>
+							)}
+						
+							{visibleOptions.length === 0 && (
+								<div className="p-4 text-sm text-gray-500 text-center">
+								No options available
+								</div>
+							)}
 						</div>
 					</PopoverContent>
 				</Popover>
