@@ -106,12 +106,6 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</Button>
 					)}
 
-					{/* {permissions.includes(PERMISSIONS.SITES.INFO) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200">
-							<FileText strokeWidth={2.3} className="size-5" />
-						</Button>
-					)} */}
-
 					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
 							<Link href={`/sites/${site.id}/edit`}>
