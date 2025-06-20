@@ -119,7 +119,7 @@ export const SiteAdd: React.FC = () => {
 				section: "details",
 				width: "half",
 				options: Object.values(LANGUAGES).map((lang) => ({
-					value: lang.flag,
+					value: lang.locale,
 					label: lang.name,
 				})),
 				conditions: [
@@ -255,8 +255,8 @@ export const SiteAdd: React.FC = () => {
 				languages: [],
 				categories: [],
 				downloadsProtectionScript: false,
-				ticket: undefined,
-				comment: undefined,
+				ticket: "",
+				comment: "",
 			},
 			apiEndpoint: "/api/sites",
 			method: "POST",
