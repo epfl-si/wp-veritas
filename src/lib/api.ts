@@ -68,7 +68,7 @@ export async function getEditors(unitId: string): Promise<{ userId: string; name
 		const names = await getNames(personIds);
 		const nameMap = new Map(names.map((n) => [n.userId, n.name]));
 
-		return data.authorizations.map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || "Unknown" }));
+		return data.authorizations.filter((authorization) => authorization.attribution !== "inherited") .map((a: { persid: number; attribution?: string }) => ({ userId: a.persid.toString(), name: nameMap.get(a.persid.toString()) || "Unknown" }));
 	} catch (error) {
 		console.error("Error fetching editors:", error);
 		return [];
