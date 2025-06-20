@@ -6,7 +6,7 @@ import { isKubernetesSite, SiteFormType, siteSchema, SiteType } from "@/types/si
 import { useZodErrorMessages } from "@/hooks/zod";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { THEMES } from "@/constants/theme";
-import { LANGUAGES } from "@/constants/languages";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 
 interface SiteUpdateProps {
@@ -130,6 +130,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				options: Object.values(LANGUAGES).map((lang) => ({
 					value: lang.locale,
 					label: lang.name,
+					default: DEFAULT_LANGUAGE.map((lang) => lang.locale).includes(lang.locale),
 				})),
 				conditions: [
 					{
@@ -271,7 +272,6 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 					<h1 className="text-3xl font-bold">{t("update.title")}</h1>
 				</div>
 			</div>
-			{JSON.stringify(site)}
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Form config={getFormConfig()} />
 			</div>
