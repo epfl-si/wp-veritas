@@ -131,10 +131,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("title")}</h1>
-					<div className="text-sm text-muted-foreground">
-						{t("siteUrl")}: <span className="font-medium">{site.url}</span>
-					</div>
+					<h1 className="text-3xl font-bold">{t("title")}<a href={site.url} className="ml-1 text-blue-500 hover:underline">{site.url}</a></h1>
 				</div>
 			</div>
 
