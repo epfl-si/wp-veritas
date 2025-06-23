@@ -1,11 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SiteType } from "@/types/site";
 import { TagType } from "@/types/tag";
-import { CircleAlert, CircleCheck, Loader2, X } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TAG_CATEGORIES } from "@/constants/tags";
 
@@ -23,6 +23,7 @@ interface ApiResponse {
 export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) => {
 	const t = useTranslations("site.tags");
 	const locale = useLocale();
+	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [originalTags, setOriginalTags] = useState<string[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,6 +69,12 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 		return response.json();
 	};
 
+	const scrollToTop = () => {
+		if (containerRef.current) {
+			containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+		}
+	};
+
 	const onSubmit = async () => {
 		setHasSubmitted(true);
 		setIsSubmitting(true);
@@ -99,6 +106,8 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 			setSubmissionResult(successResult);
 			setOriginalTags(selectedTags);
 			setHasSubmitted(false);
+			
+			scrollToTop();
 		} catch (error) {
 			const elapsedTime = Date.now() - startTime;
 			const remainingTime = Math.max(0, 2000 - elapsedTime);
@@ -110,9 +119,21 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 			};
 
 			setSubmissionResult(errorResult);
+			
+			scrollToTop();
 		} finally {
 			setIsSubmitting(false);
 		}
+	};
+
+	const getTagStatus = (tagId: string) => {
+		const isSelected = selectedTags.includes(tagId);
+		const wasOriginal = originalTags.includes(tagId);
+		
+		if (isSelected && wasOriginal) return "existing";
+		if (isSelected && !wasOriginal) return "new";
+		if (!isSelected && wasOriginal) return "removed";
+		return "unselected";
 	};
 
 	const tagsByType = tags.reduce((acc, tag) => {
@@ -135,7 +156,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 				</div>
 			</div>
 
-			<div className="px-6 pb-6 h-full overflow-y-auto">
+			<div ref={containerRef} className="px-6 pb-6 h-full overflow-y-auto">
 				{submissionResult?.success && (
 					<div className="mb-6 border border-green-200 bg-green-50 p-4 rounded-lg">
 						<div className="flex gap-2 items-center">
@@ -188,14 +209,52 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
 										{typeTags.map((tag) => {
+											const tagStatus = getTagStatus(tag.id);
 											const isSelected = selectedTags.includes(tag.id);
 											const displayName = locale === "fr" ? tag.nameFr || tag.nameEn : tag.nameEn || tag.nameFr;
+
+											let borderClass = "";
+											let bgClass = "";
+											let iconElement = null;
+
+											switch (tagStatus) {
+												case "existing":
+													borderClass = "border-primary";
+													bgClass = "bg-primary/5";
+													break;
+												case "new":
+													borderClass = "border-red-400";
+													bgClass = "bg-red-50";
+													iconElement = <Plus className="h-3 w-3 text-red-600" />;
+													break;
+												case "removed":
+													borderClass = "border-red-300";
+													bgClass = "bg-red-50";
+													break;
+												default:
+													borderClass = "border-gray-200 hover:border-gray-300";
+													bgClass = "";
+											}
+
 											return (
-												<div key={tag.id} className={cn("relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200", isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:shadow-md", isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")} onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}>
+												<div 
+													key={tag.id} 
+													className={cn(
+														"relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200",
+														isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
+														borderClass,
+														bgClass,
+														isSelected && "shadow-sm",
+													)} 
+													onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}
+												>
 													<div className="flex items-start space-x-3">
 														<Checkbox checked={isSelected} disabled={isSubmitting} className="mt-0.5" />
 														<div className="flex-1 min-w-0">
-															<div className="text-sm font-medium text-gray-900">{displayName}</div>
+															<div className="flex items-center gap-2">
+																<div className="text-sm font-medium text-gray-900">{displayName}</div>
+																{iconElement}
+															</div>
 														</div>
 													</div>
 												</div>
