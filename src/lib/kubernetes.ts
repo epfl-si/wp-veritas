@@ -142,7 +142,6 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 				title: site.title,
 				tagline: site.tagline,
 				theme: site.theme,
-				languages: site.languages,
 				plugins,
 				...(site.downloadsProtectionScript && { downloadsProtectionScript: "/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php" }),
 			},
