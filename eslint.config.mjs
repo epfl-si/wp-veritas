@@ -46,7 +46,6 @@ const rules = [
 			'no-console': ['error', {
 				allow: ['warn', 'error']
 			}],
-			'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 			eqeqeq: ['error', 'always'],
 			curly: ['error', 'multi-line'],
 		},
