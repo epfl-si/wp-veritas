@@ -1,5 +1,4 @@
 "use client";
-/* eslint no-unused-vars: "off" */
 import React, { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 

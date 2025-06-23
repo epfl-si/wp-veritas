@@ -1,6 +1,4 @@
 "use client";
-/* eslint no-unused-vars: "off" */
-
 import { useState, useEffect, useRef } from "react";
 import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
