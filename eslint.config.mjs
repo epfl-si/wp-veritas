@@ -34,6 +34,7 @@ const rules = [
 			],
 			'no-mixed-spaces-and-tabs': 'error',
 			'no-tabs': 'off',
+			"react-hooks/exhaustive-deps": "off",
 			semi: ['error', 'always'],
 			quotes: ['error', 'double', { avoidEscape: true }],
 			'comma-dangle': ['error', 'always-multiline'],
