@@ -21,6 +21,7 @@ jobs:
             pull-requests: write
         outputs:
             eslint_passed: ${{ steps.eslint_check.outputs.passed }}
+            has_errors: ${{ steps.eslint_check.outputs.has_errors }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -28,7 +29,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: '18'
+                  node-version: '22'
                   cache: 'npm'
 
             - name: Install dependencies
@@ -64,14 +65,24 @@ jobs:
                     echo "  - Files with issues: $TOTAL_FILES"
                     echo "  - Errors: $ERROR_COUNT"
                     echo "  - Warnings: $WARNING_COUNT"
+                    
+                    # Définir les outputs pour les autres jobs
+                    if [ "$ERROR_COUNT" -gt 0 ]; then
+                      echo "has_errors=true" >> $GITHUB_OUTPUT
+                      echo "passed=false" >> $GITHUB_OUTPUT
+                    else
+                      echo "has_errors=false" >> $GITHUB_OUTPUT
+                      echo "passed=true" >> $GITHUB_OUTPUT
+                    fi
                                         
                   else
                     echo "::error title=💥 ESLint Configuration Error::Failed to generate ESLint results - check your ESLint configuration"
                     echo "passed=false" >> $GITHUB_OUTPUT
+                    echo "has_errors=true" >> $GITHUB_OUTPUT
                   fi
                   
-                  if [ "$ESLINT_EXIT_CODE" -eq 2 ]; then
-                    echo "❌ ESLint found errors - failing the build"
+                  if [ "$ERROR_COUNT" -gt 0 ] || [ "$ESLINT_EXIT_CODE" -eq 2 ]; then
+                    echo "❌ ESLint found $ERROR_COUNT error(s) - stopping the pipeline"
                     exit 1
                   else
                     echo "✅ ESLint completed - continuing with warnings if any"
@@ -94,11 +105,15 @@ jobs:
                     echo "| 📁 Files with issues | $TOTAL_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "| ✅ Clean files | $CLEAN_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "" >> $GITHUB_STEP_SUMMARY
+                    
+                    if [ "$ERROR_COUNT" -gt 0 ]; then
+                      echo "### ❌ Pipeline Stopped" >> $GITHUB_STEP_SUMMARY
+                      echo "The pipeline was stopped due to ESLint errors. Please fix the errors before proceeding." >> $GITHUB_STEP_SUMMARY
+                    fi
                   else
                     echo "### ❌ Error" >> $GITHUB_STEP_SUMMARY
                     echo "Could not process ESLint results. Check your configuration." >> $GITHUB_STEP_SUMMARY
                   fi
-
     detect-version:
         name: Detect Version
         runs-on: ubuntu-24.04
