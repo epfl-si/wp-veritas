@@ -8,16 +8,11 @@ import { TagType } from "@/types/tag";
 import { CircleAlert, CircleCheck, Loader2, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TAG_CATEGORIES } from "@/constants/tags";
+import { ApiResponse } from "@/types/api";
 
 interface SiteTagsUpdateProps {
 	site: SiteType;
 	tags: TagType[];
-}
-
-interface ApiResponse {
-	success: boolean;
-	message: string;
-	data?: unknown;
 }
 
 export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) => {

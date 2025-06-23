@@ -16,6 +16,7 @@ import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { ApiResponse } from "@/types/api";
 
 export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes";
 
@@ -73,12 +74,6 @@ export interface FormConfig<T extends FieldValues> {
 	successTitle?: string;
 	successMessage?: string;
 	errorMessage?: string;
-}
-
-export interface ApiResponse {
-	success: boolean;
-	message: string;
-	data?: unknown;
 }
 
 interface ReusableFormProps<T extends FieldValues> {
