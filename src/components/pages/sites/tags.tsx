@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SiteType } from "@/types/site";
-import { TagType } from "@/types/tag";
+import { TagsType } from "@/types/tag";
 import { CircleAlert, CircleCheck, Loader2, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TAG_CATEGORIES } from "@/constants/tags";
@@ -12,7 +12,7 @@ import { ApiResponse } from "@/types/api";
 
 interface SiteTagsUpdateProps {
 	site: SiteType;
-	tags: TagType[];
+	tags: TagsType[];
 }
 
 export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) => {
@@ -137,7 +137,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 		}
 		acc[tag.type].push(tag);
 		return acc;
-	}, {} as Record<string, TagType[]>);
+	}, {} as Record<string, TagsType[]>);
 
 	Object.keys(tagsByType).forEach((type) => {
 		tagsByType[type].sort((a, b) => (locale === "fr" ? (a.nameFr || a.nameEn).localeCompare(b.nameFr || b.nameEn) : (a.nameEn || a.nameFr).localeCompare(b.nameEn || b.nameFr)));
