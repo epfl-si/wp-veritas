@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Pencil, Plus, TagIcon } from "lucide-react";
+import { Pencil, Plus, TagIcon, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableColumn } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import moment from "moment";
 import "moment/locale/fr";
 import { TagCategoryType, TagsType } from "@/types/tag";
@@ -57,8 +58,10 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 			align: "left",
 			sortable: true,
 			render: (tag) => (
-				<div className="text-base font-medium leading-relaxed" title={tag.nameFr}>
-					{tag.nameFr}
+				<div className="flex items-center gap-2">
+					<div className="text-base font-medium leading-relaxed" title={tag.nameFr}>
+						{tag.nameFr}
+					</div>
 				</div>
 			),
 		},
@@ -83,19 +86,53 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 			width: "w-[10%]",
 			align: "left",
 			sortable: false,
-			render: (tag) => (
-				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.TAGS.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
-							<Link href={`/tags/${tag.id}/edit`}>
-								<Pencil strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+			render: (tag) => {
+				const canDelete = permissions.includes(PERMISSIONS.SITES.DELETE) && tag.sites.length === 0;
+				const hasAssociatedSites = tag.sites.length > 0;
 
-					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={TagIcon} displayName={locale === "fr" ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />}
-				</div>
-			),
+				return (
+					<div className="flex gap-1.5 items-center py-1">
+						{permissions.includes(PERMISSIONS.TAGS.UPDATE) && (
+							<Button variant="outline" className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200" asChild>
+								<Link href={`/tags/${tag.id}/edit`}>
+									<Pencil strokeWidth={2.3} className="size-5" />
+								</Link>
+							</Button>
+						)}
+
+						{permissions.includes(PERMISSIONS.SITES.DELETE) && (
+							<>
+								{canDelete ? (
+									<DeleteDialog 
+										icon={TagIcon} 
+										displayName={locale === "fr" ? tag.nameFr : tag.nameEn} 
+										type="tag" 
+										apiEndpoint={`/api/tags/${tag.id}`} 
+									/>
+								) : hasAssociatedSites ? (
+									<TooltipProvider>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<div className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200 rounded-md flex items-center justify-center cursor-not-allowed">
+													<AlertTriangle strokeWidth={2.3} className="size-5" />
+												</div>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p className="text-sm">
+													{t("actions.deleteTooltip", {
+														count: tag.sites.length,
+													})}
+													
+												</p>
+											</TooltipContent>
+										</Tooltip>
+									</TooltipProvider>
+								) : null}
+							</>
+						)}
+					</div>
+				);
+			},
 		},
 	];
 
