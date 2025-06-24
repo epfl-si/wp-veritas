@@ -41,7 +41,7 @@ function hasPermissionForRoute(pathname: string, userPermissions: string[]): boo
 			return userPermissions.includes(permission);
 		}
 	}
-  
+
 	return false;
 }
 
@@ -51,21 +51,21 @@ function getFirstAuthorizedRoute(userPermissions: string[]): string | null {
 			return route;
 		}
 	}
-  
+
 	return null;
 }
 
 export default async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
-  
-	if (pathname.startsWith("/api/") || 
-      pathname.startsWith("/_next/") || 
-      pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
+
+	if (pathname.startsWith("/api/") ||
+		pathname.startsWith("/_next/") ||
+		pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
 		return NextResponse.next();
 	}
 
 	const session = await auth();
-  
+
 	if (!session?.user) {
 		const authUrl = new URL("/api/auth", req.url);
 		authUrl.searchParams.set("callbackUrl", req.url);
@@ -75,7 +75,7 @@ export default async function middleware(req: NextRequest) {
 	try {
 		const userGroups = [...(session.user.groups || []), "public"];
 		const userPermissions = await getPermissions(userGroups);
-    
+
 		if (!hasPermissionForRoute(pathname, userPermissions)) {
 			const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
 			if (authorizedRoute) {
