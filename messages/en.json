@@ -1,422 +1,422 @@
 {
-  "home": {
-    "title": "Welcome"
-  },
-  "sidebar": {
-    "home": "All Sites",
-    "new": "Create a New Site",
-    "info": "Site Information",
-    "tags": "Manage Tags",
-    "themes": "Manage Themes",
-    "trash": "Deleted Sites",
-    "logs": "Action Logs",
-    "redirections": "Redirections"
-  },
-  "site": {
-    "info": {
-      "title": "Search for website information",
-      "search": {
-        "button": "Search",
-        "url": {
-          "placeholder": "Search for websites..."
-        },
-        "type": {
-          "placeholder": "Filter by type...",
-          "all": "All the types"
-        },
-        "theme": {
-          "placeholder": "Filter by theme...",
-          "all": "All themes"
-        }
-      },
-      "loading": "Loading websites...",
-      "noResults": {
-        "title": "No websites found",
-        "description": "Try adjusting your search criteria or check your spelling."
-      },
-      "searchPrompt": {
-        "title": "Search for websites",
-        "description": "Enter a URL or keyword to find matching websites."
-      },
-      "resultsCount": "Found {count} website(s)",
-      "sortInfo": "Sorted by creation date (newest first)",
-      "error": {
-        "title": "An error occurred while loading websites",
-        "description": "Please try again later",
-        "connection": "Connection error",
-        "server": "Server error",
-        "notFound": "No websites found matching your criteria"
-      },
-      "details": {
-        "title": "Website Details",
-        "description": "Information and permissions",
-        "loginUrl": "WordPress Login",
-        "adminAccess": "Admin access",
-        "unit": "Affiliated unit",
-        "lastModified": "Last modified",
-        "recentModifications": "Recent modifications",
-        "permissions": "Permissions and rights",
-        "editors": "WordPress editors",
-        "accreditors": "Unit accreditors",
-        "note": "Note",
-        "neverModified": "This website has never been modified.",
-        "permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
-      },
-      "meta": {
-        "mainInfo": "Main Information",
-        "additionalInfo": "Additional Information",
-        "metadata": "Metadata"
-      }
-    },
-    "list": {
-      "title": "Source of truth for WordPress websites",
-      "search": {
-        "url": {
-          "placeholder": "Search for websites..."
-        },
-        "infrastructure": {
-          "placeholder": "Filter by infrastructure...",
-          "all": "All the infrastructures"
-        },
-        "theme": {
-          "placeholder": "Filter by theme...",
-          "all": "All themes"
-        }
-      },
-      "error": {
-        "text": "An error occurred while loading websites",
-        "subText": "Please try again later",
-        "empty": "No websites found"
-      },
-      "column": {
-        "url": "URL",
-        "infrastructure": "Infrastructure",
-        "createdAt": "Created At",
-        "actions": "Actions"
-      }
-    },
-    "add": {
-      "title": "Add New Site",
-      "success": {
-        "title": "Website created successfully",
-        "message": "The new website has been added to the system."
-      },
-      "error": {
-        "title": "An error occurred while creating the website",
-        "description": "Please try again later"
-      }
-    },
-    "update": {
-      "title": "Edit Site",
-      "subtitle": "Modify the information of this site",
-      "success": {
-        "title": "Site updated successfully",
-        "message": "The changes have been saved successfully."
-      },
-      "error": {
-        "text": "An error occurred while loading the site",
-        "subText": "Please try again later",
-        "empty": "No sites found",
-        "title": "Error updating site"
-      }
-    },
-    "tags": {
-      "title": "Manage Site Tags",
-      "siteUrl": "Site URL",
-      "success": {
-        "title": "Tags Updated Successfully",
-        "message": "The site tags have been updated successfully."
-      },
-      "error": {
-        "title": "Error Updating Tags",
-        "message": "An error occurred while updating the tags. Please try again.",
-        "unknown": "An unknown error occurred"
-      },
-      "actions": {
-        "save": "Save Changes",
-        "saving": "Saving",
-        "reset": "Reset"
-      }
-    },
-    "form": {
-      "infrastructure": {
-        "label": "Infrastructure",
-        "placeholder": "Select website infrastructure..."
-      },
-      "url": {
-        "label": "URL",
-        "placeholder": "https://example.com"
-      },
-      "title": {
-        "label": "Website Title",
-        "placeholder": "Enter website title..."
-      },
-      "tagline": {
-        "label": "Tagline (Name)",
-        "placeholder": "Enter website tagline..."
-      },
-      "theme": {
-        "label": "Theme",
-        "placeholder": "Enter theme name..."
-      },
-      "unitId": {
-        "label": "Unit ID",
-        "placeholder": "Enter unit identifier..."
-      },
-      "languages": {
-        "label": "Languages"
-      },
-      "categories": {
-        "label": "Categories",
-        "options": {
-          "education": "Education",
-          "business": "Business",
-          "personal": "Personal",
-          "portfolio": "Portfolio"
-        }
-      },
-      "downloadsProtectionScript": {
-        "label": "Downloads Protection Script",
-        "placeholder": "Enter protection script..."
-      },
-      "ticket": {
-        "label": "Ticket",
-        "placeholder": "Enter ticket reference..."
-      },
-      "comment": {
-        "label": "Comment",
-        "placeholder": "Enter additional comments..."
-      },
-      "sections": {
-        "general": {
-          "title": "General Information"
-        },
-        "details": {
-          "title": "Website Details"
-        },
-        "advanced": {
-          "title": "Advanced Configuration"
-        },
-        "metadata": {
-          "title": "Metadata"
-        }
-      }
-    },
-    "actions": {
-      "add": "Add New Site",
-      "edit": "Edit Site",
-      "delete": "Delete Site",
-      "update": "Update Site",
-      "updating": "Updating",
-      "save": "Save Changes",
-      "cancel": "Cancel",
-      "view": "View Details",
-      "viewSite": "Visit Website",
-      "create": "Create",
-      "reset": "Reset",
-      "creating": "Creating"
-    }
-  },
-  "status": {
-    "loading": "Loading...",
-    "saving": "Saving...",
-    "deleting": "Deleting...",
-    "error": "Error",
-    "success": "Success",
-    "notFound": "Not found"
-  },
-  "tag": {
-    "list": {
-      "title": "Manage Tags",
-      "subtitle": "Create and manage your tags to organize your content",
-      "empty": {
-        "title": "No tags created",
-        "description": "Start by creating your first tag to organize your content"
-      },
-      "no_results": "No tags found",
-      "no_results_description": "No tags match your search criteria",
-      "search": {
-        "name": {
-          "placeholder": "Search for tags..."
-        },
-        "type": {
-          "placeholder": "Filter by type...",
-          "all": "All the types"
-        }
-      },
-      "error": {
-        "text": "An error occurred while loading tags",
-        "subText": "Please try again later",
-        "empty": "No tags found"
-      }
-    },
-    "add": {
-      "title": "Create New Tag",
-      "success": {
-        "title": "Tag Created Successfully",
-        "message": "The new tag has been created and is now available"
-      },
-      "error": {
-        "title": "Error Creating Tag",
-        "message": "An error occurred while creating the tag. Please try again."
-      }
-    },
-    "update": {
-      "title": "Edit Tag",
-      "subtitle": "Modify this tag's information",
-      "success": {
-        "title": "Tag Updated Successfully",
-        "message": "Changes have been saved successfully"
-      },
-      "error": {
-        "text": "An error occurred while loading Tag",
-        "subText": "Please try again later",
-        "empty": "No tags found",
-        "title": "Error Updating Tag"
-      }
-    },
-    "form": {
-      "type": {
-        "label": "Type of Tag",
-        "description": "Select the appropriate tag type",
-        "placeholder": "Choose a tag type..."
-      },
-      "nameFr": {
-        "label": "Name (French)",
-        "placeholder": "Tag name in French",
-        "description": "The tag name displayed in French"
-      },
-      "nameEn": {
-        "label": "Name (English)",
-        "placeholder": "Tag name in English",
-        "description": "The tag name displayed in English"
-      },
-      "urlFr": {
-        "label": "URL (French)",
-        "placeholder": "https://epfl.ch/xxx",
-        "description": "The destination URL for the French version"
-      },
-      "urlEn": {
-        "label": "URL (English)",
-        "placeholder": "https://epfl.ch/xxx",
-        "description": "The destination URL for the English version"
-      },
-      "sections": {
-        "general": {
-          "title": "Tag Type"
-        },
-        "names": {
-          "title": "Information"
-        }
-      }
-    },
-    "actions": {
-      "add": "Add New Tag",
-      "add_first": "Create First Tag",
-      "edit": "Edit Tag",
-      "delete": "Delete Tag",
-      "save": "Save Changes",
-      "cancel": "Cancel",
-      "create": "Create Tag",
-      "update": "Update Tag",
-      "reset": "Reset Form",
-      "back_to_list": "Back to List",
-      "creating": "Creating",
-      "updating": "Updating",
-      "view_details": "View Details",
-      "duplicate": "Duplicate Tag",
-      "export": "Export Tags",
-      "import": "Import Tags"
-    }
-  },
-  "log": {
-    "list": {
-      "title": "Action Logs",
-      "search": {
-        "message": {
-          "placeholder": "Search by message..."
-        },
-        "level": {
-          "placeholder": "Filter by level...",
-          "all": "All levels"
-        },
-        "action": {
-          "all": "All actions",
-          "selected": "Selected {count} actions"
-        }
-      },
-      "error": {
-        "text": "An error occurred while loading logs",
-        "subText": "Please try again later",
-        "empty": "No logs found"
-      },
-      "column": {
-        "level": "Level",
-        "message": "Message",
-        "user": "User",
-        "timestamp": "Timestamp"
-      }
-    }
-  },
-  "theme": {
-    "list": {
-      "title": "Manage Themes",
-      "search": {
-        "name": {
-          "placeholder": "Search for themes..."
-        },
-        "type": {
-          "placeholder": "Filter by type...",
-          "all": "All the types"
-        }
-      },
-      "column": {
-        "name": "Name"
-      },
-      "error": {
-        "text": "An error occurred while loading themes",
-        "subText": "Please try again later",
-        "empty": "No themes found"
-      }
-    },
-    "actions": {
-      "add": "Add New Theme",
-      "edit": "Edit Theme",
-      "delete": "Delete Theme",
-      "save": "Save Changes",
-      "cancel": "Cancel"
-    }
-  },
-  "actions": {
-    "delete": {
-      "title": "Delete {object}",
-      "description": "Are you sure you want to delete this {object}?",
-      "warning": "This action will permanently delete the {object}.",
-      "irreversible": "This action cannot be undone.",
-      "deleting": "Deleting...",
-      "success": "{object} deleted successfully",
-      "cancel": "Cancel",
-      "confirm": "Delete {object}",
-      "error": "Error deleting {object}"
-    }
-  },
-  "validation": {
-    "required": "This field is required",
-    "invalidString": "This field must be a string",
-    "invalidType": "This field is invalid",
-    "url": "Please enter a valid URL",
-    "invalidEnum": "This field must be in : {options}",
-    "tooSmall": "Minimum length is {min} characters",
-    "tooBig": "Maximum length is {max} characters",
-    "pattern": "Invalid format"
-  },
-  "notFound": {
-    "title": "Oops! It looks like this page doesn't exist",
-    "home": "Back to home",
-    "back": "Previous page",
-    "contact": "If you think this is an error, contact the team"
-  },
-  "form": {
-    "showMore": "Show more"
-  }
+	"home": {
+		"title": "Welcome"
+	},
+	"sidebar": {
+		"home": "All Sites",
+		"new": "Create a New Site",
+		"info": "Site Information",
+		"tags": "Manage Tags",
+		"themes": "Manage Themes",
+		"trash": "Deleted Sites",
+		"logs": "Action Logs",
+		"redirections": "Redirections"
+	},
+	"site": {
+		"info": {
+			"title": "Search for website information",
+			"search": {
+				"button": "Search",
+				"url": {
+					"placeholder": "Search for websites..."
+				},
+				"type": {
+					"placeholder": "Filter by type...",
+					"all": "All the types"
+				},
+				"theme": {
+					"placeholder": "Filter by theme...",
+					"all": "All themes"
+				}
+			},
+			"loading": "Loading websites...",
+			"noResults": {
+				"title": "No websites found",
+				"description": "Try adjusting your search criteria or check your spelling."
+			},
+			"searchPrompt": {
+				"title": "Search for websites",
+				"description": "Enter a URL or keyword to find matching websites."
+			},
+			"resultsCount": "Found {count} website(s)",
+			"sortInfo": "Sorted by creation date (newest first)",
+			"error": {
+				"title": "An error occurred while loading websites",
+				"description": "Please try again later",
+				"connection": "Connection error",
+				"server": "Server error",
+				"notFound": "No websites found matching your criteria"
+			},
+			"details": {
+				"title": "Website Details",
+				"description": "Information and permissions",
+				"loginUrl": "WordPress Login",
+				"adminAccess": "Admin access",
+				"unit": "Affiliated unit",
+				"lastModified": "Last modified",
+				"recentModifications": "Recent modifications",
+				"permissions": "Permissions and rights",
+				"editors": "WordPress editors",
+				"accreditors": "Unit accreditors",
+				"note": "Note",
+				"neverModified": "This website has never been modified.",
+				"permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
+			},
+			"meta": {
+				"mainInfo": "Main Information",
+				"additionalInfo": "Additional Information",
+				"metadata": "Metadata"
+			}
+		},
+		"list": {
+			"title": "Source of truth for WordPress websites",
+			"search": {
+				"url": {
+					"placeholder": "Search for websites..."
+				},
+				"infrastructure": {
+					"placeholder": "Filter by infrastructure...",
+					"all": "All the infrastructures"
+				},
+				"theme": {
+					"placeholder": "Filter by theme...",
+					"all": "All themes"
+				}
+			},
+			"error": {
+				"text": "An error occurred while loading websites",
+				"subText": "Please try again later",
+				"empty": "No websites found"
+			},
+			"column": {
+				"url": "URL",
+				"infrastructure": "Infrastructure",
+				"createdAt": "Created At",
+				"actions": "Actions"
+			}
+		},
+		"add": {
+			"title": "Add New Site",
+			"success": {
+				"title": "Website created successfully",
+				"message": "The new website has been added to the system."
+			},
+			"error": {
+				"title": "An error occurred while creating the website",
+				"description": "Please try again later"
+			}
+		},
+		"update": {
+			"title": "Edit Site",
+			"subtitle": "Modify the information of this site",
+			"success": {
+				"title": "Site updated successfully",
+				"message": "The changes have been saved successfully."
+			},
+			"error": {
+				"text": "An error occurred while loading the site",
+				"subText": "Please try again later",
+				"empty": "No sites found",
+				"title": "Error updating site"
+			}
+		},
+		"tags": {
+			"title": "Manage Site Tags",
+			"siteUrl": "Site URL",
+			"success": {
+				"title": "Tags Updated Successfully",
+				"message": "The site tags have been updated successfully."
+			},
+			"error": {
+				"title": "Error Updating Tags",
+				"message": "An error occurred while updating the tags. Please try again.",
+				"unknown": "An unknown error occurred"
+			},
+			"actions": {
+				"save": "Save Changes",
+				"saving": "Saving",
+				"reset": "Reset"
+			}
+		},
+		"form": {
+			"infrastructure": {
+				"label": "Infrastructure",
+				"placeholder": "Select website infrastructure..."
+			},
+			"url": {
+				"label": "URL",
+				"placeholder": "https://example.com"
+			},
+			"title": {
+				"label": "Website Title",
+				"placeholder": "Enter website title..."
+			},
+			"tagline": {
+				"label": "Tagline (Name)",
+				"placeholder": "Enter website tagline..."
+			},
+			"theme": {
+				"label": "Theme",
+				"placeholder": "Enter theme name..."
+			},
+			"unitId": {
+				"label": "Unit ID",
+				"placeholder": "Enter unit identifier..."
+			},
+			"languages": {
+				"label": "Languages"
+			},
+			"categories": {
+				"label": "Categories",
+				"options": {
+					"education": "Education",
+					"business": "Business",
+					"personal": "Personal",
+					"portfolio": "Portfolio"
+				}
+			},
+			"downloadsProtectionScript": {
+				"label": "Downloads Protection Script",
+				"placeholder": "Enter protection script..."
+			},
+			"ticket": {
+				"label": "Ticket",
+				"placeholder": "Enter ticket reference..."
+			},
+			"comment": {
+				"label": "Comment",
+				"placeholder": "Enter additional comments..."
+			},
+			"sections": {
+				"general": {
+					"title": "General Information"
+				},
+				"details": {
+					"title": "Website Details"
+				},
+				"advanced": {
+					"title": "Advanced Configuration"
+				},
+				"metadata": {
+					"title": "Metadata"
+				}
+			}
+		},
+		"actions": {
+			"add": "Add New Site",
+			"edit": "Edit Site",
+			"delete": "Delete Site",
+			"update": "Update Site",
+			"updating": "Updating",
+			"save": "Save Changes",
+			"cancel": "Cancel",
+			"view": "View Details",
+			"viewSite": "Visit Website",
+			"create": "Create",
+			"reset": "Reset",
+			"creating": "Creating"
+		}
+	},
+	"status": {
+		"loading": "Loading...",
+		"saving": "Saving...",
+		"deleting": "Deleting...",
+		"error": "Error",
+		"success": "Success",
+		"notFound": "Not found"
+	},
+	"tag": {
+		"list": {
+			"title": "Manage Tags",
+			"subtitle": "Create and manage your tags to organize your content",
+			"empty": {
+				"title": "No tags created",
+				"description": "Start by creating your first tag to organize your content"
+			},
+			"no_results": "No tags found",
+			"no_results_description": "No tags match your search criteria",
+			"search": {
+				"name": {
+					"placeholder": "Search for tags..."
+				},
+				"type": {
+					"placeholder": "Filter by type...",
+					"all": "All the types"
+				}
+			},
+			"error": {
+				"text": "An error occurred while loading tags",
+				"subText": "Please try again later",
+				"empty": "No tags found"
+			}
+		},
+		"add": {
+			"title": "Create New Tag",
+			"success": {
+				"title": "Tag Created Successfully",
+				"message": "The new tag has been created and is now available"
+			},
+			"error": {
+				"title": "Error Creating Tag",
+				"message": "An error occurred while creating the tag. Please try again."
+			}
+		},
+		"update": {
+			"title": "Edit Tag",
+			"subtitle": "Modify this tag's information",
+			"success": {
+				"title": "Tag Updated Successfully",
+				"message": "Changes have been saved successfully"
+			},
+			"error": {
+				"text": "An error occurred while loading Tag",
+				"subText": "Please try again later",
+				"empty": "No tags found",
+				"title": "Error Updating Tag"
+			}
+		},
+		"form": {
+			"type": {
+				"label": "Type of Tag",
+				"description": "Select the appropriate tag type",
+				"placeholder": "Choose a tag type..."
+			},
+			"nameFr": {
+				"label": "Name (French)",
+				"placeholder": "Tag name in French",
+				"description": "The tag name displayed in French"
+			},
+			"nameEn": {
+				"label": "Name (English)",
+				"placeholder": "Tag name in English",
+				"description": "The tag name displayed in English"
+			},
+			"urlFr": {
+				"label": "URL (French)",
+				"placeholder": "https://epfl.ch/xxx",
+				"description": "The destination URL for the French version"
+			},
+			"urlEn": {
+				"label": "URL (English)",
+				"placeholder": "https://epfl.ch/xxx",
+				"description": "The destination URL for the English version"
+			},
+			"sections": {
+				"general": {
+					"title": "Tag Type"
+				},
+				"names": {
+					"title": "Information"
+				}
+			}
+		},
+		"actions": {
+			"add": "Add New Tag",
+			"add_first": "Create First Tag",
+			"edit": "Edit Tag",
+			"delete": "Delete Tag",
+			"save": "Save Changes",
+			"cancel": "Cancel",
+			"create": "Create Tag",
+			"update": "Update Tag",
+			"reset": "Reset Form",
+			"back_to_list": "Back to List",
+			"creating": "Creating",
+			"updating": "Updating",
+			"view_details": "View Details",
+			"duplicate": "Duplicate Tag",
+			"export": "Export Tags",
+			"import": "Import Tags"
+		}
+	},
+	"log": {
+		"list": {
+			"title": "Action Logs",
+			"search": {
+				"message": {
+					"placeholder": "Search by message..."
+				},
+				"level": {
+					"placeholder": "Filter by level...",
+					"all": "All levels"
+				},
+				"action": {
+					"all": "All actions",
+					"selected": "Selected {count} actions"
+				}
+			},
+			"error": {
+				"text": "An error occurred while loading logs",
+				"subText": "Please try again later",
+				"empty": "No logs found"
+			},
+			"column": {
+				"level": "Level",
+				"message": "Message",
+				"user": "User",
+				"timestamp": "Timestamp"
+			}
+		}
+	},
+	"theme": {
+		"list": {
+			"title": "Manage Themes",
+			"search": {
+				"name": {
+					"placeholder": "Search for themes..."
+				},
+				"type": {
+					"placeholder": "Filter by type...",
+					"all": "All the types"
+				}
+			},
+			"column": {
+				"name": "Name"
+			},
+			"error": {
+				"text": "An error occurred while loading themes",
+				"subText": "Please try again later",
+				"empty": "No themes found"
+			}
+		},
+		"actions": {
+			"add": "Add New Theme",
+			"edit": "Edit Theme",
+			"delete": "Delete Theme",
+			"save": "Save Changes",
+			"cancel": "Cancel"
+		}
+	},
+	"actions": {
+		"delete": {
+			"title": "Delete {object}",
+			"description": "Are you sure you want to delete this {object}?",
+			"warning": "This action will permanently delete the {object}.",
+			"irreversible": "This action cannot be undone.",
+			"deleting": "Deleting...",
+			"success": "{object} deleted successfully",
+			"cancel": "Cancel",
+			"confirm": "Delete {object}",
+			"error": "Error deleting {object}"
+		}
+	},
+	"validation": {
+		"required": "This field is required",
+		"invalidString": "This field must be a string",
+		"invalidType": "This field is invalid",
+		"url": "Please enter a valid URL",
+		"invalidEnum": "This field must be in : {options}",
+		"tooSmall": "Minimum length is {min} characters",
+		"tooBig": "Maximum length is {max} characters",
+		"pattern": "Invalid format"
+	},
+	"notFound": {
+		"title": "Oops! It looks like this page doesn't exist",
+		"home": "Back to home",
+		"back": "Previous page",
+		"contact": "If you think this is an error, contact the team"
+	},
+	"form": {
+		"showMore": "Show more"
+	}
 }
