@@ -20,7 +20,7 @@ import { ThemeType } from "@/types/theme";
 import { DeleteDialog } from "@/components/dialog/delete";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { InfrastructureType } from "@/types/infrastructure";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 
@@ -39,7 +39,6 @@ interface Filters {
 }
 
 export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
-	const router = useRouter();
 	const searchParams = useSearchParams();
 	
 	const getInitialFilters = () => {
@@ -120,7 +119,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		const newUrl = queryString ? `?${queryString}` : window.location.pathname;
 		
 		if (window.location.search !== `?${queryString}` && !(window.location.search === "" && queryString === "")) {
-			router.replace(newUrl);
+			window.history.replaceState({}, "", newUrl);
 		}
 	};
 
