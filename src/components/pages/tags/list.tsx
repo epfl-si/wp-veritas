@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Pencil, Plus, TagIcon, AlertTriangle } from "lucide-react";
+import { Pencil, Plus, TagIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -113,8 +113,8 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 									<TooltipProvider>
 										<Tooltip>
 											<TooltipTrigger asChild>
-												<div className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200 rounded-md flex items-center justify-center cursor-not-allowed">
-													<AlertTriangle strokeWidth={2.3} className="size-5" />
+												<div className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 opacity-70 rounded-md flex items-center justify-center cursor-not-allowed">
+													<Trash2 strokeWidth={2.3} className="size-5" />
 												</div>
 											</TooltipTrigger>
 											<TooltipContent>
