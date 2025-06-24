@@ -51,7 +51,6 @@ function getFirstAuthorizedRoute(userPermissions: string[]): string | null {
 			return route;
 		}
 	}
-
 	return null;
 }
 
@@ -65,7 +64,6 @@ export default async function middleware(req: NextRequest) {
 	}
 
 	const session = await auth();
-
 	if (!session?.user) {
 		const authUrl = new URL("/api/auth", req.url);
 		authUrl.searchParams.set("callbackUrl", req.url);
@@ -77,12 +75,14 @@ export default async function middleware(req: NextRequest) {
 		const userPermissions = await getPermissions(userGroups);
 
 		if (!hasPermissionForRoute(pathname, userPermissions)) {
-			const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
-			if (authorizedRoute) {
-				return NextResponse.redirect(new URL(authorizedRoute, req.url));
-			} else {
-				return NextResponse.rewrite(new URL("/not-found", req.url));
+			if (!userPermissions.includes(PERMISSIONS.SITES.LIST)) {
+				const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
+				if (authorizedRoute) {
+					return NextResponse.redirect(new URL(authorizedRoute, req.url));
+				}
 			}
+
+			return NextResponse.rewrite(new URL("/not-found", req.url));
 		}
 
 		return NextResponse.next();
