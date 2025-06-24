@@ -139,6 +139,16 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 			return { status: 404, message: "Tag not found", success: false };
 		}
 
+		if (tag.sites && tag.sites.length > 0) {
+			await warn("Tag deletion attempted with associated sites", {
+				type: "tag",
+				action: "delete",
+				id: tagId,
+				error: "Tag cannot be deleted while associated with sites",
+			});
+			return { status: 400, message: "Tag cannot be deleted while associated with sites", success: false };
+		}
+
 		await TagModel.deleteOne({ id: tagId });
 
 		await info(`The **${tag.type}** tag **${tag.nameEn}** deleted successfully`, {
