@@ -442,6 +442,7 @@
 			"add_first": "Créer le premier tag",
 			"edit": "Modifier le tag",
 			"delete": "Supprimer le tag",
+			"deleteTooltip": "{count, plural, =1 {Impossible de supprimer ce tag car il est utilisé par # site} other {Impossible de supprimer ce tag car il est utilisé par # sites}}",
 			"save": "Enregistrer les modifications",
 			"cancel": "Annuler",
 			"create": "Créer le tag",
