@@ -5,8 +5,8 @@ import { INFRASTRUCTURES, getCreatableInfrastructures } from "@/constants/infras
 import { PolylangPlugin } from "./languages";
 
 export interface WordPressPlugins {
-  polylang?: PolylangPlugin;
-  [key: string]: unknown;
+	polylang?: PolylangPlugin;
+	[key: string]: unknown;
 }
 
 export interface KubernetesSiteType {
