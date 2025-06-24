@@ -391,6 +391,10 @@
 			}
 		},
 		"form": {
+			"tabs": {
+				"configuration": "Configuration",
+				"sites": "Sites"
+			},
 			"type": {
 				"label": "Type of Tag",
 				"description": "Select the appropriate tag type",
@@ -423,6 +427,14 @@
 				"names": {
 					"title": "Information"
 				}
+			}
+		},
+		"sites": {
+			"title": "Sites using this tag",
+			"count": "{count, plural, =0 {No sites found} =1 {# site found} other {# sites found}}",
+			"empty": {
+				"title": "No sites",
+				"description": "This tag is not currently used by any site."
 			}
 		},
 		"actions": {
