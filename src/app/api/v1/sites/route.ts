@@ -135,18 +135,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const taggedParam = searchParams.get("tagged");
 		const siteUrlParam = searchParams.get("site_url");
 		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
-		
+
 		const siteUrlFilter = siteUrlParam ? decodeURIComponent(siteUrlParam) : null;
 
 		const [kubernetesResult, databaseResult] = await Promise.all([
-			getKubernetesSites(), 
+			getKubernetesSites(),
 			listDatabaseSites(),
 		]);
-    
+
 		const kubernetesSites = kubernetesResult.sites || [];
 		const databaseSites = databaseResult.sites || [];
 		const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
-    
+
 		const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
 			if (isKubernetesSite(kubernetesSite)) {
 				const dbSite = databaseSiteMap.get(kubernetesSite.id);
@@ -160,7 +160,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
 		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
 		const tags = await TagModel.find({}, { _id: 0, __v: 0 });
-    
+
 		let sites = allSites.map((site) => ({
 			id: site.id,
 			...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
@@ -189,12 +189,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 				sites = sites.filter(site => site.tags.length === 0);
 			}
 		}
-    
+
 		return NextResponse.json(sites, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving sites:", error);
 		return NextResponse.json(
-			{ message: "Internal Server Error" }, 
+			{ message: "Internal Server Error" },
 			{ status: 500 },
 		);
 	}
