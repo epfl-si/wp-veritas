@@ -1,14 +1,14 @@
 import { APIError } from "@/types/error";
 import { hasPermission } from "./policy";
 import { PERMISSIONS } from "@/constants/permissions";
-import { TagFormType, TagType } from "@/types/tag";
+import { TagFormType, TagsType, TagType } from "@/types/tag";
 import db from "@/lib/mongo";
 import { ITag, TagModel } from "@/models/Tag";
 import { v4 as uuidv4 } from "uuid";
 import { isValidUUID } from "@/lib/utils";
 import { info, warn, error } from "@/lib/log";
 import { SiteModel } from "@/models/Site";
-import { getSite } from "./site";
+import { getSite, listSites } from "./site";
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
@@ -190,6 +190,8 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 			id: tagId,
 		});
 
+		const { sites } = await listSites();
+
 		return {
 			tag: {
 				id: tag.id,
@@ -198,6 +200,13 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 				nameEn: tag.nameEn,
 				urlFr: tag.urlFr,
 				urlEn: tag.urlEn,
+				sites: (sites || [])
+					.filter((site) => tag.sites?.includes(site.id))
+					.map((site) => ({
+						id: site.id,
+						infrastructure: site.infrastructure,
+						url: site.url,
+					})),
 			},
 		};
 	} catch (errorData) {
@@ -212,7 +221,7 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 	}
 }
 
-export async function listTags(): Promise<{ tags?: TagType[]; error?: APIError }> {
+export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) {
 			await warn("Permission denied for tags listing", {

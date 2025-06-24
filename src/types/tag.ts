@@ -2,14 +2,27 @@ import { useZodErrorMessages, getZodErrorMessages } from "@/hooks/zod";
 import { z } from "zod";
 import { ErrorMessages } from "./error";
 import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from "@/constants/tags";
+import { SiteInfrastructureType } from "./site";
 
-export interface TagType {
+export interface BaseTagType {
 	id: string;
 	type: string;
 	nameFr: string;
 	nameEn: string;
 	urlFr: string;
 	urlEn: string;
+}
+
+export interface TagsType extends BaseTagType {
+	sites: string[];
+}
+
+export interface TagType extends BaseTagType {
+	sites?: {
+		id: string;
+		infrastructure: SiteInfrastructureType;
+		url: string;
+	}[];
 }
 
 export type TagCategoryEnumType = (typeof TAG_CATEGORIES)[keyof typeof TAG_CATEGORIES]["NAME"];
