@@ -51,7 +51,7 @@ export async function sendSiteCreatedMessage(siteUrl: string, infrastructure: st
 	const escapedInfrastructure = escapeMarkdownV2(infrastructure);
 	const escapedUserName = escapeMarkdownV2(user.name);
 
-	const text = `👀 *Pssst\\!* 👀\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) as just created a new *${escapedInfrastructure}* site\\!\nIt is now live at: [${escapedUrl}](${siteUrl}) \\#siteCreated \\#next`;
+	const text = `👀 *Pssst\\!* 👀\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) has just created a new *${escapedInfrastructure}* site\\!\nIt is now live at: [${escapedUrl}](${siteUrl}) \\#siteCreated \\#next`;
 
 	await sendToAllChats(text);
 }
@@ -63,7 +63,7 @@ export async function sendSiteDeletedMessage(siteUrl: string, infrastructure: st
 	const escapedInfrastructure = escapeMarkdownV2(infrastructure);
 	const escapedUserName = escapeMarkdownV2(user.name);
 
-	const text = `⚠️ *Heads up\\!* ⚠️\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) as just deleted a *${escapedInfrastructure}* site\\!\nSite at: [${escapedUrl}](${siteUrl}) has been removed \\#siteDeleted \\#next`;
+	const text = `⚠️ *Heads up\\!* ⚠️\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) has just deleted a *${escapedInfrastructure}* site\\!\nSite at: [${escapedUrl}](${siteUrl}) has been removed \\#siteDeleted \\#next`;
 
 	await sendToAllChats(text);
 }
