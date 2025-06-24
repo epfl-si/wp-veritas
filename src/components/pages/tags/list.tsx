@@ -9,12 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableColumn } from "@/components/ui/table";
 import moment from "moment";
 import "moment/locale/fr";
-import { TagCategoryType, TagType } from "@/types/tag";
+import { TagCategoryType, TagsType } from "@/types/tag";
 import { PERMISSIONS } from "@/constants/permissions";
 import { DeleteDialog } from "@/components/dialog/delete";
 import { TAG_CATEGORIES } from "@/constants/tags";
 
-export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ tags, permissions }) => {
+export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({ tags, permissions }) => {
 	const [search, setSearch] = useState({
 		name: "",
 		type: "",
@@ -37,7 +37,7 @@ export const TagList: React.FC<{ tags: TagType[]; permissions: string[] }> = ({ 
 		return matchesName && matchesType;
 	});
 
-	const columns: TableColumn<TagType>[] = [
+	const columns: TableColumn<TagsType>[] = [
 		{
 			key: "nameEn",
 			label: "Nom (EN)",
