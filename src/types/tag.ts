@@ -2,7 +2,7 @@ import { useZodErrorMessages, getZodErrorMessages } from "@/hooks/zod";
 import { z } from "zod";
 import { ErrorMessages } from "./error";
 import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from "@/constants/tags";
-import { SiteInfrastructureType } from "./site";
+import { InfrastructureName } from "./infrastructure";
 
 export interface BaseTagType {
 	id: string;
@@ -20,7 +20,7 @@ export interface TagsType extends BaseTagType {
 export interface TagType extends BaseTagType {
 	sites?: {
 		id: string;
-		infrastructure: SiteInfrastructureType;
+		infrastructure: InfrastructureName;
 		url: string;
 	}[];
 }
