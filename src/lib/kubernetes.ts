@@ -259,13 +259,15 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		}
 
 		const languagesChanged = JSON.stringify(kubernetesSiteData.languages?.sort()) !== JSON.stringify(existingSite.languages?.sort());
-
 		const categoriesChanged = JSON.stringify(kubernetesSiteData.categories?.sort()) !== JSON.stringify(existingSite.categories?.sort());
-		if (categoriesChanged || languagesChanged) {
+		const unitId = kubernetesSiteData.unitId !== existingSite.unitId;
+
+		if (categoriesChanged || languagesChanged || unitId) {
 			const tempSite: KubernetesSite = {
 				...existingSite,
 				languages: kubernetesSiteData.languages || [],
 				categories: kubernetesSiteData.categories || [],
+				unitId: kubernetesSiteData.unitId,
 			};
 			const plugins = getKubernetesPluginStruct(tempSite);
 			patchOperations.push({
