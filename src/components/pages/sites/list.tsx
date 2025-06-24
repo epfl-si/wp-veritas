@@ -739,7 +739,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 												<div className="space-y-3">
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.features.downloads")}</span>
-														<div className="flex items-center gap-2">
+														<div className="flex items-center">
 															<Badge variant="secondary" className="bg-purple-100 text-purple-800">{statistics.sitesWithDownloadsProtection}</Badge>
 															<span className="text-xs text-gray-600 w-10 text-right font-medium">
 																{statistics.kubernetesSites > 0 ? Math.round((statistics.sitesWithDownloadsProtection / statistics.kubernetesSites) * 100) : 0}%
@@ -748,7 +748,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 													</div>
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.features.categories")}</span>
-														<div className="flex items-center gap-2">
+														<div className="flex items-center">
 															<Badge variant="secondary" className="bg-orange-100 text-orange-800">{statistics.sitesWithCategories}</Badge>
 															<span className="text-xs text-gray-600 w-10 text-right font-medium">
 																{statistics.kubernetesSites > 0 ? Math.round((statistics.sitesWithCategories / statistics.kubernetesSites) * 100) : 0}%
