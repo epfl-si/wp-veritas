@@ -1,422 +1,537 @@
 {
-  "home": {
-    "title": "Bienvenue"
-  },
-  "sidebar": {
-    "home": "Tous les sites",
-    "new": "Créer un nouveau site",
-    "info": "Informations du site",
-    "tags": "Gérer les tags",
-    "themes": "Gérer les thèmes",
-    "trash": "Sites supprimés",
-    "logs": "Journaux d’actions",
-    "redirections": "Redirections"
-  },
-  "site": {
-    "info": {
-      "title": "Rechercher des informations sur les sites web",
-      "search": {
-        "button": "Rechercher",
-        "url": {
-          "placeholder": "Rechercher des sites web..."
-        },
-        "type": {
-          "placeholder": "Filtrer par type...",
-          "all": "Tous les types"
-        },
-        "theme": {
-          "placeholder": "Filtrer par thème...",
-          "all": "Tous les thèmes"
-        }
-      },
-      "loading": "Chargement des sites web...",
-      "noResults": {
-        "title": "Aucun site trouvé",
-        "description": "Essayez d’ajuster vos critères de recherche ou vérifiez l’orthographe."
-      },
-      "searchPrompt": {
-        "title": "Rechercher des sites web",
-        "description": "Entrez une URL ou un mot-clé pour trouver des sites correspondants."
-      },
-      "resultsCount": "{count} site(s) trouvé(s)",
-      "sortInfo": "Trié par date de création (le plus récent en premier)",
-      "error": {
-        "title": "Une erreur est survenue lors du chargement des sites web",
-        "description": "Veuillez réessayer plus tard",
-        "connection": "Erreur de connexion",
-        "server": "Erreur du serveur",
-        "notFound": "Aucun site correspondant à vos critères"
-      },
-      "details": {
-        "title": "Détails du site",
-        "description": "Informations et permissions",
-        "loginUrl": "Connexion WordPress",
-        "adminAccess": "Accès administrateur",
-        "unit": "Unité affiliée",
-        "lastModified": "Dernière modification",
-        "recentModifications": "Modifications récentes",
-        "permissions": "Permissions et droits",
-        "editors": "Éditeurs WordPress",
-        "accreditors": "Accréditants de l’unité",
-        "note": "Note",
-        "neverModified": "Ce site n’a jamais été modifié.",
-        "permissionsNote": "Les éditeurs WordPress peuvent modifier le contenu. Les accréditants peuvent gérer les permissions et accorder les droits d’édition."
-      },
-      "meta": {
-        "mainInfo": "Informations principales",
-        "additionalInfo": "Informations supplémentaires",
-        "metadata": "Métadonnées"
-      }
-    },
-    "list": {
-      "title": "Source de vérité pour les sites WordPress",
-      "search": {
-        "url": {
-          "placeholder": "Rechercher des sites web..."
-        },
-        "infrastructure": {
-          "placeholder": "Filtrer par infrastructure...",
-          "all": "Toutes les infrastructures"
-        },
-        "theme": {
-          "placeholder": "Filtrer par thème...",
-          "all": "Tous les thèmes"
-        }
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement des sites",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun site trouvé"
-      },
-      "column": {
-        "url": "URL",
-        "infrastructure": "Infrastructure",
-        "createdAt": "Âge",
-        "actions": "Actions"
-      }
-    },
-    "add": {
-      "title": "Ajouter un nouveau site",
-      "success": {
-        "title": "Site créé avec succès",
-        "message": "Le nouveau site a été ajouté au système."
-      },
-      "error": {
-        "title": "Erreur lors de la création du site",
-        "description": "Veuillez réessayer plus tard"
-      }
-    },
-    "update": {
-      "title": "Modifier le site",
-      "subtitle": "Modifier les informations de ce site",
-      "success": {
-        "title": "Site mis à jour avec succès",
-        "message": "Les modifications ont été enregistrées."
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement du site",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun site trouvé",
-        "title": "Erreur lors de la mise à jour du site"
-      }
-    },
-    "tags": {
-      "title": "Gérer les tags du site",
-      "siteUrl": "URL du site",
-      "success": {
-        "title": "Tags mis à jour avec succès",
-        "message": "Les tags du site ont été mis à jour avec succès."
-      },
-      "error": {
-        "title": "Erreur lors de la mise à jour des tags",
-        "message": "Une erreur est survenue lors de la mise à jour des tags. Veuillez réessayer.",
-        "unknown": "Une erreur inconnue est survenue"
-      },
-      "actions": {
-        "save": "Enregistrer les modifications",
-        "saving": "Enregistrement",
-        "reset": "Réinitialiser"
-      }
-    },
-    "form": {
-      "infrastructure": {
-        "label": "Infrastructure",
-        "placeholder": "Sélectionner l’infrastructure du site..."
-      },
-      "url": {
-        "label": "URL",
-        "placeholder": "https://exemple.com"
-      },
-      "title": {
-        "label": "Titre du site",
-        "placeholder": "Entrer le titre du site..."
-      },
-      "tagline": {
-        "label": "Tagline (Nom)",
-        "placeholder": "Entrer le slogan du site..."
-      },
-      "theme": {
-        "label": "Thème",
-        "placeholder": "Entrer le nom du thème..."
-      },
-      "unitId": {
-        "label": "ID de l’unité",
-        "placeholder": "Entrer l’identifiant de l’unité..."
-      },
-      "languages": {
-        "label": "Langues"
-      },
-      "categories": {
-        "label": "Catégories",
-        "options": {
-          "education": "Éducation",
-          "business": "Affaires",
-          "personal": "Personnel",
-          "portfolio": "Portfolio"
-        }
-      },
-      "downloadsProtectionScript": {
-        "label": "Script de protection des téléchargements",
-        "placeholder": "Entrer le script de protection..."
-      },
-      "ticket": {
-        "label": "Ticket",
-        "placeholder": "Entrer la référence du ticket..."
-      },
-      "comment": {
-        "label": "Commentaire",
-        "placeholder": "Entrer des commentaires supplémentaires..."
-      },
-      "sections": {
-        "general": {
-          "title": "Informations générales"
-        },
-        "details": {
-          "title": "Détails du site"
-        },
-        "advanced": {
-          "title": "Configuration avancée"
-        },
-        "metadata": {
-          "title": "Métadonnées"
-        }
-      }
-    },
-    "actions": {
-      "add": "Ajouter un site",
-      "edit": "Modifier le site",
-      "delete": "Supprimer le site",
-      "update": "Mettre à jour le site",
-      "updating": "Mise à jour",
-      "save": "Enregistrer les modifications",
-      "cancel": "Annuler",
-      "view": "Voir les détails",
-      "viewSite": "Visiter le site",
-      "create": "Créer",
-      "reset": "Réinitialiser",
-      "creating": "Création en cours"
-    }
-  },
-  "status": {
-    "loading": "Chargement...",
-    "saving": "Enregistrement...",
-    "deleting": "Suppression...",
-    "error": "Erreur",
-    "success": "Succès",
-    "notFound": "Non trouvé"
-  },
-  "tag": {
-    "list": {
-      "title": "Gérer les tags",
-      "subtitle": "Créer et gérer vos tags pour organiser votre contenu",
-      "empty": {
-        "title": "Aucun tag créé",
-        "description": "Commencez par créer votre premier tag pour organiser votre contenu"
-      },
-      "no_results": "Aucun tag trouvé",
-      "no_results_description": "Aucun tag ne correspond à vos critères de recherche",
-      "search": {
-        "name": {
-          "placeholder": "Rechercher des tags..."
-        },
-        "type": {
-          "placeholder": "Filtrer par type...",
-          "all": "Tous les types"
-        }
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement des tags",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun tag trouvé"
-      }
-    },
-    "add": {
-      "title": "Créer un nouveau tag",
-      "success": {
-        "title": "Tag créé avec succès",
-        "message": "Le nouveau tag a été créé et est maintenant disponible"
-      },
-      "error": {
-        "title": "Erreur lors de la création du tag",
-        "message": "Une erreur est survenue lors de la création du tag. Veuillez réessayer."
-      }
-    },
-    "update": {
-      "title": "Modifier le tag",
-      "subtitle": "Modifier les informations de ce tag",
-      "success": {
-        "title": "Tag mis à jour avec succès",
-        "message": "Les modifications ont été enregistrées avec succès"
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement du tag",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun tag trouvé",
-        "title": "Erreur lors de la mise à jour du tag"
-      }
-    },
-    "form": {
-      "type": {
-        "label": "Type de tag",
-        "description": "Sélectionnez le type de tag approprié",
-        "placeholder": "Choisir un type de tag..."
-      },
-      "nameFr": {
-        "label": "Nom (français)",
-        "placeholder": "Nom du tag en français",
-        "description": "Le nom du tag affiché en français"
-      },
-      "nameEn": {
-        "label": "Nom (anglais)",
-        "placeholder": "Nom du tag en anglais",
-        "description": "Le nom du tag affiché en anglais"
-      },
-      "urlFr": {
-        "label": "URL (français)",
-        "placeholder": "https://epfl.ch/xxx",
-        "description": "L’URL de destination pour la version française"
-      },
-      "urlEn": {
-        "label": "URL (anglais)",
-        "placeholder": "https://epfl.ch/xxx",
-        "description": "L’URL de destination pour la version anglaise"
-      },
-      "sections": {
-        "general": {
-          "title": "Type de tag"
-        },
-        "names": {
-          "title": "Informations"
-        }
-      }
-    },
-    "actions": {
-      "add": "Ajouter un nouveau tag",
-      "add_first": "Créer le premier tag",
-      "edit": "Modifier le tag",
-      "delete": "Supprimer le tag",
-      "save": "Enregistrer les modifications",
-      "cancel": "Annuler",
-      "create": "Créer le tag",
-      "update": "Mettre à jour le tag",
-      "reset": "Réinitialiser le formulaire",
-      "back_to_list": "Retour à la liste",
-      "creating": "Création en cours",
-      "updating": "Mise à jour en cours",
-      "view_details": "Voir les détails",
-      "duplicate": "Dupliquer le tag",
-      "export": "Exporter les tags",
-      "import": "Importer les tags"
-    }
-  },
-  "log": {
-    "list": {
-      "title": "Journaux d’actions",
-      "search": {
-        "message": {
-          "placeholder": "Rechercher par message..."
-        },
-        "level": {
-          "placeholder": "Filtrer par niveau...",
-          "all": "Tous les niveaux"
-        },
-        "action": {
-          "all": "Toutes les actions",
-          "selected": "{count} action(s) sélectionnée(s)"
-        }
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement des journaux",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun journal trouvé"
-      },
-      "column": {
-        "level": "Niveau",
-        "message": "Message",
-        "user": "Utilisateur",
-        "timestamp": "Horodatage"
-      }
-    }
-  },
-  "theme": {
-    "list": {
-      "title": "Gérer les thèmes",
-      "search": {
-        "name": {
-          "placeholder": "Rechercher des thèmes..."
-        },
-        "type": {
-          "placeholder": "Filtrer par type...",
-          "all": "Tous les types"
-        }
-      },
-      "column": {
-        "name": "Nom"
-      },
-      "error": {
-        "text": "Une erreur est survenue lors du chargement des thèmes",
-        "subText": "Veuillez réessayer plus tard",
-        "empty": "Aucun thème trouvé"
-      }
-    },
-    "actions": {
-      "add": "Ajouter un nouveau thème",
-      "edit": "Modifier le thème",
-      "delete": "Supprimer le thème",
-      "save": "Enregistrer les modifications",
-      "cancel": "Annuler"
-    }
-  },
-  "actions": {
-    "delete": {
-      "title": "Supprimer {object}",
-      "description": "Êtes-vous sûr de vouloir supprimer ce {object} ?",
-      "warning": "Cette action supprimera définitivement le {object}.",
-      "irreversible": "Cette action est irréversible.",
-      "deleting": "Suppression en cours...",
-      "success": "{object} supprimé avec succès",
-      "cancel": "Annuler",
-      "confirm": "Supprimer {object}",
-      "error": "Erreur lors de la suppression de {object}"
-    }
-  },
-  "validation": {
-    "required": "Ce champ est requis",
-    "invalidString": "Ce champ doit être une chaîne de caractères",
-    "invalidType": "Ce champ est invalide",
-    "url": "Veuillez entrer une URL valide",
-    "invalidEnum": "Ce champ doit faire partie de : {options}",
-    "tooSmall": "La longueur minimale est de {min} caractères",
-    "tooBig": "La longueur maximale est de {max} caractères",
-    "pattern": "Format invalide"
-  },
-  "notFound": {
-    "title": "Oups ! Il semble que cette page n'existe pas",
-    "home": "Retour à l'accueil",
-    "back": "Page précédente",
-    "contact": "Si vous pensez qu'il s'agit d'une erreur, contactez l'équipe"
-  },
-  "form": {
-    "showMore": "Afficher plus"
-  }
+	"home": {
+		"title": "Bienvenue"
+	},
+	"sidebar": {
+		"home": "Tous les sites",
+		"new": "Créer un nouveau site",
+		"info": "Informations du site",
+		"tags": "Gérer les tags",
+		"themes": "Gérer les thèmes",
+		"trash": "Sites supprimés",
+		"logs": "Journaux d’actions",
+		"redirections": "Redirections"
+	},
+	"site": {
+		"tools": {
+			"button": "Plus d'Outils",
+			"menu": {
+				"title": "Outils Disponibles",
+				"filters": {
+					"title": "Filtres Avancés",
+					"description": "Filtrer les sites selon plusieurs critères"
+				},
+				"export": {
+					"title": "Exporter les Données",
+					"description": "Télécharger les données des sites dans différents formats"
+				},
+				"statistics": {
+					"title": "Statistiques des Sites",
+					"description": "Voir les analyses détaillées et les insights"
+				}
+			},
+			"filters": {
+				"title": "Filtres Avancés",
+				"date": {
+					"range": "Plage de Dates",
+					"to": "à",
+					"from": "de"
+				},
+				"languages": "Langues",
+				"categories": "Catégories",
+				"has": {
+					"categories": "Avec Catégories",
+					"downloads": "Protection des Téléchargements"
+				},
+				"url": {
+					"label": "Filtrer par URL",
+					"placeholder": "Saisissez l'URL à rechercher..."
+				},
+				"infrastructure": {
+					"label": "Type d'Infrastructure",
+					"placeholder": "Sélectionnez une infrastructure...",
+					"all": "Toutes les Infrastructures"
+				},
+				"theme": {
+					"label": "Thème",
+					"placeholder": "Sélectionnez un thème...",
+					"all": "Tous les Thèmes"
+				},
+				"reset": "Réinitialiser Tous les Filtres",
+				"apply": "Appliquer les Filtres"
+			},
+			"export": {
+				"title": "Exporter les Données",
+				"description": "Exporter {count} sites filtrés au format CSV",
+				"format": {
+					"info": "Les fichiers seront exportés en encodage UTF-8"
+				},
+				"csv": {
+					"button": "Exporter en CSV"
+				}
+			},
+			"statistics": {
+				"title": "Statistiques des Sites",
+				"overview": {
+					"title": "Aperçu"
+				},
+				"breakdown": {
+					"title": "Répartition"
+				},
+				"distributions": {
+					"title": "Principales Distributions"
+				},
+				"total": {
+					"sites": "Total des Sites"
+				},
+				"filtered": {
+					"sites": "Sites Filtrés"
+				},
+				"recent": {
+					"sites": "Sites Récents"
+				},
+				"kubernetes": {
+					"sites": "Sites Kubernetes"
+				},
+				"multilingual": {
+					"sites": "Sites Multilingues"
+				},
+				"features": {
+					"title": "Fonctionnalités",
+					"downloads": "Protection des Téléchargements",
+					"categories": "Avec Catégories"
+				},
+				"infrastructure": {
+					"title": "Types d'Infrastructure",
+					"distribution": "Infrastructure",
+					"details": "Détails de l'Infrastructure",
+					"kubernetes": "Kubernetes",
+					"database": "Base de Données",
+					"none": "Aucune/Autre"
+				},
+				"theme": {
+					"distribution": "Thèmes"
+				},
+				"language": {
+					"distribution": "Langues"
+				},
+				"category": {
+					"distribution": "Catégories"
+				},
+				"time": {
+					"title": "Distribution Temporelle",
+					"lastWeek": "7 derniers jours",
+					"lastMonth": "30 derniers jours",
+					"lastQuarter": "3 derniers mois"
+				},
+				"more": "et {count} de plus...",
+				"noData": "Aucune donnée disponible"
+			}
+		},
+		"info": {
+			"title": "Rechercher des informations sur les sites web",
+			"search": {
+				"button": "Rechercher",
+				"url": {
+					"placeholder": "Rechercher des sites web..."
+				},
+				"type": {
+					"placeholder": "Filtrer par type...",
+					"all": "Tous les types"
+				},
+				"theme": {
+					"placeholder": "Filtrer par thème...",
+					"all": "Tous les thèmes"
+				}
+			},
+			"loading": "Chargement des sites web...",
+			"noResults": {
+				"title": "Aucun site trouvé",
+				"description": "Essayez d’ajuster vos critères de recherche ou vérifiez l’orthographe."
+			},
+			"searchPrompt": {
+				"title": "Rechercher des sites web",
+				"description": "Entrez une URL ou un mot-clé pour trouver des sites correspondants."
+			},
+			"resultsCount": "{count} site(s) trouvé(s)",
+			"sortInfo": "Trié par date de création (le plus récent en premier)",
+			"error": {
+				"title": "Une erreur est survenue lors du chargement des sites web",
+				"description": "Veuillez réessayer plus tard",
+				"connection": "Erreur de connexion",
+				"server": "Erreur du serveur",
+				"notFound": "Aucun site correspondant à vos critères"
+			},
+			"details": {
+				"title": "Détails du site",
+				"description": "Informations et permissions",
+				"loginUrl": "Connexion WordPress",
+				"adminAccess": "Accès administrateur",
+				"unit": "Unité affiliée",
+				"lastModified": "Dernière modification",
+				"recentModifications": "Modifications récentes",
+				"permissions": "Permissions et droits",
+				"editors": "Éditeurs WordPress",
+				"accreditors": "Accréditants de l’unité",
+				"note": "Note",
+				"neverModified": "Ce site n’a jamais été modifié.",
+				"permissionsNote": "Les éditeurs WordPress peuvent modifier le contenu. Les accréditants peuvent gérer les permissions et accorder les droits d’édition."
+			},
+			"meta": {
+				"mainInfo": "Informations principales",
+				"additionalInfo": "Informations supplémentaires",
+				"metadata": "Métadonnées"
+			}
+		},
+		"list": {
+			"title": "Source de vérité pour les sites WordPress",
+			"search": {
+				"url": {
+					"placeholder": "Rechercher des sites web..."
+				},
+				"infrastructure": {
+					"placeholder": "Filtrer par infrastructure...",
+					"all": "Toutes les infrastructures"
+				},
+				"theme": {
+					"placeholder": "Filtrer par thème...",
+					"all": "Tous les thèmes"
+				}
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement des sites",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun site trouvé"
+			},
+			"column": {
+				"url": "URL",
+				"infrastructure": "Infrastructure",
+				"createdAt": "Âge",
+				"actions": "Actions"
+			}
+		},
+		"add": {
+			"title": "Ajouter un nouveau site",
+			"success": {
+				"title": "Site créé avec succès",
+				"message": "Le nouveau site a été ajouté au système."
+			},
+			"error": {
+				"title": "Erreur lors de la création du site",
+				"description": "Veuillez réessayer plus tard"
+			}
+		},
+		"update": {
+			"title": "Modifier le site",
+			"subtitle": "Modifier les informations de ce site",
+			"success": {
+				"title": "Site mis à jour avec succès",
+				"message": "Les modifications ont été enregistrées."
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement du site",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun site trouvé",
+				"title": "Erreur lors de la mise à jour du site"
+			}
+		},
+		"tags": {
+			"title": "Gérer les tags du site",
+			"siteUrl": "URL du site",
+			"success": {
+				"title": "Tags mis à jour avec succès",
+				"message": "Les tags du site ont été mis à jour avec succès."
+			},
+			"error": {
+				"title": "Erreur lors de la mise à jour des tags",
+				"message": "Une erreur est survenue lors de la mise à jour des tags. Veuillez réessayer.",
+				"unknown": "Une erreur inconnue est survenue"
+			},
+			"actions": {
+				"save": "Enregistrer les modifications",
+				"saving": "Enregistrement",
+				"reset": "Réinitialiser"
+			}
+		},
+		"form": {
+			"infrastructure": {
+				"label": "Infrastructure",
+				"placeholder": "Sélectionner l’infrastructure du site..."
+			},
+			"url": {
+				"label": "URL",
+				"placeholder": "https://exemple.com"
+			},
+			"title": {
+				"label": "Titre du site",
+				"placeholder": "Entrer le titre du site..."
+			},
+			"tagline": {
+				"label": "Tagline (Nom)",
+				"placeholder": "Entrer le slogan du site..."
+			},
+			"theme": {
+				"label": "Thème",
+				"placeholder": "Entrer le nom du thème..."
+			},
+			"unitId": {
+				"label": "ID de l’unité",
+				"placeholder": "Entrer l’identifiant de l’unité..."
+			},
+			"languages": {
+				"label": "Langues"
+			},
+			"categories": {
+				"label": "Catégories",
+				"options": {
+					"education": "Éducation",
+					"business": "Affaires",
+					"personal": "Personnel",
+					"portfolio": "Portfolio"
+				}
+			},
+			"downloadsProtectionScript": {
+				"label": "Script de protection des téléchargements",
+				"placeholder": "Entrer le script de protection..."
+			},
+			"ticket": {
+				"label": "Ticket",
+				"placeholder": "Entrer la référence du ticket..."
+			},
+			"comment": {
+				"label": "Commentaire",
+				"placeholder": "Entrer des commentaires supplémentaires..."
+			},
+			"sections": {
+				"general": {
+					"title": "Informations générales"
+				},
+				"details": {
+					"title": "Détails du site"
+				},
+				"advanced": {
+					"title": "Configuration avancée"
+				},
+				"metadata": {
+					"title": "Métadonnées"
+				}
+			}
+		},
+		"actions": {
+			"add": "Ajouter un site",
+			"edit": "Modifier le site",
+			"delete": "Supprimer le site",
+			"update": "Mettre à jour le site",
+			"updating": "Mise à jour",
+			"save": "Enregistrer les modifications",
+			"cancel": "Annuler",
+			"view": "Voir les détails",
+			"viewSite": "Visiter le site",
+			"create": "Créer",
+			"reset": "Réinitialiser",
+			"creating": "Création en cours"
+		}
+	},
+	"status": {
+		"loading": "Chargement...",
+		"saving": "Enregistrement...",
+		"deleting": "Suppression...",
+		"error": "Erreur",
+		"success": "Succès",
+		"notFound": "Non trouvé"
+	},
+	"tag": {
+		"list": {
+			"title": "Gérer les tags",
+			"subtitle": "Créer et gérer vos tags pour organiser votre contenu",
+			"empty": {
+				"title": "Aucun tag créé",
+				"description": "Commencez par créer votre premier tag pour organiser votre contenu"
+			},
+			"no_results": "Aucun tag trouvé",
+			"no_results_description": "Aucun tag ne correspond à vos critères de recherche",
+			"search": {
+				"name": {
+					"placeholder": "Rechercher des tags..."
+				},
+				"type": {
+					"placeholder": "Filtrer par type...",
+					"all": "Tous les types"
+				}
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement des tags",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun tag trouvé"
+			}
+		},
+		"add": {
+			"title": "Créer un nouveau tag",
+			"success": {
+				"title": "Tag créé avec succès",
+				"message": "Le nouveau tag a été créé et est maintenant disponible"
+			},
+			"error": {
+				"title": "Erreur lors de la création du tag",
+				"message": "Une erreur est survenue lors de la création du tag. Veuillez réessayer."
+			}
+		},
+		"update": {
+			"title": "Modifier le tag",
+			"subtitle": "Modifier les informations de ce tag",
+			"success": {
+				"title": "Tag mis à jour avec succès",
+				"message": "Les modifications ont été enregistrées avec succès"
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement du tag",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun tag trouvé",
+				"title": "Erreur lors de la mise à jour du tag"
+			}
+		},
+		"form": {
+			"type": {
+				"label": "Type de tag",
+				"description": "Sélectionnez le type de tag approprié",
+				"placeholder": "Choisir un type de tag..."
+			},
+			"nameFr": {
+				"label": "Nom (français)",
+				"placeholder": "Nom du tag en français",
+				"description": "Le nom du tag affiché en français"
+			},
+			"nameEn": {
+				"label": "Nom (anglais)",
+				"placeholder": "Nom du tag en anglais",
+				"description": "Le nom du tag affiché en anglais"
+			},
+			"urlFr": {
+				"label": "URL (français)",
+				"placeholder": "https://epfl.ch/xxx",
+				"description": "L’URL de destination pour la version française"
+			},
+			"urlEn": {
+				"label": "URL (anglais)",
+				"placeholder": "https://epfl.ch/xxx",
+				"description": "L’URL de destination pour la version anglaise"
+			},
+			"sections": {
+				"general": {
+					"title": "Type de tag"
+				},
+				"names": {
+					"title": "Informations"
+				}
+			}
+		},
+		"actions": {
+			"add": "Ajouter un nouveau tag",
+			"add_first": "Créer le premier tag",
+			"edit": "Modifier le tag",
+			"delete": "Supprimer le tag",
+			"save": "Enregistrer les modifications",
+			"cancel": "Annuler",
+			"create": "Créer le tag",
+			"update": "Mettre à jour le tag",
+			"reset": "Réinitialiser le formulaire",
+			"back_to_list": "Retour à la liste",
+			"creating": "Création en cours",
+			"updating": "Mise à jour en cours",
+			"view_details": "Voir les détails",
+			"duplicate": "Dupliquer le tag",
+			"export": "Exporter les tags",
+			"import": "Importer les tags"
+		}
+	},
+	"log": {
+		"list": {
+			"title": "Journaux d’actions",
+			"search": {
+				"message": {
+					"placeholder": "Rechercher par message..."
+				},
+				"level": {
+					"placeholder": "Filtrer par niveau...",
+					"all": "Tous les niveaux"
+				},
+				"action": {
+					"all": "Toutes les actions",
+					"selected": "{count} action(s) sélectionnée(s)"
+				}
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement des journaux",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun journal trouvé"
+			},
+			"column": {
+				"level": "Niveau",
+				"message": "Message",
+				"user": "Utilisateur",
+				"timestamp": "Horodatage"
+			}
+		}
+	},
+	"theme": {
+		"list": {
+			"title": "Gérer les thèmes",
+			"search": {
+				"name": {
+					"placeholder": "Rechercher des thèmes..."
+				},
+				"type": {
+					"placeholder": "Filtrer par type...",
+					"all": "Tous les types"
+				}
+			},
+			"column": {
+				"name": "Nom"
+			},
+			"error": {
+				"text": "Une erreur est survenue lors du chargement des thèmes",
+				"subText": "Veuillez réessayer plus tard",
+				"empty": "Aucun thème trouvé"
+			}
+		},
+		"actions": {
+			"add": "Ajouter un nouveau thème",
+			"edit": "Modifier le thème",
+			"delete": "Supprimer le thème",
+			"save": "Enregistrer les modifications",
+			"cancel": "Annuler"
+		}
+	},
+	"actions": {
+		"delete": {
+			"title": "Supprimer {object}",
+			"description": "Êtes-vous sûr de vouloir supprimer ce {object} ?",
+			"warning": "Cette action supprimera définitivement le {object}.",
+			"irreversible": "Cette action est irréversible.",
+			"deleting": "Suppression en cours...",
+			"success": "{object} supprimé avec succès",
+			"cancel": "Annuler",
+			"confirm": "Supprimer {object}",
+			"error": "Erreur lors de la suppression de {object}"
+		}
+	},
+	"validation": {
+		"required": "Ce champ est requis",
+		"invalidString": "Ce champ doit être une chaîne de caractères",
+		"invalidType": "Ce champ est invalide",
+		"url": "Veuillez entrer une URL valide",
+		"invalidEnum": "Ce champ doit faire partie de : {options}",
+		"tooSmall": "La longueur minimale est de {min} caractères",
+		"tooBig": "La longueur maximale est de {max} caractères",
+		"pattern": "Format invalide"
+	},
+	"notFound": {
+		"title": "Oups ! Il semble que cette page n'existe pas",
+		"home": "Retour à l'accueil",
+		"back": "Page précédente",
+		"contact": "Si vous pensez qu'il s'agit d'une erreur, contactez l'équipe"
+	},
+	"form": {
+		"showMore": "Afficher plus"
+	}
 }
