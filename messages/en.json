@@ -13,6 +13,121 @@
 		"redirections": "Redirections"
 	},
 	"site": {
+		"tools": {
+			"button": "More Tools",
+			"menu": {
+				"title": "Available Tools",
+				"filters": {
+					"title": "Advanced Filters",
+					"description": "Filter sites by multiple criteria"
+				},
+				"export": {
+					"title": "Export Data",
+					"description": "Download site data in various formats"
+				},
+				"statistics": {
+					"title": "Site Statistics",
+					"description": "View detailed analytics and insights"
+				}
+			},
+			"filters": {
+				"title": "Advanced Filters",
+				"date": {
+					"range": "Date Range",
+					"to": "to",
+					"from": "from"
+				},
+				"languages": "Languages",
+				"categories": "Categories",
+				"has": {
+					"categories": "Has Categories",
+					"downloads": "Downloads Protection"
+				},
+				"url": {
+					"label": "Filter by URL",
+					"placeholder": "Enter URL to search..."
+				},
+				"infrastructure": {
+					"label": "Infrastructure Type",
+					"placeholder": "Select infrastructure...",
+					"all": "All Infrastructures"
+				},
+				"theme": {
+					"label": "Theme",
+					"placeholder": "Select theme...",
+					"all": "All Themes"
+				},
+				"reset": "Reset All Filters",
+				"apply": "Apply Filters"
+			},
+			"export": {
+				"title": "Export Data",
+				"description": "Export {count} filtered sites to CSV format",
+				"format": {
+					"info": "Files will be exported in UTF-8 encoding"
+				},
+				"csv": {
+					"button": "Export to CSV"
+				}
+			},
+			"statistics": {
+				"title": "Site Statistics",
+				"overview": {
+					"title": "Overview"
+				},
+				"breakdown": {
+					"title": "Breakdown"
+				},
+				"distributions": {
+					"title": "Top Distributions"
+				},
+				"total": {
+					"sites": "Total Sites"
+				},
+				"filtered": {
+					"sites": "Filtered Sites"
+				},
+				"recent": {
+					"sites": "Recent Sites"
+				},
+				"kubernetes": {
+					"sites": "Kubernetes Sites"
+				},
+				"multilingual": {
+					"sites": "Multilingual Sites"
+				},
+				"features": {
+					"title": "Features",
+					"downloads": "Downloads Protection",
+					"categories": "With Categories"
+				},
+				"infrastructure": {
+					"title": "Infrastructure Types",
+					"distribution": "Infrastructure",
+					"details": "Infrastructure Details",
+					"kubernetes": "Kubernetes",
+					"database": "Database",
+					"none": "None/Other"
+				},
+				"theme": {
+					"distribution": "Themes"
+				},
+				"language": {
+					"distribution": "Languages"
+				},
+				"category": {
+					"distribution": "Categories"
+				},
+				"time": {
+					"title": "Time Distribution",
+					"lastWeek": "Last 7 days",
+					"lastMonth": "Last 30 days",
+					"lastQuarter": "Last 3 months"
+				},
+				"more": "and {count} more...",
+				"noData": "No data available"
+			}
+		},
 		"info": {
 			"title": "Search for website information",
 			"search": {
