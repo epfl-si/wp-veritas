@@ -192,9 +192,9 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		for (const [key, value] of Object.entries(site)) {
 			if (!UPDATABLE_FIELDS.includes(key) && existingSite.hasOwnProperty(key)) {
 				const existingValue = existingSite[key as keyof typeof existingSite];
-				
+
 				if (Array.isArray(value) && Array.isArray(existingValue)) {
-					if (value.length !== existingValue.length || 
+					if (value.length !== existingValue.length ||
 						!value.every((item, index) => item === existingValue[index])) {
 						immutableFieldsChanged.push(key);
 					}
@@ -212,36 +212,36 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				error: "Field immutable",
 				immutableFields: immutableFieldsChanged,
 			});
-			return { 
-				error: { 
-					status: 400, 
-					message: `Field immutable: ${immutableFieldsChanged.join(", ")}`, 
-					success: false, 
-				}, 
+			return {
+				error: {
+					status: 400,
+					message: `Field immutable: ${immutableFieldsChanged.join(", ")}`,
+					success: false,
+				},
 			};
 		}
 
 		const persistence = getSitePersistence(site.infrastructure);
 		const changes: string[] = [];
 		const changeDetails: Record<string, { from: unknown; to: unknown }> = {};
-		
+
 		for (const field of UPDATABLE_FIELDS) {
 			if (field in site && field in existingSite) {
 				const newValue = site[field as keyof SiteFormType];
 				const existingValue = existingSite[field as keyof typeof existingSite];
 				let hasChanged = false;
 				if (Array.isArray(newValue) && Array.isArray(existingValue)) {
-					hasChanged = newValue.length !== existingValue.length || 
+					hasChanged = newValue.length !== existingValue.length ||
 						!newValue.every((item, index) => item === existingValue[index]);
 				} else {
 					hasChanged = newValue !== existingValue;
 				}
-				
+
 				if (hasChanged) {
-					
-					const generateChangeMessage = (fieldName: string, oldVal: string | string[] | Date | undefined, newVal: string | string[] | boolean | number | undefined): string => {
+
+					const generateChangeMessage = (fieldName: string, oldVal: string | boolean | string[] | Date | undefined, newVal: string | string[] | boolean | number | undefined): string => {
 						const article = ["a", "e", "i", "o", "u"].includes(fieldName.toLowerCase()[0]) ? "An" : "A";
-						
+
 						if (newVal && !oldVal) {
 							return `${article} ${fieldName.toLowerCase()} was added: **${newVal}**`;
 						} else if (!newVal && oldVal) {
@@ -265,11 +265,11 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 							changes.push(`Some categories were removed: **${removed.join(", ")}**`);
 						}
 					} else {
-						
+
 						const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
 						changes.push(generateChangeMessage(fieldName, existingValue, newValue));
 					}
-					
+
 					changeDetails[field] = { from: existingValue, to: newValue };
 				}
 			}
