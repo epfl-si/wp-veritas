@@ -201,7 +201,8 @@
 			"error": {
 				"text": "An error occurred while loading websites",
 				"subText": "Please try again later",
-				"empty": "No websites found"
+				"empty": "No websites found",
+				"unmanaged": "Unmanaged"
 			},
 			"column": {
 				"url": "URL",
@@ -442,7 +443,7 @@
 			"add_first": "Create First Tag",
 			"edit": "Edit Tag",
 			"delete": "Delete Tag",
-			"deleteTooltip": "{count, plural, =1 {Cannot delete this tag as it is used by # site} other {Cannot delete this tag as it is used by # sites}}",
+			"deleteTooltip": "{count, plural, =1 {Impossible to delete, used by # site} other {Impossible to delete, used by # sites}}",
 			"save": "Save Changes",
 			"cancel": "Cancel",
 			"create": "Create Tag",
