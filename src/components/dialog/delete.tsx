@@ -51,7 +51,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-gray-200 text-gray-600 hover:text-gray-600 hover:bg-gray-200">
+				<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-red-400 text-red-600 hover:text-red-600 hover:bg-red-100">
 					<Trash2 strokeWidth={2.3} className="size-5" />
 				</Button>
 			</DialogTrigger>
