@@ -128,6 +128,13 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		updateURL(newFilters);
 	};
 
+	const openMoreTools = () => {
+		setShowMoreTools(true);
+		setShowFilters(false);
+		setShowExport(false);
+		setShowStatistics(false);
+	};
+
 	const getInfrastructureConfig = (typeName: string): InfrastructureType | undefined => {
 		return Object.values(INFRASTRUCTURES).find((infrastructure) => infrastructure.NAME === typeName);
 	};
@@ -428,7 +435,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 							<DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
 								<DialogHeader>
 									<DialogTitle className="flex items-center gap-2">
-										<Filter className="size-5" />
+										<div className="flex bg-gray-100 w-9 h-9 items-center justify-center">
+											<ArrowLeft className="size-5 cursor-pointer" onClick={() => openMoreTools()} />
+										</div>
 										{t("tools.filters.title")}
 									</DialogTitle>
 								</DialogHeader>
@@ -633,7 +642,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 							<DialogContent className="max-w-md">
 								<DialogHeader>
 									<DialogTitle className="flex items-center gap-2">
-										<Download className="size-5" />
+										<div className="flex bg-gray-100 w-9 h-9 items-center justify-center">
+											<ArrowLeft className="size-5 cursor-pointer" onClick={() => openMoreTools()} />
+										</div>
 										{t("tools.export.title")}
 									</DialogTitle>
 								</DialogHeader>
@@ -658,7 +669,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 							<DialogContent className="sm:max-w-1/2 max-h-[85vh] overflow-y-auto">
 								<DialogHeader>
 									<DialogTitle className="flex items-center gap-2">
-										<BarChart3 className="size-5" />
+										<div className="flex bg-gray-100 w-9 h-9 items-center justify-center">
+											<ArrowLeft className="size-5 cursor-pointer" onClick={() => openMoreTools()} />
+										</div>
 										{t("tools.statistics.title")}
 									</DialogTitle>
 								</DialogHeader>
