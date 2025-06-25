@@ -346,7 +346,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
 					{permissions.includes(PERMISSIONS.SITES.READ) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-400 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
+						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
 							<Link href={`/search?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
 							</Link>
