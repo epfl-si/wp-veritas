@@ -49,12 +49,13 @@ interface BaseSiteType {
 	url: string;
 	createdAt: Date;
 	tags: string[];
+	managed: boolean;
 	ticket?: string;
 	comment?: string;
 }
 
 export interface KubernetesSite extends BaseSiteType {
-	infrastructure: KubernetesInfrastructureName;
+	infrastructure: KubernetesInfrastructureName | NoneInfrastructureName;
 	tagline: string;
 	title: string;
 	theme: string;
@@ -219,7 +220,7 @@ export const createSiteSchema = async () => {
 };
 
 export const isKubernetesSite = (site: SiteType): site is KubernetesSite => {
-	return site.infrastructure === "Kubernetes";
+	return site.infrastructure === INFRASTRUCTURES.KUBERNETES.NAME || site.infrastructure === INFRASTRUCTURES.TEMPORARY.NAME;
 };
 
 export const isDatabaseSite = (site: SiteType): site is DatabaseSite => {

@@ -4,6 +4,7 @@ import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
 import { ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
 import { extractLanguages } from "./languages";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -80,14 +81,11 @@ async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: Kuberne
 
 function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 	const isTemporary = item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-kleenex";
-	if (isTemporary) {
-		throw new Error("Temporary sites should not be mapped as Kubernetes sites");
-	}
 
 	return {
 		id: item.metadata.uid,
 		url: ensureSlashAtEnd(`https://${item.spec.hostname}${item.spec.path}`),
-		infrastructure: "Kubernetes",
+		infrastructure: item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-kleenex" ? INFRASTRUCTURES.TEMPORARY.NAME : INFRASTRUCTURES.KUBERNETES.NAME,
 		tagline: item.status?.wordpresssite?.tagline || item.spec.wordpress.tagline || "",
 		title: item.status?.wordpresssite?.title || item.spec.wordpress.title || "",
 		theme: item.spec.wordpress.theme || "",
@@ -96,6 +94,7 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		languages: extractLanguages(item.spec.wordpress.plugins),
 		categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		downloadsProtectionScript: Boolean(item.spec.wordpress.downloadsProtectionScript),
+		managed: item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-veritas" && !isTemporary,
 		tags: [],
 		ticket: undefined,
 		comment: undefined,
@@ -115,6 +114,7 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 		languages: site.languages,
 		categories: site.categories || [],
 		downloadsProtectionScript: site.downloadsProtectionScript || false,
+		managed: true,
 		createdAt: new Date(),
 		tags: [],
 	};
@@ -388,10 +388,6 @@ export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; 
 		}
 
 		const kubernetesSites = items
-			.filter((item) => {
-				const managedBy = item.metadata.labels?.["app.kubernetes.io/managed-by"];
-				return !managedBy || managedBy !== "wp-kleenex";
-			})
 			.map(mapKubernetesToSite);
 
 		return { sites: kubernetesSites };

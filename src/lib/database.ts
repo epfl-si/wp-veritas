@@ -24,6 +24,7 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 			tags: [],
 			ticket: site.ticket,
 			comment: site.comment,
+			managed: true,
 		};
 
 		return { site: databaseSite };
@@ -56,6 +57,7 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 				tags: [],
 				ticket: site.ticket,
 				comment: site.comment,
+				managed: true,
 			}));
 
 		return { sites: databaseSites };
@@ -132,6 +134,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: { ticket?
 			tags: [],
 			ticket: extras.ticket,
 			comment: extras.comment,
+			managed: true,
 		};
 
 		return { site: result };
@@ -182,6 +185,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 			tags: [],
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
+			managed: true,
 		};
 
 		return { site: result };
@@ -243,6 +247,7 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			tags: [],
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
+			managed: true,
 		};
 
 		return { site: result };
