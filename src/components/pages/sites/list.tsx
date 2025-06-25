@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { isKubernetesSite, SiteType, isDatabaseSite, isNoneSite } from "@/types/site";
-import { GlobeIcon, Info, Pencil, Plus, Tags, MoreHorizontal, Filter, Download, BarChart3, Languages, ChevronRight, Calendar, Layers, Zap } from "lucide-react";
+import { GlobeIcon, Info, Pencil, Plus, Tags, MoreHorizontal, Filter, Download, BarChart3, Languages, ChevronRight, Calendar, Layers, Zap, ArrowLeft, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
@@ -294,10 +294,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			align: "left",
 			sortable: true,
 			render: (site) => (
-				<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
-					<GlobeIcon className="size-6 flex-shrink-0" />
-					<span className="text-base font-medium leading-relaxed">{site.url}</span>
-				</a>
+				<div className="flex items-center justify-between gap-2">
+					<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
+						<GlobeIcon className="size-6 flex-shrink-0" />
+						<span className="text-base font-medium leading-relaxed">{site.url}</span>
+					</a>
+					{!site.managed && (
+						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
+							<AlertTriangle className="size-5"/>
+							<p className="font-medium">{t("list.error.unmanaged")}</p>
+						</div>
+					)}
+				</div>
 			),
 		},
 		{
