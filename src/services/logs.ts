@@ -52,7 +52,7 @@ export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }
 		await error("Failed to list logs", {
 			type: "log",
 			action: "list",
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}

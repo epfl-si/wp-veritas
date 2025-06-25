@@ -155,7 +155,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			type: "site",
 			action: "create",
 			object: site,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		console.error("Error creating site:", errorData);
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
@@ -367,7 +367,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			action: "update",
 			id: siteId,
 			object: site,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -464,7 +464,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 			type: "site",
 			action: "delete",
 			id: siteId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -528,7 +528,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			type: "site",
 			action: "read",
 			id: siteId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -590,7 +590,7 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 		await error("Failed to list sites", {
 			type: "site",
 			action: "list",
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}

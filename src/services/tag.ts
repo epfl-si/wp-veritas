@@ -52,7 +52,7 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 			type: "tag",
 			action: "create",
 			object: tag,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -110,7 +110,7 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 			action: "update",
 			id: tagId,
 			object: tag,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -164,7 +164,7 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 			type: "tag",
 			action: "delete",
 			id: tagId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { status: 500, message: "Internal Server Error", success: false };
 	}
@@ -225,7 +225,7 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 			type: "tag",
 			action: "read",
 			id: tagId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -268,7 +268,7 @@ export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError 
 		await error("Failed to list tags", {
 			type: "tag",
 			action: "list",
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -318,7 +318,7 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 			type: "tag",
 			action: "read",
 			siteId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -389,7 +389,7 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 			action: "associate",
 			tagId,
 			siteId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
@@ -460,7 +460,7 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 			action: "disassociate",
 			tagId,
 			siteId,
-			error: errorData instanceof Error ? errorData.message : "Unknown error",
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
