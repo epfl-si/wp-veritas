@@ -87,7 +87,7 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 			align: "left",
 			sortable: false,
 			render: (tag) => {
-				const canDelete = permissions.includes(PERMISSIONS.SITES.DELETE) && tag.sites.length === 0;
+				const canDelete = permissions.includes(PERMISSIONS.TAGS.DELETE) && tag.sites.length === 0;
 				const hasAssociatedSites = tag.sites.length > 0;
 
 				return (
@@ -100,7 +100,7 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 							</Button>
 						)}
 
-						{permissions.includes(PERMISSIONS.SITES.DELETE) && (
+						{permissions.includes(PERMISSIONS.TAGS.DELETE) && (
 							<>
 								{canDelete ? (
 									<DeleteDialog 
