@@ -193,7 +193,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 		const site = {
 			id: foundSite.id,
 			...(isKubernetesSite(foundSite) ? { title: foundSite.title, tagline: foundSite.tagline } : {}),
-			...(isKubernetesSite(foundSite) ? await getKubernetesSiteExtraInfo(foundSite.id) : {}),
+			...(isKubernetesSite(foundSite) ? { kubernetesExtraInfo: await getKubernetesSiteExtraInfo(foundSite.id) } : {}),
 			infrastructure: foundSite.infrastructure,
 			url: foundSite.url,
 			tags: tags
