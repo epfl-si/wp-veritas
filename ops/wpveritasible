@@ -1,0 +1,128 @@
+#!/bin/bash
+#
+# This is a wrapper around ansible-playbook.
+# Easy to use with ansible (default is test environment)
+# ./fsdsible --test (or -t)
+# ./fsdsible --prod (or -p) - deploys to both test and prod
+#
+# If you are unfamiliar with Ansible, read up on it at
+# - https://www.ansible.com/overview/how-ansible-works
+# - https://github.com/jdauphant/awesome-ansible
+
+export ANSIBLE_JINJA2_NATIVE=true
+set -e
+cd "$(cd "$(dirname "$0")"; pwd)"
+
+help() {
+    cat <<HELP_MSG
+Usage:
+$0 [OPTION] [ansible-args...]
+
+Options:
+  --test        Deploy to test environment only (default)
+  --prod        Deploy to both test and production environments
+  --help        Display this help
+
+Examples:
+  $0                   # Deploy to test environment only
+  $0 --test            # Deploy to test environment only
+  $0 --prod            # Deploy to test and production environments
+
+HELP_MSG
+    exit 1
+}
+
+fatal() {
+    echo "ERROR: $*" >&2
+    exit 1
+}
+
+ensure_suitcase() {
+    if ! test -f ansible-deps-cache/.versions 2>/dev/null; then
+        curl https://raw.githubusercontent.com/epfl-si/ansible.suitcase/master/install.sh | \
+            SUITCASE_DIR=$PWD/ansible-deps-cache \
+            SUITCASE_PIP_EXTRA="kubernetes" \
+            SUITCASE_ANSIBLE_VERSION=10.7.0 \
+            bash -x
+    fi
+    . ansible-deps-cache/lib.sh
+    ensure_ansible_runtime
+}
+
+ensure_login_oc() {
+    local cluster_url=$1
+    if ! oc whoami > /dev/null 2>&1 || ! oc whoami --show-server | grep -q "$cluster_url"; then
+        echo "Logging into OpenShift cluster at $cluster_url..."
+        if ! oc login "$cluster_url" --web; then
+            echo "Login failed. Exiting."
+            exit 1
+        fi
+    else
+        echo "Already logged into $cluster_url."
+    fi
+}
+
+get_cluster_config() {
+    local mode=$1
+    case "$mode" in
+        test)
+            echo "https://api.ocpitst0001.xaas.epfl.ch:6443"
+            ;;
+        prod)
+            echo "https://api.ocpitsp0001.xaas.epfl.ch:6443"
+            ;;
+        *)
+            fatal "Invalid mode: $mode"
+            ;;
+    esac
+}
+
+get_inventory() {
+    local mode=$1
+    case "$mode" in
+        test)
+            echo "-i inventory/test.yml"
+            ;;
+        prod)
+            echo "-i inventory/test.yml -i inventory/prod.yml"
+            ;;
+        *)
+            fatal "Invalid mode: $mode"
+            ;;
+    esac
+}
+
+# Main execution
+ensure_suitcase
+
+[ "$1" == "--help" ] && help
+
+mode="test"
+declare -a ansible_args=()
+
+# Parse arguments
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --help)
+            help
+            ;;
+        --test)
+            mode="test"
+            shift
+            ;;
+        --prod)
+            mode="prod"
+            shift
+            ;;
+        *)
+            ansible_args+=("$1")
+            shift
+            ;;
+    esac
+done
+
+cluster_url=$(get_cluster_config "$mode")
+inventory=$(get_inventory "$mode")
+
+ensure_login_oc "$cluster_url"
+ansible-playbook $inventory "${ansible_args[@]}" playbook.yml
