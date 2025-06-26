@@ -1,0 +1,66 @@
+- name: Deployment
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ app_name }}"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+        annotations:
+          app.openshift.io/vcs-uri: "https://github.com/epfl-si/wp-veritas/"
+      spec:
+        replicas: >-
+          {{ 2 if inventory_environment == 'prod' else 1 }}
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxUnavailable: 1
+        selector:
+          matchLabels:
+            app: "{{ app_name }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ app_name }}"
+          spec:
+            serviceAccountName: "{{ app_name }}"
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                  - labelSelector:
+                      matchLabels:
+                        app: "{{ app_name }}"
+                    topologyKey: kubernetes.io/hostname
+            containers:
+              - name: "{{ app_name }}"
+                imagePullPolicy: Always
+                livenessProbe:
+                  httpGet:
+                    path: "/api/health"
+                    port: 3000
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                readinessProbe:
+                  httpGet:
+                    path: "/api/health"
+                    port: 3000
+                  initialDelaySeconds: 5
+                image: "{{ quay_registry }}/{{ image }}:{{ tag }}"
+                ports:
+                  - containerPort: 3000
+                env:
+                  - name: AUTH_URL
+                    value: "https://{{ route.host }}"
+                  - name: K8S_NAMESPACE
+                    value: "{{ inventory_hostname }}"
+                envFrom:
+                  - secretRef:
+                      name: "{{ app_name }}"
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 256Mi
+                  limits:
+                    memory: 256Mi
