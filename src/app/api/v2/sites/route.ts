@@ -1,5 +1,6 @@
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
+import { ensureSlashAtEnd } from "@/lib/utils";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
@@ -136,7 +137,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const siteUrlParam = searchParams.get("siteUrl");
 		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
 
-		const siteUrlFilter = siteUrlParam ? decodeURIComponent(siteUrlParam) : null;
+		const siteUrlFilter = siteUrlParam ? ensureSlashAtEnd(decodeURIComponent(siteUrlParam)) : null;
+
 
 		const [kubernetesResult, databaseResult] = await Promise.all([
 			getKubernetesSites(),
