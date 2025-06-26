@@ -1,0 +1,4 @@
+- name: WP Veritas
+  hosts: all
+  roles:
+    - role: roles/deploy
