@@ -44,6 +44,14 @@ export interface KubernetesSiteType {
 	};
 }
 
+export interface KubernetesSiteExtraInfo {
+	siteId: string;
+	ingressName: string;
+	databaseName: string;
+	databaseRef: string;
+	wordpressSiteName: string;
+}
+
 interface BaseSiteType {
 	id: string;
 	url: string;
@@ -63,6 +71,7 @@ export interface KubernetesSite extends BaseSiteType {
 	languages: string[];
 	categories: string[];
 	downloadsProtectionScript: boolean;
+	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
 }
 
 export interface DatabaseSite extends BaseSiteType {
