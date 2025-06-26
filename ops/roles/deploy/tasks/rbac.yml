@@ -1,0 +1,49 @@
+- name: ServiceAccount
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: "{{ app_name }}"
+        namespace: "{{ inventory_hostname }}"
+      imagePullSecrets:
+        - name: "{{ app_name }}-pull-secret"
+
+- name: Role
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: "{{ app_name }}"
+        namespace: "{{ inventory_hostname }}"
+      rules:
+        - apiGroups: ["wordpress.epfl.ch"]
+          resources:
+            - wordpresssites
+          verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+        - apiGroups: ["k8s.mariadb.com"]
+          resources:
+            - databases
+          verbs: ["get", "list", "watch"]
+        - apiGroups: ["networking.k8s.io"]
+          resources:
+            - ingresses
+          verbs: ["list", "get"]
+
+- name: RoleBinding
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: RoleBinding
+      metadata:
+        name: "{{ app_name }}"
+        namespace: "{{ inventory_hostname }}"
+      subjects:
+        - kind: ServiceAccount
+          name: "{{ app_name }}"
+          namespace: "{{ inventory_hostname }}"
+      roleRef:
+        kind: Role
+        name: "{{ app_name }}"
+        apiGroup: rbac.authorization.k8s.io
