@@ -1,4 +1,4 @@
-import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType } from "@/types/site";
+import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType, KubernetesSiteExtraInfo } from "@/types/site";
 import * as k8s from "@kubernetes/client-node";
 import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
 import { ensureSlashAtEnd } from "./utils";
@@ -10,6 +10,7 @@ const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
 export const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+export const k8sNetworkApi = kc.makeApiClient(k8s.NetworkingV1Api);
 export const customObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
 const WORDPRESS_GROUP = "wordpress.epfl.ch";
@@ -165,7 +166,9 @@ export async function getKubernetesSite(id: string): Promise<{ site?: Kubernetes
 			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
-		return { site };
+		const extras = await getKubernetesSiteExtraInfo(id);
+
+		return { site, ...extras };
 	} catch (error) {
 		console.error("Error fetching WordPress site:", error);
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
@@ -396,5 +399,59 @@ export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; 
 		return {
 			error: { status: 500, message: "Internal Server Error", success: false },
 		};
+	}
+}
+
+export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {
+	try {
+		const { k8sSite, error } = await findKubernetesSiteByUid(siteId);
+		if (error) throw error;
+		if (!k8sSite) {
+			throw { status: 404, message: "Site not found", success: false };
+		}
+
+		const namespace = await getNamespace();
+		const ingresses = await k8sNetworkApi.listNamespacedIngress({
+			namespace,
+		});
+
+		const ingress = ingresses.items.find((ing) =>
+			ing.metadata && ing.metadata.ownerReferences?.some(ref => ref.uid === k8sSite.metadata.uid),
+		);
+
+		const databases = await customObjectsApi.listNamespacedCustomObject({
+			group: "k8s.mariadb.com",
+			version: "v1alpha1",
+			namespace,
+			plural: "databases",
+		});
+
+		type DatabaseType = {
+			metadata: {
+				name?: string;
+				ownerReferences?: { uid: string }[];
+			};
+			spec: {
+				mariaDbRef: {
+					name: string;
+				};
+			};
+		};
+
+		const database = (databases.items as DatabaseType[]).find((db) =>
+			db.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid),
+		);
+
+		return {
+			siteId: k8sSite.metadata.uid,
+			ingressName: ingress?.metadata?.name,
+			databaseName: database?.metadata.name,
+			databaseRef: database?.spec?.mariaDbRef.name,
+			wordpressSiteName: k8sSite.metadata.name,
+		} as KubernetesSiteExtraInfo;
+
+	} catch (error) {
+		console.error("Error extracting Kubernetes site info:", error);
+		throw { status: 500, message: "Internal Server Error", success: false };
 	}
 }
