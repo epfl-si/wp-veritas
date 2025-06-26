@@ -1,0 +1,12 @@
+all:
+  hosts:
+    svc0041p-wordpress:
+      ansible_connection: local
+      ansible_host: localhost
+      inventory_environment: prod
+      ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  vars:
+    route:
+      host: wp-veritas-next.epfl.ch
+      availability: public
+    tag: 5.8.11
