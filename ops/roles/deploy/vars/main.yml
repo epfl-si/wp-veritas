@@ -1,0 +1,12 @@
+app_name: "wp-veritas-next"
+
+quay_registry: "quay-its.epfl.ch/svc0041"
+image: "wp-veritas"
+
+keybase_secrets: >-
+  {{ lookup('pipe',
+            'keybase fs read /keybase/team/epfl_wpveritas/ops_secrets.yml')
+     | from_yaml }}
+
+secrets: "{{ keybase_secrets[inventory_environment] }}"
+robot_pull: "{{ keybase_secrets.dockerconfig }}"
