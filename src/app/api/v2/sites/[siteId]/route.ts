@@ -1,5 +1,5 @@
 import { listDatabaseSites } from "@/lib/database";
-import { getKubernetesSites } from "@/lib/kubernetes";
+import { getKubernetesSiteExtraInfo, getKubernetesSites } from "@/lib/kubernetes";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
@@ -193,6 +193,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 		const site = {
 			id: foundSite.id,
 			...(isKubernetesSite(foundSite) ? { title: foundSite.title, tagline: foundSite.tagline } : {}),
+			...(isKubernetesSite(foundSite) ? await getKubernetesSiteExtraInfo(foundSite.id) : {}),
 			infrastructure: foundSite.infrastructure,
 			url: foundSite.url,
 			tags: tags
