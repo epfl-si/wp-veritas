@@ -9,9 +9,9 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
 
-export const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
-export const k8sNetworkApi = kc.makeApiClient(k8s.NetworkingV1Api);
-export const customObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
+export const k8sCoreApi = kc.makeApiClient(k8s.CoreV1Api);
+export const k8sNetworkingApi = kc.makeApiClient(k8s.NetworkingV1Api);
+export const k8sCustomObjectsApi = kc.makeApiClient(k8s.CustomObjectsApi);
 
 const WORDPRESS_GROUP = "wordpress.epfl.ch";
 const WORDPRESS_VERSION = "v2";
@@ -56,7 +56,7 @@ function generateSiteName(site: KubernetesSiteFormType): string {
 async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: KubernetesSiteType; error?: APIError }> {
 	try {
 		const namespace = await getNamespace();
-		const response = await customObjectsApi.listNamespacedCustomObject({
+		const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
 			version: WORDPRESS_VERSION,
 			namespace,
@@ -187,7 +187,7 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 		const name = generateSiteName(kubernetesSite);
 		const siteSpec = createSiteSpec(kubernetesSite, name, namespace);
 
-		const response = await customObjectsApi.createNamespacedCustomObject({
+		const response = await k8sCustomObjectsApi.createNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
 			version: WORDPRESS_VERSION,
 			namespace,
@@ -323,7 +323,7 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 			return { site: existingSite };
 		}
 
-		await customObjectsApi.patchNamespacedCustomObject({
+		await k8sCustomObjectsApi.patchNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
 			version: WORDPRESS_VERSION,
 			namespace,
@@ -355,7 +355,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
-		await customObjectsApi.deleteNamespacedCustomObject({
+		await k8sCustomObjectsApi.deleteNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
 			version: WORDPRESS_VERSION,
 			namespace,
@@ -376,7 +376,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; error?: APIError }> {
 	try {
 		const namespace = await getNamespace();
-		const response = await customObjectsApi.listNamespacedCustomObject({
+		const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
 			version: WORDPRESS_VERSION,
 			namespace,
@@ -411,7 +411,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 		}
 
 		const namespace = await getNamespace();
-		const ingresses = await k8sNetworkApi.listNamespacedIngress({
+		const ingresses = await k8sNetworkingApi.listNamespacedIngress({
 			namespace,
 		});
 
@@ -419,7 +419,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			ing.metadata && ing.metadata.ownerReferences?.some(ref => ref.uid === k8sSite.metadata.uid),
 		);
 
-		const databases = await customObjectsApi.listNamespacedCustomObject({
+		const databases = await k8sCustomObjectsApi.listNamespacedCustomObject({
 			group: "k8s.mariadb.com",
 			version: "v1alpha1",
 			namespace,
