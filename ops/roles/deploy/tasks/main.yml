@@ -1,0 +1,28 @@
+- name: Secrets tasks
+  ansible.builtin.include_tasks:
+    file: "secrets.yml"
+    apply:
+      tags: secrets
+  tags: secrets
+
+- name: RBAC tasks
+  ansible.builtin.include_tasks:
+    file: "rbac.yml"
+    apply:
+      tags: rbac
+  tags: rbac
+
+- name: Networking tasks
+  ansible.builtin.include_tasks:
+    file: "networking.yml"
+    apply:
+      tags: networking
+  tags: networking
+
+- name: App tasks
+  ansible.builtin.include_tasks:
+    file: "app.yml"
+    apply:
+      tags: app
+  tags:
+    - app
