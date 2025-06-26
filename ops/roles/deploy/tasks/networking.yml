@@ -1,0 +1,44 @@
+- name: Route
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: route.openshift.io/v1
+      kind: Route
+      metadata:
+        name: "{{ route.host }}"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+          route: "{{ route.availability }}"
+        annotations:
+          haproxy.router.openshift.io/balance: roundrobin
+          haproxy.router.openshift.io/disable_cookies: "true"
+      spec:
+        host: "{{ route.host }}"
+        wildcardPolicy: None
+        port:
+          targetPort: "80"
+        tls:
+          termination: edge
+          insecureEdgeTerminationPolicy: Redirect
+        to:
+          kind: Service
+          name: "{{ app_name }}"
+
+- name: Service
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ app_name }}"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+      spec:
+        type: ClusterIP
+        ports:
+          - name: "80"
+            port: 80
+            targetPort: 3000
+        selector:
+          app: "{{ app_name }}"
