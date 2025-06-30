@@ -5,6 +5,7 @@ import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
+import db from "@/lib/mongo";
 
 /**
  * @swagger
@@ -139,6 +140,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
 		const siteUrlFilter = siteUrlParam ? ensureSlashAtEnd(decodeURIComponent(siteUrlParam)) : null;
+
+		await db.connect();
 
 		const allSites = await withCache("api-sites", async () => {
 			const [kubernetesResult, databaseResult, tags] = await Promise.all([
