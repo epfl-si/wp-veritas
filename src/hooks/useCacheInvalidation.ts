@@ -1,4 +1,4 @@
-import { cache } from "@/lib/cache";
+import { cache } from "@/lib/redis";
 
 export function invalidateAfterSiteAction() {
 	cache.invalidateSitesCache();
