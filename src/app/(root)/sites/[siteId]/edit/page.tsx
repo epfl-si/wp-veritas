@@ -12,7 +12,7 @@ export default async function SiteUpdatePage({
 		siteId: string;
 	}>;
 }) {
-	const t = await getTranslations("tag.update");
+	const t = await getTranslations("site.update");
 	const { siteId } = await params;
 
 	const { site, error } = await getSite(siteId);
