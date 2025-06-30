@@ -57,6 +57,8 @@ function getFirstAuthorizedRoute(userPermissions: string[]): string | null {
 export default async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
 
+	console.info(`[${req.method}] ${pathname}`);
+
 	if (pathname.startsWith("/api/") ||
 		pathname.startsWith("/_next/") ||
 		pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
