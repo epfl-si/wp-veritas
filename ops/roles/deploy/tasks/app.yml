@@ -8,6 +8,7 @@
         namespace: "{{ inventory_hostname }}"
         labels:
           app: "{{ app_name }}"
+          component: web
         annotations:
           app.openshift.io/vcs-uri: "https://github.com/epfl-si/wp-veritas/"
       spec:
@@ -20,10 +21,12 @@
         selector:
           matchLabels:
             app: "{{ app_name }}"
+            component: web
         template:
           metadata:
             labels:
               app: "{{ app_name }}"
+              component: web
           spec:
             serviceAccountName: "{{ app_name }}"
             affinity:
