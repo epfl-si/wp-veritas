@@ -5,6 +5,7 @@ import { ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
 import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { cache, withCache } from "./cache";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -154,18 +155,13 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 
 export async function getKubernetesSite(id: string): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
-		const { sites, error } = await getKubernetesSites();
+		const { k8sSite, error } = await findKubernetesSiteByUid(id);
 		if (error) return { error };
-
-		if (!sites || sites.length === 0) {
-			return { error: { status: 404, message: "No sites found", success: false } };
-		}
-
-		const site = sites.find((s) => s.id === id);
-		if (!site) {
+		if (!k8sSite) {
 			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
+		const site = mapKubernetesToSite(k8sSite);
 		const extras = await getKubernetesSiteExtraInfo(id);
 
 		return { site, ...extras };
@@ -199,6 +195,7 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 			return { error: { status: 500, message: "Failed to create WordPress site", success: false } };
 		}
 
+		cache.invalidateSitesCache();
 		const siteId = response.metadata?.uid;
 		if (!siteId) {
 			return { error: { status: 500, message: "Site created but no ID returned", success: false } };
@@ -332,6 +329,7 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 			body: patchOperations,
 		});
 
+		cache.invalidateSitesCache();
 		const { site: updatedSite, error: updateError } = await getKubernetesSite(id);
 		if (updateError) return { error: updateError };
 
@@ -363,6 +361,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 			name: k8sSite.metadata.name,
 		});
 
+		cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting WordPress site:", error);
@@ -374,32 +373,35 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 }
 
 export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; error?: APIError }> {
-	try {
-		const namespace = await getNamespace();
-		const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
-			group: WORDPRESS_GROUP,
-			version: WORDPRESS_VERSION,
-			namespace,
-			plural: WORDPRESS_PLURAL,
-		});
-		const items = response.items as KubernetesSiteType[];
+	const cacheKey = "kubernetes-sites";
 
-		if (!items) {
+	return withCache(cacheKey, async () => {
+		try {
+			const namespace = await getNamespace();
+			const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
+				group: WORDPRESS_GROUP,
+				version: WORDPRESS_VERSION,
+				namespace,
+				plural: WORDPRESS_PLURAL,
+			});
+			const items = response.items as KubernetesSiteType[];
+
+			if (!items) {
+				return {
+					error: { status: 404, message: "No sites found", success: false },
+				};
+			}
+
+			const kubernetesSites = items.map(mapKubernetesToSite);
+
+			return { sites: kubernetesSites };
+		} catch (error) {
+			console.error("Error fetching Kubernetes sites:", error);
 			return {
-				error: { status: 404, message: "No sites found", success: false },
+				error: { status: 500, message: "Internal Server Error", success: false },
 			};
 		}
-
-		const kubernetesSites = items
-			.map(mapKubernetesToSite);
-
-		return { sites: kubernetesSites };
-	} catch (error) {
-		console.error("Error fetching Kubernetes sites:", error);
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
-	}
+	}, 1000 * 60 * 2); // 2 minutes cache
 }
 
 export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {
