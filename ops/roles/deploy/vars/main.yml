@@ -1,7 +1,9 @@
-app_name: "wp-veritas-next"
+app_name: "wp-veritas"
 
 quay_registry: "quay-its.epfl.ch/svc0041"
 image: "wp-veritas"
+
+redis_name: "{{ app_name }}-redis"
 
 keybase_secrets: >-
   {{ lookup('pipe',
