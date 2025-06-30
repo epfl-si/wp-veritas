@@ -5,7 +5,7 @@ import { ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
 import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { cache, withCache } from "./cache";
+import { cache, withCache } from "./redis";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -401,7 +401,7 @@ export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; 
 				error: { status: 500, message: "Internal Server Error", success: false },
 			};
 		}
-	}, 1000 * 60 * 2); // 2 minutes cache
+	}, 120); // 2 minutes cache
 }
 
 export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {

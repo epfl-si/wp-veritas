@@ -71,7 +71,7 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 				error: { status: 500, message: "Internal Server Error", success: false },
 			};
 		}
-	}, 1000 * 60 * 3); // 3 minutes cache
+	}, 180); // 3 minutes cache
 }
 
 export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {

@@ -5,7 +5,7 @@ import { createTag, listTags } from "@/services/tag";
 import { createTagSchema } from "@/types/tag";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
-import { withCache } from "@/lib/cache";
+import { withCache } from "@/lib/redis";
 
 export async function GET(): Promise<NextResponse> {
 	try {
@@ -15,8 +15,8 @@ export async function GET(): Promise<NextResponse> {
 
 		const tags = await withCache("api-tags", async () => {
 			return await listTags();
-		}, 1000 * 60 * 2); // 2 minutes cache
-		
+		}, 120); // 2 minutes cache
+
 		if (!tags) return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });
 		return NextResponse.json({ status: 200, message: "Tags retrieved successfully", items: tags }, { status: 200 });
 	} catch (error) {

@@ -4,7 +4,7 @@ import { ensureSlashAtEnd } from "@/lib/utils";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
-import { withCache } from "@/lib/cache";
+import { withCache } from "@/lib/redis";
 
 /**
  * @swagger
@@ -139,7 +139,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
 		const siteUrlFilter = siteUrlParam ? ensureSlashAtEnd(decodeURIComponent(siteUrlParam)) : null;
-		return NextResponse.json(await withCache("api-sites", async () => {
+
+		const allSites = await withCache("api-sites", async () => {
 			const [kubernetesResult, databaseResult, tags] = await Promise.all([
 				getKubernetesSites(),
 				listDatabaseSites(),
@@ -165,7 +166,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 			const tagsMap = new Map();
 			tags.forEach((tag) => {
-				tag.sites.forEach((siteId: string) => {
+				tag.sites?.forEach((siteId: string) => {
 					if (!tagsMap.has(siteId)) {
 						tagsMap.set(siteId, []);
 					}
@@ -180,7 +181,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 				});
 			});
 
-			let sites = allSites.map((site) => ({
+			return allSites.map((site) => ({
 				id: site.id,
 				...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
 				infrastructure: site.infrastructure,
@@ -188,21 +189,23 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 				tags: tagsMap.get(site.id) || [],
 				createdAt: site.createdAt,
 			}));
+		}, 120); // 2 minutes cache
 
-			if (siteUrlFilter) {
-				sites = sites.filter((site) => site.url === siteUrlFilter);
+		let filteredSites = allSites;
+
+		if (siteUrlFilter) {
+			filteredSites = filteredSites.filter((site) => site.url === siteUrlFilter);
+		}
+
+		if (taggedFilter !== null) {
+			if (taggedFilter) {
+				filteredSites = filteredSites.filter((site) => site.tags.length > 0);
+			} else {
+				filteredSites = filteredSites.filter((site) => site.tags.length === 0);
 			}
+		}
 
-			if (taggedFilter !== null) {
-				if (taggedFilter) {
-					sites = sites.filter((site) => site.tags.length > 0);
-				} else {
-					sites = sites.filter((site) => site.tags.length === 0);
-				}
-			}
-
-			return sites;
-		}, 1000 * 60 * 2), { status: 200 }); // 2 minutes cache
+		return NextResponse.json(filteredSites, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving sites:", error);
 		return NextResponse.json(
