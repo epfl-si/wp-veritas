@@ -1,6 +1,7 @@
 import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
 import { NextRequest, NextResponse } from "next/server";
+import { withCache } from "@/lib/redis";
 
 /**
  * @swagger
@@ -89,29 +90,36 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
-		await db.connect();
 		const { searchParams } = new URL(request.url);
 		const typeFilter = searchParams.get("type");
-		const query = typeFilter ? { type: typeFilter } : {};
-		const tags = await TagModel.find(query, { __id: 0, __v: 0 });
 
-		if (!tags || tags.length === 0) {
+		const allTags = await withCache("api-v1-tags", async () => {
+			await db.connect();
+			const tags = await TagModel.find({}, { __id: 0, __v: 0 });
+			return tags.map((tag) => ({
+				id: tag.id,
+				type: tag.type,
+				name_fr: tag.nameFr,
+				name_en: tag.nameEn,
+				url_fr: tag.urlFr,
+				url_en: tag.urlEn,
+			}));
+		}, 480); // 8 minutes cache
+
+		let filteredTags = allTags;
+
+		if (typeFilter) {
+			filteredTags = allTags.filter(tag => tag.type === typeFilter);
+		}
+
+		if (!filteredTags || filteredTags.length === 0) {
 			return NextResponse.json(
 				{ status: 404, message: "No tags found" },
 				{ status: 404 },
 			);
 		}
 
-		const formattedTags = tags.map((tag) => ({
-			id: tag.id,
-			type: tag.type,
-			name_fr: tag.nameFr,
-			name_en: tag.nameEn,
-			url_fr: tag.urlFr,
-			url_en: tag.urlEn,
-		}));
-
-		return NextResponse.json(formattedTags, { status: 200 });
+		return NextResponse.json(filteredTags, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving tags:", error);
 		return NextResponse.json(
