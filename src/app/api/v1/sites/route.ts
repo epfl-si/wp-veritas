@@ -4,6 +4,7 @@ import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
+import { withCache } from "@/lib/redis";
 
 /**
  * @swagger
@@ -136,64 +137,67 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const taggedParam = searchParams.get("tagged");
 		const siteUrlParam = searchParams.get("site_url");
 		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
-
 		const siteUrlFilter = siteUrlParam ? decodeURIComponent(siteUrlParam) : null;
 
-		const [kubernetesResult, databaseResult] = await Promise.all([
-			getKubernetesSites(),
-			listDatabaseSites(),
-		]);
+		const allSites = await withCache("api-v1-sites", async () => {
+			const [kubernetesResult, databaseResult] = await Promise.all([
+				getKubernetesSites(),
+				listDatabaseSites(),
+			]);
 
-		const kubernetesSites = kubernetesResult.sites || [];
-		const databaseSites = databaseResult.sites || [];
-		const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
+			const kubernetesSites = kubernetesResult.sites || [];
+			const databaseSites = databaseResult.sites || [];
+			const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
 
-		const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
-			if (isKubernetesSite(kubernetesSite)) {
-				const dbSite = databaseSiteMap.get(kubernetesSite.id);
-				if (dbSite && isDatabaseSite(dbSite)) {
-					databaseSiteMap.delete(kubernetesSite.id);
+			const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
+				if (isKubernetesSite(kubernetesSite)) {
+					const dbSite = databaseSiteMap.get(kubernetesSite.id);
+					if (dbSite && isDatabaseSite(dbSite)) {
+						databaseSiteMap.delete(kubernetesSite.id);
+					}
 				}
-			}
-			return kubernetesSite;
-		});
+				return kubernetesSite;
+			});
 
-		await db.connect();
+			await db.connect();
 
-		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
-		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
-		const tags = await TagModel.find({}, { _id: 0, __v: 0 });
+			const remainingDatabaseSites = Array.from(databaseSiteMap.values());
+			const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
+			const tags = await TagModel.find({}, { _id: 0, __v: 0 });
 
-		let sites = allSites.map((site) => ({
-			id: site.id,
-			...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
-			infrastructure: site.infrastructure,
-			url: site.url,
-			tags: tags
-				.filter((tag) => tag.sites.includes(site.id)).map((tag) => ({
-					id: tag.id,
-					name_fr: tag.nameFr,
-					name_en: tag.nameEn,
-					url_fr: tag.urlFr,
-					url_en: tag.urlEn,
-					type: tag.type,
-				})),
-			createdAt: site.createdAt,
-		}));
+			return allSites.map((site) => ({
+				id: site.id,
+				...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
+				infrastructure: site.infrastructure,
+				url: site.url,
+				tags: tags
+					.filter((tag) => tag.sites.includes(site.id)).map((tag) => ({
+						id: tag.id,
+						name_fr: tag.nameFr,
+						name_en: tag.nameEn,
+						url_fr: tag.urlFr,
+						url_en: tag.urlEn,
+						type: tag.type,
+					})),
+				createdAt: site.createdAt,
+			}));
+		}, 480); // 8 minutes cache
+
+		let filteredSites = allSites;
 
 		if (siteUrlFilter) {
-			sites = sites.filter(site => site.url === siteUrlFilter);
+			filteredSites = filteredSites.filter(site => site.url === siteUrlFilter);
 		}
 
 		if (taggedFilter !== null) {
 			if (taggedFilter) {
-				sites = sites.filter(site => site.tags.length > 0);
+				filteredSites = filteredSites.filter(site => site.tags.length > 0);
 			} else {
-				sites = sites.filter(site => site.tags.length === 0);
+				filteredSites = filteredSites.filter(site => site.tags.length === 0);
 			}
 		}
 
-		return NextResponse.json(sites, { status: 200 });
+		return NextResponse.json(filteredSites, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving sites:", error);
 		return NextResponse.json(
