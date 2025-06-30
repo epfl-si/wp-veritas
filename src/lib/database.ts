@@ -6,6 +6,7 @@ import { v4 as uuid } from "uuid";
 import db from "./mongo";
 import { getKubernetesSite } from "./kubernetes";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { cache, withCache } from "./cache";
 
 export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite; error?: APIError }> {
 	try {
@@ -37,19 +38,22 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 }
 
 export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; error?: APIError }> {
-	try {
-		await db.connect();
+	return withCache("database-sites", async () => {
+		try {
+			await db.connect();
 
-		const sites = await SiteModel.find({});
+			const persistentInfrastructures = Object.values(INFRASTRUCTURES)
+				.filter((infra) => infra.PERSISTENCE)
+				.map((infra) => infra.NAME);
 
-		const databaseSites: DatabaseSite[] = sites
-			.filter((site) =>
-				Object.values(INFRASTRUCTURES)
-					.filter((infra) => infra.PERSISTENCE)
-					.map((infra) => infra.NAME)
-					.includes(site.infrastructure || ""),
-			)
-			.map((site) => ({
+			const sites = await SiteModel.find({
+				infrastructure: { $in: persistentInfrastructures },
+			})
+				.select("id url infrastructure createdAt ticket comment")
+				.sort("-createdAt")
+				.lean();
+
+			const databaseSites: DatabaseSite[] = sites.map((site) => ({
 				id: site.id,
 				url: ensureSlashAtEnd(site.url),
 				infrastructure: site.infrastructure as DatabaseSite["infrastructure"],
@@ -60,13 +64,14 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 				managed: true,
 			}));
 
-		return { sites: databaseSites };
-	} catch (error) {
-		console.error("Error listing sites from database:", error);
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
-	}
+			return { sites: databaseSites };
+		} catch (error) {
+			console.error("Error listing sites from database:", error);
+			return {
+				error: { status: 500, message: "Internal Server Error", success: false },
+			};
+		}
+	}, 1000 * 60 * 3); // 3 minutes cache
 }
 
 export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
@@ -95,6 +100,7 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 		});
 
 		await newSite.save();
+		cache.invalidateSitesCache();
 		return { siteId: id };
 	} catch (error) {
 		console.error("Error creating site in database:", error);
@@ -162,6 +168,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 				...(extras.ticket !== undefined && { ticket: extras.ticket }),
 				...(extras.comment !== undefined && { comment: extras.comment }),
 			});
+			cache.invalidateSitesCache();
 		}
 
 		const updatedSite = await SiteModel.findOneAndUpdate(
@@ -177,6 +184,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 			return { error: { status: 404, message: "Site extras not found", success: false } };
 		}
 
+		cache.invalidateSitesCache();
 		const result: DatabaseSite = {
 			id: updatedSite.id,
 			url: ensureSlashAtEnd(updatedSite.url),
@@ -203,6 +211,7 @@ export async function deleteDatabaseSiteExtras(siteId: string): Promise<{ succes
 		if (result.deletedCount === 0) {
 			return { success: false, error: { status: 404, message: "Site extras not found", success: false } };
 		}
+		cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting site extras from database:", error);
@@ -239,6 +248,7 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			return { error: { status: 404, message: "Site not found", success: false } };
 		}
 
+		cache.invalidateSitesCache();
 		const result: DatabaseSite = {
 			id: updatedSite.id,
 			url: ensureSlashAtEnd(updatedSite.url),
@@ -262,6 +272,7 @@ export async function deleteDatabaseSite(id: string): Promise<{ success: boolean
 		await db.connect();
 
 		await SiteModel.deleteOne({ id });
+		cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting site from database:", error);
