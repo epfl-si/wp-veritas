@@ -7,6 +7,6 @@ all:
       ansible_python_interpreter: "{{ ansible_playbook_python }}"
   vars:
     route:
-      host: wp-veritas-next.epfl.ch
+      host: wp-veritas.epfl.ch
       availability: public
-    tag: 5.8.11
+    tag: 6.0.0
