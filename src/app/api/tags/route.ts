@@ -15,7 +15,7 @@ export async function GET(): Promise<NextResponse> {
 
 		const tags = await withCache("api-tags", async () => {
 			return await listTags();
-		}, 120); // 2 minutes cache
+		}, 480); // 8 minutes cache
 
 		if (!tags) return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });
 		return NextResponse.json({ status: 200, message: "Tags retrieved successfully", items: tags }, { status: 200 });

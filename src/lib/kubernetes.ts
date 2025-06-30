@@ -401,7 +401,7 @@ export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; 
 				error: { status: 500, message: "Internal Server Error", success: false },
 			};
 		}
-	}, 120); // 2 minutes cache
+	}, 480); // 8 minutes cache
 }
 
 export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {

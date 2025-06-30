@@ -189,7 +189,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 				tags: tagsMap.get(site.id) || [],
 				createdAt: site.createdAt,
 			}));
-		}, 120); // 2 minutes cache
+		}, 480); // 8 minutes cache
 
 		let filteredSites = allSites;
 
