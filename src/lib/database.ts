@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import db from "./mongo";
 import { getKubernetesSite } from "./kubernetes";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { cache, withCache } from "./cache";
+import { cache, withCache } from "@/lib/redis";
 
 export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite; error?: APIError }> {
 	try {
