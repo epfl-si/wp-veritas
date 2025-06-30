@@ -5,6 +5,7 @@ import { createTag, listTags } from "@/services/tag";
 import { createTagSchema } from "@/types/tag";
 import { NextResponse } from "next/server";
 import { v4 as uuid } from "uuid";
+import { withCache } from "@/lib/cache";
 
 export async function GET(): Promise<NextResponse> {
 	try {
@@ -12,7 +13,10 @@ export async function GET(): Promise<NextResponse> {
 		if (!session?.user) return NextResponse.json({ status: 401, message: "Unauthorized" }, { status: 401 });
 		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) return NextResponse.json({ status: 403, message: "Forbidden" }, { status: 403 });
 
-		const tags = await listTags();
+		const tags = await withCache("api-tags", async () => {
+			return await listTags();
+		}, 1000 * 60 * 2); // 2 minutes cache
+		
 		if (!tags) return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });
 		return NextResponse.json({ status: 200, message: "Tags retrieved successfully", items: tags }, { status: 200 });
 	} catch (error) {
