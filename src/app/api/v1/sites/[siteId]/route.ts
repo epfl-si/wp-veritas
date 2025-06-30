@@ -171,12 +171,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 
 		await db.connect();
 
-		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
-		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
-		const tags = await TagModel.find({}, { _id: 0, __v: 0 });
+			console.info(`Found ${allSites.length} sites and ${tags.length} tags`);
 
-		const foundSite = allSites.find((site) => site.id === siteId);
-		if (!foundSite) {
 			return NextResponse.json(
 				{ message: "Site not found" },
 				{ status: 404 },
