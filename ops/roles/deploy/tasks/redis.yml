@@ -1,0 +1,96 @@
+- name: Create Redis PVC
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ redis_name }}-data"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+          component: redis
+      spec:
+        storageClassName: "sc-gold"
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+
+- name: Deploy Redis StatefulSet
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: StatefulSet
+      metadata:
+        name: "{{ redis_name }}"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+          component: redis
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: "{{ app_name }}"
+            component: redis
+        template:
+          metadata:
+            labels:
+              app: "{{ app_name }}"
+              component: redis
+          spec:
+            serviceAccountName: "{{ app_name }}"
+            containers:
+              - name: redis
+                image: "{{ quay_registry }}/redis:8.0.2"
+                ports:
+                  - containerPort: 6379
+                    name: redis
+                volumeMounts:
+                  - name: redis-data
+                    mountPath: /data
+                resources:
+                  limits:
+                    memory: "128Mi"
+                  requests:
+                    memory: "64Mi"
+                    cpu: "100m"
+                livenessProbe:
+                  tcpSocket:
+                    port: 6379
+                  initialDelaySeconds: 30
+                  periodSeconds: 10
+                readinessProbe:
+                  tcpSocket:
+                    port: 6379
+                  initialDelaySeconds: 5
+                  periodSeconds: 5
+            volumes:
+              - name: redis-data
+                persistentVolumeClaim:
+                  claimName: "{{ redis_name }}-data"
+
+- name: Create Redis Service
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ redis_name }}"
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: "{{ app_name }}"
+          component: redis
+      spec:
+        type: ClusterIP
+        ports:
+          - port: 6379
+            targetPort: 6379
+            name: redis
+        selector:
+          app: "{{ app_name }}"
+          component: redis
