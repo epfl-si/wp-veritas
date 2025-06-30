@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import moment from "moment";
 import "moment/locale/fr";
+import { useDebouncedCallback } from "@/hooks/useDebounce";
 
 interface SearchState {
 	url: string;
@@ -70,7 +71,7 @@ export const SiteInfo: React.FC = () => {
 		[searchParams, pathname, router],
 	);
 
-	const searchSites = useCallback(
+	const searchSites = useDebouncedCallback(
 		async (searchParams: SearchState) => {
 			if (!searchParams.url.trim()) {
 				setSites([]);
@@ -103,7 +104,7 @@ export const SiteInfo: React.FC = () => {
 				setLoading(false);
 			}
 		},
-		[t],
+		300,
 	);
 
 	const handleSearch = () => {
