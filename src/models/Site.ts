@@ -25,4 +25,9 @@ const siteSchema = new mongoose.Schema<ISite>({
 	createdAt: { type: Date, required: true, default: Date.now },
 });
 
+siteSchema.index({ url: 1 });
+siteSchema.index({ infrastructure: 1 });
+siteSchema.index({ createdAt: -1 });
+siteSchema.index({ infrastructure: 1, createdAt: -1 });
+
 export const SiteModel = mongoose.models.Site || mongoose.model<ISite>("Site", siteSchema);
