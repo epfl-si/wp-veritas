@@ -1,5 +1,6 @@
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
+import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
@@ -156,6 +157,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 			}
 			return kubernetesSite;
 		});
+
+		await db.connect();
 
 		const remainingDatabaseSites = Array.from(databaseSiteMap.values());
 		const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
