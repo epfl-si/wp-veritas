@@ -9,6 +9,7 @@ import { isValidUUID } from "@/lib/utils";
 import { info, warn, error } from "@/lib/log";
 import { SiteModel } from "@/models/Site";
 import { getSite, listSites } from "./site";
+import { cache } from "@/lib/cache";
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
@@ -35,6 +36,7 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 		});
 
 		const savedTag = await newTag.save();
+		cache.invalidateTagsCache();
 
 		await info(`The **${tag.type}** tag **${tag.nameEn}** created successfully`, {
 			type: "tag",
@@ -93,6 +95,7 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 			return { error: { status: 404, message: "Tag not found", success: false } };
 		}
 
+		cache.invalidateTagsCache();
 		await info(`The **${tag.type}** tag **${tag.nameEn}** updated successfully`, {
 			type: "tag",
 			action: "update",
@@ -150,6 +153,7 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 		}
 
 		await TagModel.deleteOne({ id: tagId });
+		cache.invalidateTagsCache();
 
 		await info(`The **${tag.type}** tag **${tag.nameEn}** deleted successfully`, {
 			type: "tag",
@@ -370,6 +374,7 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $addToSet: { sites: siteId } }, { new: true });
+		cache.invalidateTagsCache();
 
 		const { site } = await getSite(siteId);
 
@@ -442,6 +447,7 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $pull: { sites: siteId } }, { new: true });
+		cache.invalidateTagsCache();
 		const { site } = await getSite(siteId);
 
 		await info(`The **${tag.type}** tag **${tag.nameEn}** disassociated from site **${site?.url}** successfully`, {
