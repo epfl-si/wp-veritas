@@ -4,7 +4,7 @@
       apiVersion: route.openshift.io/v1
       kind: Route
       metadata:
-        name: "{{ route.host }}"
+        name: "{{ app_name }}"
         namespace: "{{ inventory_hostname }}"
         labels:
           app: "{{ app_name }}"
