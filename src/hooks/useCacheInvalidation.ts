@@ -6,5 +6,5 @@ export function invalidateAfterSiteAction() {
 
 export function invalidateAfterTagAction() {
 	cache.invalidateTagsCache();
-	cache.invalidateSitesCache(); // Sites cache contains tag data
+	cache.invalidateSitesCache();
 }
