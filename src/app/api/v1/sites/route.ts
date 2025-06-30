@@ -149,6 +149,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 			const databaseSites = databaseResult.sites || [];
 			const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
 
+			console.info(`Found ${kubernetesSites.length} Kubernetes sites and ${databaseSites.length} database sites`);
+
 			const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
 				if (isKubernetesSite(kubernetesSite)) {
 					const dbSite = databaseSiteMap.get(kubernetesSite.id);
@@ -159,11 +161,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 				return kubernetesSite;
 			});
 
+			console.info(`Found ${mergedKubernetesSites.length} merged Kubernetes sites`);
+
 			await db.connect();
 
 			const remainingDatabaseSites = Array.from(databaseSiteMap.values());
 			const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
 			const tags = await TagModel.find({}, { _id: 0, __v: 0 });
+			console.info(`Found ${allSites.length} sites and ${tags.length} tags`);
 
 			return allSites.map((site) => ({
 				id: site.id,
