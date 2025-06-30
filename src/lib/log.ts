@@ -3,6 +3,7 @@ import { LogModel } from "@/models/Log";
 import { getUser } from "@/services/auth";
 import { LogType } from "@/types/log";
 import { v4 as uuid } from "uuid";
+import db from "./mongo";
 
 async function log({ message, data, level }: { message: string; level: LogType["level"]; data?: LogType["data"] }): Promise<void> {
 	let userId: string | undefined;
@@ -24,6 +25,8 @@ async function log({ message, data, level }: { message: string; level: LogType["
 		timestamp: new Date(),
 		userId,
 	};
+
+	await db.connect();
 
 	try {
 		await LogModel.create(logEntry);
