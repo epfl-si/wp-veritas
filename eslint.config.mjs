@@ -45,7 +45,7 @@ const rules = [
 			'space-before-blocks': ['error', 'always'],
 			'space-infix-ops': 'error',
 			'no-console': ['error', {
-				allow: ['warn', 'error']
+				allow: ['warn', 'error', "info"]
 			}],
 			eqeqeq: ['error', 'always'],
 			curly: ['error', 'multi-line'],
