@@ -19,6 +19,13 @@
       tags: networking
   tags: networking
 
+- name: Redis tasks
+  ansible.builtin.include_tasks:
+    file: "redis.yml"
+    apply:
+      tags: redis
+  tags: redis
+
 - name: App tasks
   ansible.builtin.include_tasks:
     file: "app.yml"
