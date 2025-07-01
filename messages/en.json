@@ -168,7 +168,7 @@
 				"loginUrl": "WordPress Login",
 				"adminAccess": "Admin access",
 				"unit": "Affiliated unit",
-				"lastModified": "Last modified",
+				"lastModified": "Time page last modified",
 				"recentModifications": "Recent modifications",
 				"permissions": "Permissions and rights",
 				"editors": "WordPress editors",
@@ -331,6 +331,57 @@
 			"create": "Create",
 			"reset": "Reset",
 			"creating": "Creating"
+		},
+		"detail": {
+			"title": "Site Details",
+			"overview": {
+				"title": "Site Overview",
+				"description": "General information about the site",
+				"url": "URL",
+				"infrastructure": "Infrastructure",
+				"created": "Created",
+				"title_site": "Site Title",
+				"tagline": "Tagline",
+				"theme": "Theme",
+				"unit": "Unit ID",
+				"languages": "Languages",
+				"categories": "Categories"
+			},
+			"kubernetes": {
+				"title": "Kubernetes Resources",
+				"description": "Technical information about Kubernetes resources",
+				"wordpress_site": "WordPress Site",
+				"ingress": "Ingress",
+				"database": "Database",
+				"database_ref": "Database Reference",
+				"not_available": "Not available"
+			},
+			"recent_actions": {
+				"title": "Recent Actions",
+				"description": "Latest actions performed on this site"
+			},
+			"backups": {
+				"title": "Backups",
+				"description": "Available backup history"
+			},
+			"permissions": {
+				"title": "Permissions & Access",
+				"description": "User permissions and access control",
+				"accreditors": "Accreditors",
+				"editors": "Editors",
+				"editors_note": "WordPress editors can modify content and are managed through the unit accreditation system."
+			},
+			"metadata": {
+				"title": "Metadata",
+				"description": "Additional information and notes",
+				"ticket": "Ticket",
+				"comment": "Comment"
+			},
+			"error": {
+				"text": "An error occurred while loading the site",
+				"subText": "Please try again later",
+				"empty": "Site not found"
+			}
 		}
 	},
 	"status": {
