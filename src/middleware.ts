@@ -31,6 +31,35 @@ const ROUTE_PRIORITY = [
 	"/api-docs",
 ];
 
+function getClientIP(req: NextRequest): string {
+	const forwarded = req.headers.get("x-forwarded-for");
+	const realIP = req.headers.get("x-real-ip");
+	const cfConnectingIP = req.headers.get("cf-connecting-ip");
+
+	if (forwarded) {
+		return forwarded.split(",")[0].trim();
+	}
+	if (realIP) {
+		return realIP;
+
+	}
+	if (cfConnectingIP) {
+		return cfConnectingIP;
+	}
+
+	return "unknown";
+}
+
+function logRequest(
+	method: string,
+	pathname: string,
+	ip: string,
+) {
+	const timestamp = new Date().toISOString();
+	const logMessage = `[${timestamp}] ${method} ${pathname} - IP: ${ip}`;
+	console.info(logMessage);
+}
+
 function hasPermissionForRoute(pathname: string, userPermissions: string[]): boolean {
 	if (ROUTE_PERMISSIONS[pathname]) {
 		return userPermissions.includes(ROUTE_PERMISSIONS[pathname]);
@@ -56,19 +85,21 @@ function getFirstAuthorizedRoute(userPermissions: string[]): string | null {
 
 export default async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
-
-	console.info(`[${req.method}] ${pathname}`);
+	const ip = getClientIP(req);
 
 	if (pathname.startsWith("/api/") ||
 		pathname.startsWith("/_next/") ||
 		pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
+		logRequest(req.method, pathname, ip);
 		return NextResponse.next();
 	}
 
 	const session = await auth();
+
 	if (!session?.user) {
 		const authUrl = new URL("/api/auth", req.url);
 		authUrl.searchParams.set("callbackUrl", req.url);
+		logRequest(req.method, pathname, ip);
 		return NextResponse.redirect(authUrl);
 	}
 
@@ -80,16 +111,21 @@ export default async function middleware(req: NextRequest) {
 			if (!userPermissions.includes(PERMISSIONS.SITES.LIST)) {
 				const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
 				if (authorizedRoute) {
+					logRequest(req.method, pathname, ip);
 					return NextResponse.redirect(new URL(authorizedRoute, req.url));
 				}
 			}
 
+			logRequest(req.method, pathname, ip);
 			return NextResponse.rewrite(new URL("/not-found", req.url));
 		}
 
+		logRequest(req.method, pathname, ip);
 		return NextResponse.next();
+
 	} catch (error) {
 		console.error("Erreur middleware:", error);
+		logRequest(req.method, pathname, ip);
 		return new NextResponse(null, { status: 500 });
 	}
 }
