@@ -7,7 +7,6 @@ import { ITag, TagModel } from "@/models/Tag";
 import { v4 as uuidv4 } from "uuid";
 import { isValidUUID } from "@/lib/utils";
 import { info, warn, error } from "@/lib/log";
-import { SiteModel } from "@/models/Site";
 import { getSite, listSites } from "./site";
 import { cache } from "@/lib/redis";
 
@@ -300,7 +299,7 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 		}
 
 		const tags = await TagModel.find({ sites: siteId });
-		const site = await SiteModel.findOne({ id: siteId });
+		const { site } = await getSite(siteId);
 
 		await info(`Tags for site **${site?.url || "Unknown Site"}** retrieved successfully`, {
 			type: "tag",
