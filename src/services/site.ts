@@ -7,7 +7,7 @@ import { getEditors, getNames, getUnit } from "@/lib/api";
 import { getInfrastructureByName } from "@/constants/infrastructures";
 import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite } from "@/lib/kubernetes";
 import { createDatabaseSite, listDatabaseSites, getDatabaseSite, updateDatabaseSite, deleteDatabaseSite, createDatabaseSiteExtras, updateDatabaseSiteExtras, deleteDatabaseSiteExtras } from "@/lib/database";
-import { getTagsBySite } from "@/services/tag";
+import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
 import { info, warn, error } from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
@@ -397,6 +397,17 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 		}
 
 		const persistence = getSitePersistence(site.infrastructure);
+
+		const { tags, error: tagError } = await getTagsBySite(siteId);
+		if (tagError) return { error: tagError };
+
+		if (tags && tags.length > 0) {
+			await Promise.all(
+				tags.map(async (tag) => {
+					await disassociateTagFromSite(tag.id, siteId);
+				}),
+			);
+		}
 
 		switch (persistence) {
 			case "kubernetes": {
