@@ -54,9 +54,10 @@ function logRequest(
 	method: string,
 	pathname: string,
 	ip: string,
+	userAgent: string,
 ) {
 	const timestamp = new Date().toISOString();
-	const logMessage = `[${timestamp}] ${method} ${pathname} - IP: ${ip}`;
+	const logMessage = `[${timestamp}] ${method} ${pathname} - IP: ${ip} - User-Agent: ${userAgent}`;
 	console.info(logMessage);
 }
 
@@ -90,7 +91,7 @@ export default async function middleware(req: NextRequest) {
 	if (pathname.startsWith("/api/") ||
 		pathname.startsWith("/_next/") ||
 		pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
-		logRequest(req.method, pathname, ip);
+		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return NextResponse.next();
 	}
 
@@ -99,7 +100,7 @@ export default async function middleware(req: NextRequest) {
 	if (!session?.user) {
 		const authUrl = new URL("/api/auth", req.url);
 		authUrl.searchParams.set("callbackUrl", req.url);
-		logRequest(req.method, pathname, ip);
+		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return NextResponse.redirect(authUrl);
 	}
 
@@ -111,21 +112,21 @@ export default async function middleware(req: NextRequest) {
 			if (!userPermissions.includes(PERMISSIONS.SITES.LIST)) {
 				const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
 				if (authorizedRoute) {
-					logRequest(req.method, pathname, ip);
+					logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 					return NextResponse.redirect(new URL(authorizedRoute, req.url));
 				}
 			}
 
-			logRequest(req.method, pathname, ip);
+			logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 			return NextResponse.rewrite(new URL("/not-found", req.url));
 		}
 
-		logRequest(req.method, pathname, ip);
+		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return NextResponse.next();
 
 	} catch (error) {
 		console.error("Erreur middleware:", error);
-		logRequest(req.method, pathname, ip);
+		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return new NextResponse(null, { status: 500 });
 	}
 }
