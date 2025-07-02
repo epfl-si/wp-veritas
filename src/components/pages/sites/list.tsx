@@ -40,7 +40,7 @@ interface Filters {
 
 export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
 	const searchParams = useSearchParams();
-	
+
 	const getInitialFilters = () => {
 		const filters: Filters = {
 			url: searchParams.get("url") || "",
@@ -74,9 +74,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 	};
 
 	const initialFilters = getInitialFilters();
-	
+
 	const [filters, setFilters] = useState<Filters>(initialFilters);
-	
+
 	const [showMoreTools, setShowMoreTools] = useState(false);
 	const [showFilters, setShowFilters] = useState(false);
 	const [showExport, setShowExport] = useState(false);
@@ -91,11 +91,11 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 	const updateURL = (filters: Filters) => {
 		const params = new URLSearchParams();
-		
+
 		if (filters.url) params.set("url", filters.url);
 		if (filters.infrastructure) params.set("infrastructure", filters.infrastructure);
 		if (filters.theme) params.set("theme", filters.theme);
-		
+
 		if (filters.hasCategories !== null) {
 			params.set("hasCategories", filters.hasCategories.toString());
 		}
@@ -114,10 +114,10 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		if (filters.categories.length > 0) {
 			params.set("categories", filters.categories.join(","));
 		}
-		
+
 		const queryString = params.toString();
 		const newUrl = queryString ? `?${queryString}` : window.location.pathname;
-		
+
 		if (window.location.search !== `?${queryString}` && !(window.location.search === "" && queryString === "")) {
 			window.history.replaceState({}, "", newUrl);
 		}
@@ -154,7 +154,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		const matchesCategories = !filters.categories.length || (isKubernetesSite(site) && site.categories && filters.categories.some(cat => site.categories.includes(cat)));
 		const matchesHasCategories = filters.hasCategories === null || (isKubernetesSite(site) && site.categories !== undefined && (site.categories.length > 0) === filters.hasCategories);
 		const matchesDownloadsProtection = filters.hasDownloadsProtection === null || (isKubernetesSite(site) && site.downloadsProtectionScript !== undefined && site.downloadsProtectionScript === filters.hasDownloadsProtection);
-		
+
 		return matchesUrl && matchesType && matchesTheme && matchesDateFrom && matchesDateTo && matchesLanguages && matchesCategories && matchesHasCategories && matchesDownloadsProtection;
 	});
 
@@ -188,7 +188,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter(site => site.categories.includes(category.NAME)).length / kubernetesSites.length) * 100) : 0,
 		}));
 
-		const recentSites = sites.filter(site => 
+		const recentSites = sites.filter(site =>
 			moment(site.createdAt).isAfter(moment().subtract(30, "days")),
 		).length;
 
@@ -301,7 +301,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 					</a>
 					{!site.managed && (
 						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
-							<AlertTriangle className="size-5"/>
+							<AlertTriangle className="size-5" />
 							<p className="font-medium">{t("list.error.unmanaged")}</p>
 						</div>
 					)}
@@ -347,7 +347,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 				<div className="flex gap-1.5 items-center py-1">
 					{permissions.includes(PERMISSIONS.SITES.READ) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
-							<Link href={`/search?url=${site.url}`}>
+							<Link prefetch={false} href={`/search?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
@@ -355,7 +355,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link href={`/sites/${site.id}/edit`}>
+							<Link prefetch={false} href={`/sites/${site.id}/edit`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
@@ -363,7 +363,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link href={`/sites/${site.id}/tags`}>
+							<Link prefetch={false} href={`/sites/${site.id}/tags`}>
 								<Tags strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
@@ -455,16 +455,16 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<label className="text-sm font-medium mb-2 block">
 												{t("tools.filters.url.label")}
 											</label>
-											<Input 
+											<Input
 												onChange={(e) => {
 													updateFilters({ ...filters, url: e.target.value });
-												}} 
+												}}
 												value={filters.url}
-												placeholder={t("tools.filters.url.placeholder")} 
+												placeholder={t("tools.filters.url.placeholder")}
 												className="w-full"
 											/>
 										</div>
-										
+
 									</div>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -472,8 +472,8 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<label className="text-sm font-medium mb-2 block">
 												{t("tools.filters.theme.label")}
 											</label>
-											<Select 
-												onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })} 
+											<Select
+												onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })}
 												value={filters.theme || "all"}
 											>
 												<SelectTrigger className="w-full">
@@ -493,11 +493,11 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<label className="text-sm font-medium mb-2 block">
 												{t("tools.filters.infrastructure.label")}
 											</label>
-											<Select 
+											<Select
 												onValueChange={(value) => {
 													const infra = value === "all" ? "" : value;
 													updateFilters({ ...filters, infrastructure: infra });
-												}} 
+												}}
 												value={filters.infrastructure || "all"}
 											>
 												<SelectTrigger className="w-full">
@@ -581,7 +581,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<Checkbox
 												id="has-categories"
 												checked={filters.hasCategories === true}
-												onCheckedChange={(checked) => 
+												onCheckedChange={(checked) =>
 													updateFilters({ ...filters, hasCategories: checked ? true : null })
 												}
 											/>
@@ -591,7 +591,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<Checkbox
 												id="has-downloads"
 												checked={filters.hasDownloadsProtection === true}
-												onCheckedChange={(checked) => 
+												onCheckedChange={(checked) =>
 													updateFilters({ ...filters, hasDownloadsProtection: checked ? true : null })
 												}
 											/>
@@ -604,11 +604,11 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<label className="text-sm font-medium mb-2 block">
 												{t("tools.filters.date.from")}
 											</label>
-											<Input 
+											<Input
 												type="date"
 												value={filters.dateRange.from ? filters.dateRange.from.toISOString().split("T")[0] : ""}
-												onChange={(e) => updateFilters({ 
-													...filters, 
+												onChange={(e) => updateFilters({
+													...filters,
 													dateRange: {
 														...filters.dateRange,
 														from: e.target.value ? new Date(e.target.value) : undefined,
@@ -620,11 +620,11 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											<label className="text-sm font-medium mb-2 block">
 												{t("tools.filters.date.to")}
 											</label>
-											<Input 
+											<Input
 												type="date"
 												value={filters.dateRange.to ? filters.dateRange.to.toISOString().split("T")[0] : ""}
-												onChange={(e) => updateFilters({ 
-													...filters, 
+												onChange={(e) => updateFilters({
+													...filters,
 													dateRange: {
 														...filters.dateRange,
 														to: e.target.value ? new Date(e.target.value) : undefined,
@@ -894,15 +894,15 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 					</div>
 				</div>
 				<div className="flex gap-2 mt-6">
-					<Input 
-						onChange={(e) => updateFilters({ ...filters, url: e.target.value })} 
-						value={filters.url} 
-						placeholder={t("list.search.url.placeholder")} 
-						className="flex-1 h-10" 
+					<Input
+						onChange={(e) => updateFilters({ ...filters, url: e.target.value })}
+						value={filters.url}
+						placeholder={t("list.search.url.placeholder")}
+						className="flex-1 h-10"
 					/>
 
-					<Select 
-						onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })} 
+					<Select
+						onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })}
 						value={filters.infrastructure || "all"}
 					>
 						<SelectTrigger className="w-64 !h-10">
@@ -920,8 +920,8 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</SelectContent>
 					</Select>
 
-					<Select 
-						onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })} 
+					<Select
+						onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })}
 						value={filters.theme || "all"}
 					>
 						<SelectTrigger className="w-48 !h-10">
