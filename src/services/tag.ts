@@ -299,7 +299,17 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 		}
 
 		const tags = await TagModel.find({ sites: siteId });
-		const { site } = await getSite(siteId);
+		const { sites } = await listSites();
+		if (!sites) {
+			await warn("No sites found while retrieving tags by site", {
+				type: "tag",
+				action: "read",
+				siteId,
+				error: "No sites available",
+			});
+			return { error: { status: 404, message: "No sites found", success: false } };
+		}
+		const site = sites.find((s) => s.id === siteId);
 
 		await info(`Tags for site **${site?.url || "Unknown Site"}** retrieved successfully`, {
 			type: "tag",
