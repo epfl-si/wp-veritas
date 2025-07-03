@@ -298,6 +298,10 @@
 				"label": "Script de protection des téléchargements",
 				"placeholder": "Entrer le script de protection..."
 			},
+			"monitored": {
+				"label": "Surveillé",
+				"placeholder": "Activer la surveillance pour ce site"
+			},
 			"ticket": {
 				"label": "Ticket",
 				"placeholder": "Entrer la référence du ticket..."
@@ -439,6 +443,23 @@
 			"empty": {
 				"title": "Aucun site",
 				"description": "Ce tag n'est actuellement utilisé par aucun site."
+			},
+			"bulk": {
+				"selectAll": "Tout sélectionner",
+				"deselectAll": "Tout désélectionner",
+				"removeSelected": "Supprimer la sélection ({count})",
+				"removeAll": "Supprimer tous les sites",
+				"confirmRemoveAll": "Êtes-vous sûr de vouloir supprimer tous les sites de ce tag ?",
+				"confirmRemoveSelected": "Êtes-vous sûr de vouloir supprimer {count} sites sélectionnés de ce tag ?",
+				"removing": "Suppression...",
+				"success": {
+					"removeAll": "Tous les sites supprimés avec succès",
+					"removeSelected": "{count} sites supprimés avec succès"
+				},
+				"error": {
+					"removeAll": "Échec de la suppression de tous les sites",
+					"removeSelected": "Échec de la suppression des sites sélectionnés"
+				}
 			}
 		},
 		"actions": {
@@ -524,6 +545,10 @@
 			"title": "Supprimer {object}",
 			"description": "Êtes-vous sûr de vouloir supprimer ce {object} ?",
 			"warning": "Cette action supprimera définitivement le {object}.",
+			"titlePlural": "Supprimer {count} {object}s",
+			"descriptionPlural": "Êtes-vous sûr de vouloir supprimer {count} {object}s ?",
+			"warningPlural": "Cette action supprimera définitivement {count} {object}s.",
+			"confirmPlural": "Supprimer {count} {object}s",
 			"irreversible": "Cette action est irréversible.",
 			"deleting": "Suppression en cours...",
 			"success": "{object} supprimé avec succès",

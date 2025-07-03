@@ -298,6 +298,10 @@
 				"label": "Downloads Protection Script",
 				"placeholder": "Enter protection script..."
 			},
+			"monitored": {
+				"label": "Monitored",
+				"placeholder": "Enable monitoring for this site"
+			},
 			"ticket": {
 				"label": "Ticket",
 				"placeholder": "Enter ticket reference..."
@@ -490,6 +494,23 @@
 			"empty": {
 				"title": "No sites",
 				"description": "This tag is not currently used by any site."
+			},
+			"bulk": {
+				"selectAll": "Select all",
+				"deselectAll": "Deselect all",
+				"removeSelected": "Remove selected ({count})",
+				"removeAll": "Remove all sites",
+				"confirmRemoveAll": "Are you sure you want to remove all sites from this tag?",
+				"confirmRemoveSelected": "Are you sure you want to remove {count} selected sites from this tag?",
+				"removing": "Removing...",
+				"success": {
+					"removeAll": "All sites removed successfully",
+					"removeSelected": "{count} sites removed successfully"
+				},
+				"error": {
+					"removeAll": "Failed to remove all sites",
+					"removeSelected": "Failed to remove selected sites"
+				}
 			}
 		},
 		"actions": {
@@ -575,6 +596,10 @@
 			"title": "Delete {object}",
 			"description": "Are you sure you want to delete this {object}?",
 			"warning": "This action will permanently delete the {object}.",
+			"titlePlural": "Delete {count} {object}s",
+			"descriptionPlural": "Are you sure you want to delete {count} {object}s?",
+			"warningPlural": "This action will permanently delete {count} {object}s.",
+			"confirmPlural": "Delete {count} {object}s",
 			"irreversible": "This action cannot be undone.",
 			"deleting": "Deleting...",
 			"success": "{object} deleted successfully",
