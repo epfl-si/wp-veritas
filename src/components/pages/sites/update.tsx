@@ -178,6 +178,22 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				disabled: true,
 			},
 			{
+				name: "monitored",
+				type: "checkbox",
+				label: t("form.monitored.label"),
+				placeholder: t("form.monitored.placeholder"),
+				section: "advanced",
+				width: "full",
+				conditions: [
+					{
+						field: "infrastructure",
+						operator: "equals",
+						value: "Kubernetes",
+						type: "display",
+					},
+				],
+			},
+			{
 				name: "ticket",
 				type: "text",
 				label: t("form.ticket.label"),
@@ -248,6 +264,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				downloadsProtectionScript: (isKubernetesSite(site) && site.downloadsProtectionScript) || false,
 				ticket: site.ticket || undefined,
 				comment: site.comment || undefined,
+				monitored: site.monitored || false,
 			},
 			apiEndpoint: `/api/sites/${site.id}`,
 			method: "PUT",
@@ -258,7 +275,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			successTitle: t("update.success.title"),
 			successMessage: t("update.success.message"),
 			errorMessage: t("update.error.title"),
-			onSuccess: () => {},
+			onSuccess: () => { },
 			onError: (error) => {
 				console.error("Error updating site:", error);
 			},
