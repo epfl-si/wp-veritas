@@ -238,16 +238,38 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				}
 
 				if (hasChanged) {
-
 					const generateChangeMessage = (fieldName: string, oldVal: string | boolean | string[] | Date | undefined, newVal: string | string[] | boolean | number | undefined): string => {
 						const article = ["a", "e", "i", "o", "u"].includes(fieldName.toLowerCase()[0]) ? "An" : "A";
 
+						const formatValue = (val: string | boolean | string[] | Date | undefined | number): string => {
+							if (Array.isArray(val)) {
+								return val.join(", ");
+							}
+							return String(val);
+						};
+
+						if (typeof oldVal === "boolean" || typeof newVal === "boolean") {
+							if (newVal === true && oldVal === false) {
+								return `The ${fieldName.toLowerCase()} was **enabled**`;
+							} else if (newVal === false && oldVal === true) {
+								return `The ${fieldName.toLowerCase()} was **disabled**`;
+							} else if (newVal === true && (oldVal === undefined || oldVal === null)) {
+								return `The ${fieldName.toLowerCase()} was **enabled**`;
+							} else if (newVal === false && (oldVal === undefined || oldVal === null)) {
+								return `The ${fieldName.toLowerCase()} was **disabled**`;
+							} else if ((newVal === undefined || newVal === null) && oldVal === true) {
+								return `The ${fieldName.toLowerCase()} was **disabled**`;
+							} else if ((newVal === undefined || newVal === null) && oldVal === false) {
+								return `The ${fieldName.toLowerCase()} was **removed**`;
+							}
+						}
+
 						if (newVal && !oldVal) {
-							return `${article} ${fieldName.toLowerCase()} was added: **${newVal}**`;
+							return `${article} ${fieldName.toLowerCase()} was added: **${formatValue(newVal)}**`;
 						} else if (!newVal && oldVal) {
-							return `The ${fieldName.toLowerCase()} was removed: **${oldVal}**`;
+							return `The ${fieldName.toLowerCase()} was removed: **${formatValue(oldVal)}**`;
 						} else {
-							return `The ${fieldName.toLowerCase()} was changed: **${oldVal} → ${newVal}**`;
+							return `The ${fieldName.toLowerCase()} was changed: **${formatValue(oldVal)} → ${formatValue(newVal)}**`;
 						}
 					};
 
