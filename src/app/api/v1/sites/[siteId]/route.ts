@@ -58,6 +58,10 @@ interface RouteParams {
  *                   format: uri
  *                   description: URL of the site.
  *                   example: "https://techblog.example.com"
+ * 			   	   monitored:
+ * 				     type: boolean
+ * 				 	 description: Indicates if the site is monitored.
+ * 				     example: true
  *                 tags:
  *                   type: array
  *                   description: List of tags associated with the site.
@@ -182,6 +186,7 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 				...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
 				infrastructure: site.infrastructure,
 				url: site.url,
+				monitored: site.monitored,
 				tags: tags
 					.filter((tag) => tag.sites.includes(site.id)).map((tag) => ({
 						id: tag.id,
