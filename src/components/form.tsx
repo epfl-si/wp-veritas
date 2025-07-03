@@ -155,14 +155,14 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		switch (fieldType) {
 			case "checkbox":
 				return value === undefined;
-			
+
 			case "multi-checkbox":
 			case "multiselect":
 				return value === undefined || value === null;
-			
+
 			case "number":
 				return value === undefined || value === null || value === "";
-			
+
 			default:
 				return value === undefined || value === null || value === "";
 		}
@@ -179,7 +179,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			form.setValue(field.name as Path<T>, filteredValue as never);
 			return;
 		}
-		
+
 		if (schemaDefault !== undefined) {
 			form.setValue(field.name as Path<T>, schemaDefault as never);
 		} else {
@@ -210,14 +210,14 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			if (field.type === "checkbox" && typeof defaultValue === "boolean") {
 				return currentValue !== defaultValue;
 			}
-			
+
 			if ((field.type === "multi-checkbox" || field.type === "multiselect") && Array.isArray(defaultValue)) {
 				if (!Array.isArray(currentValue)) {
 					return true;
 				}
 				return !defaultValue.every(item => currentValue.includes(item));
 			}
-			
+
 			return currentValue !== defaultValue;
 		}
 
@@ -241,12 +241,12 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			const currentValue = form.getValues(field.name as Path<T>);
 			const conditionalDefault = getConditionalDefault(field);
 			const schemaDefault = getSchemaDefaultValue(field.name);
-			
+
 			const conditionalKey = conditionalDefault !== undefined ? `${field.name}-conditional-${JSON.stringify(conditionalDefault)}` : null;
 			const schemaKey = `${field.name}-schema-${JSON.stringify(schemaDefault)}`;
-			
+
 			const hadConditionalDefault = Array.from(appliedDefaults.current).some(key => key.startsWith(`${field.name}-conditional-`));
-			
+
 			if (conditionalDefault !== undefined) {
 				if (conditionalKey && shouldApplyDefault(field, currentValue, conditionalDefault, true) && !appliedDefaults.current.has(conditionalKey)) {
 					if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(conditionalDefault) && Array.isArray(currentValue)) {
@@ -255,9 +255,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					} else {
 						form.setValue(field.name as Path<T>, conditionalDefault as never);
 					}
-					
+
 					appliedDefaults.current.add(conditionalKey);
-					
+
 					Array.from(appliedDefaults.current).forEach(key => {
 						if (key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey) {
 							appliedDefaults.current.delete(key);
@@ -266,7 +266,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 				}
 			} else if (hadConditionalDefault) {
 				const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key => key.startsWith(`${field.name}-conditional-`));
-				
+
 				const previousConditionalKey = previousConditionalKeys[0];
 				let previousConditionalValue: unknown;
 				if (previousConditionalKey) {
@@ -277,11 +277,11 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 						previousConditionalValue = undefined;
 					}
 				}
-				
+
 				previousConditionalKeys.forEach(key => appliedDefaults.current.delete(key));
-				
+
 				resetConditionalValue(field, currentValue, previousConditionalValue, schemaDefault);
-				
+
 				if (schemaDefault !== undefined) {
 					appliedDefaults.current.add(schemaKey);
 				}
@@ -301,7 +301,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 				const value = currentValues[key as keyof typeof currentValues];
 				const field = config.fields.find((f) => f.name === key);
 				if (!field) return true;
-				
+
 				if (field.type === "checkbox") {
 					return value === undefined;
 				}
@@ -351,7 +351,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		);
 	};
 
-	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string;}) => {
+	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string; }) => {
 		const [isOpen, setIsOpen] = useState(false);
 		const [showAll, setShowAll] = useState(false);
 
@@ -359,15 +359,15 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		const nonDefaultOptions = options.filter(option => option.default !== true);
 		const hasDefaultOptions = defaultOptions.length > 0;
 
-		const visibleOptions = showAll || !hasDefaultOptions 
-			? options 
+		const visibleOptions = showAll || !hasDefaultOptions
+			? options
 			: defaultOptions;
 
 		const handleOptionToggle = (optionValue: string | number, e?: React.MouseEvent) => {
 			e?.stopPropagation();
 			if (disabled) return;
-			const newValue = value.includes(optionValue) 
-				? value.filter((v) => v !== optionValue) 
+			const newValue = value.includes(optionValue)
+				? value.filter((v) => v !== optionValue)
 				: [...value, optionValue];
 			onChange(newValue);
 		};
@@ -390,11 +390,11 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			<div className="w-full">
 				<Popover open={isOpen} onOpenChange={setIsOpen}>
 					<PopoverTrigger asChild>
-						<div 
+						<div
 							className={cn(
-								"inline-flex items-center gap-2 whitespace-nowrap rounded-md py-1 text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 has-[>svg]:px-3 w-full h-auto min-h-10 justify-between text-left font-normal", 
+								"inline-flex items-center gap-2 whitespace-nowrap rounded-md py-1 text-sm transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 has-[>svg]:px-3 w-full h-auto min-h-10 justify-between text-left font-normal",
 								disabled && "cursor-not-allowed opacity-50",
-							)} 
+							)}
 						>
 							<div className="flex-1 min-w-0">
 								{selectedOptions.length === 0 ? (
@@ -429,9 +429,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 													)}
 													<span className="font-medium truncate max-w-20">{option.label}</span>
 													{!disabled && (
-														<button 
-															type="button" 
-															onClick={(e) => handleRemoveItem(option.value, e)} 
+														<button
+															type="button"
+															onClick={(e) => handleRemoveItem(option.value, e)}
 															className="cursor-pointer p-0.5 transition-colors ml-0.5"
 														>
 															<X className="w-2 h-2" />
@@ -446,24 +446,24 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
 						</div>
 					</PopoverTrigger>
-					<PopoverContent 
-						className="p-0" 
-						style={{ width: "var(--radix-popover-trigger-width)" }} 
+					<PopoverContent
+						className="p-0"
+						style={{ width: "var(--radix-popover-trigger-width)" }}
 						align="start"
 					>
 						<div className="max-h-64 overflow-y-auto">
 							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div 
-										key={option.value} 
-										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" 
+									<div
+										key={option.value}
+										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer"
 										onClick={(e) => handleOptionToggle(option.value, e)}
 									>
-										<Checkbox 
-											id={`option-${option.value}`} 
-											checked={value.includes(option.value)} 
-											onCheckedChange={() => handleOptionToggle(option.value)} 
+										<Checkbox
+											id={`option-${option.value}`}
+											checked={value.includes(option.value)}
+											onCheckedChange={() => handleOptionToggle(option.value)}
 										/>
 										<div className="flex items-center space-x-2 flex-1">
 											{IconComponent && (
@@ -481,8 +481,8 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 													)}
 												</div>
 											)}
-											<label 
-												htmlFor={`option-${option.value}`} 
+											<label
+												htmlFor={`option-${option.value}`}
 												className="text-sm font-medium leading-none cursor-pointer flex-1"
 											>
 												{option.label}
@@ -491,7 +491,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 									</div>
 								);
 							})}
-						
+
 							{!showAll && hasDefaultOptions && nonDefaultOptions.length > 0 && (
 								<div className="border-t border-gray-100">
 									<button
@@ -504,10 +504,10 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 									</button>
 								</div>
 							)}
-						
+
 							{visibleOptions.length === 0 && (
 								<div className="p-4 text-sm text-gray-500 text-center">
-								No options available
+									No options available
 								</div>
 							)}
 						</div>
@@ -522,7 +522,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		const isDisabled = shouldDisableField(fieldConfig);
 
 		return (
-			<div key={name} className={`min-h-[85px] flex flex-col ${width === "full" ? "col-span-full" : ""}`}>
+			<div key={name} className={`flex flex-col ${width === "full" ? "col-span-full" : ""} ${type !== "checkbox" ? "min-h-[85px]" : "min-h-[30px]"}`}>
 				<FormField
 					control={form.control}
 					name={name as Path<T>}
@@ -634,7 +634,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			}
 
 			const elapsedTime = Date.now() - startTime;
-			const remainingTime = Math.max(0, 3000 - elapsedTime);
+			const remainingTime = Math.max(0, 1000 - elapsedTime);
 
 			await new Promise((resolve) => setTimeout(resolve, remainingTime));
 
