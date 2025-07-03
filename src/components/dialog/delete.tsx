@@ -8,12 +8,26 @@ import { useTranslations } from "next-intl";
 
 interface DeleteDialogProps {
 	displayName: string;
-	apiEndpoint: string;
+	apiEndpoint?: string;
 	type: string;
 	icon: LucideIcon;
+	// Bulk deletion props
+	onBulkDelete?: () => Promise<void>;
+	itemCount?: number;
+	triggerText?: string;
+	isPlural?: boolean;
 }
 
-export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndpoint, type, icon }) => {
+export const DeleteDialog: React.FC<DeleteDialogProps> = ({
+	displayName,
+	apiEndpoint,
+	type,
+	icon,
+	onBulkDelete,
+	itemCount,
+	triggerText,
+	isPlural = false,
+}) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -26,15 +40,21 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 		setError(null);
 
 		try {
-			const response = await fetch(apiEndpoint, {
-				method: "DELETE",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
+			if (onBulkDelete) {
+				// Handle bulk deletion
+				await onBulkDelete();
+			} else if (apiEndpoint) {
+				// Handle single item deletion
+				const response = await fetch(apiEndpoint, {
+					method: "DELETE",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
 
-			if (!response.ok) {
-				throw new Error(t("error", { object: type }));
+				if (!response.ok) {
+					throw new Error(t("error", { object: type }));
+				}
 			}
 
 			setIsOpen(false);
@@ -51,17 +71,26 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 	return (
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-red-400 text-red-600 hover:text-red-600 hover:bg-red-100">
-					<Trash2 strokeWidth={2.3} className="size-5" />
-				</Button>
+				{triggerText ? (
+					<Button variant="destructive" className="flex items-center space-x-1">
+						<Trash2 className="w-4 h-4" />
+						<span>{triggerText}</span>
+					</Button>
+				) : (
+					<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-red-400 text-red-600 hover:text-red-600 hover:bg-red-100">
+						<Trash2 strokeWidth={2.3} className="size-5" />
+					</Button>
+				)}
 			</DialogTrigger>
 			<DialogContent className="">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2 text-red-600">
 						<AlertTriangle className="size-5" />
-						{t("title", { object: type })}
+						{isPlural ? t("titlePlural", { object: type, count: itemCount ?? 0 }) : t("title", { object: type })}
 					</DialogTitle>
-					<DialogDescription className="text-gray-600">{t("description", { object: type })}</DialogDescription>
+					<DialogDescription className="text-gray-600">
+						{isPlural ? t("descriptionPlural", { object: type, count: itemCount ?? 0 }) : t("description", { object: type })}
+					</DialogDescription>
 				</DialogHeader>
 
 				{error && (
@@ -82,7 +111,9 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 						<Info className="size-4" />
 						<p className="">{t("irreversible")}</p>
 					</div>
-					<p className="text-xs text-red-600 mt-1">{t("warning", { object: type })}</p>
+					<p className="text-xs text-red-600 mt-1">
+						{isPlural ? t("warningPlural", { object: type, count: itemCount ?? 0 }) : t("warning", { object: type })}
+					</p>
 				</div>
 
 				<DialogFooter className="flex gap-2 sm:gap-2">
@@ -98,7 +129,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 						) : (
 							<>
 								<Trash2 className="size-4" />
-								{t("confirm", { object: type })}
+								{isPlural ? t("confirmPlural", { object: type, count: itemCount ?? 0 }) : t("confirm", { object: type })}
 							</>
 						)}
 					</Button>
