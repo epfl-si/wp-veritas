@@ -9,6 +9,7 @@ export interface ISite extends Document {
 	infrastructure: InfrastructureName;
 	ticket?: string;
 	comment?: string;
+	monitored?: boolean;
 	createdAt: Date;
 }
 
@@ -22,6 +23,7 @@ const siteSchema = new mongoose.Schema<ISite>({
 	},
 	ticket: { type: String, required: false },
 	comment: { type: String, required: false },
+	monitored: { type: Boolean, required: false, default: false },
 	createdAt: { type: Date, required: true, default: Date.now },
 });
 
