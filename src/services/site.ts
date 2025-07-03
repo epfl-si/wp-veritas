@@ -1,6 +1,6 @@
 "use server";
 import { APIError } from "@/types/error";
-import { SearchSiteType, SiteFormType, SiteType, KubernetesSite, DatabaseSite, isKubernetesSite, isDatabaseSite, getSitePersistence, isCreatableInfrastructure } from "@/types/site";
+import { SearchSiteType, SiteFormType, SiteType, KubernetesSite, DatabaseSite, isKubernetesSite, isDatabaseSite, getSitePersistence, isCreatableInfrastructure, SiteExtras, SITE_EXTRAS } from "@/types/site";
 import { hasPermission } from "./policy";
 import { PERMISSIONS } from "@/constants/permissions";
 import { getEditors, getNames, getUnit } from "@/lib/api";
@@ -12,28 +12,24 @@ import { info, warn, error } from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
 
-const SITE_EXTRAS = ["ticket", "comment"] as const;
-type SiteExtra = (typeof SITE_EXTRAS)[number];
+function extractExtras(site: SiteFormType): SiteExtras {
+	const extras: { [key: string]: unknown } = {};
 
-function extractExtras(site: SiteFormType): Partial<Record<SiteExtra, string>> {
-	const extras: Partial<Record<SiteExtra, string>> = {};
-
-	SITE_EXTRAS.forEach((extra) => {
+	SITE_EXTRAS.forEach((extra: string) => {
 		if (extra in site && site[extra as keyof SiteFormType]) {
-			extras[extra] = site[extra as keyof SiteFormType] as string;
+			extras[extra] = site[extra as keyof SiteFormType];
 		}
 	});
 
-	return extras;
+	return extras as SiteExtras;
 }
 
 function mergeSiteWithExtras(kubernetesSite: KubernetesSite, dbSite?: DatabaseSite): KubernetesSite {
-	if (!dbSite) return kubernetesSite;
-
 	return {
 		...kubernetesSite,
-		ticket: dbSite.ticket,
-		comment: dbSite.comment,
+		ticket: dbSite?.ticket,
+		comment: dbSite?.comment,
+		monitored: dbSite?.monitored,
 	};
 }
 
@@ -164,7 +160,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 export async function updateSite(siteId: string, site: SiteFormType): Promise<{ error?: APIError }> {
 	try {
-		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", "ticket", "comment"];
+		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", ...SITE_EXTRAS];
 
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
 			await warn("Permission denied to update the site", {
@@ -231,8 +227,11 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				const existingValue = existingSite[field as keyof typeof existingSite];
 				let hasChanged = false;
 				if (Array.isArray(newValue) && Array.isArray(existingValue)) {
-					hasChanged = newValue.length !== existingValue.length ||
-						!newValue.every((item, index) => item === existingValue[index]);
+					const newSet = new Set(newValue);
+					const existingSet = new Set(existingValue);
+
+					hasChanged = newSet.size !== existingSet.size ||
+						![...newSet].every(item => existingSet.has(item));
 				} else {
 					hasChanged = newValue !== existingValue;
 				}
