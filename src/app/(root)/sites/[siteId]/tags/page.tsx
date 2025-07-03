@@ -13,7 +13,7 @@ export default async function SiteTagsPage({
 		siteId: string;
 	}>;
 }) {
-	const t = await getTranslations("site.tags");
+	const t = await getTranslations("site");
 	const { siteId } = await params;
 
 	const [siteResult, tagsResult] = await Promise.all([getSite(siteId), listTags()]);
@@ -30,11 +30,11 @@ export default async function SiteTagsPage({
 	}
 
 	if (tagsError) {
-		return <Error text={t("error.tags")} subText={tagsError.message} Icon={CircleX} color="text-red-500" />;
+		return <Error text={t("tags.error.tags")} subText={tagsError.message} Icon={CircleX} color="text-red-500" />;
 	}
 
 	if (!tags || tags.length === 0) {
-		return <Error text={t("error.noTags")} subText={t("error.noTagsSubText")} Icon={CircleX} color="text-red-500" />;
+		return <Error text={t("tags.error.noTags")} subText={t("tags.error.noTagsSubText")} Icon={CircleX} color="text-red-500" />;
 	}
 
 	return <SiteTagsUpdate site={site} tags={tags} />;
