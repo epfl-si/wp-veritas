@@ -1,4 +1,4 @@
-import { SiteFormType, DatabaseSite, DatabaseSiteFormType } from "@/types/site";
+import { SiteFormType, DatabaseSite, DatabaseSiteFormType, SiteExtras } from "@/types/site";
 import { ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
 import { SiteModel } from "@/models/Site";
@@ -25,6 +25,7 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 			tags: [],
 			ticket: site.ticket,
 			comment: site.comment,
+			monitored: site.monitored,
 			managed: true,
 		};
 
@@ -49,7 +50,7 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 			const sites = await SiteModel.find({
 				infrastructure: { $in: persistentInfrastructures },
 			})
-				.select("id url infrastructure createdAt ticket comment")
+				.select("id url infrastructure createdAt ticket comment monitored")
 				.sort("-createdAt")
 				.lean();
 
@@ -61,6 +62,7 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 				tags: [],
 				ticket: site.ticket,
 				comment: site.comment,
+				monitored: site.monitored,
 				managed: true,
 			}));
 
@@ -97,6 +99,7 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 			createdAt: new Date(),
 			ticket: databaseSite.ticket,
 			comment: databaseSite.comment,
+			monitored: databaseSite.monitored,
 		});
 
 		await newSite.save();
@@ -108,7 +111,7 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 	}
 }
 
-export async function createDatabaseSiteExtras(siteId: string, extras: { ticket?: string; comment?: string }): Promise<{ site?: DatabaseSite; error?: APIError }> {
+export async function createDatabaseSiteExtras(siteId: string, extras: SiteExtras): Promise<{ site?: DatabaseSite; error?: APIError }> {
 	try {
 		await db.connect();
 
@@ -128,6 +131,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: { ticket?
 			createdAt: site.createdAt,
 			ticket: extras.ticket,
 			comment: extras.comment,
+			monitored: extras.monitored,
 		});
 
 		await newSite.save();
@@ -140,6 +144,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: { ticket?
 			tags: [],
 			ticket: extras.ticket,
 			comment: extras.comment,
+			monitored: extras.monitored,
 			managed: true,
 		};
 
@@ -150,7 +155,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: { ticket?
 	}
 }
 
-export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?: string; comment?: string }): Promise<{ site?: DatabaseSite; error?: APIError }> {
+export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtras): Promise<{ site?: DatabaseSite; error?: APIError }> {
 	try {
 		await db.connect();
 
@@ -167,6 +172,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 				createdAt: site.createdAt,
 				...(extras.ticket !== undefined && { ticket: extras.ticket }),
 				...(extras.comment !== undefined && { comment: extras.comment }),
+				...(extras.monitored !== undefined && { monitored: extras.monitored }),
 			});
 			cache.invalidateSitesCache();
 		}
@@ -176,6 +182,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 			{
 				...(extras.ticket !== undefined && { ticket: extras.ticket }),
 				...(extras.comment !== undefined && { comment: extras.comment }),
+				...(extras.monitored !== undefined && { monitored: extras.monitored }),
 			},
 			{ new: true },
 		);
@@ -193,6 +200,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: { ticket?
 			tags: [],
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
+			monitored: updatedSite.monitored,
 			managed: true,
 		};
 
@@ -257,6 +265,7 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			tags: [],
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
+			monitored: updatedSite.monitored,
 			managed: true,
 		};
 
