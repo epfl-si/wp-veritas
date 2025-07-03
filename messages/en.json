@@ -246,7 +246,10 @@
 			"error": {
 				"title": "Error Updating Tags",
 				"message": "An error occurred while updating the tags. Please try again.",
-				"unknown": "An unknown error occurred"
+				"unknown": "An unknown error occurred",
+				"tags": "Error loading tags",
+				"noTags": "No tags available",
+				"noTagsSubText": "Please create tags first before managing site tags"
 			},
 			"actions": {
 				"save": "Save Changes",
