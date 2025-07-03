@@ -52,14 +52,25 @@ export interface KubernetesSiteExtraInfo {
 	wordpressSiteName: string;
 }
 
-interface BaseSiteType {
+
+export const SITE_EXTRAS = [
+	"ticket",
+	"comment",
+	"monitored",
+];
+
+export type SiteExtras = {
+	ticket?: string;
+	comment?: string;
+	monitored?: boolean;
+};
+
+interface BaseSiteType extends SiteExtras {
 	id: string;
 	url: string;
 	createdAt: Date;
 	tags: string[];
 	managed: boolean;
-	ticket?: string;
-	comment?: string;
 }
 
 export interface KubernetesSite extends BaseSiteType {
@@ -115,6 +126,7 @@ interface BaseSiteFormType {
 	url: string;
 	ticket?: string;
 	comment?: string;
+	monitored?: boolean;
 }
 
 export interface KubernetesSiteFormType extends BaseSiteFormType {
@@ -150,6 +162,7 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 			.url({ message: errorMessages.invalid_url }),
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
+		monitored: z.boolean().optional().default(false),
 	};
 
 	const kubernetesFields = {
