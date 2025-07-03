@@ -333,7 +333,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			sortKey: "createdAt",
 			render: (site) => (
 				<div className="text-center">
-					<p className="text-sm font-medium text-gray-700">{formatRelativeDate(site.createdAt)}</p>
+					<p className="text-sm font-medium text-gray-700" title={site.createdAt.toString()}>{formatRelativeDate(site.createdAt)}</p>
 				</div>
 			),
 		},
