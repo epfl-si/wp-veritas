@@ -1,11 +1,11 @@
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
-import { ensureSlashAtEnd } from "@/lib/utils";
+import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
-import { isDatabaseSite, isKubernetesSite } from "@/types/site";
+import { isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
-import db from "@/lib/mongo";
+import { ensureSlashAtEnd } from "@/lib/utils";
 
 /**
  * @swagger
@@ -63,6 +63,10 @@ import db from "@/lib/mongo";
  *                     format: uri
  *                     description: URL of the site.
  *                     example: "https://myblog.example.com"
+ *                   monitored:
+ * 				      type: boolean
+ * 				 	  description: Indicates if the site is monitored.
+ * 				      example: true
  *                   tags:
  *                     type: array
  *                     description: List of tags associated with the site.
@@ -135,85 +139,65 @@ import db from "@/lib/mongo";
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
 		const { searchParams } = new URL(request.url);
-		const taggedParam = searchParams.get("tagged");
-		const siteUrlParam = searchParams.get("siteUrl");
+		const taggedFilter = searchParams.get("tagged")?.toLowerCase() === "true";
+		const siteUrlFilter = searchParams.get("siteUrl") ? ensureSlashAtEnd(decodeURIComponent(searchParams.get("siteUrl")!)) : null;
+		const hasTaggedFilter = searchParams.has("tagged");
 
-		const taggedFilter = taggedParam ? taggedParam.toLowerCase() === "true" : null;
-		const siteUrlFilter = siteUrlParam ? ensureSlashAtEnd(decodeURIComponent(siteUrlParam)) : null;
-
-		await db.connect();
-
-		const allSites = await withCache("api-sites", async () => {
-			const [kubernetesResult, databaseResult, tags] = await Promise.all([
-				getKubernetesSites(),
-				listDatabaseSites(),
-				TagModel.find({}).select("id nameFr nameEn urlFr urlEn type sites").lean(),
+		const sites = await withCache("api-v2-sites", async () => {
+			const [[k8sResult, dbResult], tags] = await Promise.all([
+				Promise.all([getKubernetesSites(), listDatabaseSites()]),
+				db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
 			]);
 
-			const kubernetesSites = kubernetesResult.sites || [];
-			const databaseSites = databaseResult.sites || [];
-			const databaseSiteMap = new Map(databaseSites.map((site) => [site.id, site]));
+			const k8sSites = k8sResult.sites || [];
+			const dbSites = dbResult.sites || [];
 
-			const mergedKubernetesSites = kubernetesSites.map((kubernetesSite) => {
-				if (isKubernetesSite(kubernetesSite)) {
-					const dbSite = databaseSiteMap.get(kubernetesSite.id);
-					if (dbSite && isDatabaseSite(dbSite)) {
-						databaseSiteMap.delete(kubernetesSite.id);
-					}
-				}
-				return kubernetesSite;
-			});
+			const tagMap = new Map();
+			const siteMap = new Map();
 
-			const remainingDatabaseSites = Array.from(databaseSiteMap.values());
-			const allSites = [...mergedKubernetesSites, ...remainingDatabaseSites];
-
-			const tagsMap = new Map();
-			tags.forEach((tag) => {
-				tag.sites?.forEach((siteId: string) => {
-					if (!tagsMap.has(siteId)) {
-						tagsMap.set(siteId, []);
-					}
-					tagsMap.get(siteId).push({
+			for (const tag of tags) {
+				if (tag.sites?.length) {
+					const tagObj = {
 						id: tag.id,
 						nameFr: tag.nameFr,
 						nameEn: tag.nameEn,
 						urlFr: tag.urlFr,
 						urlEn: tag.urlEn,
 						type: tag.type,
-					});
+					};
+					for (const siteId of tag.sites) {
+						if (!tagMap.has(siteId)) {
+							tagMap.set(siteId, []);
+						}
+						tagMap.get(siteId)!.push(tagObj);
+					}
+				}
+			}
+
+			[...dbSites, ...k8sSites].forEach(site => {
+				const existing = siteMap.get(site.id);
+				siteMap.set(site.id, {
+					id: site.id,
+					infrastructure: site.infrastructure,
+					url: site.url,
+					monitored: existing?.monitored ?? site.monitored,
+					tags: tagMap.get(site.id) || [],
+					createdAt: site.createdAt,
+					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
 				});
 			});
 
-			return allSites.map((site) => ({
-				id: site.id,
-				...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
-				infrastructure: site.infrastructure,
-				url: site.url,
-				tags: tagsMap.get(site.id) || [],
-				createdAt: site.createdAt,
-			}));
-		}, 480); // 8 minutes cache
+			return Array.from(siteMap.values());
+		}, 480);
 
-		let filteredSites = allSites;
+		const filtered = sites.filter(site =>
+			(!siteUrlFilter || site.url === siteUrlFilter) &&
+			(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)),
+		);
 
-		if (siteUrlFilter) {
-			filteredSites = filteredSites.filter((site) => site.url === siteUrlFilter);
-		}
-
-		if (taggedFilter !== null) {
-			if (taggedFilter) {
-				filteredSites = filteredSites.filter((site) => site.tags.length > 0);
-			} else {
-				filteredSites = filteredSites.filter((site) => site.tags.length === 0);
-			}
-		}
-
-		return NextResponse.json(filteredSites, { status: 200 });
+		return NextResponse.json(filtered);
 	} catch (error) {
 		console.error("Error retrieving sites:", error);
-		return NextResponse.json(
-			{ message: "Internal Server Error" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
 	}
 }
