@@ -188,6 +188,22 @@ export const SiteAdd: React.FC = () => {
 				],
 			},
 			{
+				name: "monitored",
+				type: "checkbox",
+				label: t("form.monitored.label"),
+				placeholder: t("form.monitored.placeholder"),
+				section: "advanced",
+				width: "full",
+				conditions: [
+					{
+						field: "infrastructure",
+						operator: "equals",
+						value: "Kubernetes",
+						type: "display",
+					},
+				],
+			},
+			{
 				name: "ticket",
 				type: "text",
 				label: t("form.ticket.label"),
