@@ -265,11 +265,11 @@
 			},
 			"title": {
 				"label": "Website Title",
-				"placeholder": "Enter website title..."
+				"placeholder": "Enter website acronym..."
 			},
 			"tagline": {
 				"label": "Tagline (Name)",
-				"placeholder": "Enter website tagline..."
+				"placeholder": "Entter full name of the site..."
 			},
 			"theme": {
 				"label": "Theme",
