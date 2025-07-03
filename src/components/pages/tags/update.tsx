@@ -7,9 +7,12 @@ import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form"
 import { tagSchema, TagFormType, TagType, TagCategoryEnumType } from "@/types/tag";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { cn } from "@/lib/utils";
+import { CheckSquare, Square, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DeleteDialog } from "@/components/dialog/delete";
 
 interface TagUpdateProps {
-  tag: TagType;
+	tag: TagType;
 }
 
 export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
@@ -17,6 +20,8 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
 	const [activeTab, setActiveTab] = useState<"form" | "sites">("form");
+	const [selectedSites, setSelectedSites] = useState<string[]>([]);
+	const [isRemoving, setIsRemoving] = useState(false);
 
 	const sites = tag.sites || [];
 
@@ -102,7 +107,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 			successTitle: t("update.success.title"),
 			successMessage: t("update.success.message"),
 			errorMessage: t("update.error.title"),
-			onSuccess: () => {},
+			onSuccess: () => { },
 			onError: (error) => {
 				console.error("Error updating tag:", error);
 			},
@@ -116,12 +121,67 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 		return infraConfig || INFRASTRUCTURES.EXTERNAL;
 	};
 
+	const handleSelectSite = (siteId: string) => {
+		setSelectedSites(prev =>
+			prev.includes(siteId)
+				? prev.filter(id => id !== siteId)
+				: [...prev, siteId],
+		);
+	};
+
+	const handleSelectAll = () => {
+		setSelectedSites(selectedSites.length === sites.length ? [] : sites.map(site => site.id));
+	};
+
+	const removeSiteFromTag = async (siteId: string) => {
+		const response = await fetch(`/api/tags/${tag.id}/sites/${siteId}`, {
+			method: "DELETE",
+		});
+		if (!response.ok) {
+			throw new Error("Failed to remove site from tag");
+		}
+	};
+
+	const handleRemoveSelected = async () => {
+		if (selectedSites.length === 0) return;
+
+		setIsRemoving(true);
+		try {
+			await Promise.all(selectedSites.map(siteId => removeSiteFromTag(siteId)));
+
+			// Refresh the page to update the sites list
+			window.location.reload();
+		} catch (error) {
+			console.error("Error removing sites:", error);
+			throw error;
+		} finally {
+			setIsRemoving(false);
+		}
+	};
+
+	const handleRemoveAll = async () => {
+		if (sites.length === 0) return;
+
+		setIsRemoving(true);
+		try {
+			await Promise.all(sites.map(site => removeSiteFromTag(site.id)));
+
+			// Refresh the page to update the sites list
+			window.location.reload();
+		} catch (error) {
+			console.error("Error removing all sites:", error);
+			throw error;
+		} finally {
+			setIsRemoving(false);
+		}
+	};
+
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-0 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between mb-6">
 					<h1 className="text-3xl font-bold">{t("update.title")}</h1>
-          
+
 					<div className="flex bg-gray-100 rounded-lg p-1">
 						<button
 							onClick={() => setActiveTab("form")}
@@ -160,7 +220,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 
 			<div className="px-6 pb-6 h-full overflow-y-auto">
 				{activeTab === "form" && <Form config={getFormConfig()} />}
-        
+
 				{activeTab === "sites" && (
 					<div className="space-y-6">
 						<div className="flex items-center justify-between">
@@ -172,6 +232,40 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 									{t("sites.count", { count: sites.length })}
 								</p>
 							</div>
+
+							{sites.length > 0 && (
+								<div className="flex space-x-2">
+									<Button
+										onClick={handleSelectAll}
+										disabled={isRemoving}
+										variant="outline"
+									>
+										{selectedSites.length === sites.length ? t("sites.bulk.deselectAll") : t("sites.bulk.selectAll")}
+									</Button>
+
+									{selectedSites.length > 0 && (
+										<DeleteDialog
+											displayName={`${selectedSites.length} sites`}
+											type="site"
+											icon={Trash2}
+											onBulkDelete={handleRemoveSelected}
+											itemCount={selectedSites.length}
+											triggerText={isRemoving ? t("sites.bulk.removing") : t("sites.bulk.removeSelected", { count: selectedSites.length })}
+											isPlural={true}
+										/>
+									)}
+
+									<DeleteDialog
+										displayName={`${sites.length} sites`}
+										type="site"
+										icon={Trash2}
+										onBulkDelete={handleRemoveAll}
+										itemCount={sites.length}
+										triggerText={isRemoving ? t("sites.bulk.removing") : t("sites.bulk.removeAll")}
+										isPlural={true}
+									/>
+								</div>
+							)}
 						</div>
 
 						{sites.length > 0 ? (
@@ -180,21 +274,34 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 									{sites.map((site) => {
 										const infraInfo = getInfrastructureInfo(site.infrastructure);
 										const IconComponent = infraInfo.ICON;
-                    
+										const isSelected = selectedSites.includes(site.id);
+
 										return (
 											<li key={site.id}>
 												<div className="px-4 py-4 hover:bg-gray-50">
 													<div className="flex items-center space-x-4">
-														<div 
+														<button
+															onClick={() => handleSelectSite(site.id)}
+															disabled={isRemoving}
+															className="flex-shrink-0 p-1 disabled:opacity-50 disabled:cursor-not-allowed"
+														>
+															{isSelected ? (
+																<CheckSquare className="w-5 h-5 text-blue-600" />
+															) : (
+																<Square className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+															)}
+														</button>
+
+														<div
 															className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
 															style={{ backgroundColor: `${infraInfo.COLOR}20` }}
 														>
-															<IconComponent 
-																className="w-5 h-5" 
+															<IconComponent
+																className="w-5 h-5"
 																style={{ color: infraInfo.COLOR }}
 															/>
 														</div>
-                            
+
 														<div className="flex-1 min-w-0">
 															<a
 																href={site.url}
