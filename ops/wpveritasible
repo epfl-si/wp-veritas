@@ -84,7 +84,7 @@ get_inventory() {
             echo "-i inventory/test.yml"
             ;;
         prod)
-            echo "-i inventory/test.yml -i inventory/prod.yml"
+            echo "-i inventory/prod.yml"
             ;;
         *)
             fatal "Invalid mode: $mode"
