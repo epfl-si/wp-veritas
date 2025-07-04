@@ -145,7 +145,7 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 				tagline: site.tagline,
 				theme: site.theme,
 				plugins,
-				...(site.downloadsProtectionScript && { downloadsProtectionScript: "/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php" }),
+				...(site.downloadsProtectionScript && { downloadsProtectionScript: "/wp/wp-content/plugins/epfl-intranet/inc/protect-medias.php" }),
 			},
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
@@ -306,7 +306,7 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 				patchOperations.push({
 					op: "add",
 					path: "/spec/wordpress/downloadsProtectionScript",
-					value: "/wp/6/wp-content/plugins/epfl-intranet/inc/protect-medias.php",
+					value: "/wp/wp-content/plugins/epfl-intranet/inc/protect-medias.php",
 				});
 			} else {
 				patchOperations.push({
