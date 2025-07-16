@@ -884,13 +884,14 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 								</div>
 							</DialogContent>
 						</Dialog>
-
-						<Button className="h-10" asChild>
-							<Link href="/new">
-								<Plus className="size-5" />
-								{t("actions.add")}
-							</Link>
-						</Button>
+						{permissions.includes(PERMISSIONS.SITES.CREATE) && (
+							<Button className="h-10" asChild>
+								<Link href="/new">
+									<Plus className="size-5" />
+									{t("actions.add")}
+								</Link>
+							</Button>
+						)}
 					</div>
 				</div>
 				<div className="flex gap-2 mt-6">
