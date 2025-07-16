@@ -667,7 +667,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					const [siteUrl, searchUrl] = [new URL(site.url), new URL(url)];
 					if (siteUrl.hostname !== searchUrl.hostname) return false;
 					const [sitePath, searchPath] = [siteUrl.pathname.replace(/\/$/, "") || "/", searchUrl.pathname.replace(/\/$/, "") || "/"];
-					return sitePath === searchPath || searchPath.startsWith(sitePath);
+					return sitePath === searchPath || searchPath.startsWith(sitePath + "/") || (sitePath === "/" && searchPath.startsWith("/"));
 				} catch {
 					return false;
 				}
