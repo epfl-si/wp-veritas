@@ -43,7 +43,7 @@ async function enrichSiteWithTags(site: SiteType): Promise<SiteType> {
 			};
 		}
 	} catch (tagError) {
-		console.warn(`Failed to load tags for site ${site.id}:`, tagError);
+		console.warn(`Failed to load tags for site ${site.id}.`, tagError);
 	}
 
 	return site;
@@ -52,7 +52,7 @@ async function enrichSiteWithTags(site: SiteType): Promise<SiteType> {
 export async function createSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.CREATE))) {
-			await warn("Permission denied for site creation", {
+			await warn("Permission denied for site creation.", {
 				type: "site",
 				action: "create",
 				object: site,
@@ -82,8 +82,8 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			case "kubernetes": {
 				const { siteId, error: kubernetesError } = await createKubernetesSite(site);
 				if (kubernetesError) {
-					console.error("Error creating Kubernetes site:", kubernetesError);
-					await error("Failed to create site", {
+					console.error("Error creating Kubernetes site.", kubernetesError);
+					await error("Failed to create site.", {
 						type: "site",
 						action: "create",
 						object: site,
@@ -98,7 +98,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 						await createDatabaseSiteExtras(siteId, extras);
 					}
 
-					await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
+					await info(`The site ${site.url} (${site.infrastructure}) created successfully.`, {
 						type: "site",
 						action: "create",
 						id: siteId,
@@ -113,7 +113,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			case "database": {
 				const { siteId, error: databaseError } = await createDatabaseSite(site);
 				if (databaseError) {
-					await error("Failed to create site", {
+					await error("Failed to create site.", {
 						type: "site",
 						action: "create",
 						object: site,
@@ -123,7 +123,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 				}
 
 				if (siteId) {
-					await info(`The **${site.infrastructure}** site **${site.url}** created successfully`, {
+					await info(`The site ${site.url} (${site.infrastructure}) created successfully.`, {
 						type: "site",
 						action: "create",
 						id: siteId,
@@ -137,7 +137,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 			case "none":
 			default:
-				await warn("Unsupported persistence type for site creation", {
+				await warn("Unsupported persistence type for site creation.", {
 					type: "site",
 					action: "create",
 					object: site,
@@ -147,13 +147,13 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 				return { error: { status: 501, message: "Not implemented", success: false } };
 		}
 	} catch (errorData) {
-		await error("Failed to create site", {
+		await error("Failed to create site.", {
 			type: "site",
 			action: "create",
 			object: site,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		console.error("Error creating site:", errorData);
+		console.error("Error creating site.", errorData);
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
@@ -163,7 +163,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", ...SITE_EXTRAS];
 
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
-			await warn("Permission denied to update the site", {
+			await warn("Permission denied to update the site.", {
 				type: "site",
 				action: "update",
 				id: siteId,
@@ -175,7 +175,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 
 		const { site: existingSite, error: fetchError } = await getSite(siteId);
 		if (fetchError || !existingSite) {
-			await error("Could not retrieve the site to update", {
+			await error("Could not retrieve the site to update.", {
 				type: "site",
 				action: "update",
 				id: siteId,
@@ -200,23 +200,6 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			}
 		}
 
-		if (immutableFieldsChanged.length > 0) {
-			await warn(`Attempt to modify immutable fields: ${immutableFieldsChanged.join(", ")}`, {
-				type: "site",
-				action: "update",
-				id: siteId,
-				error: "Field immutable",
-				immutableFields: immutableFieldsChanged,
-			});
-			return {
-				error: {
-					status: 400,
-					message: `Field immutable: ${immutableFieldsChanged.join(", ")}`,
-					success: false,
-				},
-			};
-		}
-
 		const persistence = getSitePersistence(site.infrastructure);
 		const changes: string[] = [];
 		const changeDetails: Record<string, { from: unknown; to: unknown }> = {};
@@ -238,7 +221,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 
 				if (hasChanged) {
 					const generateChangeMessage = (fieldName: string, oldVal: string | boolean | string[] | Date | undefined, newVal: string | string[] | boolean | number | undefined): string => {
-						const article = ["a", "e", "i", "o", "u"].includes(fieldName.toLowerCase()[0]) ? "An" : "A";
+						const article = ["a", "e", "i", "o", "u"].includes(fieldName.toLowerCase()[0]) ? "an" : "a";
 
 						const formatValue = (val: string | boolean | string[] | Date | undefined | number): string => {
 							if (Array.isArray(val)) {
@@ -249,26 +232,26 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 
 						if (typeof oldVal === "boolean" || typeof newVal === "boolean") {
 							if (newVal === true && oldVal === false) {
-								return `The ${fieldName.toLowerCase()} was **enabled**`;
+								return `the ${fieldName.toLowerCase()} was enabled`;
 							} else if (newVal === false && oldVal === true) {
-								return `The ${fieldName.toLowerCase()} was **disabled**`;
+								return `the ${fieldName.toLowerCase()} was disabled`;
 							} else if (newVal === true && (oldVal === undefined || oldVal === null)) {
-								return `The ${fieldName.toLowerCase()} was **enabled**`;
+								return `the ${fieldName.toLowerCase()} was enabled`;
 							} else if (newVal === false && (oldVal === undefined || oldVal === null)) {
-								return `The ${fieldName.toLowerCase()} was **disabled**`;
+								return `the ${fieldName.toLowerCase()} was disabled`;
 							} else if ((newVal === undefined || newVal === null) && oldVal === true) {
-								return `The ${fieldName.toLowerCase()} was **disabled**`;
+								return `the ${fieldName.toLowerCase()} was disabled`;
 							} else if ((newVal === undefined || newVal === null) && oldVal === false) {
-								return `The ${fieldName.toLowerCase()} was **removed**`;
+								return `the ${fieldName.toLowerCase()} was removed`;
 							}
 						}
 
 						if (newVal && !oldVal) {
-							return `${article} ${fieldName.toLowerCase()} was added: **${formatValue(newVal)}**`;
+							return `${article} ${fieldName.toLowerCase()} was added: '''${formatValue(newVal)}'''`;
 						} else if (!newVal && oldVal) {
-							return `The ${fieldName.toLowerCase()} was removed: **${formatValue(oldVal)}**`;
+							return `the ${fieldName.toLowerCase()} was removed: '''${formatValue(oldVal)}'''`;
 						} else {
-							return `The ${fieldName.toLowerCase()} was changed: **${formatValue(oldVal)} → ${formatValue(newVal)}**`;
+							return `the ${fieldName.toLowerCase()} was changed: '''${formatValue(oldVal)} → ${formatValue(newVal)}'''`;
 						}
 					};
 
@@ -280,10 +263,10 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 						const removed = oldCategories.filter((c: string) => !newCategories.includes(c));
 
 						if (added.length > 0) {
-							changes.push(`Some categories were added: **${added.join(", ")}**`);
+							changes.push(`some categories were added: '''${added.join(", ")}'''`);
 						}
 						if (removed.length > 0) {
-							changes.push(`Some categories were removed: **${removed.join(", ")}**`);
+							changes.push(`some categories were removed: '''${removed.join(", ")}'''`);
 						}
 					} else {
 
@@ -297,7 +280,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		}
 
 		if (changes.length === 0) {
-			await info(`No changes were detected for the site **${existingSite.url}**`, {
+			await info(`No changes were detected for the site ${existingSite.url}.`, {
 				type: "site",
 				action: "update",
 				id: siteId,
@@ -310,7 +293,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			case "database": {
 				const { error: databaseError } = await updateDatabaseSite(siteId, site);
 				if (databaseError) {
-					await error(`Failed to update the site **${site.url}**`, {
+					await error(`Failed to update the site ${site.url}.`, {
 						type: "site",
 						action: "update",
 						id: siteId,
@@ -321,7 +304,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					return { error: databaseError };
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** was updated. ${changes.join(". ")}`, {
+				await info(`The site ${site.url} (${site.infrastructure}) was updated. ${changes.join(", ").replace(/^./, c => c.toUpperCase())}.`, {
 					type: "site",
 					action: "update",
 					id: siteId,
@@ -333,7 +316,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			case "kubernetes": {
 				const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
 				if (kubernetesError) {
-					await error(`Failed to update the site **${site.url}**`, {
+					await error(`Failed to update the site ${site.url}.`, {
 						type: "site",
 						action: "update",
 						id: siteId,
@@ -350,7 +333,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 						await updateDatabaseSiteExtras(siteId, extras);
 					} catch (extrasError) {
 						console.error(`Error updating site extras for ${siteId}:`, extrasError);
-						await warn(`The extras could not be updated but the site update succeeded: **${site.url}**`, {
+						await warn(`The extras could not be updated but the site update succeeded: ${site.url}.`, {
 							type: "site",
 							action: "update_extras",
 							id: siteId,
@@ -359,7 +342,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					}
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** was updated. ${changes.join(". ")}`, {
+				await info(`Site ${site.url} (${site.infrastructure}) updated: ${changes.join(", ").replace(/^./, c => c.toUpperCase())}.`, {
 					type: "site",
 					action: "update",
 					id: siteId,
@@ -370,7 +353,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 
 			case "none":
 			default:
-				await warn(`This type of site cannot be updated: **${site.url}**`, {
+				await warn(`This type of site cannot be updated: ${site.url}.`, {
 					type: "site",
 					action: "update",
 					id: siteId,
@@ -383,7 +366,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 
 		return {};
 	} catch (errorData) {
-		await error(`The site could not be updated due to an error: **${site.url}**`, {
+		await error(`The site could not be updated due to an error: ${site.url}.`, {
 			type: "site",
 			action: "update",
 			id: siteId,
@@ -450,7 +433,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 					console.error("Error deleting site extras", extrasError);
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
+				await info(`The site ${site.url} (${site.infrastructure}) deleted successfully.`, {
 					type: "site",
 					action: "delete",
 					id: siteId,
@@ -474,7 +457,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 					return { error: databaseError };
 				}
 
-				await info(`The **${site.infrastructure}** site **${site.url}** deleted successfully`, {
+				await info(`The site ${site.url} (${site.infrastructure}) deleted successfully.`, {
 					type: "site",
 					action: "delete",
 					id: siteId,
@@ -521,7 +504,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite as DatabaseSite);
 			const enrichedSite = await enrichSiteWithTags(mergedSite);
 
-			await info(`The **${enrichedSite.infrastructure}** site **${enrichedSite.url}** retrieved successfully`, {
+			await info(`The ${enrichedSite.infrastructure} site ${enrichedSite.url} retrieved successfully.`, {
 				type: "site",
 				action: "read",
 				id: siteId,
@@ -545,7 +528,7 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 		if (databaseSite) {
 			const enrichedSite = await enrichSiteWithTags(databaseSite);
 
-			await info(`The **${enrichedSite.infrastructure}** site **${enrichedSite.url}** retrieved successfully`, {
+			await info(`The ${enrichedSite.infrastructure} site ${enrichedSite.url} retrieved successfully.`, {
 				type: "site",
 				action: "read",
 				id: siteId,
