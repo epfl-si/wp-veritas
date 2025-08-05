@@ -99,6 +99,7 @@ export interface SearchSiteType {
 	id: string;
 	url: string;
 	loginUrl: string;
+	infrastructure: string;
 	unit: {
 		id: string;
 		name: string;
@@ -120,6 +121,7 @@ export interface SearchSiteType {
 		}[];
 		accreditors: string[];
 	};
+	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
 }
 
 interface BaseSiteFormType {
