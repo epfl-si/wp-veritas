@@ -93,7 +93,17 @@ export const SiteInfo: React.FC = () => {
 				if (response.ok && data.items) {
 					setSites(data.items);
 				} else {
-					setError(data.message || t("error.server"));
+					switch (data.status) {
+						case 404:
+							setError(t("info.error.notFound"));
+							break;
+						case 500:
+							setError(t("info.error.server"));
+							break;
+						default:
+							setError(data.message || t("info.error.server"));
+							break;
+					}
 					setSites([]);
 				}
 			} catch (error) {
