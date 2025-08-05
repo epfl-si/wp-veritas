@@ -1,6 +1,6 @@
 {
   "name": "wp-vertitas",
-  "version": "6.3.8",
+  "version": "6.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
