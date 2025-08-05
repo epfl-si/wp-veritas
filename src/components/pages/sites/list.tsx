@@ -44,7 +44,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 	const getInitialFilters = () => {
 		const filters: Filters = {
 			url: searchParams.get("url") || "",
-			infrastructure: searchParams.get("infrastructure") || "",
+			infrastructure: searchParams.get("infrastructure") || "Kubernetes",
 			theme: searchParams.get("theme") || "",
 			hasCategories: searchParams.get("hasCategories") === "true" ? true : searchParams.get("hasCategories") === "false" ? false : null,
 			hasDownloadsProtection: searchParams.get("hasDownloadsProtection") === "true" ? true : searchParams.get("hasDownloadsProtection") === "false" ? false : null,
