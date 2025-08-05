@@ -62,11 +62,11 @@ interface RouteParams {
  *                   type: string
  *                   format: uri
  *                   description: URL of the site.
- *                   example: "https://techblog.example.com"
+ *                   example: "https://techblog.epfl.ch"
  *                 monitored:
- * 				     type: boolean
- * 				 	 description: Indicates if the site is monitored.
- * 				     example: true
+ *                   type: boolean
+ *                   description: Indicates if the site is monitored.
+ *                   example: true
  *                 tags:
  *                   type: array
  *                   description: List of tags associated with the site.
