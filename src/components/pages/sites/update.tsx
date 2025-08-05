@@ -39,7 +39,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			},
 			{
 				name: "url",
-				type: "text",
+				type: "url",
 				label: t("form.url.label"),
 				placeholder: t("form.url.placeholder"),
 				section: "general",
