@@ -10,13 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FormField, Form as UiForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CircleAlert, CircleCheck, Loader2, X, ChevronDown } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2, X, ChevronDown, ExternalLink, LinkIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { ApiResponse } from "@/types/api";
 
-export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes";
+export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes" | "url";
 
 export interface SelectOption {
 	value: string | number;
@@ -532,6 +532,18 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							<FormControl>
 								{type === "text" || type === "email" || type === "password" ? (
 									<Input className="h-10" type={type} placeholder={placeholder} disabled={isDisabled} {...field} />
+								) : type === "url" ? (
+									field.value && field.value !== "" ? (
+										<div className="flex items-center w-full gap-3 p-3 bg-gray-50 rounded-lg">
+											<LinkIcon className="w-5 h-5 text-gray-500 flex-shrink-0" />
+											<a href={field.value} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
+												{field.value}
+												<ExternalLink className="w-4 h-4" />
+											</a>
+										</div>
+									) : (
+										<Input className="h-10" type="url" placeholder={placeholder} disabled={isDisabled} {...field} />
+									)
 								) : type === "number" ? (
 									<Input
 										type="number"
