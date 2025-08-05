@@ -57,11 +57,11 @@ interface RouteParams {
  *                   type: string
  *                   format: uri
  *                   description: URL of the site.
- *                   example: "https://techblog.example.com"
- * 			   	   monitored:
- * 				     type: boolean
- * 				 	 description: Indicates if the site is monitored.
- * 				     example: true
+ *                   example: "https://techblog.epfl.ch"
+ *                 monitored:
+ *                   type: boolean
+ *                   description: Indicates if the site is monitored.
+ *                   example: true
  *                 tags:
  *                   type: array
  *                   description: List of tags associated with the site.
@@ -115,7 +115,7 @@ interface RouteParams {
  *                 title: "My Tech Blog"
  *                 tagline: "Exploring the latest in technology"
  *                 infrastructure: "kubernetes"
- *                 url: "https://techblog.example.com"
+ *                 url: "https://techblog.epfl.ch"
  *                 tags:
  *                   - id: "507f1f77bcf86cd799439011"
  *                     name_fr: "Technologie"
