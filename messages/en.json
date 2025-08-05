@@ -264,7 +264,7 @@
 			},
 			"url": {
 				"label": "URL",
-				"placeholder": "https://epfl.ch"
+				"placeholder": "https://www.epfl.ch/xxx"
 			},
 			"title": {
 				"label": "Website Title",
@@ -471,12 +471,12 @@
 			},
 			"urlFr": {
 				"label": "URL (French)",
-				"placeholder": "https://epfl.ch/xxx",
+				"placeholder": "https://www.epfl.ch/xxx",
 				"description": "The destination URL for the French version"
 			},
 			"urlEn": {
 				"label": "URL (English)",
-				"placeholder": "https://epfl.ch/xxx",
+				"placeholder": "https://www.epfl.ch/xxx",
 				"description": "The destination URL for the English version"
 			},
 			"sections": {
