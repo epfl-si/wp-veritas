@@ -8,6 +8,7 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { THEMES } from "@/constants/theme";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import { decode } from "html-entities";
 
 interface SiteUpdateProps {
 	site: SiteType;
@@ -255,8 +256,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			defaultValues: {
 				infrastructure: site.infrastructure || "kubernetes",
 				url: site.url || "",
-				title: (isKubernetesSite(site) && site.title) || "",
-				tagline: (isKubernetesSite(site) && site.tagline) || "",
+				title: (isKubernetesSite(site) && decode(site.title)) || "",
+				tagline: (isKubernetesSite(site) && decode(site.tagline)) || "",
 				theme: (isKubernetesSite(site) && site.theme) || "",
 				unitId: (isKubernetesSite(site) && site.unitId) || 0,
 				languages: (isKubernetesSite(site) && site.languages) || [],
