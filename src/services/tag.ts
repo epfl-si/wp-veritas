@@ -38,7 +38,7 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 		cache.invalidateTagsCache();
 		cache.invalidateSitesCache();
 
-		await info(`The **${tag.type}** tag **${tag.nameEn}** created successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) created successfully.`, {
 			type: "tag",
 			action: "create",
 			id: tagId,
@@ -97,7 +97,7 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 
 		cache.invalidateTagsCache();
 		cache.invalidateSitesCache();
-		await info(`The **${tag.type}** tag **${tag.nameEn}** updated successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) updated successfully.`, {
 			type: "tag",
 			action: "update",
 			id: tagId,
@@ -157,7 +157,7 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 		cache.invalidateTagsCache();
 		cache.invalidateSitesCache();
 
-		await info(`The **${tag.type}** tag **${tag.nameEn}** deleted successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) deleted successfully.`, {
 			type: "tag",
 			action: "delete",
 			id: tagId,
@@ -200,7 +200,7 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 			return { error: { status: 404, message: "Tag not found", success: false } };
 		}
 
-		await info(`The **${tag.type}** tag **${tag.nameEn}** retrieved successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) retrieved successfully.`, {
 			type: "tag",
 			action: "read",
 			id: tagId,
@@ -311,7 +311,7 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 		}
 		const site = sites.find((s) => s.id === siteId);
 
-		await info(`Tags for site **${site?.url || "Unknown Site"}** retrieved successfully`, {
+		await info(`Tags for site ${site?.url || "Unknown Site"} retrieved successfully.`, {
 			type: "tag",
 			action: "read",
 			siteId,
@@ -391,7 +391,7 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 
 		const { site } = await getSite(siteId);
 
-		await info(`The **${tag.type}** tag **${tag.nameEn}** associated with site **${site?.url}** successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) associated with site ${site?.url} successfully.`, {
 			type: "tag",
 			action: "associate",
 			tagId,
@@ -464,7 +464,7 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 		cache.invalidateSitesCache();
 		const { site } = await getSite(siteId);
 
-		await info(`The **${tag.type}** tag **${tag.nameEn}** disassociated from site **${site?.url}** successfully`, {
+		await info(`The tag ${tag.nameEn} (${tag.type}) disassociated from site ${site?.url} successfully.`, {
 			type: "tag",
 			action: "disassociate",
 			tagId,
