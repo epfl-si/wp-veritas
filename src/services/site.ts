@@ -5,7 +5,7 @@ import { hasPermission } from "./policy";
 import { PERMISSIONS } from "@/constants/permissions";
 import { getEditors, getNames, getUnit } from "@/lib/api";
 import { getInfrastructureByName } from "@/constants/infrastructures";
-import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite } from "@/lib/kubernetes";
+import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite, getKubernetesSiteExtraInfo } from "@/lib/kubernetes";
 import { createDatabaseSite, listDatabaseSites, getDatabaseSite, updateDatabaseSite, deleteDatabaseSite, createDatabaseSiteExtras, updateDatabaseSiteExtras, deleteDatabaseSiteExtras } from "@/lib/database";
 import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
 import { info, warn, error } from "@/lib/log";
@@ -707,10 +707,20 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					unitId = site.unitId?.toString() || "0";
 				}
 
+				let kubernetesExtraInfo;
+				if (isKubernetesSite(site)) {
+					try {
+						kubernetesExtraInfo = await getKubernetesSiteExtraInfo(site.id);
+					} catch (error) {
+						console.warn("Failed to fetch Kubernetes extra info:", error);
+					}
+				}
+
 				return {
 					id: site.id,
 					url: site.url,
 					loginUrl: site.url.endsWith("/") ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
+					infrastructure: site.infrastructure,
 					unit: await getUnit(unitId),
 					lastModified: lastChange?.[0]?.last_modified
 						? {
@@ -729,6 +739,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 						editors: await getEditors(unitId),
 						accreditors: ["admin.epfl", "mediacom.admin"],
 					},
+					...(kubernetesExtraInfo && { kubernetesExtraInfo }),
 				};
 			}),
 		);
