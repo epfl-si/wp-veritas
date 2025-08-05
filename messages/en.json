@@ -264,7 +264,7 @@
 			},
 			"url": {
 				"label": "URL",
-				"placeholder": "https://example.com"
+				"placeholder": "https://epfl.ch"
 			},
 			"title": {
 				"label": "Website Title",
