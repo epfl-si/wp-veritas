@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { SearchSiteType } from "@/types/site";
-import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User } from "lucide-react";
+import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User, Server, Database, Network } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -170,8 +170,8 @@ export const SiteInfo: React.FC = () => {
 
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 					<div className="flex items-center gap-3">
-						<div className="p-2 size-10 flex justify-center items-center bg-green-100 rounded-lg">
-							<Shield className="size-5 text-green-600" />
+						<div className="p-2 size-10 flex justify-center items-center bg-blue-100 rounded-lg">
+							<Shield className="size-5 text-blue-700" />
 						</div>
 						<div>
 							<div className="text-sm font-semibold text-gray-700">{t("info.details.loginUrl")}</div>
@@ -184,7 +184,7 @@ export const SiteInfo: React.FC = () => {
 
 					<div className="flex items-center gap-3">
 						<div className="p-2 size-10 flex justify-center items-center bg-orange-100 rounded-lg">
-							<Users className="size-5 text-orange-600" />
+							<Users className="size-5 text-orange-700" />
 						</div>
 						<div>
 							<div className="text-sm font-semibold text-gray-700">{t("info.details.unit")}</div>
@@ -197,7 +197,7 @@ export const SiteInfo: React.FC = () => {
 
 					<div className="flex items-center gap-3">
 						<div className="p-2 size-10 flex justify-center items-center bg-purple-100 rounded-lg">
-							<Calendar className="size-5 text-purple-600" />
+							<Calendar className="size-5 text-purple-700" />
 						</div>
 						<div>
 							<div className="text-sm font-medium text-gray-700">{t("info.details.lastModified")}</div>
@@ -217,6 +217,40 @@ export const SiteInfo: React.FC = () => {
 							)}
 						</div>
 					</div>
+
+					{site.infrastructure === "Kubernetes" && site.kubernetesExtraInfo && (
+						<>
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-green-100 rounded-lg">
+									<Network className="size-5 text-green-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Ingress</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.ingressName || "N/A"}</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-teal-100 rounded-lg">
+									<Server className="size-5 text-teal-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Ingress</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.wordpressSiteName || "N/A"}</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-red-100 rounded-lg">
+									<Database className="size-5 text-red-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Database</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.databaseRef || "N/A"}</p>
+								</div>
+							</div>
+						</>
+					)}
 				</div>
 
 				{site.recentModifications && site.recentModifications.length > 0 && (
