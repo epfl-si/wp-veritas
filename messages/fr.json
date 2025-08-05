@@ -160,7 +160,7 @@
 				"description": "Veuillez réessayer plus tard",
 				"connection": "Erreur de connexion",
 				"server": "Erreur du serveur",
-				"notFound": "Aucun site correspondant à vos critères"
+				"notFound": "Le site n'est pas geré dans l'infrastructure de la DSI"
 			},
 			"details": {
 				"title": "Détails du site",

@@ -160,7 +160,7 @@
 				"description": "Please try again later",
 				"connection": "Connection error",
 				"server": "Server error",
-				"notFound": "No websites found matching your criteria"
+				"notFound": "The website is not managed in the DSI infrastructure"
 			},
 			"details": {
 				"title": "Website Details",
