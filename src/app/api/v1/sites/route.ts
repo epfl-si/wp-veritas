@@ -30,7 +30,7 @@ import { ensureSlashAtEnd } from "@/lib/utils";
  *           format: uri
  *         required: false
  *         description: Filter sites by exact URL match (should be URL encoded).
- *         example: "https%3A//example.com"
+ *         example: "https://epfl.ch"
  *     responses:
  *       200:
  *         description: A list of sites retrieved successfully.
@@ -62,11 +62,11 @@ import { ensureSlashAtEnd } from "@/lib/utils";
  *                     type: string
  *                     format: uri
  *                     description: URL of the site.
- *                     example: "https://myblog.example.com"
+ *                     example: "https://myblog.epfl.ch"
  *                   monitored:
- * 				      type: boolean
- * 				 	  description: Indicates if the site is monitored.
- * 				      example: true
+ *                     type: boolean
+ *                     description: Indicates if the site is monitored.
+ *                     example: true
  *                   tags:
  *                     type: array
  *                     description: List of tags associated with the site.
@@ -113,7 +113,7 @@ import { ensureSlashAtEnd } from "@/lib/utils";
  *                   title: "My Tech Blog"
  *                   tagline: "Exploring the latest in technology"
  *                   infrastructure: "kubernetes"
- *                   url: "https://techblog.example.com"
+ *                   url: "https://techblog.epfl.ch"
  *                   tags:
  *                     - id: "507f1f77bcf86cd799439011"
  *                       name_fr: "Technologie"
