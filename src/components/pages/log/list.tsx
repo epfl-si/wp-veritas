@@ -19,14 +19,15 @@ const getLogLevelConfig = (level: string) => {
 };
 
 const parseMessage = (message: string) => {
-	const parts = message.split(/(\*\*.*?\*\*)/g);
-
-	return parts.map((part, index) => {
-		if (part.startsWith("**") && part.endsWith("**")) {
-			const boldText = part.slice(2, -2);
-			return <strong key={index}>{boldText}</strong>;
+	return message.split(/('''.*?''')/gs).flatMap((part, i) => {
+		if (part.startsWith("'''") && part.endsWith("'''")) {
+			return <pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono">{part.slice(3, -3)}</pre>;
 		}
-		return part;
+		return part.split(/(\*\*.*?\*\*)/g).map((bp, j) =>
+			bp.startsWith("**") && bp.endsWith("**")
+				? <strong key={`${i}-${j}`} className="font-semibold">{bp.slice(2, -2)}</strong>
+				: bp,
+		);
 	});
 };
 
