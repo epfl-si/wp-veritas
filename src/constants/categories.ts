@@ -181,7 +181,7 @@ export const WP_CATEGORIES = {
 							domains: [],
 							version: "3.6.7",
 							first_activation: Math.floor(new Date().getTime() / 1000),
-							default_lang: (site.languages && site.languages[0]) || "en",
+							default_lang: Object.values(LANGUAGES).find((lang) => lang.locale === site.languages[0])?.slug || "en",
 						},
 					},
 				],
