@@ -137,7 +137,7 @@
 				},
 				"type": {
 					"placeholder": "Filter by type...",
-					"all": "All the types"
+					"all": "All types"
 				},
 				"theme": {
 					"placeholder": "Filter by theme...",
@@ -207,7 +207,7 @@
 			"column": {
 				"url": "URL",
 				"infrastructure": "Infrastructure",
-				"createdAt": "Created At",
+				"createdAt": "Age",
 				"actions": "Actions"
 			}
 		},
@@ -272,7 +272,7 @@
 			},
 			"tagline": {
 				"label": "Tagline (Name)",
-				"placeholder": "Entter full name of the site..."
+				"placeholder": "Enter full name of the site..."
 			},
 			"theme": {
 				"label": "Theme",
@@ -415,7 +415,7 @@
 				},
 				"type": {
 					"placeholder": "Filter by type...",
-					"all": "All the types"
+					"all": "All types"
 				}
 			},
 			"error": {
@@ -443,7 +443,7 @@
 				"message": "Changes have been saved successfully"
 			},
 			"error": {
-				"text": "An error occurred while loading Tag",
+				"text": "An error occurred while loading the tag",
 				"subText": "Please try again later",
 				"empty": "No tags found",
 				"title": "Error Updating Tag"
@@ -546,7 +546,7 @@
 				},
 				"action": {
 					"all": "All actions",
-					"selected": "Selected {count} actions"
+					"selected": "{count} {count, plural, =1 {action} other {actions}} selected"		
 				}
 			},
 			"error": {
@@ -571,7 +571,7 @@
 				},
 				"type": {
 					"placeholder": "Filter by type...",
-					"all": "All the types"
+					"all": "All types"
 				}
 			},
 			"column": {
@@ -613,7 +613,7 @@
 		"invalidString": "This field must be a string",
 		"invalidType": "This field is invalid",
 		"url": "Please enter a valid URL",
-		"invalidEnum": "This field must be in : {options}",
+		"invalidEnum": "This field must be one of: {options}",
 		"tooSmall": "Minimum length is {min} characters",
 		"tooBig": "Maximum length is {max} characters",
 		"pattern": "Invalid format"
