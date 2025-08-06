@@ -235,7 +235,7 @@ export const SiteInfo: React.FC = () => {
 									<Server className="size-5 text-teal-700" />
 								</div>
 								<div>
-									<div className="text-sm font-semibold text-gray-700">Ingress</div>
+									<div className="text-sm font-semibold text-gray-700">Object name</div>
 									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.wordpressSiteName || "N/A"}</p>
 								</div>
 							</div>
