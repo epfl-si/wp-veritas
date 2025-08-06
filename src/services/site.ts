@@ -16,7 +16,7 @@ function extractExtras(site: SiteFormType): SiteExtras {
 	const extras: { [key: string]: unknown } = {};
 
 	SITE_EXTRAS.forEach((extra: string) => {
-		if (extra in site && site[extra as keyof SiteFormType]) {
+		if (extra in site) {
 			extras[extra] = site[extra as keyof SiteFormType];
 		}
 	});
