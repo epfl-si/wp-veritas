@@ -160,7 +160,7 @@
 				"description": "Veuillez réessayer plus tard",
 				"connection": "Erreur de connexion",
 				"server": "Erreur du serveur",
-				"notFound": "Le site n'est pas geré dans l'infrastructure de la DSI"
+				"notFound": "Le site n'est pas géré dans l'infrastructure de la DSI"
 			},
 			"details": {
 				"title": "Détails du site",
@@ -279,7 +279,7 @@
 				"placeholder": "Entrer le nom du thème..."
 			},
 			"unitId": {
-				"label": "ID de l’unité",
+				"label": "Identifiant de l’unité",
 				"placeholder": "Entrer l’identifiant de l’unité..."
 			},
 			"languages": {
