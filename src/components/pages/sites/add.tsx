@@ -272,6 +272,7 @@ export const SiteAdd: React.FC = () => {
 				languages: [],
 				categories: [],
 				downloadsProtectionScript: false,
+				monitored: false,
 				ticket: "",
 				comment: "",
 			},
