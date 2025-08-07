@@ -265,7 +265,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				downloadsProtectionScript: (isKubernetesSite(site) && site.downloadsProtectionScript) || false,
 				ticket: site.ticket || undefined,
 				comment: site.comment || undefined,
-				monitored: site.monitored || false,
+				monitored: site.monitored ?? false,
 			},
 			apiEndpoint: `/api/sites/${site.id}`,
 			method: "PUT",
