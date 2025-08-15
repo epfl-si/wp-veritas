@@ -655,6 +655,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					return false;
 				}
 			})
+			.filter((site) => isKubernetesSite(site))
 			.sort((a, b) => {
 				const aPath = new URL(a.url).pathname.replace(/\/$/, "") || "/";
 				const bPath = new URL(b.url).pathname.replace(/\/$/, "") || "/";
