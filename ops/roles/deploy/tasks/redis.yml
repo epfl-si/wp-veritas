@@ -18,12 +18,12 @@
           requests:
             storage: 1Gi
 
-- name: Deploy Redis StatefulSet
+- name: Deploy Redis Deployment
   kubernetes.core.k8s:
     state: present
     definition:
       apiVersion: apps/v1
-      kind: StatefulSet
+      kind: Deployment
       metadata:
         name: "{{ redis_name }}"
         namespace: "{{ inventory_hostname }}"
