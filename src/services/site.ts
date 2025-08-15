@@ -655,12 +655,12 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					return false;
 				}
 			})
-			.filter((site) => isKubernetesSite(site))
 			.sort((a, b) => {
 				const aPath = new URL(a.url).pathname.replace(/\/$/, "") || "/";
 				const bPath = new URL(b.url).pathname.replace(/\/$/, "") || "/";
 				return bPath.length - aPath.length;
-			}).slice(0, 1);
+			})
+			.slice(0, 1).filter((site) => isKubernetesSite(site));
 
 		if (!filteredSites.length) {
 			return { error: { status: 404, message: "No sites found matching the URL", success: false } };
