@@ -181,10 +181,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 					id: site.id,
 					infrastructure: site.infrastructure,
 					url: site.url,
-					monitored: existing?.monitored ?? site.monitored,
+					monitored: (existing?.monitored ?? site.monitored) || false,
 					tags: tagMap.get(site.id) || [],
 					createdAt: site.createdAt,
-					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline, theme: site.theme, unitId: site.unitId, languages: site.languages, categories: site.categories } : {}),
+					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline, theme: site.theme, unitId: site.unitId, languages: site.languages, categories: site.categories, downloadsProtectionScript: site.downloadsProtectionScript } : {}),
 				});
 			});
 
