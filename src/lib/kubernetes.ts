@@ -1,4 +1,5 @@
-import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType, KubernetesSiteExtraInfo } from "@/types/site";
+import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType, KubernetesSiteExtraInfo, WordPressPlugins } from "@/types/site";
+import { BackupEnvironment } from "@/types/backup";
 import * as k8s from "@kubernetes/client-node";
 import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
 import { ensureSlashAtEnd } from "./utils";
@@ -6,6 +7,7 @@ import { APIError } from "@/types/error";
 import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { cache, withCache } from "./redis";
+import { getBackupConfig } from "@/services/backup";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -29,6 +31,21 @@ export async function getNamespace(): Promise<string> {
 	} catch (error) {
 		console.warn("Could not determine namespace, using default:", error);
 		return DEFAULT_NAMESPACE;
+	}
+}
+
+export async function getConfigMapValue(configMapName: string, key: string): Promise<string | null> {
+	try {
+		const namespace = await getNamespace();
+		const response = await k8sCoreApi.readNamespacedConfigMap({
+			name: configMapName,
+			namespace,
+		});
+
+		return response.data?.[key] || null;
+	} catch (error) {
+		console.error(`Error reading ConfigMap ${configMapName}:`, error);
+		return null;
 	}
 }
 
@@ -100,15 +117,17 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		tags: [],
 		ticket: undefined,
 		comment: undefined,
+		monitored: undefined,
 	};
 }
 
-function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
+async function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
-	const tempSite: KubernetesSite = {
+
+	const createTempSite = () => ({
 		id: "temp",
 		url: site.url,
-		infrastructure: "Kubernetes",
+		infrastructure: "Kubernetes" as const,
 		tagline: site.tagline,
 		title: site.title,
 		theme: site.theme,
@@ -119,9 +138,55 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 		managed: true,
 		createdAt: new Date(),
 		tags: [],
+	});
+
+	const getBackupConfigForSite = async () => {
+		let dbName = null;
+		let dbRef = null;
+		let urlSource = null;
+		let config = null;
+
+		if (site.createFromBackup && site.backupSite && site.backupEnvironment) {
+			config = await getBackupConfig(site.backupEnvironment as BackupEnvironment);
+			if (!config) throw new Error("Backup configuration not found");
+			const sites = await fetch(config.api.url, {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+				signal: AbortSignal.timeout(10000),
+			}).then(res => res.json());
+
+			const backupSite = sites?.find((s: KubernetesSite) => s.id === site.backupSite);
+			if (!backupSite) throw new Error("Backup site not found");
+
+			const oldSite = await fetch(config.api.url + `/${backupSite.id}`, {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+				signal: AbortSignal.timeout(10000),
+			}).then(res => res.json());
+
+			dbName = oldSite.kubernetesExtraInfo?.databaseName;
+			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
+			urlSource = oldSite.url;
+		}
+
+		return { dbName, dbRef, urlSource, config };
 	};
 
+	const createWordPressConfig = (plugins: WordPressPlugins) => ({
+		debug: false,
+		title: site.title,
+		tagline: site.tagline,
+		theme: site.theme,
+		plugins,
+		...(site.downloadsProtectionScript && {
+			downloadsProtectionScript: "/wp/wp-content/plugins/epfl-intranet/inc/protect-medias.php",
+		}),
+	});
+
+
+	const tempSite = createTempSite();
 	const plugins = getKubernetesPluginStruct(tempSite);
+	const backupConfig = await getBackupConfigForSite();
 
 	return {
 		apiVersion: `${WORDPRESS_GROUP}/${WORDPRESS_VERSION}`,
@@ -139,19 +204,30 @@ function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: s
 					unitId: site.unitId,
 				},
 			},
-			wordpress: {
-				debug: false,
-				title: site.title,
-				tagline: site.tagline,
-				theme: site.theme,
-				plugins,
-				...(site.downloadsProtectionScript && { downloadsProtectionScript: "/wp/wp-content/plugins/epfl-intranet/inc/protect-medias.php" }),
-			},
+			wordpress: createWordPressConfig(plugins),
+			...(site.createFromBackup && backupConfig.config && {
+				restore: {
+					s3: {
+						bucket: backupConfig.config.s3.bucket,
+						endpoint: backupConfig.config.s3.endpoint,
+						region: backupConfig.config.s3.region || "eu-west-1",
+						secretKeyName: backupConfig.config.s3.secretName,
+						accessKeyIdSecretKeyRef: backupConfig.config.s3.accessKeyIdSecretKeyRef,
+						secretAccessKeySecretKeyRef: backupConfig.config.s3.secretAccessKeySecretKeyRef,
+					},
+					mariaDBLookup: {
+						mariadbNameSource: backupConfig.dbRef,
+						databaseNameSource: backupConfig.dbName,
+						urlSource: backupConfig.urlSource,
+						mariadbSecretName: "mariadb",
+					},
+				},
+			}),
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
 		},
 	};
-}
+};
 
 export async function getKubernetesSite(id: string): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
@@ -181,7 +257,7 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 
 		const namespace = await getNamespace();
 		const name = generateSiteName(kubernetesSite);
-		const siteSpec = createSiteSpec(kubernetesSite, name, namespace);
+		const siteSpec = await createSiteSpec(kubernetesSite, name, namespace);
 
 		const response = await k8sCustomObjectsApi.createNamespacedCustomObject({
 			group: WORDPRESS_GROUP,
