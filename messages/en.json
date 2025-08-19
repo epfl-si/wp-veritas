@@ -302,6 +302,18 @@
 				"label": "Monitored",
 				"placeholder": "Enable monitoring for this site"
 			},
+			"createFromBackup": {
+				"label": "Create from Backup",
+				"placeholder": "Create site from an existing backup"
+			},
+			"backupEnvironment": {
+				"label": "Backup Environment",
+				"placeholder": "Select backup environment..."
+			},
+			"backupSite": {
+				"label": "Source Site",
+				"placeholder": "Select a site to restore from..."
+			},
 			"ticket": {
 				"label": "Ticket",
 				"placeholder": "Enter ticket reference..."

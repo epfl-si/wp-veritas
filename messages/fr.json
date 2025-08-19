@@ -302,6 +302,18 @@
 				"label": "Surveillé",
 				"placeholder": "Activer la surveillance pour ce site"
 			},
+			"createFromBackup": {
+				"label": "Créer depuis une sauvegarde",
+				"placeholder": "Créer le site depuis une sauvegarde existante"
+			},
+			"backupEnvironment": {
+				"label": "Environnement de sauvegarde",
+				"placeholder": "Sélectionner l'environnement de sauvegarde..."
+			},
+			"backupSite": {
+				"label": "Site source",
+				"placeholder": "Sélectionner un site à restaurer..."
+			},
 			"ticket": {
 				"label": "Ticket",
 				"placeholder": "Entrer la référence du ticket..."
