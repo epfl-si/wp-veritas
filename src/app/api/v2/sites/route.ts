@@ -142,6 +142,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const taggedFilter = searchParams.get("tagged")?.toLowerCase() === "true";
 		const siteUrlFilter = searchParams.get("siteUrl") ? ensureSlashAtEnd(decodeURIComponent(searchParams.get("siteUrl")!)) : null;
 		const hasTaggedFilter = searchParams.has("tagged");
+		const infrastructureFilter = searchParams.get("infrastructure");
 
 		const sites = await withCache("api-v2-sites", async () => {
 			const [[k8sResult, dbResult], tags] = await Promise.all([
@@ -192,7 +193,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 		const filtered = sites.filter(site =>
 			(!siteUrlFilter || site.url === siteUrlFilter) &&
-			(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)),
+			(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)) &&
+			(!infrastructureFilter || site.infrastructure.toLowerCase() === infrastructureFilter.toLowerCase()),
 		);
 
 		return NextResponse.json(filtered);
