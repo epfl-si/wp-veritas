@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useForm, SubmitHandler, FieldValues, Path, DefaultValues } from "react-hook-form";
+import { useForm, SubmitHandler, FieldValues, Path, DefaultValues, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
@@ -65,6 +65,8 @@ export interface FormConfig<T extends FieldValues> {
 	method?: "POST" | "PUT" | "PATCH";
 	onSuccess?: (data: T, response: unknown) => void;
 	onError?: (error: Error) => void;
+	onFieldChange?: (fieldName: string, value: unknown) => void;
+	onFormRef?: (ref: UseFormReturn<T>) => void;
 	reset?: boolean;
 	submitButtonText?: string;
 	resetButtonText?: string;
@@ -95,6 +97,31 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 	});
 
 	const watchedValues = form.watch();
+
+	useEffect(() => {
+		if (config.onFormRef) {
+			config.onFormRef(form);
+		}
+	}, [config, form]);
+
+	const prevValuesRef = useRef<Partial<T>>({});
+
+	useEffect(() => {
+		if (config.onFieldChange) {
+			const prevValues = prevValuesRef.current;
+
+			Object.keys(watchedValues).forEach((fieldName) => {
+				const currentValue = watchedValues[fieldName as keyof T];
+				const previousValue = prevValues[fieldName as keyof T];
+
+				if (currentValue !== previousValue && config.onFieldChange) {
+					config.onFieldChange(fieldName, currentValue);
+				}
+			});
+
+			prevValuesRef.current = { ...watchedValues };
+		}
+	}, [watchedValues, config]);
 
 	const evaluateCondition = (condition: FieldCondition): boolean => {
 		const fieldValue = watchedValues[condition.field as keyof T];
