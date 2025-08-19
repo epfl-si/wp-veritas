@@ -52,7 +52,6 @@ export interface KubernetesSiteExtraInfo {
 	wordpressSiteName: string;
 }
 
-
 export const SITE_EXTRAS = [
 	"ticket",
 	"comment",
@@ -140,6 +139,9 @@ export interface KubernetesSiteFormType extends BaseSiteFormType {
 	languages: string[];
 	categories: string[];
 	downloadsProtectionScript?: boolean;
+	createFromBackup?: boolean;
+	backupEnvironment?: string;
+	backupSite?: string;
 }
 
 export interface DatabaseSiteFormType extends BaseSiteFormType {
@@ -165,6 +167,9 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
 		monitored: z.boolean().optional().default(false),
+		createFromBackup: z.boolean().optional().default(false),
+		backupEnvironment: z.string().optional(),
+		backupSite: z.string().optional(),
 	};
 
 	const kubernetesFields = {
