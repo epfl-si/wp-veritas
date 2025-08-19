@@ -183,7 +183,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 					monitored: existing?.monitored ?? site.monitored,
 					tags: tagMap.get(site.id) || [],
 					createdAt: site.createdAt,
-					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
+					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline, theme: site.theme, unitId: site.unitId, languages: site.languages, categories: site.categories } : {}),
 				});
 			});
 
