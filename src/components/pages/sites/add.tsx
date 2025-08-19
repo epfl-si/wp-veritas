@@ -1,18 +1,73 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form";
-import { SiteFormType, siteSchema } from "@/types/site";
+import { UseFormReturn } from "react-hook-form";
+import Form, { FormConfig, FieldConfig, SectionConfig, SelectOption } from "@/components/form";
+import { SiteFormType, siteSchema, SiteType } from "@/types/site";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { THEMES } from "@/constants/theme";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import { ENVIRONMENTS } from "@/constants/environments";
+import { decode } from "html-entities";
 
 export const SiteAdd: React.FC = () => {
 	const t = useTranslations("site");
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
+	const [backupSites, setBackupSites] = useState<SelectOption[]>([]);
+	const [loadingBackupSites, setLoadingBackupSites] = useState(false);
+
+	const loadBackupSites = async (environment: string) => {
+		setLoadingBackupSites(true);
+		try {
+			const response = await fetch(`/api/sites/backup?environment=${environment}`);
+			if (response.ok) {
+				const data = await response.json();
+				const sites = data.items?.map((site: SiteType) => ({
+					value: site.id,
+					label: `${site.url}`,
+				})) || [];
+				setBackupSites(sites);
+			} else {
+				setBackupSites([]);
+			}
+		} catch (error) {
+			console.error("Error loading backup sites:", error);
+			setBackupSites([]);
+		} finally {
+			setLoadingBackupSites(false);
+		}
+	};
+
+	useEffect(() => {
+		loadBackupSites("test");
+	}, []);
+
+	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
+
+	const loadSiteDetails = async (siteId: string, environment: string) => {
+		if (!formRef || !siteId) return;
+
+		try {
+			const response = await fetch(`/api/sites/backup?environment=${environment}`);
+			if (response.ok) {
+				const data = await response.json();
+				const selectedSite = data.items?.find((site: SiteType) => site.id === siteId);
+				if (selectedSite) {
+					formRef.setValue("title", decode(selectedSite.title) || "");
+					formRef.setValue("tagline", decode(selectedSite.tagline) || "");
+					formRef.setValue("theme", selectedSite.theme || "wp-theme-2018");
+					formRef.setValue("unitId", selectedSite.unitId || 0);
+					formRef.setValue("languages", selectedSite.languages || []);
+					formRef.setValue("categories", selectedSite.categories || []);
+				}
+			}
+		} catch (error) {
+			console.error("Error loading site details:", error);
+		}
+	};
 
 	const getFormConfig = (): FormConfig<SiteFormType> => {
 		const fields: FieldConfig[] = [
@@ -204,6 +259,72 @@ export const SiteAdd: React.FC = () => {
 				],
 			},
 			{
+				name: "createFromBackup",
+				type: "checkbox",
+				label: t("form.createFromBackup.label"),
+				placeholder: t("form.createFromBackup.placeholder"),
+				section: "advanced",
+				width: "full",
+				conditions: [
+					{
+						field: "infrastructure",
+						operator: "equals",
+						value: "Kubernetes",
+						type: "display",
+					},
+				],
+			},
+			{
+				name: "backupEnvironment",
+				type: "select",
+				label: t("form.backupEnvironment.label"),
+				placeholder: t("form.backupEnvironment.placeholder"),
+				section: "advanced",
+				width: "full",
+				options: ENVIRONMENTS.map((env) => ({
+					value: env.name,
+					label: env.displayName,
+				})),
+				conditions: [
+					{
+						field: "infrastructure",
+						operator: "equals",
+						value: "Kubernetes",
+						type: "display",
+					},
+					{
+						field: "createFromBackup",
+						operator: "equals",
+						value: true,
+						type: "display",
+					},
+				],
+			},
+			{
+				name: "backupSite",
+				type: "select",
+				label: t("form.backupSite.label"),
+				placeholder: loadingBackupSites ? "Loading..." : t("form.backupSite.placeholder"),
+				section: "advanced",
+				width: "full",
+				options: backupSites,
+				disabled: loadingBackupSites,
+				conditions: [
+					{
+						field: "infrastructure",
+						operator: "equals",
+						value: "Kubernetes",
+						type: "display",
+					},
+					{
+						field: "createFromBackup",
+						operator: "equals",
+						value: true,
+						type: "display",
+					},
+				],
+			},
+			{
 				name: "ticket",
 				type: "text",
 				label: t("form.ticket.label"),
@@ -273,6 +394,9 @@ export const SiteAdd: React.FC = () => {
 				categories: [],
 				downloadsProtectionScript: false,
 				monitored: false,
+				createFromBackup: false,
+				backupEnvironment: "test",
+				backupSite: "",
 				ticket: "",
 				comment: "",
 			},
@@ -284,9 +408,20 @@ export const SiteAdd: React.FC = () => {
 			successTitle: t("add.success.title"),
 			successMessage: t("add.success.message"),
 			errorMessage: t("add.error.title"),
-			onSuccess: () => {},
+			onSuccess: () => { },
 			onError: (error) => {
 				console.error("Error creating site:", error);
+			},
+			onFieldChange: async (fieldName: string, value: unknown) => {
+				if (fieldName === "backupEnvironment" && typeof value === "string") {
+					loadBackupSites(value);
+				} else if (fieldName === "backupSite" && typeof value === "string" && value) {
+					const environment = formRef?.getValues("backupEnvironment") || "test";
+					await loadSiteDetails(value, environment);
+				}
+			},
+			onFormRef: (ref: UseFormReturn<SiteFormType>) => {
+				setFormRef(ref);
 			},
 		};
 	};
