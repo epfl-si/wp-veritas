@@ -351,6 +351,141 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		return section.conditions.filter((condition) => !condition.type || condition.type === "display").every(evaluateCondition);
 	};
 
+	const SearchField = ({ value = "", onChange, options = [], placeholder, disabled = false }: { value?: string; onChange: (value: string) => void; options?: SelectOption[]; placeholder?: string; disabled?: boolean; }) => {
+		const t = useTranslations("form");
+		const [query, setQuery] = useState("");
+		const [results, setResults] = useState<SelectOption[]>([]);
+		const [isOpen, setIsOpen] = useState(false);
+		const [selectedOption, setSelectedOption] = useState<SelectOption | null>(null);
+		const [isEditing, setIsEditing] = useState(false);
+		const inputRef = useRef<HTMLInputElement>(null);
+		const dropdownRef = useRef<HTMLDivElement>(null);
+
+		useEffect(() => {
+			if (!isEditing) {
+				if (value && options.length > 0) {
+					const foundOption = options.find(option => option.value.toString() === value);
+					if (foundOption) {
+						setSelectedOption(foundOption);
+						setQuery(foundOption.label);
+					}
+				} else if (!value) {
+					setSelectedOption(null);
+					setQuery("");
+				}
+			}
+		}, [value, options, isEditing]);
+
+		useEffect(() => {
+			if (!query.trim()) {
+				setResults([]);
+				return;
+			}
+
+			const filteredItems = options
+				.filter((option) => {
+					const searchText = option.label.toLowerCase();
+					return searchText.includes(query.toLowerCase());
+				})
+				.slice(0, 5);
+
+			setResults(filteredItems);
+		}, [query, options]);
+
+		useEffect(() => {
+			const handleClickOutside = (event: MouseEvent) => {
+				if (
+					dropdownRef.current &&
+					!dropdownRef.current.contains(event.target as Node) &&
+					inputRef.current &&
+					!inputRef.current.contains(event.target as Node)
+				) {
+					setIsOpen(false);
+				}
+			};
+
+			document.addEventListener("mousedown", handleClickOutside);
+			return () => document.removeEventListener("mousedown", handleClickOutside);
+		}, []);
+
+		const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+			const newQuery = e.target.value;
+			setQuery(newQuery);
+			setIsOpen(newQuery.trim().length > 0);
+			setIsEditing(true);
+
+			if (newQuery.trim().length === 0) {
+				setSelectedOption(null);
+				onChange("");
+			}
+		};
+
+		const handleSelectOption = (option: SelectOption) => {
+			setSelectedOption(option);
+			setQuery(option.label);
+			setIsOpen(false);
+			setIsEditing(false);
+			onChange(option.value.toString());
+		};
+
+		const highlightMatch = (text: string, query: string) => {
+			if (!query.trim()) return text;
+
+			const regex = new RegExp(`(${query})`, "gi");
+			const parts = text.split(regex);
+
+			return parts.map((part, index) =>
+				regex.test(part) ? (
+					<strong key={index} className="font-semibold">
+						{part}
+					</strong>
+				) : (
+					part
+				),
+			);
+		};
+
+		return (
+			<div className="relative w-full">
+				<Input
+					ref={inputRef}
+					type="text"
+					value={query}
+					onChange={handleInputChange}
+					onFocus={() => query.trim().length > 0 && setIsOpen(true)}
+					placeholder={placeholder || t("search.placeholder")}
+					disabled={disabled}
+					className="h-10"
+				/>
+
+				{isOpen && (query.trim().length > 0) && (
+					<div
+						ref={dropdownRef}
+						className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
+					>
+						{results.length > 0 ? (
+							results.map((option) => (
+								<button
+									key={option.value}
+									onClick={() => handleSelectOption(option)}
+									className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
+								>
+									<div className="text-sm">
+										{highlightMatch(option.label, query)}
+									</div>
+								</button>
+							))
+						) : (
+							<div className="px-4 py-3 text-sm text-gray-500">
+								{t("search.noResults")}
+							</div>
+						)}
+					</div>
+				)}
+			</div>
+		);
+	};
+
 	const BoxOption = ({ option, isSelected, onClick, disabled }: { option: SelectOption; isSelected: boolean; onClick: () => void; disabled?: boolean }) => {
 		const IconComponent = option.icon;
 		return (
