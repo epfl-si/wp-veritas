@@ -733,6 +733,14 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 											))}
 										</SelectContent>
 									</Select>
+								) : type === "search" ? (
+									<SearchField
+										value={field.value || ""}
+										onChange={field.onChange}
+										options={options}
+										placeholder={placeholder}
+										disabled={isDisabled}
+									/>
 								) : type === "multiselect" ? (
 									<MultiSelectField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} />
 								) : type === "boxes" ? (
