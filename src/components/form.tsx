@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { ApiResponse } from "@/types/api";
 
-export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes" | "url";
+export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes" | "url" | "search";
 
 export interface SelectOption {
 	value: string | number;
