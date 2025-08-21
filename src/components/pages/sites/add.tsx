@@ -18,6 +18,7 @@ export const SiteAdd: React.FC = () => {
 	const errorMessages = useZodErrorMessages();
 	const [backupSites, setBackupSites] = useState<SelectOption[]>([]);
 	const [loadingBackupSites, setLoadingBackupSites] = useState(false);
+	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
 
 	const loadBackupSites = async (environment: string) => {
 		setLoadingBackupSites(true);
@@ -44,8 +45,6 @@ export const SiteAdd: React.FC = () => {
 	useEffect(() => {
 		loadBackupSites("test");
 	}, []);
-
-	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
 
 	const loadSiteDetails = async (siteId: string, environment: string) => {
 		if (!formRef || !siteId) return;
@@ -302,7 +301,7 @@ export const SiteAdd: React.FC = () => {
 			},
 			{
 				name: "backupSite",
-				type: "select",
+				type: "search",
 				label: t("form.backupSite.label"),
 				placeholder: loadingBackupSites ? "Loading..." : t("form.backupSite.placeholder"),
 				section: "advanced",
