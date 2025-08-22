@@ -1,6 +1,6 @@
 "use client";
 import { useTranslations } from "next-intl";
-import { GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, Palette } from "lucide-react";
+import { GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, Palette, Bot } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,12 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			label: t("themes"),
 			icon: Palette,
 			permissions: PERMISSIONS.THEME.LIST,
+		},
+		{
+			href: "/api-docs",
+			label: t("apiDocs"),
+			icon: Bot,
+			permissions: PERMISSIONS.SITES.LIST,
 		},
 		// {
 		// 	href: '/trash',
