@@ -10,6 +10,7 @@
 		"themes": "Manage Themes",
 		"trash": "Deleted Sites",
 		"logs": "Action Logs",
+    "apiDocs": "API Documentation",
 		"redirections": "Redirections"
 	},
 	"site": {
@@ -558,7 +559,7 @@
 				},
 				"action": {
 					"all": "All actions",
-					"selected": "{count} {count, plural, =1 {action} other {actions}} selected"		
+					"selected": "{count} {count, plural, =1 {action} other {actions}} selected"
 				}
 			},
 			"error": {
