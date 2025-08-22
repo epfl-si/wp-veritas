@@ -10,7 +10,7 @@ function ReactSwagger() {
 	useEffect(() => {
 		if (ref.current) {
 			SwaggerUIBundle({
-				url: "/api/docs",
+				url: "/openapi.json",
 				dom_id: "#swagger-ui",
 				presets: [
 					SwaggerUIBundle.presets.apis,
