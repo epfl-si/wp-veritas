@@ -1,0 +1,20 @@
+services:
+    mongo:
+        image: mongo:7.0
+        container_name: mongodb-wp-veritas
+        restart: unless-stopped
+        ports:
+            - '27017:27017'
+        environment:
+            MONGO_INITDB_DATABASE: wp-veritas
+        volumes:
+            - mongodb_data:/data/db
+    redis:
+        image: redis:7.0
+        container_name: redis-wp-veritas
+        restart: unless-stopped
+        ports:
+            - '6379:6379'
+    
+volumes:
+    mongodb_data:
