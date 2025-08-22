@@ -1,29 +1,24 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { SwaggerUIBundle } from "swagger-ui-dist";
+import { SwaggerUIBundle, SwaggerUIStandalonePreset } from "swagger-ui-dist";
 import "swagger-ui-dist/swagger-ui.css";
 
-type Props = {
-	spec: Record<string, unknown>;
-};
-
-function ReactSwagger({ spec }: Props) {
+function ReactSwagger() {
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (ref.current) {
 			SwaggerUIBundle({
-				url: "",
-				spec: spec,
+				url: "/api/docs",
 				dom_id: "#swagger-ui",
 				presets: [
 					SwaggerUIBundle.presets.apis,
-					SwaggerUIBundle.presets.standalone,
+					SwaggerUIStandalonePreset,
 				],
 			});
 		}
-	}, [spec]);
+	}, []);
 
 	return <div id="swagger-ui" ref={ref}></div>;
 }
