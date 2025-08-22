@@ -356,7 +356,6 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		const [query, setQuery] = useState("");
 		const [results, setResults] = useState<SelectOption[]>([]);
 		const [isOpen, setIsOpen] = useState(false);
-		const [selectedOption, setSelectedOption] = useState<SelectOption | null>(null);
 		const [isEditing, setIsEditing] = useState(false);
 		const inputRef = useRef<HTMLInputElement>(null);
 		const dropdownRef = useRef<HTMLDivElement>(null);
@@ -366,11 +365,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 				if (value && options.length > 0) {
 					const foundOption = options.find(option => option.value.toString() === value);
 					if (foundOption) {
-						setSelectedOption(foundOption);
 						setQuery(foundOption.label);
 					}
 				} else if (!value) {
-					setSelectedOption(null);
 					setQuery("");
 				}
 			}
@@ -413,15 +410,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			setQuery(newQuery);
 			setIsOpen(newQuery.trim().length > 0);
 			setIsEditing(true);
-
-			if (newQuery.trim().length === 0) {
-				setSelectedOption(null);
-				onChange("");
-			}
 		};
 
 		const handleSelectOption = (option: SelectOption) => {
-			setSelectedOption(option);
 			setQuery(option.label);
 			setIsOpen(false);
 			setIsEditing(false);
