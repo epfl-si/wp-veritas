@@ -1,9 +1,7 @@
-import { createSwaggerSpec } from "next-swagger-doc";
+import swaggerJSDoc from "swagger-jsdoc";
 
 export const getApiDocs = async () => {
-	const spec = createSwaggerSpec({
-		apiFolder: "src/app/api",
-		schemaFolders: ["src/app/api"],
+	const options = {
 		definition: {
 			openapi: "3.0.0",
 			info: {
@@ -22,6 +20,9 @@ export const getApiDocs = async () => {
 			},
 			security: [],
 		},
-	});
+		apis: ["./src/app/api/**/route.ts"],
+	};
+
+	const spec = swaggerJSDoc(options);
 	return spec;
 };
