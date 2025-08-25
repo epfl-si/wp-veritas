@@ -33,6 +33,7 @@ const parseMessage = (message: string) => {
 
 const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCase());
 
+const ACTIONS = ["create", "update", "delete", "associate", "disassociate", "list", "read"];
 const DEFAULT_SELECTED_ACTIONS = ["create", "update", "delete", "associate", "disassociate"];
 const ITEMS_PER_PAGE = 20;
 const SCROLL_THRESHOLD = 200;
@@ -45,9 +46,10 @@ export const LogList: React.FC<LogListProps> = () => {
 	const [logs, setLogs] = useState<LogType[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [loadingMore, setLoadingMore] = useState(false);
-	const [total, setTotal] = useState(0);
+	const [totalWithoutActionFilter, setTotalWithoutActionFilter] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
 	const [currentPage, setCurrentPage] = useState(0);
+	const [filteredTotal, setFilteredTotal] = useState(0);
 
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const isLoadingRef = useRef(false);
@@ -57,16 +59,6 @@ export const LogList: React.FC<LogListProps> = () => {
 		actions: DEFAULT_SELECTED_ACTIONS,
 	});
 
-	const availableActions = useMemo(() => {
-		const actions = new Set<string>();
-		logs.forEach((log) => {
-			if (log.data?.action) {
-				actions.add(log.data.action);
-			}
-		});
-		return Array.from(actions).sort();
-	}, [logs]);
-
 	const [selectedActions, setSelectedActions] = useState<string[]>(DEFAULT_SELECTED_ACTIONS);
 	const [search, setSearch] = useState({
 		message: "",
@@ -75,6 +67,21 @@ export const LogList: React.FC<LogListProps> = () => {
 
 	const t = useTranslations("log");
 	const locale = useLocale();
+
+	const actionStats = useMemo(() => {
+		const totalActions = ACTIONS.length;
+		const selectedCount = selectedActions.length;
+		const hiddenCount = totalActions - selectedCount;
+
+		return {
+			totalActions,
+			selectedCount,
+			hiddenCount,
+			showingAll: selectedCount === totalActions,
+		};
+	}, [selectedActions]);
+
+
 
 	const fetchLogs = useCallback(async (
 		searchParams: { message: string; level: string; actions: string[] },
@@ -104,13 +111,39 @@ export const LogList: React.FC<LogListProps> = () => {
 			return {
 				logs: data.logs || [],
 				total: data.total || 0,
+				filteredTotal: data.filteredTotal || data.total || 0,
 			};
 		} catch (error) {
 			console.error("Error fetching logs:", error);
 			return {
 				logs: [],
 				total: 0,
+				filteredTotal: 0,
 			};
+		}
+	}, []);
+
+	const fetchTotalWithoutActionFilter = useCallback(async (
+		searchParams: { message: string; level: string },
+	) => {
+		try {
+			const params = new URLSearchParams();
+			if (searchParams.message.trim()) params.append("search", searchParams.message.trim());
+			if (searchParams.level) params.append("level", searchParams.level);
+
+			params.append("actions", ACTIONS.join(","));
+			params.append("limit", "1");
+			params.append("skip", "0");
+
+			const response = await fetch(`/api/logs?${params.toString()}`);
+			if (response.ok) {
+				const data = await response.json();
+				if (data.success) {
+					setTotalWithoutActionFilter(data.total || 0);
+				}
+			}
+		} catch (error) {
+			console.error("Error fetching total without action filter:", error);
 		}
 	}, []);
 
@@ -122,10 +155,13 @@ export const LogList: React.FC<LogListProps> = () => {
 		searchParamsRef.current = searchParams;
 
 		try {
-			const result = await fetchLogs(searchParams, 0);
+			const [result] = await Promise.all([
+				fetchLogs(searchParams, 0),
+				fetchTotalWithoutActionFilter({ message: searchParams.message, level: searchParams.level }),
+			]);
 
 			setLogs(result.logs);
-			setTotal(result.total);
+			setFilteredTotal(result.total);
 			setCurrentPage(0);
 			setHasMore(result.logs.length === ITEMS_PER_PAGE);
 
@@ -136,7 +172,7 @@ export const LogList: React.FC<LogListProps> = () => {
 			setLoading(false);
 			isLoadingRef.current = false;
 		}
-	}, [fetchLogs]);
+	}, [fetchLogs, fetchTotalWithoutActionFilter]);
 
 	const loadMore = useCallback(async () => {
 		if (isLoadingRef.current || !hasMore || loadingMore) {
@@ -178,7 +214,15 @@ export const LogList: React.FC<LogListProps> = () => {
 		}
 	}, [hasMore, loadMore]);
 
-	// Effect pour les changements de recherche
+	useEffect(() => {
+		const initialSearchParams = {
+			message: "",
+			level: "",
+			actions: DEFAULT_SELECTED_ACTIONS,
+		};
+		searchLogs(initialSearchParams);
+	}, [searchLogs]);
+
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
 			const newSearchParams = {
@@ -193,7 +237,6 @@ export const LogList: React.FC<LogListProps> = () => {
 		return () => clearTimeout(timeoutId);
 	}, [search.message, search.level, selectedActions, searchLogs]);
 
-	// Effect pour le scroll listener
 	useEffect(() => {
 		const container = scrollContainerRef.current;
 		if (!container) return;
@@ -223,6 +266,18 @@ export const LogList: React.FC<LogListProps> = () => {
 				? prev.filter((a) => a !== action)
 				: [...prev, action],
 		);
+	};
+
+	const getActionButtonText = () => {
+		if (actionStats.showingAll) {
+			return t("list.search.action.all");
+		}
+
+		if (actionStats.selectedCount === 0) {
+			return t("list.search.action.empty");
+		}
+
+		return t("list.search.action.selected", { count: actionStats.selectedCount });
 	};
 
 	const columns: TableColumn<LogType>[] = [
@@ -309,11 +364,7 @@ export const LogList: React.FC<LogListProps> = () => {
 						disabled={loading}
 					/>
 
-					<Select
-						onValueChange={(value) => setSearch({ ...search, level: value === "all" ? "" : value })}
-						value={search.level || "all"}
-						disabled={loading}
-					>
+					<Select onValueChange={(value) => setSearch({ ...search, level: value === "all" ? "" : value })} value={search.level || "all"} disabled={loading}>
 						<SelectTrigger className="w-48 !h-10">
 							<SelectValue placeholder={t("list.search.level.placeholder")} />
 						</SelectTrigger>
@@ -332,47 +383,40 @@ export const LogList: React.FC<LogListProps> = () => {
 
 					<Popover>
 						<PopoverTrigger asChild>
-							<Button variant="outline" className="w-64 h-10 justify-between" disabled={loading}>
-								<span className="truncate">
-									{selectedActions.length === 0
-										? t("list.search.action.all")
-										: selectedActions.length === availableActions.length
-											? t("list.search.action.all")
-											: t("list.search.action.selected", { count: selectedActions.length })}
-								</span>
-								<ChevronDown className="h-4 w-4 opacity-50" />
+							<Button variant="outline" className="w-80 h-10 justify-between" disabled={loading}>
+								<div className="flex items-center gap-2 truncate">
+									<span className="truncate">{getActionButtonText()}</span>
+								</div>
+								<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="w-64 p-0" align="start">
+						<PopoverContent className="w-80 p-0" align="start">
 							<div className="max-h-64 overflow-y-auto">
-								{availableActions.map((action) => (
+								{ACTIONS.map((action) => (
 									<div key={action} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-										<Checkbox
-											id={`action-${action}`}
-											checked={selectedActions.includes(action)}
-											onCheckedChange={() => handleActionToggle(action)}
-										/>
-										<label
-											htmlFor={`action-${action}`}
-											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
-										>
-											{action.charAt(0).toUpperCase() + action.slice(1)}
+										<Checkbox id={`action-${action}`} checked={selectedActions.includes(action)} onCheckedChange={() => handleActionToggle(action)} />
+										<label htmlFor={`action-${action}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1">
+											<div className="flex items-center justify-between">
+												<span>{action.charAt(0).toUpperCase() + action.slice(1)}</span>
+											</div>
 										</label>
 									</div>
 								))}
-								{availableActions.length === 0 && (
-									<div className="p-4 text-sm text-gray-500 text-center">
-										{t("list.search.action.empty")}
-									</div>
-								)}
 							</div>
 						</PopoverContent>
 					</Popover>
 				</div>
 
-				{total > 0 && (
-					<div className="mt-2 text-sm text-gray-600">
-						{t("list.results", { count: logs.length, total })}
+				{filteredTotal > 0 && (
+					<div className="mt-2 flex items-center gap-4 text-sm">
+						<div className="text-gray-600">
+							{t("list.results", { count: logs.length, total: filteredTotal })}
+						</div>
+						{actionStats.hiddenCount > 0 && totalWithoutActionFilter > filteredTotal && (
+							<div className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs">
+								{t("list.filtered.hidden", { count: totalWithoutActionFilter - filteredTotal })}
+							</div>
+						)}
 					</div>
 				)}
 			</div>
@@ -403,15 +447,15 @@ export const LogList: React.FC<LogListProps> = () => {
 					) : loading ? (
 						<div className="flex justify-center items-center py-8">
 							<Loader2 className="h-8 w-8 animate-spin" />
-							<span className="ml-2 text-sm text-gray-600">Chargement...</span>
+							<span className="ml-2 text-sm text-gray-600">{t("list.loading.initial")}</span>
 						</div>
 					) : (
 						<div className="flex justify-center py-8">
-							<span className="text-sm text-gray-500">Aucun log trouvé</span>
+							<span className="text-sm text-gray-500">{t("list.error.empty")}</span>
 						</div>
 					)}
 				</div>
 			</div>
-		</div>
+		</div >
 	);
 };
