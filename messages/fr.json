@@ -508,7 +508,7 @@
 				},
 				"action": {
 					"all": "Toutes les actions",
-					"selected": "{count} action{ count, plural, =1 {} other {s}} sélectionnée{count, plural, =1 {} other {s}}",
+					"selected": "{count} action{count, plural, =1 {} other {s}} sélectionnée{count, plural, =1 {} other {s}}",
 					"empty": "Aucune action disponible"
 				}
 			},
@@ -525,10 +525,14 @@
 			},
 			"results": "{count} résultat{count, plural, =1 {} other {s}} sur {total} au total",
 			"loading": {
-				"more": "Chargement de plus de résultats..."
+				"more": "Chargement de plus de résultats...",
+				"initial": "Chargement..."
 			},
 			"no": {
 				"more": "Aucun résultat supplémentaire"
+			},
+			"filtered": {
+				"hidden": "{count} log{count, plural, =1 {} other {s}} masqué{count, plural, =1 {} other {s}} par les filtres d'actions"
 			}
 		}
 	},

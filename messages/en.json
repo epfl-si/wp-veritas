@@ -576,10 +576,14 @@
 			},
 			"results": "{count} {count, plural, =1 {result} other {results}} out of {total} total",
 			"loading": {
-				"more": "Loading more results..."
+				"more": "Loading more results...",
+				"initial": "Loading..."
 			},
 			"no": {
 				"more": "No more logs to load"
+			},
+			"filtered": {
+				"hidden": "{count} {count, plural, =1 {log} other {logs}} hidden by action filters"
 			}
 		}
 	},
