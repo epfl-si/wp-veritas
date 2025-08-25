@@ -87,4 +87,9 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  #swagger-ui {
+	width: calc(100% - calc(var(--spacing) * 72));
+  }
 }
+
