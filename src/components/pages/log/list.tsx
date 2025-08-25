@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,7 +11,7 @@ import moment from "moment";
 import "moment/locale/fr";
 import { LogType } from "@/types/log";
 import { LOG_LEVELS } from "@/constants/logs";
-import { UserRound, ChevronDown } from "lucide-react";
+import { UserRound, ChevronDown, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const getLogLevelConfig = (level: string) => {
@@ -34,8 +34,29 @@ const parseMessage = (message: string) => {
 const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCase());
 
 const DEFAULT_SELECTED_ACTIONS = ["create", "update", "delete", "associate", "disassociate"];
+const ITEMS_PER_PAGE = 20;
+const SCROLL_THRESHOLD = 200;
 
-export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
+interface LogListProps {
+	logs?: LogType[];
+}
+
+export const LogList: React.FC<LogListProps> = () => {
+	const [logs, setLogs] = useState<LogType[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [loadingMore, setLoadingMore] = useState(false);
+	const [total, setTotal] = useState(0);
+	const [hasMore, setHasMore] = useState(true);
+	const [currentPage, setCurrentPage] = useState(0);
+
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const isLoadingRef = useRef(false);
+	const searchParamsRef = useRef<{ message: string; level: string; actions: string[] }>({
+		message: "",
+		level: "",
+		actions: DEFAULT_SELECTED_ACTIONS,
+	});
+
 	const availableActions = useMemo(() => {
 		const actions = new Set<string>();
 		logs.forEach((log) => {
@@ -46,12 +67,7 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 		return Array.from(actions).sort();
 	}, [logs]);
 
-	const [selectedActions, setSelectedActions] = useState<string[]>(() => {
-		const defaultActions = availableActions.filter((action) => DEFAULT_SELECTED_ACTIONS.includes(action.toLowerCase()));
-
-		return defaultActions.length > 0 ? defaultActions : availableActions;
-	});
-
+	const [selectedActions, setSelectedActions] = useState<string[]>(DEFAULT_SELECTED_ACTIONS);
 	const [search, setSearch] = useState({
 		message: "",
 		level: "",
@@ -60,16 +76,153 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 	const t = useTranslations("log");
 	const locale = useLocale();
 
-	const filteredLogs = logs.filter((log) => {
-		const matchesMessage = log.message.toLowerCase().includes(search.message.toLowerCase());
-		const matchesLevel = search.level === "" || log.level === search.level;
-		const matchesAction = selectedActions.includes(log.data.action);
+	const fetchLogs = useCallback(async (
+		searchParams: { message: string; level: string; actions: string[] },
+		page: number,
+	) => {
+		try {
+			const params = new URLSearchParams();
+			if (searchParams.message.trim()) params.append("search", searchParams.message.trim());
+			if (searchParams.level) params.append("level", searchParams.level);
+			if (searchParams.actions.length > 0) params.append("actions", searchParams.actions.join(","));
 
-		return matchesMessage && matchesLevel && matchesAction;
-	});
+			params.append("limit", ITEMS_PER_PAGE.toString());
+			params.append("skip", (page * ITEMS_PER_PAGE).toString());
+
+			const response = await fetch(`/api/logs?${params.toString()}`);
+
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}`);
+			}
+
+			const data = await response.json();
+
+			if (!data.success) {
+				throw new Error(data.message || "API returned success: false");
+			}
+
+			return {
+				logs: data.logs || [],
+				total: data.total || 0,
+			};
+		} catch (error) {
+			console.error("Error fetching logs:", error);
+			return {
+				logs: [],
+				total: 0,
+			};
+		}
+	}, []);
+
+	const searchLogs = useCallback(async (searchParams: { message: string; level: string; actions: string[] }) => {
+		if (isLoadingRef.current) return;
+
+		setLoading(true);
+		isLoadingRef.current = true;
+		searchParamsRef.current = searchParams;
+
+		try {
+			const result = await fetchLogs(searchParams, 0);
+
+			setLogs(result.logs);
+			setTotal(result.total);
+			setCurrentPage(0);
+			setHasMore(result.logs.length === ITEMS_PER_PAGE);
+
+			if (scrollContainerRef.current) {
+				scrollContainerRef.current.scrollTop = 0;
+			}
+		} finally {
+			setLoading(false);
+			isLoadingRef.current = false;
+		}
+	}, [fetchLogs]);
+
+	const loadMore = useCallback(async () => {
+		if (isLoadingRef.current || !hasMore || loadingMore) {
+			return;
+		}
+
+		setLoadingMore(true);
+		isLoadingRef.current = true;
+
+		const nextPage = currentPage + 1;
+
+		try {
+			const result = await fetchLogs(searchParamsRef.current, nextPage);
+
+			if (result.logs.length > 0) {
+				setLogs(prev => [...prev, ...result.logs]);
+				setCurrentPage(nextPage);
+				setHasMore(result.logs.length === ITEMS_PER_PAGE);
+			} else {
+				setHasMore(false);
+			}
+		} finally {
+			setLoadingMore(false);
+			isLoadingRef.current = false;
+		}
+	}, [currentPage, hasMore, loadingMore, fetchLogs]);
+
+	const handleScroll = useCallback(() => {
+		const container = scrollContainerRef.current;
+		if (!container || isLoadingRef.current || !hasMore) {
+			return;
+		}
+
+		const { scrollTop, scrollHeight, clientHeight } = container;
+		const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+		if (distanceFromBottom < SCROLL_THRESHOLD) {
+			loadMore();
+		}
+	}, [hasMore, loadMore]);
+
+	// Effect pour les changements de recherche
+	useEffect(() => {
+		const timeoutId = setTimeout(() => {
+			const newSearchParams = {
+				message: search.message,
+				level: search.level,
+				actions: selectedActions,
+			};
+
+			searchLogs(newSearchParams);
+		}, 300);
+
+		return () => clearTimeout(timeoutId);
+	}, [search.message, search.level, selectedActions, searchLogs]);
+
+	// Effect pour le scroll listener
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		let ticking = false;
+
+		const throttledHandleScroll = () => {
+			if (!ticking) {
+				requestAnimationFrame(() => {
+					handleScroll();
+					ticking = false;
+				});
+				ticking = true;
+			}
+		};
+
+		container.addEventListener("scroll", throttledHandleScroll, { passive: true });
+
+		return () => {
+			container.removeEventListener("scroll", throttledHandleScroll);
+		};
+	}, [handleScroll]);
 
 	const handleActionToggle = (action: string) => {
-		setSelectedActions((prev) => (prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action]));
+		setSelectedActions((prev) =>
+			prev.includes(action)
+				? prev.filter((a) => a !== action)
+				: [...prev, action],
+		);
 	};
 
 	const columns: TableColumn<LogType>[] = [
@@ -144,10 +297,23 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
 					<h1 className="text-3xl font-bold">{t("list.title")}</h1>
+					{loading && <Loader2 className="h-5 w-5 animate-spin" />}
 				</div>
+
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => setSearch({ ...search, message: e.target.value })} value={search.message} placeholder={t("list.search.message.placeholder")} className="flex-1 h-10" />
-					<Select onValueChange={(value) => setSearch({ ...search, level: value === "all" ? "" : value })} value={search.level || "all"}>
+					<Input
+						onChange={(e) => setSearch({ ...search, message: e.target.value })}
+						value={search.message}
+						placeholder={t("list.search.message.placeholder")}
+						className="flex-1 h-10"
+						disabled={loading}
+					/>
+
+					<Select
+						onValueChange={(value) => setSearch({ ...search, level: value === "all" ? "" : value })}
+						value={search.level || "all"}
+						disabled={loading}
+					>
 						<SelectTrigger className="w-48 !h-10">
 							<SelectValue placeholder={t("list.search.level.placeholder")} />
 						</SelectTrigger>
@@ -163,10 +329,17 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 							})}
 						</SelectContent>
 					</Select>
+
 					<Popover>
 						<PopoverTrigger asChild>
-							<Button variant="outline" className="w-64 h-10 justify-between">
-								<span className="truncate">{selectedActions.length === 0 ? t("list.search.action.all") : selectedActions.length === availableActions.length ? t("list.search.action.all") : t("list.search.action.selected", { count: selectedActions.length })}</span>
+							<Button variant="outline" className="w-64 h-10 justify-between" disabled={loading}>
+								<span className="truncate">
+									{selectedActions.length === 0
+										? t("list.search.action.all")
+										: selectedActions.length === availableActions.length
+											? t("list.search.action.all")
+											: t("list.search.action.selected", { count: selectedActions.length })}
+								</span>
 								<ChevronDown className="h-4 w-4 opacity-50" />
 							</Button>
 						</PopoverTrigger>
@@ -174,22 +347,69 @@ export const LogList: React.FC<{ logs: LogType[] }> = ({ logs }) => {
 							<div className="max-h-64 overflow-y-auto">
 								{availableActions.map((action) => (
 									<div key={action} className="flex items-center space-x-2 p-2 hover:bg-gray-50">
-										<Checkbox id={`action-${action}`} checked={selectedActions.includes(action)} onCheckedChange={() => handleActionToggle(action)} />
-										<label htmlFor={`action-${action}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1">
+										<Checkbox
+											id={`action-${action}`}
+											checked={selectedActions.includes(action)}
+											onCheckedChange={() => handleActionToggle(action)}
+										/>
+										<label
+											htmlFor={`action-${action}`}
+											className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+										>
 											{action.charAt(0).toUpperCase() + action.slice(1)}
 										</label>
 									</div>
 								))}
-								{availableActions.length === 0 && <div className="p-4 text-sm text-gray-500 text-center">{t("list.search.action.empty")}</div>}
+								{availableActions.length === 0 && (
+									<div className="p-4 text-sm text-gray-500 text-center">
+										{t("list.search.action.empty")}
+									</div>
+								)}
 							</div>
 						</PopoverContent>
 					</Popover>
 				</div>
+
+				{total > 0 && (
+					<div className="mt-2 text-sm text-gray-600">
+						{t("list.results", { count: logs.length, total })}
+					</div>
+				)}
 			</div>
 
-			<div className="px-3 sm:px-4 md:px-6 pb-0 h-full overflow-hidden">
-				<div className="h-full overflow-auto">
-					<Table data={filteredLogs} columns={columns} defaultSort={{ key: "timestamp", direction: "desc" }} />
+			<div className="px-3 sm:px-4 md:px-6 pb-0 flex-1 overflow-hidden">
+				<div
+					ref={scrollContainerRef}
+					className="h-full overflow-y-auto"
+					style={{ scrollBehavior: "smooth" }}
+				>
+					{logs.length > 0 ? (
+						<>
+							<Table data={logs} columns={columns} />
+
+							{loadingMore && (
+								<div className="flex justify-center items-center py-4">
+									<Loader2 className="h-5 w-5 animate-spin" />
+									<span className="ml-2 text-sm text-gray-600">{t("list.loading.more")}</span>
+								</div>
+							)}
+
+							{!hasMore && (
+								<div className="flex justify-center py-4">
+									<span className="text-sm text-gray-500">{t("list.no.more")}</span>
+								</div>
+							)}
+						</>
+					) : loading ? (
+						<div className="flex justify-center items-center py-8">
+							<Loader2 className="h-8 w-8 animate-spin" />
+							<span className="ml-2 text-sm text-gray-600">Chargement...</span>
+						</div>
+					) : (
+						<div className="flex justify-center py-8">
+							<span className="text-sm text-gray-500">Aucun log trouvé</span>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
