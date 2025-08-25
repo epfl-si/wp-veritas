@@ -508,7 +508,8 @@
 				},
 				"action": {
 					"all": "Toutes les actions",
-					"selected": "{count} action(s) sélectionnée(s)"
+					"selected": "{count} action{ count, plural, =1 {} other {s}} sélectionnée{count, plural, =1 {} other {s}}",
+					"empty": "Aucune action disponible"
 				}
 			},
 			"error": {
@@ -521,6 +522,13 @@
 				"message": "Message",
 				"user": "Utilisateur",
 				"timestamp": "Horodatage"
+			},
+			"results": "{count} résultat{count, plural, =1 {} other {s}} sur {total} au total",
+			"loading": {
+				"more": "Chargement de plus de résultats..."
+			},
+			"no": {
+				"more": "Aucun résultat supplémentaire"
 			}
 		}
 	},
