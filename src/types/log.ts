@@ -17,3 +17,11 @@ export interface LogType {
 		name: string;
 	};
 }
+
+export interface SearchLogsParams {
+	search?: string;
+	level?: string;
+	actions?: string[];
+	limit?: number;
+	skip?: number;
+}
