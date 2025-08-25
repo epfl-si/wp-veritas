@@ -35,7 +35,7 @@ const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCas
 
 const ACTIONS = ["create", "update", "delete", "associate", "disassociate", "list", "read"];
 const DEFAULT_SELECTED_ACTIONS = ["create", "update", "delete", "associate", "disassociate"];
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 100;
 const SCROLL_THRESHOLD = 200;
 
 interface LogListProps {
