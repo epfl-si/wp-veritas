@@ -10,7 +10,7 @@
 		"themes": "Gérer les thèmes",
 		"trash": "Sites supprimés",
 		"logs": "Journaux d’actions",
-    "apiDocs": "Documentation API",
+		"apiDocs": "Documentation API",
 		"redirections": "Redirections"
 	},
 	"site": {
