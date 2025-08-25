@@ -260,10 +260,11 @@ export const SiteAdd: React.FC = () => {
 			{
 				name: "createFromBackup",
 				type: "checkbox",
-				label: t("form.createFromBackup.label"),
+				label: `${t("form.createFromBackup.label")} - [WIP]`, // WIP
 				placeholder: t("form.createFromBackup.placeholder"),
 				section: "advanced",
 				width: "full",
+				disabled: true, // WIP
 				conditions: [
 					{
 						field: "infrastructure",
