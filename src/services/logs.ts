@@ -88,8 +88,11 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 		}
 
 		const total = await LogModel.countDocuments(query);
-
 		const logsQuery = LogModel.find<ILog>(query).sort({ timestamp: -1 });
+
+		if (params.limit && params.limit > 250) {
+			return { error: { status: 400, message: "Limit cannot exceed 250", success: false } };
+		}
 
 		if (params.skip && params.skip > 0) {
 			logsQuery.skip(params.skip);
