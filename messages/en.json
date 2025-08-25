@@ -559,7 +559,8 @@
 				},
 				"action": {
 					"all": "All actions",
-					"selected": "{count} {count, plural, =1 {action} other {actions}} selected"
+					"selected": "{count} {count, plural, =1 {action} other {actions}} selected",
+					"empty": "No actions available"
 				}
 			},
 			"error": {
@@ -572,6 +573,13 @@
 				"message": "Message",
 				"user": "User",
 				"timestamp": "Timestamp"
+			},
+			"results": "{count} {count, plural, =1 {result} other {results}} out of {total} total",
+			"loading": {
+				"more": "Loading more results..."
+			},
+			"no": {
+				"more": "No more logs to load"
 			}
 		}
 	},
