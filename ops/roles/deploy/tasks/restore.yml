@@ -1,0 +1,33 @@
+- name: Create backup configuration ConfigMap
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: restore-config
+        namespace: "{{ inventory_hostname }}"
+        labels:
+          app: wp-veritas
+      data:
+        config.yaml: |
+          test:
+            s3:
+              bucket: "xxx"
+              endpoint: "https://s3.epfl.ch"
+              region: "eu-west-1"
+              secretName: "test-s3-secret"
+              accessKeyIdSecretKeyRef: "test-s3-access-key-id"
+              secretAccessKeySecretKeyRef: "test-s3-secret-key"
+            api:
+              url: "https://wp-veritas-test.epfl.ch/api/v2/sites"
+          prod:
+            s3:
+              bucket: "xxx"
+              endpoint: "https://s3.epfl.ch"
+              region: "eu-west-1"
+              secretName: "prod-s3-secret"
+              accessKeyIdSecretKeyRef: "prod-s3-access-key-id"
+              secretAccessKeySecretKeyRef: "prod-s3-secret-key"
+            api:
+              url: "https://wp-veritas.epfl.ch/api/v2/sites"
