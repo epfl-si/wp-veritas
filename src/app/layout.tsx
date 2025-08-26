@@ -30,9 +30,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 	return (
 		<html lang={locale} className="h-full">
-			<header>
+			<head>
 				<script defer src={process.env.UMAMI_URL_SCRIPT} data-website-id={process.env.UMAMI_WEBSITE_ID}></script>
-			</header>
+			</head>
 			<body className={cn("antialiased h-full flex flex-col", inter.className)}>
 				<NextIntlClientProvider messages={messages}>
 					<SessionProvider session={session}>{children}</SessionProvider>
