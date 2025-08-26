@@ -26,6 +26,13 @@
       tags: redis
   tags: redis
 
+- name: Backup config tasks
+  ansible.builtin.include_tasks:
+    file: "restore.yml"
+    apply:
+      tags: restore
+  tags: restore
+
 - name: App tasks
   ansible.builtin.include_tasks:
     file: "app.yml"
