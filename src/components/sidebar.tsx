@@ -77,7 +77,7 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 		<aside className="max-w-72 flex-1 space-y-2 border-r p-4 flex flex-col justify-between">
 			<nav className="space-y-2 w-full">
 				{filteredNavItems.map((item) => (
-					<Link key={item.href} href={item.href} className={cn("px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2", pathname === item.href ? "text-primary font-semibold" : "hover:bg-muted/80")}>
+					<Link key={item.href} href={item.href} prefetch={true} className={cn("px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2", pathname === item.href ? "text-primary font-semibold" : "hover:bg-muted/80")}>
 						<item.icon className="w-5 h-5" />
 						{item.label}
 					</Link>
