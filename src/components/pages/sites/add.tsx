@@ -10,6 +10,7 @@ import { THEMES } from "@/constants/theme";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { ENVIRONMENTS } from "@/constants/environments";
+import { getAvailableEnvironments } from "@/services/backup";
 import { decode } from "html-entities";
 
 export const SiteAdd: React.FC = () => {
@@ -19,6 +20,7 @@ export const SiteAdd: React.FC = () => {
 	const [backupSites, setBackupSites] = useState<SelectOption[]>([]);
 	const [loadingBackupSites, setLoadingBackupSites] = useState(false);
 	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
+	const [availableEnvironments, setAvailableEnvironments] = useState<string[]>([]);
 
 	const loadBackupSites = async (environment: string) => {
 		setLoadingBackupSites(true);
@@ -43,8 +45,18 @@ export const SiteAdd: React.FC = () => {
 	};
 
 	useEffect(() => {
-		loadBackupSites("test");
-	}, []);
+		const loadEnvironments = async () => {
+			const environments = await getAvailableEnvironments();
+			setAvailableEnvironments(environments);
+			if (environments.length > 0) {
+				loadBackupSites(environments[0]);
+				if (formRef && environments[0] !== formRef.getValues("backupEnvironment")) {
+					formRef.setValue("backupEnvironment", environments[0]);
+				}
+			}
+		};
+		loadEnvironments();
+	}, [formRef]);
 
 	const loadSiteDetails = async (siteId: string, environment: string) => {
 		if (!formRef || !siteId) return;
@@ -257,49 +269,52 @@ export const SiteAdd: React.FC = () => {
 					},
 				],
 			},
-			{
-				name: "createFromBackup",
-				type: "checkbox",
-				label: `${t("form.createFromBackup.label")} - [WIP]`, // WIP
+			...(availableEnvironments.length >= 1 ? [{
+				name: "createFromBackup" as const,
+				type: "checkbox" as const,
+				label: `${t("form.createFromBackup.label")}`,
 				placeholder: t("form.createFromBackup.placeholder"),
-				section: "advanced",
-				width: "full",
-				disabled: true, // WIP
+				section: "advanced" as const,
+				width: "full" as const,
+				disabled: false,
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
+						operator: "equals" as const,
 						value: "Kubernetes",
-						type: "display",
+						type: "display" as const,
 					},
 				],
-			},
-			{
-				name: "backupEnvironment",
-				type: "select",
+			}] : []),
+			...(availableEnvironments.length > 1 ? [{
+				name: "backupEnvironment" as const,
+				type: "select" as const,
 				label: t("form.backupEnvironment.label"),
 				placeholder: t("form.backupEnvironment.placeholder"),
-				section: "advanced",
-				width: "full",
-				options: ENVIRONMENTS.map((env) => ({
-					value: env.name,
-					label: env.displayName,
-				})),
+				section: "advanced" as const,
+				width: "full" as const,
+				options: availableEnvironments.map((env) => {
+					const envConfig = ENVIRONMENTS.find(e => e.name === env);
+					return {
+						value: env,
+						label: envConfig?.displayName || env,
+					};
+				}),
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
+						operator: "equals" as const,
 						value: "Kubernetes",
-						type: "display",
+						type: "display" as const,
 					},
 					{
 						field: "createFromBackup",
-						operator: "equals",
+						operator: "equals" as const,
 						value: true,
-						type: "display",
+						type: "display" as const,
 					},
 				],
-			},
+			}] : []),
 			{
 				name: "backupSite",
 				type: "search",
@@ -395,7 +410,7 @@ export const SiteAdd: React.FC = () => {
 				downloadsProtectionScript: false,
 				monitored: false,
 				createFromBackup: false,
-				backupEnvironment: "test",
+				backupEnvironment: availableEnvironments[0] || "test",
 				backupSite: "",
 				ticket: "",
 				comment: "",
@@ -416,7 +431,7 @@ export const SiteAdd: React.FC = () => {
 				if (fieldName === "backupEnvironment" && typeof value === "string") {
 					loadBackupSites(value);
 				} else if (fieldName === "backupSite" && typeof value === "string" && value) {
-					const environment = formRef?.getValues("backupEnvironment") || "test";
+					const environment = formRef?.getValues("backupEnvironment") || availableEnvironments[0] || "test";
 					await loadSiteDetails(value, environment);
 				}
 			},
