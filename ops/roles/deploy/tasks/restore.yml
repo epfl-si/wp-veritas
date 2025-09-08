@@ -11,6 +11,7 @@
           app: wp-veritas
       data:
         config.yaml: |
+          {% if inventory_environment != 'prod' %}
           test:
             s3:
               bucket: "xxx"
@@ -21,6 +22,7 @@
               secretAccessKeySecretKeyRef: "test-s3-secret-key"
             api:
               url: "https://wp-veritas-test.epfl.ch/api/v2/sites"
+          {% endif %}
           prod:
             s3:
               bucket: "xxx"
