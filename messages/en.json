@@ -650,6 +650,9 @@
 		"contact": "If you think this is an error, contact the team"
 	},
 	"form": {
-		"showMore": "Show more"
+		"showMore": "Show more",
+		"search": {
+			"noResults": "No results found"
+		}
 	}
 }
