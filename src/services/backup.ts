@@ -1,3 +1,5 @@
+"use server";
+
 import { getConfigMapValue } from "@/lib/kubernetes";
 import { BackupConfig, BackupEnvironment } from "@/types/backup";
 import { KubernetesSiteFormType, KubernetesSite } from "@/types/site";
@@ -58,4 +60,18 @@ export async function getBackupConfig(environment: BackupEnvironment) {
 	const config = await loadBackupConfig();
 	const envConfig = config?.[environment];
 	return envConfig;
+}
+
+export async function getAvailableEnvironments(): Promise<BackupEnvironment[]> {
+	try {
+		const config = await loadBackupConfig();
+		if (!config) return [];
+
+		return Object.keys(config).filter(env =>
+			config[env as BackupEnvironment]?.api?.url,
+		) as BackupEnvironment[];
+	} catch (error) {
+		console.error("Error loading available environments:", error);
+		return [];
+	}
 }
