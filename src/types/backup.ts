@@ -9,6 +9,9 @@ export interface BackupConfig {
 			secretAccessKeySecretKeyRef: string;
 
 		};
+		media: {
+			claimName: string;
+		};
 		api: {
 			url: string;
 		};
@@ -21,6 +24,9 @@ export interface BackupConfig {
 			secretName: string;
 			accessKeyIdSecretKeyRef: string;
 			secretAccessKeySecretKeyRef: string;
+		};
+		media: {
+			claimName: string;
 		};
 		api: {
 			url: string;
