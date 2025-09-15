@@ -121,6 +121,20 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 	};
 }
 
+async function getPersistentVolumeName(pvcName: string): Promise<string | null> {
+	const namespace = await getNamespace();
+	const pvc = await k8sCoreApi.readNamespacedPersistentVolumeClaim({
+		name: pvcName,
+		namespace,
+	});
+
+	if (!pvc.spec?.volumeName) {
+		return null;
+	}
+
+	return pvc.spec.volumeName;
+}
+
 async function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
 
@@ -145,6 +159,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		let dbRef = null;
 		let urlSource = null;
 		let config = null;
+		let restoreConfig = null;
 
 		if (site.createFromBackup && site.backupSite && site.backupEnvironment) {
 			config = await getBackupConfig(site.backupEnvironment as BackupEnvironment);
@@ -167,9 +182,36 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			dbName = oldSite.kubernetesExtraInfo?.databaseName;
 			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
 			urlSource = oldSite.url;
+
+			const pvcId = await getPersistentVolumeName(config.media.claimName);
+			if (pvcId) {
+				const namespace = await getNamespace();
+				const mediaPvcSubPath = `${namespace}-${config.media.claimName}-${pvcId}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
+
+				restoreConfig = {
+					s3: {
+						bucket: config.s3.bucket,
+						endpoint: config.s3.endpoint,
+						region: config.s3.region || "eu-west-1",
+						secretKeyName: config.s3.secretName,
+						accessKeyIdSecretKeyRef: config.s3.accessKeyIdSecretKeyRef,
+						secretAccessKeySecretKeyRef: config.s3.secretAccessKeySecretKeyRef,
+					},
+					mariaDBLookup: {
+						mariadbNameSource: dbRef,
+						databaseNameSource: dbName,
+						urlSource: urlSource,
+						mariadbSecretName: "mariadb",
+					},
+					mediaPersistentVolumeClaim: {
+						claimName: config.media.claimName,
+						subPath: mediaPvcSubPath,
+					},
+				};
+			}
 		}
 
-		return { dbName, dbRef, urlSource, config };
+		return { dbName, dbRef, urlSource, config, restoreConfig };
 	};
 
 	const createWordPressConfig = (plugins: WordPressPlugins) => ({
@@ -205,23 +247,8 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 				},
 			},
 			wordpress: createWordPressConfig(plugins),
-			...(site.createFromBackup && backupConfig.config && {
-				restore: {
-					s3: {
-						bucket: backupConfig.config.s3.bucket,
-						endpoint: backupConfig.config.s3.endpoint,
-						region: backupConfig.config.s3.region || "eu-west-1",
-						secretKeyName: backupConfig.config.s3.secretName,
-						accessKeyIdSecretKeyRef: backupConfig.config.s3.accessKeyIdSecretKeyRef,
-						secretAccessKeySecretKeyRef: backupConfig.config.s3.secretAccessKeySecretKeyRef,
-					},
-					mariaDBLookup: {
-						mariadbNameSource: backupConfig.dbRef,
-						databaseNameSource: backupConfig.dbName,
-						urlSource: backupConfig.urlSource,
-						mariadbSecretName: "mariadb",
-					},
-				},
+			...(site.createFromBackup && backupConfig.restoreConfig && {
+				restore: backupConfig.restoreConfig,
 			}),
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
