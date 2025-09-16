@@ -21,7 +21,7 @@ const getLogLevelConfig = (level: string) => {
 const parseMessage = (message: string) => {
 	return message.split(/('''.*?''')/gs).flatMap((part, i) => {
 		if (part.startsWith("'''") && part.endsWith("'''")) {
-			return <pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono">{part.slice(3, -3)}</pre>;
+			return <pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono break-all overflow-hidden whitespace-pre-wrap">{part.slice(3, -3)}</pre>;
 		}
 		return part.split(/(\*\*.*?\*\*)/g).map((bp, j) =>
 			bp.startsWith("**") && bp.endsWith("**")
@@ -321,7 +321,7 @@ export const LogList: React.FC<LogListProps> = () => {
 			align: "left",
 			sortable: true,
 			render: (log) => (
-				<div className="text-sm py-1 leading-relaxed" title={log.message}>
+				<div className="text-sm py-1 leading-relaxed break-all overflow-hidden" title={log.message}>
 					{parseMessage(log.message)}
 				</div>
 			),
