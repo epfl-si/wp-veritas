@@ -36,6 +36,10 @@
           verbs: ["get"]
           resourceNames:
             - restore-config
+        - apiGroups: [""]
+          resources:
+            - persistentvolumeclaims
+          verbs: ["get", "list"]
 
 - name: RoleBinding
   kubernetes.core.k8s:
