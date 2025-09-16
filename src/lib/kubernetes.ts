@@ -194,8 +194,8 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 						endpoint: config.s3.endpoint,
 						region: config.s3.region || "eu-west-1",
 						secretKeyName: config.s3.secretName,
-						accessKeyIdSecretKeyRef: config.s3.accessKeyIdSecretKeyRef,
-						secretAccessKeySecretKeyRef: config.s3.secretAccessKeySecretKeyRef,
+						secretAccessKeySecretKeyRef: config.s3.secretAccessKeySecretKeyRef || "accessSecret",
+						accessKeyIdSecretKeyRef: config.s3.accessKeyIdSecretKeyRef || "keyId",
 					},
 					mariaDBLookup: {
 						mariadbNameSource: dbRef,
