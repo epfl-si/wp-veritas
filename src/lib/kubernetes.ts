@@ -197,11 +197,13 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 						secretAccessKeySecretKeyRef: config.s3.secretAccessKeySecretKeyRef || "accessSecret",
 						accessKeyIdSecretKeyRef: config.s3.accessKeyIdSecretKeyRef || "keyId",
 					},
-					mariaDBLookup: {
-						mariadbNameSource: dbRef,
-						databaseNameSource: dbName,
-						urlSource: urlSource,
-						mariadbSecretName: "mariadb",
+					wpDbBackupRef: {
+						mariaDBLookup: {
+							mariadbNameSource: dbRef,
+							databaseNameSource: dbName,
+							urlSource: urlSource,
+							mariadbSecretName: "mariadb",
+						},
 					},
 					mediaPersistentVolumeClaim: {
 						claimName: config.media.claimName,
