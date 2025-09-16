@@ -20,10 +20,10 @@ export interface BackupConfig {
 		s3: {
 			bucket: string;
 			endpoint: string;
-			region: string;
+			region?: string;
 			secretName: string;
-			accessKeyIdSecretKeyRef: string;
-			secretAccessKeySecretKeyRef: string;
+			accessKeyIdSecretKeyRef?: string;
+			secretAccessKeySecretKeyRef?: string;
 		};
 		media: {
 			claimName: string;
