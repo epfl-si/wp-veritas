@@ -14,12 +14,9 @@
           {% if inventory_environment != 'prod' %}
           test:
             s3:
-              bucket: "xxx"
+              bucket: "{{ keybase_secrets.test.s3.bucket }}"
               endpoint: "https://s3.epfl.ch"
-              region: "eu-west-1"
-              secretName: "test-s3-secret"
-              accessKeyIdSecretKeyRef: "test-s3-access-key-id"
-              secretAccessKeySecretKeyRef: "test-s3-secret-key"
+              secretName: "s3-backup-credentials"
             media:
               claimName: "wordpress-data"
             api:
@@ -27,12 +24,9 @@
           {% endif %}
           prod:
             s3:
-              bucket: "xxx"
+              bucket: "{{ keybase_secrets.prod.s3.bucket }}"
               endpoint: "https://s3.epfl.ch"
-              region: "eu-west-1"
-              secretName: "prod-s3-secret"
-              accessKeyIdSecretKeyRef: "prod-s3-access-key-id"
-              secretAccessKeySecretKeyRef: "prod-s3-secret-key"
+              secretName: "{{ 's3-prod-ro-credentials' if inventory_environment == 'test' else 's3-backup-credentials' }}"
             media:
               claimName: "wordpress-data{{ '-prod' if inventory_environment == 'test' else '' }}"
             api:
