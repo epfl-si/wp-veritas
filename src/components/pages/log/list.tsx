@@ -33,7 +33,7 @@ const parseMessage = (message: string) => {
 
 const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCase());
 
-const ACTIONS = ["create", "update", "delete", "associate", "disassociate", "list", "read"];
+const ACTIONS = ["create", "update", "delete", "associate", "disassociate", "list", "read", "search"];
 const DEFAULT_SELECTED_ACTIONS = ["create", "update", "delete", "associate", "disassociate"];
 const ITEMS_PER_PAGE = 100;
 const SCROLL_THRESHOLD = 200;
