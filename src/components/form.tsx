@@ -73,6 +73,11 @@ export interface FormConfig<T extends FieldValues> {
 	loadingText?: string;
 	successTitle?: string;
 	successMessage?: string;
+	successActions?: Array<{
+		label: string;
+		url: (data: T, response: unknown) => string;
+		icon?: React.ComponentType<{ className?: string }>;
+	}>;
 	errorMessage?: string;
 }
 
@@ -84,6 +89,7 @@ interface ReusableFormProps<T extends FieldValues> {
 export default function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
+	const [submissionData, setSubmissionData] = useState<{ formData: T; response: unknown } | null>(null);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
@@ -818,6 +824,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			};
 
 			setSubmissionResult(successResult);
+			setSubmissionData({ formData: data, response: result });
 			config.onSuccess?.(data, result);
 			if (config.reset !== false) {
 				form.reset();
@@ -846,13 +853,43 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		<div className={`w-full ${className}`}>
 			{submissionResult?.success && (
 				<div className="mb-6 border border-green-200 bg-green-50 p-4">
-					<div className="flex gap-2 items-center">
+					<div className="flex gap-4 items-center">
 						<div className="flex-shrink-0">
 							<CircleCheck className="h-6 w-6 text-green-600" />
 						</div>
 						<div className="flex-1 min-w-0">
 							<h3 className="text-sm font-semibold text-green-800">{config.successTitle}</h3>
+							{config.successMessage && (
+								<p className="text-sm text-green-700 mt-1">{config.successMessage}</p>
+							)}
 						</div>
+						{config.successActions && submissionData && (
+							<div className="flex gap-2 flex-shrink-0">
+								{config.successActions.map((action, index) => {
+									const Icon = action.icon;
+									return (
+										<Button
+											key={index}
+											variant="outline"
+											size="sm"
+											asChild
+											className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100"
+										>
+											<a
+												href={action.url(submissionData.formData, submissionData.response)}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="flex items-center gap-1.5"
+											>
+												{Icon && <Icon className="h-3 w-3" />}
+												{action.label}
+												<ExternalLink className="h-3 w-3" />
+											</a>
+										</Button>
+									);
+								})}
+							</div>
+						)}
 					</div>
 				</div>
 			)}
