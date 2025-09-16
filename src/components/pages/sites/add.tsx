@@ -12,6 +12,7 @@ import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { ENVIRONMENTS } from "@/constants/environments";
 import { getAvailableEnvironments } from "@/services/backup";
 import { decode } from "html-entities";
+import { Eye, Edit } from "lucide-react";
 
 export const SiteAdd: React.FC = () => {
 	const t = useTranslations("site");
@@ -422,6 +423,21 @@ export const SiteAdd: React.FC = () => {
 			loadingText: t("actions.creating"),
 			successTitle: t("add.success.title"),
 			successMessage: t("add.success.message"),
+			successActions: [
+				{
+					label: t("actions.viewSite"),
+					url: (formData: SiteFormType) => formData.url,
+					icon: Eye,
+				},
+				{
+					label: t("actions.edit"),
+					url: (formData: SiteFormType, response: unknown) => {
+						const siteId = (response as { data?: { id?: string } })?.data?.id;
+						return siteId ? `/sites/${siteId}/edit` : `/sites/edit?url=${encodeURIComponent(formData.url)}`;
+					},
+					icon: Edit,
+				},
+			],
 			errorMessage: t("add.error.title"),
 			onSuccess: () => { },
 			onError: (error) => {
