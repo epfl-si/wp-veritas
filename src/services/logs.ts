@@ -104,14 +104,6 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 
 		const logs = await logsQuery.exec();
 
-		await info("Logs search completed", {
-			type: "log",
-			action: "search",
-			count: logs.length,
-			total,
-			query: params,
-		});
-
 		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === "string"));
 		const users = await getNames(Array.from(userIds));
 
