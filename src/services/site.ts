@@ -728,9 +728,21 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			}),
 		);
 
+		await info("Sites search completed", {
+			type: "site",
+			action: "search",
+			object: { url, resultsCount: searchSites.length },
+		});
+
 		return { sites: searchSites };
 	} catch (errorData) {
 		console.error("Error searching sites:", errorData);
+		await error("Failed to search sites", {
+			type: "site",
+			action: "search",
+			object: { url },
+			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+		});
 		return { error: { status: 500, message: "Internal Server Error", success: false } };
 	}
 }
