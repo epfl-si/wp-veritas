@@ -15,7 +15,7 @@
           test:
             s3:
               bucket: "{{ keybase_secrets.test.s3.bucket }}"
-              endpoint: "https://s3.epfl.ch"
+              endpoint: "s3.epfl.ch"
               secretName: "s3-backup-credentials"
             media:
               claimName: "wordpress-data"
@@ -25,7 +25,7 @@
           prod:
             s3:
               bucket: "{{ keybase_secrets.prod.s3.bucket }}"
-              endpoint: "https://s3.epfl.ch"
+              endpoint: "s3.epfl.ch"
               secretName: "{{ 's3-prod-ro-credentials' if inventory_environment == 'test' else 's3-backup-credentials' }}"
             media:
               claimName: "wordpress-data{{ '-prod' if inventory_environment == 'test' else '' }}"
