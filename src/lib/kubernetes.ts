@@ -2,7 +2,7 @@ import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormTyp
 import { BackupEnvironment } from "@/types/backup";
 import * as k8s from "@kubernetes/client-node";
 import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
-import { ensureSlashAtEnd } from "./utils";
+import { ensureNoSlashAtEnd, ensureSlashAtEnd } from "./utils";
 import { APIError } from "@/types/error";
 import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
@@ -181,7 +181,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 
 			dbName = oldSite.kubernetesExtraInfo?.databaseName;
 			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
-			urlSource = oldSite.url;
+			urlSource = ensureNoSlashAtEnd(oldSite.url);
 
 			const pvcId = await getPersistentVolumeName(config.media.claimName);
 			if (pvcId) {
