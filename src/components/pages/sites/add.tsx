@@ -432,8 +432,8 @@ export const SiteAdd: React.FC = () => {
 				{
 					label: t("actions.edit"),
 					url: (formData: SiteFormType, response: unknown) => {
-						const siteId = (response as { data?: { id?: string } })?.data?.id;
-						return siteId ? `/sites/${siteId}/edit` : `/sites/edit?url=${encodeURIComponent(formData.url)}`;
+						const siteId = (response as { siteId?: string })?.siteId;
+						return siteId ? `/sites/${siteId}/edit` : "/error";
 					},
 					icon: Edit,
 				},
