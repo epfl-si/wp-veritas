@@ -183,8 +183,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
 			urlSource = ensureNoSlashAtEnd(oldSite.url);
 
-			const namespace = await getNamespace();
-			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${namespace}-${oldSite.kubernetesExtraInfo?.pvcName}-${oldSite.kubernetesExtraInfo?.pvName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
+			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${oldSite.kubernetesExtraInfo?.namespace}-${oldSite.kubernetesExtraInfo?.pvcName}-${oldSite.kubernetesExtraInfo?.pvName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
 
 			restoreConfig = {
 				s3: {
@@ -553,6 +552,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			wordpressSiteName: k8sSite.metadata.name,
 			pvName: pvName,
 			pvcName: process.env.PVC_NAME || "wordpress-data",
+			namespace: namespace,
 		} as KubernetesSiteExtraInfo;
 
 	} catch (error) {
