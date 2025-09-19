@@ -184,7 +184,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			urlSource = ensureNoSlashAtEnd(oldSite.url);
 
 			const namespace = await getNamespace();
-			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${namespace}-${config.media.claimName}-${oldSite.kubernetesExtraInfo?.pvcName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
+			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${namespace}-${config.media.claimName}-${oldSite.kubernetesExtraInfo?.pvName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
 
 			restoreConfig = {
 				s3: {
