@@ -59,6 +59,8 @@
                     value: "https://{{ route.host }}"
                   - name: K8S_NAMESPACE
                     value: "{{ inventory_hostname }}"
+                  - name: PVC_NAME
+                    value: "{{ pvc }}"
                 envFrom:
                   - secretRef:
                       name: "{{ app_name }}"
