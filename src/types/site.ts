@@ -52,6 +52,7 @@ export interface KubernetesSiteExtraInfo {
 	wordpressSiteName: string;
 	pvName: string;
 	pvcName: string;
+	namespace: string;
 }
 
 export const SITE_EXTRAS = [
