@@ -12,3 +12,5 @@ keybase_secrets: >-
 
 secrets: "{{ keybase_secrets[inventory_environment] }}"
 robot_pull: "{{ keybase_secrets.dockerconfig }}"
+
+pvc: "wordpress-data"
