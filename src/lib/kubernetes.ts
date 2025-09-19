@@ -552,6 +552,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			databaseRef: database?.spec?.mariaDbRef.name,
 			wordpressSiteName: k8sSite.metadata.name,
 			pvName: pvName,
+			pvcName: process.env.PVC_NAME || "wordpress-data",
 		} as KubernetesSiteExtraInfo;
 
 	} catch (error) {
