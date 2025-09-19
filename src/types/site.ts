@@ -51,6 +51,7 @@ export interface KubernetesSiteExtraInfo {
 	databaseRef: string;
 	wordpressSiteName: string;
 	pvName: string;
+	pvcName: string;
 }
 
 export const SITE_EXTRAS = [
