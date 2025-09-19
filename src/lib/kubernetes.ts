@@ -183,34 +183,28 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
 			urlSource = ensureNoSlashAtEnd(oldSite.url);
 
-			const pvcId = await getPersistentVolumeName(config.media.claimName);
-			if (pvcId) {
-				const namespace = await getNamespace();
-				const mediaPvcSubPath = `${namespace}-${config.media.claimName}-${pvcId}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
+			const namespace = await getNamespace();
+			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${namespace}-${config.media.claimName}-${oldSite.kubernetesExtraInfo?.pvcName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
 
-				restoreConfig = {
-					s3: {
-						bucket: config.s3.bucket,
-						endpoint: config.s3.endpoint,
-						region: config.s3.region || "eu-west-1",
-						secretKeyName: config.s3.secretName,
-						secretAccessKeySecretKeyRef: config.s3.secretAccessKeySecretKeyRef || "accessSecret",
-						accessKeyIdSecretKeyRef: config.s3.accessKeyIdSecretKeyRef || "keyId",
+			restoreConfig = {
+				s3: {
+					bucket: config.s3.bucket,
+					endpoint: config.s3.endpoint,
+					secretKeyName: config.s3.secretName,
+				},
+				wpDbBackupRef: {
+					mariaDBLookup: {
+						mariadbNameSource: dbRef,
+						databaseNameSource: dbName,
+						urlSource: urlSource,
+						mariadbSecretName: "mariadb",
 					},
-					wpDbBackupRef: {
-						mariaDBLookup: {
-							mariadbNameSource: dbRef,
-							databaseNameSource: dbName,
-							urlSource: urlSource,
-							mariadbSecretName: "mariadb",
-						},
-					},
-					mediaPersistentVolumeClaim: {
-						claimName: config.media.claimName,
-						subPath: mediaPvcSubPath,
-					},
-				};
-			}
+				},
+				mediaPersistentVolumeClaim: {
+					claimName: config.media.claimName,
+					subPath: mediaPvcSubPath,
+				},
+			};
 		}
 
 		return { dbName, dbRef, urlSource, config, restoreConfig };
@@ -549,12 +543,15 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			db.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid),
 		);
 
+		const pvName = await getPersistentVolumeName(process.env.PVC_NAME || "wordpress-data");
+
 		return {
 			siteId: k8sSite.metadata.uid,
 			ingressName: ingress?.metadata?.name,
 			databaseName: database?.metadata.name,
 			databaseRef: database?.spec?.mariaDbRef.name,
 			wordpressSiteName: k8sSite.metadata.name,
+			pvName: pvName,
 		} as KubernetesSiteExtraInfo;
 
 	} catch (error) {
