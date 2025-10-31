@@ -81,6 +81,7 @@ export interface KubernetesSite extends BaseSiteType {
 	title: string;
 	theme: string;
 	unitId: number;
+	unitName?: string;
 	languages: string[];
 	categories: string[];
 	downloadsProtectionScript: boolean;

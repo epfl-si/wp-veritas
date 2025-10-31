@@ -222,7 +222,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 
 
 	const tempSite = createTempSite();
-	const plugins = getKubernetesPluginStruct(tempSite);
+	const plugins = await getKubernetesPluginStruct(tempSite);
 	const backupConfig = await getBackupConfigForSite();
 
 	return {

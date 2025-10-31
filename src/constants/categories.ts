@@ -91,6 +91,7 @@ export const WP_CATEGORIES = {
 					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
 					{ name: "plugin:epfl_accred:subscriber_group", value: site.categories.includes(WP_CATEGORIES.INSIDE.NAME) ? "*" : "" },
 					{ name: "plugin:epfl_accred:unit_id", value: site.unitId },
+					{ name: "plugin:epfl_accred:unit", value: site.unitName },
 				],
 			},
 			"epfl-cache-control": {
