@@ -9,4 +9,4 @@ all:
     route:
       host: wp-veritas.epfl.ch
       availability: public
-    tag: 6.13.3
+    tag: 6.13.5
