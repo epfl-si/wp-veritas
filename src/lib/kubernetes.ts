@@ -367,7 +367,7 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 				categories: kubernetesSiteData.categories || [],
 				unitId: kubernetesSiteData.unitId,
 			};
-			const plugins = getKubernetesPluginStruct(tempSite);
+			const plugins = await getKubernetesPluginStruct(tempSite);
 			patchOperations.push({
 				op: "replace",
 				path: "/spec/wordpress/plugins",
