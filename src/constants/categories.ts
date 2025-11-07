@@ -245,6 +245,7 @@ export const WP_CATEGORIES = {
 				],
 			},
 			"tinymce-advanced": {},
+			"simple-history": {},
 			"very-simple-meta-description": {},
 			"wp-gutenberg-epfl": {},
 			"wp-media-folder": {
