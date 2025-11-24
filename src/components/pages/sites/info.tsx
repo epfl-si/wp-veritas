@@ -290,7 +290,7 @@ export const SiteInfo: React.FC = () => {
 						<span className="text-sm font-semibold text-gray-700">{t("info.details.permissions")}</span>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div className="w-full">
 						<div className="p-3 bg-blue-50 rounded-lg">
 							<div className="flex items-center gap-2 mb-2">
 								<Edit className="w-4 h-4 text-blue-600" />
@@ -303,23 +303,6 @@ export const SiteInfo: React.FC = () => {
 								{site.permissions.editors.map((editor, index) => (
 									<Badge key={index} variant="outline" className="text-xs">
 										{editor.name}
-									</Badge>
-								))}
-							</div>
-						</div>
-
-						<div className="p-3 bg-green-50 rounded-lg">
-							<div className="flex items-center gap-2 mb-2">
-								<Shield className="w-4 h-4 text-green-600" />
-								<span className="text-sm font-medium text-green-900">{t("info.details.accreditors")}</span>
-								<Badge variant="outline" className="text-xs">
-									{site.permissions.accreditors.length}
-								</Badge>
-							</div>
-							<div className="flex flex-wrap gap-1">
-								{site.permissions.accreditors.map((accreditor, index) => (
-									<Badge key={index} variant="secondary" className="text-xs">
-										{accreditor}
 									</Badge>
 								))}
 							</div>
