@@ -256,8 +256,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			defaultValues: {
 				infrastructure: site.infrastructure || "kubernetes",
 				url: site.url || "",
-				title: isKubernetesSite(site) ? decode(site.title) : (site.title ? decode(site.title) : ""),
-				tagline: isKubernetesSite(site) ? decode(site.tagline) : (site.tagline ? decode(site.tagline) : ""),
+				title: "title" in site && site.title ? decode(site.title) : "",
+				tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
 				theme: (isKubernetesSite(site) && site.theme) || "",
 				unitId: (isKubernetesSite(site) && site.unitId) || 0,
 				languages: (isKubernetesSite(site) && site.languages) || [],
