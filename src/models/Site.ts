@@ -7,6 +7,8 @@ export interface ISite extends Document {
 	id: string;
 	url: string;
 	infrastructure: InfrastructureName;
+	title?: string;
+	tagline?: string;
 	ticket?: string;
 	comment?: string;
 	monitored?: boolean;
@@ -21,6 +23,8 @@ const siteSchema = new mongoose.Schema<ISite>({
 		required: true,
 		enum: Object.values(INFRASTRUCTURES).map((infra) => infra.NAME) as InfrastructureName[],
 	},
+	title: { type: String, required: false },
+	tagline: { type: String, required: false },
 	ticket: { type: String, required: false },
 	comment: { type: String, required: false },
 	monitored: { type: Boolean, required: false, default: false },

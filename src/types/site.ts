@@ -90,6 +90,8 @@ export interface KubernetesSite extends BaseSiteType {
 
 export interface DatabaseSite extends BaseSiteType {
 	infrastructure: DatabaseInfrastructureName;
+	title?: string;
+	tagline?: string;
 }
 
 export interface NoneSite extends BaseSiteType {
@@ -150,6 +152,8 @@ export interface KubernetesSiteFormType extends BaseSiteFormType {
 
 export interface DatabaseSiteFormType extends BaseSiteFormType {
 	infrastructure: DatabaseInfrastructureName;
+	title?: string;
+	tagline?: string;
 }
 
 export interface NoneSiteFormType extends BaseSiteFormType {
@@ -216,11 +220,27 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 			}),
 		);
 
+	const databaseFields = {
+		title: z
+			.string({
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.min(3, { message: errorMessages.too_small(3) })
+			.optional(),
+		tagline: z
+			.string({
+				invalid_type_error: errorMessages.invalid_type,
+			})
+			.min(3, { message: errorMessages.too_small(3) })
+			.optional(),
+	};
+
 	const databaseSchemas = creatableInfras
 		.filter((infra) => infra.PERSISTENCE === "database")
 		.map((infra) =>
 			z.object({
 				...baseFields,
+				...databaseFields,
 				infrastructure: z.literal(infra.NAME as DatabaseInfrastructureName),
 			}),
 		);

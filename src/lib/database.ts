@@ -23,6 +23,8 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 			infrastructure: site.infrastructure as DatabaseSite["infrastructure"],
 			createdAt: site.createdAt || new Date(),
 			tags: [],
+			title: site.title,
+			tagline: site.tagline,
 			ticket: site.ticket,
 			comment: site.comment,
 			monitored: site.monitored,
@@ -50,7 +52,7 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 			const sites = await SiteModel.find({
 				infrastructure: { $in: persistentInfrastructures },
 			})
-				.select("id url infrastructure createdAt ticket comment monitored")
+				.select("id url infrastructure title tagline createdAt ticket comment monitored")
 				.sort("-createdAt")
 				.lean();
 
@@ -60,6 +62,8 @@ export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; err
 				infrastructure: site.infrastructure as DatabaseSite["infrastructure"],
 				createdAt: site.createdAt || new Date(),
 				tags: [],
+				title: site.title,
+				tagline: site.tagline,
 				ticket: site.ticket,
 				comment: site.comment,
 				monitored: site.monitored,
@@ -97,6 +101,8 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 			url: ensureSlashAtEnd(databaseSite.url),
 			infrastructure: databaseSite.infrastructure,
 			createdAt: new Date(),
+			title: databaseSite.title,
+			tagline: databaseSite.tagline,
 			ticket: databaseSite.ticket,
 			comment: databaseSite.comment,
 			monitored: databaseSite.monitored,
@@ -247,6 +253,8 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			infrastructure: databaseSite.infrastructure,
 		};
 
+		if (databaseSite.title !== undefined) updateData.title = databaseSite.title;
+		if (databaseSite.tagline !== undefined) updateData.tagline = databaseSite.tagline;
 		if (databaseSite.ticket !== undefined) updateData.ticket = databaseSite.ticket;
 		if (databaseSite.comment !== undefined) updateData.comment = databaseSite.comment;
 
@@ -263,6 +271,8 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			infrastructure: updatedSite.infrastructure as DatabaseSite["infrastructure"],
 			createdAt: updatedSite.createdAt || new Date(),
 			tags: [],
+			title: updatedSite.title,
+			tagline: updatedSite.tagline,
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
 			monitored: updatedSite.monitored,
