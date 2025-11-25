@@ -2,10 +2,10 @@ import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
 import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
-import { isKubernetesSite } from "@/types/site";
 import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
 import { ensureSlashAtEnd } from "@/lib/utils";
+import { decode } from "html-entities";
 
 /**
  * @swagger
@@ -183,7 +183,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 					monitored: existing?.monitored ?? site.monitored,
 					tags: tagMap.get(site.id) || [],
 					createdAt: site.createdAt,
-					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline } : {}),
+					title: "title" in site && site.title ? decode(site.title) : "",
+					tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
 				});
 			});
 
