@@ -116,8 +116,8 @@ export const SiteAdd: React.FC = () => {
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 						type: "display",
 					},
 				],
@@ -132,8 +132,8 @@ export const SiteAdd: React.FC = () => {
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 						type: "display",
 					},
 				],
@@ -371,8 +371,8 @@ export const SiteAdd: React.FC = () => {
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 					},
 				],
 			},
