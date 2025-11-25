@@ -53,12 +53,12 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				placeholder: t("form.title.placeholder"),
 				section: "details",
 				width: "half",
-				disabled: true,
+				disabled: false,
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 						type: "display",
 					},
 				],
@@ -70,12 +70,12 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				placeholder: t("form.tagline.placeholder"),
 				section: "details",
 				width: "half",
-				disabled: true,
+				disabled: false,
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 						type: "display",
 					},
 				],
@@ -225,8 +225,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				conditions: [
 					{
 						field: "infrastructure",
-						operator: "equals",
-						value: "Kubernetes",
+						operator: "regex",
+						value: "^(Kubernetes|External|LAMP|Archived)$",
 					},
 				],
 			},
@@ -256,8 +256,8 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			defaultValues: {
 				infrastructure: site.infrastructure || "kubernetes",
 				url: site.url || "",
-				title: (isKubernetesSite(site) && decode(site.title)) || "",
-				tagline: (isKubernetesSite(site) && decode(site.tagline)) || "",
+				title: isKubernetesSite(site) ? decode(site.title) : (site.title ? decode(site.title) : ""),
+				tagline: isKubernetesSite(site) ? decode(site.tagline) : (site.tagline ? decode(site.tagline) : ""),
 				theme: (isKubernetesSite(site) && site.theme) || "",
 				unitId: (isKubernetesSite(site) && site.unitId) || 0,
 				languages: (isKubernetesSite(site) && site.languages) || [],
