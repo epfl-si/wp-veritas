@@ -185,6 +185,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 					tags: tagMap.get(site.id) || [],
 					createdAt: site.createdAt,
 					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline, theme: site.theme, unitId: site.unitId, languages: site.languages, categories: site.categories, downloadsProtectionScript: site.downloadsProtectionScript } : {}),
+					...(!isKubernetesSite(site) && (site.title || site.tagline) ? { title: site.title, tagline: site.tagline } : {}),
 				});
 			});
 
