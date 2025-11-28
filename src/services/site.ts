@@ -617,6 +617,11 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			return { error: { status: 403, message: "Forbidden", success: false } };
 		}
 
+		let normalizedUrl = url.trim();
+		if (!normalizedUrl.match(/^https?:\/\//i)) {
+			normalizedUrl = `https://${normalizedUrl}`;
+		}
+
 		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
 
 		const kubernetesSites = kubernetesResult.sites || [];
@@ -647,7 +652,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 		const filteredSites = sites
 			.filter((site) => {
 				try {
-					const [siteUrl, searchUrl] = [new URL(site.url), new URL(url)];
+					const [siteUrl, searchUrl] = [new URL(site.url), new URL(normalizedUrl)];
 					if (siteUrl.hostname !== searchUrl.hostname) return false;
 					const [sitePath, searchPath] = [siteUrl.pathname.replace(/\/$/, "") || "/", searchUrl.pathname.replace(/\/$/, "") || "/"];
 					return sitePath === searchPath || searchPath.startsWith(sitePath + "/") || (sitePath === "/" && searchPath.startsWith("/"));
@@ -679,7 +684,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 
 		const searchSites = await Promise.all(
 			filteredSites.map(async (site) => {
-				const [revisions, lastChange] = await Promise.all([fetchWpData("lastrevisions", site.url), fetchWpData(`lastchange?url=${url}`, site.url)]);
+				const [revisions, lastChange] = await Promise.all([fetchWpData("lastrevisions", site.url), fetchWpData(`lastchange?url=${normalizedUrl}`, site.url)]);
 
 				type Revision = { username: string; last_modified: string; post_title?: string; post_url?: string };
 				const userIds = [...(revisions?.map((r: Revision) => r.username).filter(Boolean) || []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
