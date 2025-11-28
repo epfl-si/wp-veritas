@@ -160,7 +160,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 export async function updateSite(siteId: string, site: SiteFormType): Promise<{ error?: APIError }> {
 	try {
-		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", ...SITE_EXTRAS];
+		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", "title", "tagline", ...SITE_EXTRAS];
 
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
 			await warn("Permission denied to update the site.", {
@@ -205,7 +205,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 		const changeDetails: Record<string, { from: unknown; to: unknown }> = {};
 
 		for (const field of UPDATABLE_FIELDS) {
-			if (field in site && field in existingSite) {
+			if (field in site) {
 				const newValue = site[field as keyof SiteFormType];
 				const existingValue = existingSite[field as keyof typeof existingSite];
 				let hasChanged = false;
