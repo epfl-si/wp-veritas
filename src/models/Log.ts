@@ -1,7 +1,6 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface ILog extends Document {
-	_id: ObjectId;
 	id: string;
 	message: string;
 	data: {
