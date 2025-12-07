@@ -1,7 +1,6 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface ITheme extends Document {
-	_id: ObjectId;
 	name: string;
 }
 

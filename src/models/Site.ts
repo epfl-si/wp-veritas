@@ -1,9 +1,8 @@
-import mongoose, { Document, ObjectId } from "mongoose";
+import mongoose, { Document } from "mongoose";
 import type { InfrastructureName } from "@/types/infrastructure";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 
 export interface ISite extends Document {
-	_id: ObjectId;
 	id: string;
 	url: string;
 	infrastructure: InfrastructureName;
