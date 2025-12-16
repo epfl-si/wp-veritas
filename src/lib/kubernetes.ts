@@ -8,6 +8,7 @@ import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { cache, withCache } from "./redis";
 import { getBackupConfig } from "@/services/backup";
+import { createApplication } from "./entra";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -138,6 +139,16 @@ async function getPersistentVolumeName(pvcName: string): Promise<string | null> 
 async function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
 
+	const getEntraConfig = async () => {
+		const app = await createApplication(tempSite);
+		return {
+			clientId: app.App.appId,
+			tenantId: process.env.AUTH_MICROSOFT_ENTRA_ISSUER || "",
+		};
+	};
+
+	const entraConfig = await getEntraConfig();
+
 	const createTempSite = () => ({
 		id: "temp",
 		url: site.url,
@@ -151,6 +162,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		downloadsProtectionScript: site.downloadsProtectionScript || false,
 		managed: true,
 		createdAt: new Date(),
+		entra: entraConfig,
 		tags: [],
 	});
 
