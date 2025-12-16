@@ -86,14 +86,6 @@ export const WP_CATEGORIES = {
 				],
 			},
 			pushgateway: {},
-			accred: {
-				wp_options: [
-					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
-					{ name: "plugin:epfl_accred:subscriber_group", value: site.categories.includes(WP_CATEGORIES.INSIDE.NAME) ? "*" : "" },
-					{ name: "plugin:epfl_accred:unit_id", value: site.unitId },
-					{ name: "plugin:epfl_accred:unit", value: site.unitName },
-				],
-			},
 			"epfl-cache-control": {
 				wp_options: [
 					{ name: "cache_control_front_page_max_age", value: 300 },
@@ -128,12 +120,6 @@ export const WP_CATEGORIES = {
 			"EPFL-Content-Filter": {},
 			"epfl-remote-content-shortcode": {},
 			"EPFL-settings": {},
-			tequila: {
-				wp_options: [
-					{ name: "plugin:epfl_tequila:has_dual_auth", value: 0 },
-					{ name: "plugin:epfl:tequila_allowed_request_hosts", value: "10.180.21.0/24" },
-				],
-			},
 			"ewww-image-optimizer": {
 				wp_options: [
 					{ name: "exactdn_all_the_things", value: "" },
