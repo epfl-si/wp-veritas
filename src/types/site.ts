@@ -85,6 +85,10 @@ export interface KubernetesSite extends BaseSiteType {
 	languages: string[];
 	categories: string[];
 	downloadsProtectionScript: boolean;
+	entra?: {
+		clientId: string;
+		tenantId: string;
+	};
 	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
 }
 
