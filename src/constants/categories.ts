@@ -231,7 +231,12 @@ export const WP_CATEGORIES = {
 				],
 			},
 			"tinymce-advanced": {},
-			"simple-history": {},
+			"simple-history": {
+				wp_options: [
+					{ name: "simple_history_show_on_dashboard", value: 0 },
+					{ name: "simple_history_settings", value: 0 },
+				],
+			},
 			"very-simple-meta-description": {},
 			"wp-gutenberg-epfl": {},
 			"wp-media-folder": {
