@@ -402,16 +402,23 @@ export const WP_CATEGORIES = {
 				],
 			},
 			"openid-connect-generic": {},
-			"wordpress.plugin.accred.entra": {},
+			"accred.entra": {
+				wp_options: [
+					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
+					{ name: "plugin:epfl_accred:subscriber_group", value: site.categories.includes(WP_CATEGORIES.INSIDE.NAME) ? "*" : "" },
+					{ name: "plugin:epfl_accred:unit_id", value: site.unitId },
+					{ name: "plugin:epfl_accred:unit", value: site.unitName },
+				],
+			},
 			"wp-epfl-openid-configuration": {
 				wp_options: [
 					{ name: "openid_connect_generic_settings", value: {
-						"login_type": "button",
+						"login_type": "auto",
 						"client_id": site.entra?.clientId || "",
 						"client_secret": "",
 						"scope": `openid profile email ${site.entra?.clientId}/.default`,
-						"endpoint_login": "https://login.microsoftonline.com/f6c2556a-c4fb-4ab1-a2c7-9e220df11c43/oauth2/v2.0/authorize",
-						"endpoint_token": "https://login.microsoftonline.com/f6c2556a-c4fb-4ab1-a2c7-9e220df11c43/oauth2/v2.0/token",
+						"endpoint_login": `https://login.microsoftonline.com/${process.env.AUTH_MICROSOFT_ENTRA_TENANT_ID}/oauth2/v2.0/authorize`,
+						"endpoint_token": `https://login.microsoftonline.com/${process.env.AUTH_MICROSOFT_ENTRA_TENANT_ID}/oauth2/v2.0/token`,
 						"endpoint_userinfo": "",
 						"endpoint_end_session": "",
 						"acr_values": "",
