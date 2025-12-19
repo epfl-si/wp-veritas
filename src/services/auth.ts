@@ -10,7 +10,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 		MicrosoftEntraID({
 			clientId: process.env.AUTH_MICROSOFT_ENTRA_ID!,
 			clientSecret: process.env.AUTH_MICROSOFT_ENTRA_SECRET!,
-			issuer: process.env.AUTH_MICROSOFT_ENTRA_ISSUER!,
+			issuer: process.env.AUTH_MICROSOFT_ENTRA_ISSUER + "/v2.0",
 			authorization: {
 				params: {
 					scope: "openid email profile",
