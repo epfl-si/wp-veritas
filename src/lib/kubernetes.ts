@@ -139,33 +139,6 @@ async function getPersistentVolumeName(pvcName: string): Promise<string | null> 
 async function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
 	const url = new URL(site.url);
 
-	const getEntraConfig = async () => {
-		const app = await createApplication(tempSite);
-		return {
-			clientId: app.App.appId,
-			tenantId: process.env.AUTH_MICROSOFT_ENTRA_ISSUER || "",
-		};
-	};
-
-	const entraConfig = await getEntraConfig();
-
-	const createTempSite = () => ({
-		id: "temp",
-		url: site.url,
-		infrastructure: "Kubernetes" as const,
-		tagline: site.tagline,
-		title: site.title,
-		theme: site.theme,
-		unitId: site.unitId,
-		languages: site.languages,
-		categories: site.categories || [],
-		downloadsProtectionScript: site.downloadsProtectionScript || false,
-		managed: true,
-		createdAt: new Date(),
-		entra: entraConfig,
-		tags: [],
-	});
-
 	const getBackupConfigForSite = async () => {
 		let dbName = null;
 		let dbRef = null;
@@ -221,6 +194,35 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		return { dbName, dbRef, urlSource, config, restoreConfig };
 	};
 
+	const app = await createApplication({
+		title: site.title,
+		url: site.url,
+		infrastructure: site.infrastructure,
+	} as KubernetesSite);
+
+	const tempSite: KubernetesSite = {
+		id: "temp",
+		url: site.url,
+		infrastructure: "Kubernetes",
+		tagline: site.tagline,
+		title: site.title,
+		theme: site.theme,
+		unitId: site.unitId,
+		languages: site.languages,
+		categories: site.categories || [],
+		downloadsProtectionScript: site.downloadsProtectionScript || false,
+		managed: true,
+		createdAt: new Date(),
+		tags: [],
+		entra: {
+			clientId: app.App.appId,
+			tenantId: process.env.AUTH_MICROSOFT_ENTRA_ISSUER || "",
+		},
+	};
+
+	const plugins = await getKubernetesPluginStruct(tempSite);
+	const backupConfig = await getBackupConfigForSite();
+
 	const createWordPressConfig = (plugins: WordPressPlugins) => ({
 		debug: false,
 		title: site.title,
@@ -231,11 +233,6 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			downloadsProtectionScript: "/wp/wp-content/plugins/epfl-intranet/inc/protect-medias.php",
 		}),
 	});
-
-
-	const tempSite = createTempSite();
-	const plugins = await getKubernetesPluginStruct(tempSite);
-	const backupConfig = await getBackupConfigForSite();
 
 	return {
 		apiVersion: `${WORDPRESS_GROUP}/${WORDPRESS_VERSION}`,
