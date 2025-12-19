@@ -8,7 +8,7 @@ export async function generateToken(): Promise<string> {
 	params.append("scope", "api://" + (process.env.AUTH_MICROSOFT_ENTRA_ID ?? "") + "/.default");
 	params.append("grant_type", "client_credentials");
 
-	const response = await fetch(`https://login.microsoftonline.com/${process.env.AUTH_MICROSOFT_ENTRA_TENANT_ID}/oauth2/v2.0/token`, {
+	const response = await fetch(`${process.env.AUTH_MICROSOFT_ENTRA_ISSUER}/oauth2/v2.0/token`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
@@ -33,7 +33,7 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 	}
 
 	const body = {
-		authorizedUsers: [],
+		authorizedUsers: ["AAD_All Outside EPFL Users", "AAD_All Hosts Users", "AAD_All Student Users", "AAD_All Staff Users"],
 		config_desc: `Application for ${site.title}`,
 		description: `Application for ${site.title}`,
 		displayName: "WORDPRESS - " + site.title,
@@ -41,7 +41,7 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 		notes: `Entra application for WordPress site ${site.title} (${site.url}) managed by WP-Veritas.`,
 		spa: {
 			redirectUris: [
-				"http://localhost:8080",
+				`${site.url}/wp-admin/admin-ajax.php?action=openid-connect-authorize`,
 			],
 		},
 		unitID: "13030",
