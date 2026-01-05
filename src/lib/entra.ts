@@ -3,12 +3,12 @@ import { isKubernetesSite, SiteType } from "@/types/site";
 
 export async function generateToken(): Promise<string> {
 	const params = new URLSearchParams();
-	params.append("client_id", process.env.AUTH_MICROSOFT_ENTRA_ID ?? "");
-	params.append("client_secret", process.env.AUTH_MICROSOFT_ENTRA_SECRET ?? "");
-	params.append("scope", "api://" + (process.env.AUTH_MICROSOFT_ENTRA_ID ?? "") + "/.default");
+	params.append("client_id", process.env.ENTRA_APP_CLIENT_ID!);
+	params.append("client_secret", process.env.ENTRA_APP_CLIENT_SECRET!);
+	params.append("scope", "api://" + (process.env.ENTRA_APP_CLIENT_ID!) + "/.default");
 	params.append("grant_type", "client_credentials");
 
-	const response = await fetch(`${process.env.AUTH_MICROSOFT_ENTRA_ISSUER}/oauth2/v2.0/token`, {
+	const response = await fetch(`https://login.microsoftonline.com/${process.env.ENTRA_APP_TENANT_ID}/oauth2/v2.0/token`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/x-www-form-urlencoded",
@@ -37,7 +37,7 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 		config_desc: `Application for ${site.title}`,
 		description: `Application for ${site.title}`,
 		displayName: "WORDPRESS - " + site.title,
-		environmentID: 2,
+		environmentID: process.env.NODE_ENV === "production" ? 1 : 2,
 		notes: `Entra application for WordPress site ${site.title} (${site.url}) managed by WP-Veritas.`,
 		spa: {
 			redirectUris: [
