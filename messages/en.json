@@ -163,6 +163,10 @@
 				"server": "Server error",
 				"notFound": "The website is not managed in the DSI infrastructure"
 			},
+			"urlNotFound": {
+				"title": "This address cannot be found (404 error)",
+				"message": "Please check if this is a typo. The information below points to the closest site in the navigation hierarchy (parent site) and may not be relevant to your context."
+			},
 			"details": {
 				"title": "Website Details",
 				"description": "Information and permissions",

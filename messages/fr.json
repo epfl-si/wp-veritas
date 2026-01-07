@@ -163,6 +163,10 @@
 				"server": "Erreur du serveur",
 				"notFound": "Le site n'est pas géré dans l'infrastructure de la DSI"
 			},
+			"urlNotFound": {
+				"title": "Cette adresse est introuvable (erreur 404)",
+				"message": "Veuillez vérifier qu'il ne s'agisse pas d'une faute de frappe. Les informations affichées ci-dessous concernent le site parent le plus proche dans la hiérarchie et peuvent ne pas correspondre à votre recherche."
+			},
 			"details": {
 				"title": "Détails du site",
 				"description": "Informations et permissions",
