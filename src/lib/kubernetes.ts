@@ -216,7 +216,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		tags: [],
 		entra: {
 			clientId: app.App.appId,
-			tenantId: process.env.AUTH_MICROSOFT_ENTRA_ISSUER || "",
+			tenantId: process.env.ENTRA_WORDPRESS_TENANT_ID || "",
 		},
 	};
 

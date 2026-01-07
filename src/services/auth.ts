@@ -8,9 +8,9 @@ const decodeJWT = (token: string) => JSON.parse(Buffer.from(token.split(".")[1],
 export const { handlers, signIn, signOut, auth } = NextAuth({
 	providers: [
 		MicrosoftEntraID({
-			clientId: process.env.AUTH_MICROSOFT_ENTRA_ID!,
-			clientSecret: process.env.AUTH_MICROSOFT_ENTRA_SECRET!,
-			issuer: process.env.AUTH_MICROSOFT_ENTRA_ISSUER + "/v2.0",
+			clientId: process.env.ENTRA_APP_CLIENT_ID!,
+			clientSecret: process.env.ENTRA_APP_CLIENT_SECRET!,
+			issuer: `https://login.microsoftonline.com/${process.env.ENTRA_APP_TENANT_ID}/v2.0`,
 			authorization: {
 				params: {
 					scope: "openid email profile",
