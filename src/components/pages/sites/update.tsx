@@ -53,7 +53,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				placeholder: t("form.title.placeholder"),
 				section: "details",
 				width: "half",
-				disabled: false,
+				disabled: true,
 				conditions: [
 					{
 						field: "infrastructure",
@@ -70,7 +70,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				placeholder: t("form.tagline.placeholder"),
 				section: "details",
 				width: "half",
-				disabled: false,
+				disabled: true,
 				conditions: [
 					{
 						field: "infrastructure",
