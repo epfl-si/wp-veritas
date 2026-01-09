@@ -419,12 +419,12 @@ export const WP_CATEGORIES = {
 				wp_options: [
 					{ name: "openid_connect_generic_settings", value: {
 						"login_type": "auto",
-						"client_id": site.entra?.clientId || "",
+						"client_id": site.entra?.appId || "",
 						"client_secret": "",
-						"scope": `openid profile email ${site.entra?.clientId}/.default`,
+						"scope": `openid profile email ${site.entra?.appId}/.default`,
 						"endpoint_login": `https://login.microsoftonline.com/${process.env.ENTRA_WORDPRESS_TENANT_ID}/oauth2/v2.0/authorize`,
 						"endpoint_token": `https://login.microsoftonline.com/${process.env.ENTRA_WORDPRESS_TENANT_ID}/oauth2/v2.0/token`,
-						"endpoint_userinfo": "",
+						"endpoint_userinfo": "https://api.epfl.ch/v1/oidc/userinfo",
 						"endpoint_end_session": "",
 						"acr_values": "",
 						"no_sslverify": "",
