@@ -34,6 +34,7 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 
 	const body = {
 		authorizedUsers: ["AAD_All Outside EPFL Users", "AAD_All Hosts Users", "AAD_All Student Users", "AAD_All Staff Users"],
+		config_desc: `WordPress site ${site.tagline} (${site.url})`,
 		description: `WordPress site ${site.tagline} (${site.url})`,
 		displayName: "WP (" + site.tagline + ")",
 		environmentID: process.env.NODE_ENV === "production" ? 1 : 2,
