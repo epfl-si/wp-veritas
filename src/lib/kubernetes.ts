@@ -115,6 +115,10 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		downloadsProtectionScript: Boolean(item.spec.wordpress.downloadsProtectionScript),
 		managed: item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-veritas" && !isTemporary,
+		entra: {
+			appId: item.spec.appPortal?.appId || "",
+			tenantId: process.env.ENTRA_WORDPRESS_TENANT_ID || "",
+		},
 		tags: [],
 		ticket: undefined,
 		comment: undefined,
@@ -196,6 +200,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 
 	const app = await createApplication({
 		title: site.title,
+		tagline: site.tagline,
 		url: site.url,
 		infrastructure: site.infrastructure,
 	} as KubernetesSite);
@@ -215,7 +220,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		createdAt: new Date(),
 		tags: [],
 		entra: {
-			clientId: app.App.appId,
+			appId: app.App.appId,
 			tenantId: process.env.ENTRA_WORDPRESS_TENANT_ID || "",
 		},
 	};
@@ -254,6 +259,9 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			...(site.createFromBackup && backupConfig.restoreConfig && {
 				restore: backupConfig.restoreConfig,
 			}),
+			appPortal: {
+				appId: app.App.appId,
+			},
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
 		},
