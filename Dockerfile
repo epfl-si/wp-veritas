@@ -17,6 +17,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+RUN apk add --no-cache imagemagick && wget -qO- https://epfl-si.github.io/elements/svg/epfl-logo.svg | convert -resize 256x256 -background transparent svg:- ./src/app/favicon.ico && apk del imagemagick
+
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_DISABLE_ESLINT=true
 
