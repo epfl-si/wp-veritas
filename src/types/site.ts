@@ -33,6 +33,9 @@ export interface KubernetesSiteType {
 			theme: string;
 			title: string;
 		};
+		appPortal?: {
+			appId: string;
+		};
 	};
 	status?: {
 		wordpresssite?: {
@@ -86,7 +89,7 @@ export interface KubernetesSite extends BaseSiteType {
 	categories: string[];
 	downloadsProtectionScript: boolean;
 	entra?: {
-		clientId: string;
+		appId: string;
 		tenantId: string;
 	};
 	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
