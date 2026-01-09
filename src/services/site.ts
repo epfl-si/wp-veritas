@@ -622,6 +622,8 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			normalizedUrl = `https://${normalizedUrl}`;
 		}
 
+		const urlNotFound = await fetch(normalizedUrl, { method: "HEAD" }).then(r => r.status === 404).catch(() => false);
+
 		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
 
 		const kubernetesSites = kubernetesResult.sites || [];
@@ -729,6 +731,8 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 						accreditors: ["admin.epfl", "mediacom.admin"],
 					},
 					...(kubernetesExtraInfo && { kubernetesExtraInfo }),
+					urlNotFound,
+					searchedUrl: normalizedUrl,
 				};
 			}),
 		);

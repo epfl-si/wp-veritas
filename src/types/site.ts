@@ -131,6 +131,8 @@ export interface SearchSiteType {
 		accreditors: string[];
 	};
 	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
+	urlNotFound?: boolean;
+	searchedUrl?: string;
 }
 
 interface BaseSiteFormType {
