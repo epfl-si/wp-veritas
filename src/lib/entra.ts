@@ -34,11 +34,10 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 
 	const body = {
 		authorizedUsers: ["AAD_All Outside EPFL Users", "AAD_All Hosts Users", "AAD_All Student Users", "AAD_All Staff Users"],
-		config_desc: `Application for ${site.title}`,
-		description: `Application for ${site.title}`,
-		displayName: "WORDPRESS - " + site.title,
+		description: `WordPress site ${site.tagline} (${site.url})`,
+		displayName: "WP (" + site.tagline + ")",
 		environmentID: process.env.NODE_ENV === "production" ? 1 : 2,
-		notes: `Entra application for WordPress site ${site.title} (${site.url}) managed by WP-Veritas.`,
+		notes: `Entra application for WordPress site ${site.tagline} (${site.url}) managed by WP-Veritas.`,
 		spa: {
 			redirectUris: [
 				`${site.url}/wp-admin/admin-ajax.php?action=openid-connect-authorize`,
@@ -65,10 +64,10 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 	return data;
 }
 
-export async function deleteApplication(applicationId: string): Promise<void> {
+export async function deleteApplication(appId: string): Promise<void> {
 	const token = await generateToken();
 
-	const response = await fetch(`https://graph.microsoft.com/v1.0/applications/${applicationId}`, {
+	const response = await fetch(`${process.env.APP_PORTAL_URL}/app-portal-api/v1/portal/oidc-apps/${appId}`, {
 		method: "DELETE",
 		headers: {
 			"Authorization": `Bearer ${token}`,
@@ -76,6 +75,7 @@ export async function deleteApplication(applicationId: string): Promise<void> {
 	});
 
 	if (!response.ok) {
-		throw new Error(`Failed to delete application: ${response.status} ${response.statusText}`);
+		const responseText = await response.text();
+		throw new Error(`Failed to delete application: ${response.status} ${responseText}`);
 	}
 }
