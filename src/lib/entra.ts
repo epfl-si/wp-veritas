@@ -37,7 +37,7 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 		config_desc: `WordPress site ${site.tagline} (${site.url})`,
 		description: `WordPress site ${site.tagline} (${site.url})`,
 		displayName: "WP (" + site.tagline + ")",
-		environmentID: process.env.NODE_ENV === "production" ? 1 : 2,
+		environmentID: process.env.NODE_ENV === "production" ? 3 : 2,
 		notes: `Entra application for WordPress site ${site.tagline} (${site.url}) managed by WP-Veritas.`,
 		spa: {
 			redirectUris: [
