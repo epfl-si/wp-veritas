@@ -203,6 +203,9 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		tagline: site.tagline,
 		url: site.url,
 		infrastructure: site.infrastructure,
+		kubernetesExtraInfo: {
+			wordpressSiteName: name,
+		},
 	} as KubernetesSite);
 
 	const tempSite: KubernetesSite = {
