@@ -435,7 +435,7 @@ export const WP_CATEGORIES = {
 						"displayname_format": "",
 						"identify_with_username": "",
 						"state_time_limit": "",
-						"enforce_privacy": "1",
+						"enforce_privacy": "0",
 						"alternate_redirect_uri": "",
 						"token_refresh_enable": "",
 						"link_existing_users": "1",
