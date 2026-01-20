@@ -34,11 +34,11 @@ export async function createApplication(site: SiteType): Promise<EntraApplicatio
 
 	const body = {
 		authorizedUsers: ["AAD_All Outside EPFL Users", "AAD_All Hosts Users", "AAD_All Student Users", "AAD_All Staff Users"],
-		config_desc: `WordPress site ${site.tagline} (${site.url})`,
-		description: `WordPress site ${site.tagline} (${site.url})`,
-		displayName: "WP (" + site.tagline + ")" + process.env.NODE_ENV === "production" ? "" : " - Test",
-		environmentID: process.env.NODE_ENV === "production" ? 3 : 2,
-		notes: `Entra application for WordPress site ${site.tagline} (${site.url}) managed by WP-Veritas.`,
+		config_desc: `WordPress site ${site.url}`,
+		description: `Application for site ${site.tagline}`,
+		displayName: `EPFL - WP (${site.kubernetesExtraInfo?.wordpressSiteName})${process.env.ENV === "prod" ? "" : " - Test"}`,
+		environmentID: process.env.ENV === "prod" ? 3 : 2,
+		notes: `Entra application for WordPress site (${site.url}) managed by WP-Veritas.`,
 		spa: {
 			redirectUris: [
 				`${site.url}/wp-admin/admin-ajax.php?action=openid-connect-authorize`,
