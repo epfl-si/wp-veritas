@@ -1,7 +1,7 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form";
+import Form, { FormConfig, FieldConfig, SectionConfig, SelectOption } from "@/components/form";
 import { isKubernetesSite, SiteFormType, siteSchema, SiteType } from "@/types/site";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
@@ -18,6 +18,29 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 	const t = useTranslations("site");
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
+	const [units, setUnits] = useState<SelectOption[]>([]);
+	const [loadingUnits, setLoadingUnits] = useState(false);
+
+	useEffect(() => {
+		const loadUnits = async () => {
+			setLoadingUnits(true);
+			try {
+				const response = await fetch("/api/units");
+				if (response.ok) {
+					const data = await response.json();
+					setUnits(data.items.map((u: { unitId: string; name: string }) => ({
+						value: Number(u.unitId),
+						label: `${u.name} (${u.unitId})`,
+					})));
+				}
+			} catch (error) {
+				console.error("Error loading units:", error);
+			} finally {
+				setLoadingUnits(false);
+			}
+		};
+		loadUnits();
+	}, []);
 
 	const getFormConfig = (): FormConfig<SiteFormType> => {
 		const fields: FieldConfig[] = [
@@ -116,11 +139,13 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			},
 			{
 				name: "unitId",
-				type: "number",
+				type: "search",
 				label: t("form.unitId.label"),
-				placeholder: t("form.unitId.placeholder"),
+				placeholder: loadingUnits ? "Loading..." : t("form.unitId.placeholder"),
 				section: "details",
 				width: "half",
+				options: units,
+				disabled: loadingUnits,
 			},
 			{
 				name: "languages",

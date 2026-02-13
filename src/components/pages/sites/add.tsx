@@ -22,6 +22,8 @@ export const SiteAdd: React.FC = () => {
 	const [loadingBackupSites, setLoadingBackupSites] = useState(false);
 	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
 	const [availableEnvironments, setAvailableEnvironments] = useState<string[]>([]);
+	const [units, setUnits] = useState<SelectOption[]>([]);
+	const [loadingUnits, setLoadingUnits] = useState(false);
 
 	const loadBackupSites = async (environment: string) => {
 		setLoadingBackupSites(true);
@@ -58,6 +60,27 @@ export const SiteAdd: React.FC = () => {
 		};
 		loadEnvironments();
 	}, [formRef]);
+
+	useEffect(() => {
+		const loadUnits = async () => {
+			setLoadingUnits(true);
+			try {
+				const response = await fetch("/api/units");
+				if (response.ok) {
+					const data = await response.json();
+					setUnits(data.items.map((u: { unitId: string; name: string }) => ({
+						value: Number(u.unitId),
+						label: `${u.name} (${u.unitId})`,
+					})));
+				}
+			} catch (error) {
+				console.error("Error loading units:", error);
+			} finally {
+				setLoadingUnits(false);
+			}
+		};
+		loadUnits();
+	}, []);
 
 	const loadSiteDetails = async (siteId: string, environment: string) => {
 		if (!formRef || !siteId) return;
@@ -173,11 +196,13 @@ export const SiteAdd: React.FC = () => {
 			},
 			{
 				name: "unitId",
-				type: "number",
+				type: "search",
 				label: t("form.unitId.label"),
-				placeholder: t("form.unitId.placeholder"),
+				placeholder: loadingUnits ? "Loading..." : t("form.unitId.placeholder"),
 				section: "details",
 				width: "half",
+				options: units,
+				disabled: loadingUnits,
 			},
 			{
 				name: "languages",
