@@ -357,7 +357,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		return section.conditions.filter((condition) => !condition.type || condition.type === "display").every(evaluateCondition);
 	};
 
-	const SearchField = ({ value = "", onChange, options = [], placeholder, disabled = false }: { value?: string; onChange: (value: string) => void; options?: SelectOption[]; placeholder?: string; disabled?: boolean; }) => {
+	const SearchField = ({ value = "", onChange, options = [], placeholder, disabled = false }: { value?: string; onChange: (value: string | number) => void; options?: SelectOption[]; placeholder?: string; disabled?: boolean; }) => {
 		const t = useTranslations("form");
 		const [query, setQuery] = useState("");
 		const [results, setResults] = useState<SelectOption[]>([]);
@@ -369,7 +369,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		useEffect(() => {
 			if (!isEditing) {
 				if (value && options.length > 0) {
-					const foundOption = options.find(option => option.value.toString() === value);
+					const foundOption = options.find(option => option.value.toString() === value.toString());
 					if (foundOption) {
 						setQuery(foundOption.label);
 					}
@@ -422,13 +422,14 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			setQuery(option.label);
 			setIsOpen(false);
 			setIsEditing(false);
-			onChange(option.value.toString());
+			onChange(option.value);
 		};
 
 		const highlightMatch = (text: string, query: string) => {
 			if (!query.trim()) return text;
 
-			const regex = new RegExp(`(${query})`, "gi");
+			const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+			const regex = new RegExp(`(${escaped})`, "gi");
 			const parts = text.split(regex);
 
 			return parts.map((part, index) =>
@@ -732,7 +733,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 									</Select>
 								) : type === "search" ? (
 									<SearchField
-										value={field.value || ""}
+										value={field.value?.toString() || ""}
 										onChange={field.onChange}
 										options={options}
 										placeholder={placeholder}
