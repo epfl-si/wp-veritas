@@ -36,7 +36,7 @@ export async function getNames(userIds: string[], type?: string): Promise<{ user
 	}
 }
 
-export async function getUnits(unitIds: string[]): Promise<{ unitId: string; name: string }[]> {
+export async function getUnitsByIds(unitIds: string[]): Promise<{ unitId: string; name: string }[]> {
 	try {
 		if (!unitIds?.length) return [];
 		const data = await makeRequest<{ units: { id: string; name: string }[] }>(`${process.env.EPFL_API_URL}/units?ids=${unitIds.join(",")}`, { method: "GET" });
@@ -44,6 +44,16 @@ export async function getUnits(unitIds: string[]): Promise<{ unitId: string; nam
 	} catch (error) {
 		console.error("Error fetching units:", error);
 		return unitIds.map((id) => ({ unitId: id, name: "Unknown" }));
+	}
+}
+
+export async function getUnits(): Promise<{ unitId: string; name: string }[]> {
+	try {
+		const data = await makeRequest<{ units: { id: string; name: string }[] }>(`${process.env.EPFL_API_URL}/units`, { method: "GET" });
+		return data.units.map((u: { id: string; name: string }) => ({ unitId: u.id, name: u.name }));
+	} catch (error) {
+		console.error("Error fetching units:", error);
+		return [];
 	}
 }
 
