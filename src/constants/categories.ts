@@ -424,7 +424,7 @@ export const WP_CATEGORIES = {
 						"scope": `openid profile email ${site.entra?.appId}/.default`,
 						"endpoint_login": `https://login.microsoftonline.com/${process.env.ENTRA_WORDPRESS_TENANT_ID}/oauth2/v2.0/authorize`,
 						"endpoint_token": `https://login.microsoftonline.com/${process.env.ENTRA_WORDPRESS_TENANT_ID}/oauth2/v2.0/token`,
-						"endpoint_userinfo": "https://api.epfl.ch/v1/oidc/userinfo",
+						"endpoint_userinfo": "https://api.epfl.ch/v2/oidc/userinfo?groups&rights=WordPress.Editor",
 						"endpoint_end_session": "",
 						"acr_values": "",
 						"no_sslverify": "",
