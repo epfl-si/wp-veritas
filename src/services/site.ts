@@ -11,7 +11,6 @@ import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
 import { info, warn, error } from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
-import { deleteApplication } from "@/lib/entra";
 
 function extractExtras(site: SiteFormType): SiteExtras {
 	const extras: { [key: string]: unknown } = {};
@@ -426,27 +425,6 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 						error: kubernetesError.message,
 					});
 					return { error: kubernetesError };
-				}
-
-				if (isKubernetesSite(site) && site.entra?.appId) {
-					try {
-						await deleteApplication(site.entra.appId);
-						await info(`Entra application deleted for site ${site.url}`, {
-							type: "site",
-							action: "delete_entra",
-							id: siteId,
-							clientId: site.entra.appId,
-						});
-					} catch (entraError) {
-						console.error("Error deleting Entra application", entraError);
-						await error("Failed to delete Entra application", {
-							type: "site",
-							action: "delete_entra",
-							id: siteId,
-							site: site.url,
-							error: entraError instanceof Error ? entraError.message : "Unknown error",
-						});
-					}
 				}
 
 				try {
