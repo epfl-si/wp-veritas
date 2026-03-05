@@ -8,7 +8,6 @@ import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { cache, withCache } from "./redis";
 import { getBackupConfig } from "@/services/backup";
-import { createApplication } from "./entra";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -115,10 +114,6 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		downloadsProtectionScript: Boolean(item.spec.wordpress.downloadsProtectionScript),
 		managed: item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-veritas" && !isTemporary,
-		entra: {
-			appId: item.spec.appPortal?.appId || "",
-			tenantId: process.env.ENTRA_WORDPRESS_TENANT_ID || "",
-		},
 		tags: [],
 		ticket: undefined,
 		comment: undefined,
@@ -198,16 +193,6 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		return { dbName, dbRef, urlSource, config, restoreConfig };
 	};
 
-	const app = await createApplication({
-		title: site.title,
-		tagline: site.tagline,
-		url: site.url,
-		infrastructure: site.infrastructure,
-		kubernetesExtraInfo: {
-			wordpressSiteName: name,
-		},
-	} as KubernetesSite);
-
 	const tempSite: KubernetesSite = {
 		id: "temp",
 		url: site.url,
@@ -222,10 +207,6 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 		managed: true,
 		createdAt: new Date(),
 		tags: [],
-		entra: {
-			appId: app.App.appId,
-			tenantId: process.env.ENTRA_WORDPRESS_TENANT_ID || "",
-		},
 	};
 
 	const plugins = await getKubernetesPluginStruct(tempSite);
@@ -262,9 +243,6 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			...(site.createFromBackup && backupConfig.restoreConfig && {
 				restore: backupConfig.restoreConfig,
 			}),
-			appPortal: {
-				appId: app.App.appId,
-			},
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
 		},
