@@ -40,32 +40,31 @@ jobs:
               id: eslint_check
               run: |
                   echo "🔍 Running ESLint analysis..."
-                  
+
                   mkdir -p eslint-results
-                  
+
                   set +e
-                  
+
                   npm run lint -- --format json --output-file eslint-results/results.json
                   ESLINT_EXIT_CODE=$?
-                  
+
                   echo "📋 ESLint Console Output:"
                   npm run lint -- --format stylish
-                  
+
                   if [ -f "eslint-results/results.json" ]; then
                     echo "📊 Processing ESLint results for GitHub annotations..."
-                    
+
                     GITHUB_WORKSPACE_RELATIVE=$(pwd)
-                    
+
                     ERROR_COUNT=$(jq '[.[] | .messages[] | select(.severity == 2)] | length' eslint-results/results.json)
                     WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
                     TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
-                    
+
                     echo "📈 ESLint Summary:"
                     echo "  - Files with issues: $TOTAL_FILES"
                     echo "  - Errors: $ERROR_COUNT"
                     echo "  - Warnings: $WARNING_COUNT"
-                    
-                    # Définir les outputs pour les autres jobs
+
                     if [ "$ERROR_COUNT" -gt 0 ]; then
                       echo "has_errors=true" >> $GITHUB_OUTPUT
                       echo "passed=false" >> $GITHUB_OUTPUT
@@ -73,13 +72,13 @@ jobs:
                       echo "has_errors=false" >> $GITHUB_OUTPUT
                       echo "passed=true" >> $GITHUB_OUTPUT
                     fi
-                                        
+
                   else
                     echo "::error title=💥 ESLint Configuration Error::Failed to generate ESLint results - check your ESLint configuration"
                     echo "passed=false" >> $GITHUB_OUTPUT
                     echo "has_errors=true" >> $GITHUB_OUTPUT
                   fi
-                  
+
                   if [ "$ERROR_COUNT" -gt 0 ] || [ "$ESLINT_EXIT_CODE" -eq 2 ]; then
                     echo "❌ ESLint found $ERROR_COUNT error(s) - stopping the pipeline"
                     exit 1
@@ -96,7 +95,7 @@ jobs:
                     WARNING_COUNT=$(jq '[.[] | .messages[] | select(.severity == 1)] | length' eslint-results/results.json)
                     TOTAL_FILES=$(jq '[.[] | select(.messages | length > 0)] | length' eslint-results/results.json)
                     CLEAN_FILES=$(jq '[.[] | select(.messages | length == 0)] | length' eslint-results/results.json)
-                    
+
                     echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
                     echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
                     echo "| 🔴 Errors | $ERROR_COUNT |" >> $GITHUB_STEP_SUMMARY
@@ -104,7 +103,7 @@ jobs:
                     echo "| 📁 Files with issues | $TOTAL_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "| ✅ Clean files | $CLEAN_FILES |" >> $GITHUB_STEP_SUMMARY
                     echo "" >> $GITHUB_STEP_SUMMARY
-                    
+
                     if [ "$ERROR_COUNT" -gt 0 ]; then
                       echo "### ❌ Pipeline Stopped" >> $GITHUB_STEP_SUMMARY
                       echo "The pipeline was stopped due to ESLint errors. Please fix the errors before proceeding." >> $GITHUB_STEP_SUMMARY
@@ -113,168 +112,112 @@ jobs:
                     echo "### ❌ Error" >> $GITHUB_STEP_SUMMARY
                     echo "Could not process ESLint results. Check your configuration." >> $GITHUB_STEP_SUMMARY
                   fi
-    detect-version:
-        name: Detect Version
-        if: github.event_name == 'push'
+
+    build:
+        name: Build and Push
+        needs: [code-quality]
         runs-on: ubuntu-24.04
         permissions:
             contents: read
+            packages: write
         outputs:
-            version: ${{ steps.get_version.outputs.version }}
-            should_build: ${{ steps.check_version.outputs.should_build }}
+            version: ${{ steps.resolve_version.outputs.version }}
+            should_build: ${{ steps.resolve_version.outputs.should_build }}
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Get Version from package.json
-              id: get_version
+            - name: Resolve version and check build needed
+              id: resolve_version
               run: |
-                  if [ ! -f "package.json" ]; then
-                    echo "❌ package.json not found!"
-                    exit 1
-                  fi
-                  
-                  version=$(jq -r .version package.json)
-                  if [ "$version" = "null" ] || [ -z "$version" ]; then
-                    echo "❌ No version found in package.json!"
-                    exit 1
-                  fi
-                  
-                  echo "📦 Version from package.json: $version"
-                  echo "version=$version" >> $GITHUB_OUTPUT
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    BRANCH="${{ github.head_ref }}"
+                    SANITIZED=$(echo "$BRANCH" | tr '/_' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
+                    SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+                    VERSION="dev-${SANITIZED}-${SHORT_SHA}"
 
-            - name: Check if release exists
-              id: check_version
-              run: |
-                  VERSION="${{ steps.get_version.outputs.version }}"
-                  TAG_NAME="v$VERSION"
-                  
-                  set +e
-                  gh release view "$TAG_NAME" >/dev/null 2>&1
-                  RELEASE_EXISTS=$?
-                  set -e
+                    echo "🔧 PR build - patching package.json version to: $VERSION"
+                    sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
 
-                  if [ $RELEASE_EXISTS -eq 0 ]; then
-                    echo "should_build=false" >> $GITHUB_OUTPUT
-                    echo "✅ Release $TAG_NAME already exists - skipping build"
-                  else
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
                     echo "should_build=true" >> $GITHUB_OUTPUT
-                    echo "🆕 Release $TAG_NAME doesn't exist - build needed"
+                  else
+                    if [ ! -f "package.json" ]; then
+                      echo "❌ package.json not found!"
+                      exit 1
+                    fi
+
+                    VERSION=$(jq -r .version package.json)
+                    if [ "$VERSION" = "null" ] || [ -z "$VERSION" ]; then
+                      echo "❌ No version found in package.json!"
+                      exit 1
+                    fi
+
+                    echo "📦 Version from package.json: $VERSION"
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+                    TAG_NAME="v$VERSION"
+                    set +e
+                    gh release view "$TAG_NAME" >/dev/null 2>&1
+                    RELEASE_EXISTS=$?
+                    set -e
+
+                    if [ $RELEASE_EXISTS -eq 0 ]; then
+                      echo "should_build=false" >> $GITHUB_OUTPUT
+                      echo "✅ Release $TAG_NAME already exists - skipping build"
+                    else
+                      echo "should_build=true" >> $GITHUB_OUTPUT
+                      echo "🆕 Release $TAG_NAME doesn't exist - build needed"
+                    fi
                   fi
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    build-and-push:
-        name: Build and Push
-        needs: [code-quality, detect-version]
-        if: needs.detect-version.outputs.should_build == 'true'
-        runs-on: ubuntu-24.04
-        permissions:
-            contents: read
-            packages: write
-        outputs:
-            version: ${{ needs.detect-version.outputs.version }}
-            build_success: ${{ steps.build_result.outputs.success }}
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Build Info
-              run: |
-                  echo "🚀 Starting build for version: ${{ needs.detect-version.outputs.version }}"
-                  echo "📅 Build triggered at: $(date)"
-
             - name: Set up Docker Buildx
+              if: steps.resolve_version.outputs.should_build == 'true'
               uses: docker/setup-buildx-action@v3
 
             - name: Login to Docker Registry
+              if: steps.resolve_version.outputs.should_build == 'true'
               uses: docker/login-action@v3
               with:
                   registry: ${{ env.REPOSITORY }}
                   username: ${{ secrets.QUAY_ROBOT_USERNAME }}
                   password: ${{ secrets.QUAY_ROBOT_PASSWORD }}
 
-            - name: Extract Docker metadata
-              id: meta
-              uses: docker/metadata-action@v5
-              with:
-                  images: ${{ env.REGISTRY_PATH }}
-                  tags: |
-                      type=raw,value=latest
-                      type=raw,value=${{ needs.detect-version.outputs.version }}
+            - name: Compute Docker tags
+              if: steps.resolve_version.outputs.should_build == 'true'
+              id: docker_tags
+              run: |
+                  VERSION="${{ steps.resolve_version.outputs.version }}"
+                  if [ "${{ github.event_name }}" = "pull_request" ]; then
+                    echo "tags=${{ env.REGISTRY_PATH }}:$VERSION" >> $GITHUB_OUTPUT
+                  else
+                    echo "tags=${{ env.REGISTRY_PATH }}:$VERSION,${{ env.REGISTRY_PATH }}:latest" >> $GITHUB_OUTPUT
+                  fi
 
             - name: Build and push Docker image
-              id: build_push
+              if: steps.resolve_version.outputs.should_build == 'true'
               uses: docker/build-push-action@v5
               with:
                   context: .
                   file: ./Dockerfile
                   push: true
-                  tags: ${{ steps.meta.outputs.tags }}
-                  labels: ${{ steps.meta.outputs.labels }}
+                  tags: ${{ steps.docker_tags.outputs.tags }}
                   platforms: linux/amd64
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-            - name: Verify Build Success
-              id: build_result
+            - name: Build summary
+              if: steps.resolve_version.outputs.should_build == 'true'
               run: |
-                  VERSION="${{ needs.detect-version.outputs.version }}"
                   echo "✅ Build and push completed!"
-                  echo "success=true" >> $GITHUB_OUTPUT
-                  echo "🐳 Image available at: ${{ env.REGISTRY_PATH }}:$VERSION"
-
-    build-pr:
-        name: Build PR Image
-        needs: [code-quality]
-        if: github.event_name == 'pull_request'
-        runs-on: ubuntu-24.04
-        permissions:
-            contents: read
-            packages: write
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
-
-            - name: Compute image tag
-              id: tag
-              run: |
-                  BRANCH="${{ github.head_ref }}"
-                  SANITIZED=$(echo "$BRANCH" | tr '/_' '-' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-                  SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
-                  TAG="dev-${SANITIZED}-${SHORT_SHA}"
-                  echo "tag=$TAG" >> $GITHUB_OUTPUT
-                  echo "Image tag: ${{ env.REGISTRY_PATH }}:$TAG"
-
-            - name: Set up Docker Buildx
-              uses: docker/setup-buildx-action@v3
-
-            - name: Login to Docker Registry
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ env.REPOSITORY }}
-                  username: ${{ secrets.QUAY_ROBOT_USERNAME }}
-                  password: ${{ secrets.QUAY_ROBOT_PASSWORD }}
-
-            - name: Build and push PR Docker image
-              uses: docker/build-push-action@v5
-              with:
-                  context: .
-                  file: ./Dockerfile
-                  push: true
-                  tags: ${{ env.REGISTRY_PATH }}:${{ steps.tag.outputs.tag }}
-                  platforms: linux/amd64
-                  cache-from: type=gha
-                  cache-to: type=gha,mode=max
-
-            - name: Image summary
-              run: |
-                  echo "Image pushed: ${{ env.REGISTRY_PATH }}:${{ steps.tag.outputs.tag }}"
+                  echo "🐳 Image: ${{ env.REGISTRY_PATH }}:${{ steps.resolve_version.outputs.version }}"
 
     create-release:
         name: Create Release
-        needs: [code-quality, detect-version, build-and-push]
-        if: needs.detect-version.outputs.should_build == 'true' && needs.build-and-push.outputs.build_success == 'true'
+        needs: [build]
+        if: github.event_name == 'push' && needs.build.outputs.should_build == 'true'
         runs-on: ubuntu-24.04
         permissions:
             contents: write
@@ -287,10 +230,10 @@ jobs:
             - name: Generate Release Notes
               id: generate_notes
               run: |
-                  VERSION="${{ needs.detect-version.outputs.version }}"
-                  
+                  VERSION="${{ needs.build.outputs.version }}"
+
                   LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-                  
+
                   touch release_notes.txt
 
                   if [ -z "$LAST_TAG" ]; then
@@ -311,21 +254,21 @@ jobs:
                     echo "### ✨ Features" >> release_notes.txt
                     echo "$FEATURE_COMMITS" >> release_notes.txt
                   fi
-                  
+
                   FIX_COMMITS=$(echo "$COMMITS" | grep -iE "\[(fix|bugfix|hotfix)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$FIX_COMMITS" ]; then
                     echo "" >> release_notes.txt
                     echo "### 🐛 Bug Fixes" >> release_notes.txt
                     echo "$FIX_COMMITS" >> release_notes.txt
                   fi
-                  
+
                   MAINTENANCE_COMMITS=$(echo "$COMMITS" | grep -iE "\[(version|refactor|chore|style|perf|update|improve)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$MAINTENANCE_COMMITS" ]; then
                     echo "" >> release_notes.txt
                     echo "### 🔧 Maintenance" >> release_notes.txt
                     echo "$MAINTENANCE_COMMITS" >> release_notes.txt
                   fi
-                  
+
                   DOC_COMMITS=$(echo "$COMMITS" | grep -iE "\[(docs|doc|documentation)\]" | sed 's/^/- /' || echo "")
                   if [ -n "$DOC_COMMITS" ]; then
                     echo "" >> release_notes.txt
@@ -342,33 +285,33 @@ jobs:
 
             - name: Create Release
               run: |
-                  VERSION="${{ needs.detect-version.outputs.version }}"
+                  VERSION="${{ needs.build.outputs.version }}"
                   TAG_NAME="v$VERSION"
                   RELEASE_TITLE="v$VERSION"
-                  
+
                   gh release create "$TAG_NAME" \
                     --title "$RELEASE_TITLE" \
                     --notes-file release_notes.txt \
                     --latest
-                  
+
                   echo "✅ Release created successfully"
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     cleanup:
         name: Cleanup Summary
-        needs: [code-quality, detect-version, build-and-push, create-release]
-        if: always() && github.event_name == 'push' && needs.detect-version.outputs.should_build == 'true'
+        needs: [code-quality, build, create-release]
+        if: always() && github.event_name == 'push' && needs.build.outputs.should_build == 'true'
         runs-on: ubuntu-24.04
         steps:
             - name: Cleanup Summary
               run: |
                   echo "🧹 Cleanup Summary:"
                   echo "  - Code Quality: ${{ needs.code-quality.result }}"
-                  echo "  - Build Status: ${{ needs.build-and-push.result }}"
+                  echo "  - Build Status: ${{ needs.build.result }}"
                   echo "  - Release Status: ${{ needs.create-release.result }}"
-                  
-                  if [ "${{ needs.code-quality.result }}" = "success" ] && [ "${{ needs.build-and-push.result }}" = "success" ] && [ "${{ needs.create-release.result }}" = "success" ]; then
+
+                  if [ "${{ needs.code-quality.result }}" = "success" ] && [ "${{ needs.build.result }}" = "success" ] && [ "${{ needs.create-release.result }}" = "success" ]; then
                     echo "✅ Pipeline completed successfully!"
                   else
                     echo "⚠️ Pipeline completed with issues - check previous jobs"
