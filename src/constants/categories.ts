@@ -415,11 +415,6 @@ export const WP_CATEGORIES = {
 					{ name: "plugin:epfl_accred:unit", value: site.unitName },
 				],
 			},
-			"wp-epfl-openid-configuration": {
-				wp_options: [
-					{ name: "openid_connect_generic_settings", value: {},
-				}],
-			},
 		}),
 	},
 
