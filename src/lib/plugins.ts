@@ -20,7 +20,7 @@ export function getCategoriesFromPlugins(plugins: WordPressPlugins): string[] {
 
 export async function getKubernetesPluginStruct(site: KubernetesSite): Promise<Record<string, object>> {
 	const unitName = await getUnit(site.unitId.toString()).then(unit => unit?.name || "");
-	let plugins = WP_CATEGORIES.DEFAULT.getPlugins({ ...site, unitName });
+	let plugins: Record<string, object> = WP_CATEGORIES.DEFAULT.getPlugins({ ...site, unitName });
 
 	site.categories.forEach((category) => {
 		const categoryConfig = Object.values(WP_CATEGORIES).find((cat) => cat.NAME === category);
