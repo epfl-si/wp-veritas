@@ -411,7 +411,7 @@ export const WP_CATEGORIES = {
 					{ name: "can_compress_scripts", value: 0 },
 				],
 			},
-			getOpenIdConnectPluginName(): {},
+			[getOpenIdConnectPluginName()]: {},
 			"accred.entra": {
 				wp_options: [
 					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
