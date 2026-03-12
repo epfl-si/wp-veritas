@@ -1,6 +1,11 @@
 import { KubernetesSite } from "@/types/site";
 import { LANGUAGES } from "./languages";
 
+function getOpenIdConnectPluginName () {
+	// Until we make up our mind about which one we want:
+	return process.env.OPENID_PLUGIN_NAME || "openid-connect-generic";
+}
+
 export const WP_CATEGORIES = {
 	DEFAULT: {
 		NAME: "Default",
@@ -406,7 +411,7 @@ export const WP_CATEGORIES = {
 					{ name: "can_compress_scripts", value: 0 },
 				],
 			},
-			"openid-connect-generic": {},
+			getOpenIdConnectPluginName(): {},
 			"accred.entra": {
 				wp_options: [
 					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
