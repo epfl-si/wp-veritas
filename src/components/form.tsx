@@ -281,21 +281,37 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			const hadConditionalDefault = Array.from(appliedDefaults.current).some(key => key.startsWith(`${field.name}-conditional-`));
 
 			if (conditionalDefault !== undefined) {
-				if (conditionalKey && shouldApplyDefault(field, currentValue, conditionalDefault, true) && !appliedDefaults.current.has(conditionalKey)) {
-					if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(conditionalDefault) && Array.isArray(currentValue)) {
-						const newValue = [...new Set([...currentValue, ...conditionalDefault])];
+				if (conditionalKey && !appliedDefaults.current.has(conditionalKey)) {
+					const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key =>
+						key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey,
+					);
+
+					if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(conditionalDefault)) {
+						let baseValue = Array.isArray(currentValue) ? [...currentValue] : [];
+
+						previousConditionalKeys.forEach(prevKey => {
+							const prevValueStr = prevKey.replace(`${field.name}-conditional-`, "");
+							try {
+								const prevValue = JSON.parse(prevValueStr);
+								if (Array.isArray(prevValue)) {
+									baseValue = baseValue.filter(item =>
+										!prevValue.includes(item) || conditionalDefault.includes(item),
+									);
+								}
+							} catch {
+								// ignore
+							}
+						});
+
+						const newValue = [...new Set([...baseValue, ...conditionalDefault])];
 						form.setValue(field.name as Path<T>, newValue as never);
-					} else {
+					} else if (shouldApplyDefault(field, currentValue, conditionalDefault, true)) {
 						form.setValue(field.name as Path<T>, conditionalDefault as never);
 					}
 
 					appliedDefaults.current.add(conditionalKey);
 
-					Array.from(appliedDefaults.current).forEach(key => {
-						if (key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey) {
-							appliedDefaults.current.delete(key);
-						}
-					});
+					previousConditionalKeys.forEach(key => appliedDefaults.current.delete(key));
 				}
 			} else if (hadConditionalDefault) {
 				const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key => key.startsWith(`${field.name}-conditional-`));
