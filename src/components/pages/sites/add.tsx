@@ -244,9 +244,23 @@ export const SiteAdd: React.FC = () => {
 					{
 						field: "url",
 						operator: "regex",
-						value: "^https?://www[.]epfl[.]ch(/.*)?$",
+						value: "^https?://www[.]epfl[.]ch/labs(/.*)?$",
 						type: "default",
 						defaultValue: ["epfl-menus"],
+					},
+					{
+						field: "url",
+						operator: "regex",
+						value: "^https?://www[.]epfl[.]ch/research/domains(/.*)?$",
+						type: "default",
+						defaultValue: ["epfl-menus"],
+					},
+					{
+						field: "url",
+						operator: "regex",
+						value: "^https?://www[.]epfl[.]ch(/.*)?$",
+						type: "default",
+						defaultValue: ["epfl-menus", "EPFL Translate"],
 					},
 				],
 			},
@@ -486,9 +500,7 @@ export const SiteAdd: React.FC = () => {
 		<div className="w-full flex-1 flex flex-col h-full overflow-y-auto">
 			<div className="pb-3">
 				<div className="p-6 pb-4 flex-shrink-0 mt-1">
-					<div className="flex items-center justify-between h-10">
-						<h1 className="text-3xl font-bold">{t("add.title")}</h1>
-					</div>
+					<h1 className="text-3xl font-bold">{t("add.title")}</h1>
 				</div>
 				<div className="px-6 pb-0 h-full">
 					<Form config={getFormConfig()} />
