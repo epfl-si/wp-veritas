@@ -354,7 +354,10 @@
 			"viewSite": "Visit Website",
 			"create": "Create",
 			"reset": "Reset",
-			"creating": "Creating"
+			"creating": "Creating",
+			"manageTags": "Manage Tags",
+			"info": "Information",
+			"editTags": "Edit Tags"
 		},
 		"detail": {
 			"title": "Site Details",

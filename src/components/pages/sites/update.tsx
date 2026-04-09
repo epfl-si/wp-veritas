@@ -1,6 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
+import { Tags, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Form, { FormConfig, FieldConfig, SectionConfig, SelectOption } from "@/components/form";
 import { isKubernetesSite, SiteFormType, siteSchema, SiteType } from "@/types/site";
 import { useZodErrorMessages } from "@/hooks/zod";
@@ -311,8 +314,25 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("update.title")}</h1>
+				<div className="flex items-start justify-between">
+					<div>
+						<h1 className="text-3xl font-bold">{t("update.title")}</h1>
+						<p className="text-sm text-muted-foreground mt-1 font-mono">{site.url}</p>
+					</div>
+					<div className="flex gap-2">
+						<Button variant="outline" asChild>
+							<Link href={`/search?url=${site.url}`}>
+								<Info className="size-4" />
+								{t("actions.info")}
+							</Link>
+						</Button>
+						<Button variant="outline" asChild>
+							<Link href={`/sites/${site.id}/tags`}>
+								<Tags className="size-4" />
+								{t("actions.manageTags")}
+							</Link>
+						</Button>
+					</div>
 				</div>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">

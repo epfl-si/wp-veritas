@@ -2,9 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { isKubernetesSite, SiteType, isDatabaseSite, isNoneSite } from "@/types/site";
 import { GlobeIcon, Info, Pencil, Plus, Tags, MoreHorizontal, Filter, Download, BarChart3, Languages, ChevronRight, Calendar, Layers, Zap, ArrowLeft, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableColumn } from "@/components/ui/table";
@@ -40,6 +42,7 @@ interface Filters {
 
 export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 
 	const getInitialFilters = () => {
 		const filters: Filters = {
@@ -294,18 +297,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			align: "left",
 			sortable: true,
 			render: (site) => (
-				<div className="flex items-center justify-between gap-2">
-					<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
-						<GlobeIcon className="size-6 flex-shrink-0" />
+				<Link href={`/sites/${site.id}/edit`} className="flex items-center justify-between gap-2">
+					<div className="flex items-center gap-2 font-medium text-blue-600 group">
+						<GlobeIcon className="size-6 shrink-0" />
 						<span className="text-base font-medium leading-relaxed">{site.url}</span>
-					</a>
+					</div>
 					{!site.managed && (
 						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
 							<AlertTriangle className="size-5" />
 							<p className="font-medium">{t("list.error.unmanaged")}</p>
 						</div>
 					)}
-				</div>
+				</Link>
 			),
 		},
 		{
@@ -344,33 +347,50 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			align: "left",
 			sortable: false,
 			render: (site) => (
-				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITES.READ) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
-							<Link prefetch={false} href={`/search?url=${site.url}`}>
-								<Info strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+				<TooltipProvider>
+					<div className="flex gap-1.5 items-center py-1" onClick={(e) => e.stopPropagation()}>
+						{permissions.includes(PERMISSIONS.SITES.READ) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
+										<Link prefetch={false} href={`/search?url=${site.url}`}>
+											<Info strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.info")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/edit`}>
-								<Pencil strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+						{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
+										<Link prefetch={false} href={`/sites/${site.id}/edit`}>
+											<Pencil strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.edit")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/tags`}>
-								<Tags strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+						{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
+										<Link prefetch={false} href={`/sites/${site.id}/tags`}>
+											<Tags strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.editTags")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" apiEndpoint={`/api/sites/${site.id}`} />}
-				</div>
+						{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" apiEndpoint={`/api/sites/${site.id}`} />}
+					</div>
+				</TooltipProvider>
 			),
 		},
 	];
@@ -947,6 +967,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						key: "createdAt",
 						direction: "desc",
 					}}
+					onRowClick={(site) => router.push(`/sites/${site.id}/edit`)}
 				/>
 			</div>
 		</div>

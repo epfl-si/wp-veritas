@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
 import { SearchSiteType } from "@/types/site";
-import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User, Server, Database, Network } from "lucide-react";
+import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User, Server, Database, Network, Pencil } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -147,6 +148,12 @@ export const SiteInfo: React.FC = () => {
 							</div>
 						</div>
 					</div>
+					<Button variant="outline" asChild>
+						<Link href={`/sites/${site.id}/edit`}>
+							<Pencil className="size-4" />
+							{t("actions.edit")}
+						</Link>
+					</Button>
 				</div>
 			</CardHeader>
 

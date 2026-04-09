@@ -7,7 +7,7 @@ import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form"
 import { tagSchema, TagFormType, TagType, TagCategoryEnumType } from "@/types/tag";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { cn } from "@/lib/utils";
-import { CheckSquare, Square, Trash2 } from "lucide-react";
+import { CheckSquare, Frown, Square, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeleteDialog } from "@/components/dialog/delete";
 
@@ -321,9 +321,7 @@ export const TagUpdate: React.FC<TagUpdateProps> = ({ tag }) => {
 							</div>
 						) : (
 							<div className="text-center py-12">
-								<svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 012-2m0 0V5a2 2 0 012 2v2M7 7h10" />
-								</svg>
+								<Frown className="mx-auto mb-4 size-12 text-gray-400" />
 								<h3 className="mt-2 text-sm font-medium text-gray-900">{t("sites.empty.title")}</h3>
 								<p className="mt-1 text-sm text-gray-500">
 									{t("sites.empty.description")}
