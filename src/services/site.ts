@@ -106,7 +106,7 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 		const { sites } = await listSites();
 		const siteUrl = ensureSlashAtEnd(site.url);
-		if (sites && sites.some((s) => s.url === siteUrl)) {
+		if (sites?.some((s) => s.url === siteUrl)) {
 			return {
 				error: { status: 409, message: "Site already exists", success: false },
 			};
@@ -170,8 +170,6 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 				await sendSiteCreatedMessage(site.url, site.infrastructure);
 				return { siteId };
 			}
-
-			case "none":
 			default:
 				await warn("Unsupported persistence type for site creation.", {
 					type: "site",
@@ -515,8 +513,6 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 				await sendSiteDeletedMessage(site.url, site.infrastructure);
 				break;
 			}
-
-			case "none":
 			default:
 				return {
 					error: {
@@ -728,7 +724,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					const [siteUrl, searchUrl] = [new URL(site.url), new URL(normalizedUrl)];
 					if (siteUrl.hostname !== searchUrl.hostname) return false;
 					const [sitePath, searchPath] = [siteUrl.pathname.replace(/\/$/, "") || "/", searchUrl.pathname.replace(/\/$/, "") || "/"];
-					return sitePath === searchPath || searchPath.startsWith(sitePath + "/") || (sitePath === "/" && searchPath.startsWith("/"));
+					return sitePath === searchPath || searchPath.startsWith(`${sitePath}/`) || (sitePath === "/" && searchPath.startsWith("/"));
 				} catch {
 					return false;
 				}

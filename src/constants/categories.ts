@@ -168,7 +168,7 @@ export const WP_CATEGORIES = {
 							taxonomies: [],
 							domains: [],
 							version: "3.6.7",
-							first_activation: Math.floor(new Date().getTime() / 1000),
+							first_activation: Math.floor(Date.now() / 1000),
 							default_lang: "en",
 						},
 					},

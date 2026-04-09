@@ -12,7 +12,7 @@ interface RouteParams {
 	}>;
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function DELETE(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
 	try {
 		const session = await auth();
 		if (!session?.user) return NextResponse.json({ status: 401, message: "Unauthorized" }, { status: 401 });

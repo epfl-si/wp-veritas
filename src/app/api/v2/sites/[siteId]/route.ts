@@ -159,7 +159,7 @@ interface RouteParams {
  *                   example: "Internal Server Error"
  */
 
-export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function GET(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
 	try {
 		const { siteId } = await params;
 

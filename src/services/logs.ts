@@ -76,8 +76,7 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 
 		await db.connect();
 
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const query: Record<string, any> = {};
+		const query: Record<string, unknown> = {};
 
 		if (params.search) {
 			query.message = { $regex: params.search, $options: "i" };

@@ -252,6 +252,8 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 											return (
 												<div
 													key={tag.id}
+													role="button"
+													tabIndex={0}
 													className={cn(
 														"relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200",
 														isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
@@ -259,6 +261,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 														bgClass,
 														isSelected && "shadow-sm",
 													)}
+													onKeyDown={isSubmitting ? undefined : (e) => { if (e.key === "Enter" || e.key === " ") handleTagToggle(tag.id); }}
 													onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}
 												>
 													<div className="flex items-start space-x-3">

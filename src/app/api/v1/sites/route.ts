@@ -140,7 +140,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
 		const { searchParams } = new URL(request.url);
 		const taggedFilter = searchParams.get("tagged");
-		const siteUrlFilter = searchParams.get("site_url") ? ensureSlashAtEnd(decodeURIComponent(searchParams.get("site_url")!)) : null;
+		const siteUrlRaw = searchParams.get("site_url");
+		const siteUrlFilter = siteUrlRaw ? ensureSlashAtEnd(decodeURIComponent(siteUrlRaw)) : null;
 		const hasTaggedFilter = searchParams.has("tagged");
 
 		const sites = await withCache(
@@ -171,7 +172,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 							if (!tagMap.has(siteId)) {
 								tagMap.set(siteId, []);
 							}
-							tagMap.get(siteId)!.push(tagObj);
+							tagMap.get(siteId)?.push(tagObj);
 						}
 					}
 				}

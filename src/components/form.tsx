@@ -310,7 +310,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 					appliedDefaults.current.add(conditionalKey);
 
-					previousConditionalKeys.forEach((key) => appliedDefaults.current.delete(key));
+					previousConditionalKeys.forEach((key) => { appliedDefaults.current.delete(key); });
 				}
 			} else if (hadConditionalDefault) {
 				const previousConditionalKeys = Array.from(appliedDefaults.current).filter((key) => key.startsWith(`${field.name}-conditional-`));
@@ -326,7 +326,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					}
 				}
 
-				previousConditionalKeys.forEach((key) => appliedDefaults.current.delete(key));
+				previousConditionalKeys.forEach((key) => { appliedDefaults.current.delete(key); });
 
 				resetConditionalValue(field, currentValue, previousConditionalValue, schemaDefault);
 
@@ -340,7 +340,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 				}
 			}
 		});
-	}, [watchedValues, config.fields, form, config.defaultValues]);
+	}, [config.fields, form, getSchemaDefaultValue, resetConditionalValue, shouldApplyDefault, getConditionalDefault]);
 
 	useEffect(() => {
 		const subscription = form.watch(() => {
@@ -454,6 +454,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			const regex = new RegExp(`(${escaped})`, "gi");
 			const parts = text.split(regex);
 
+			// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
 			return parts.map((part, index) =>
 				regex.test(part) ? (
 					<strong key={index} className="font-semibold">
@@ -501,19 +502,21 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 	const BoxOption = ({ option, isSelected, onClick, disabled }: { option: SelectOption; isSelected: boolean; onClick: () => void; disabled?: boolean }) => {
 		const IconComponent = option.icon;
-		return (
-			<div
-				className={cn(
-					"relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200",
-					disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
-					isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300",
-				)}
-				style={{
-					borderColor: isSelected && option.color ? option.color : undefined,
-					backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
-				}}
-				onClick={disabled ? undefined : onClick}
-			>
+	return (
+		<button
+			type="button"
+			disabled={disabled}
+			className={cn(
+				"relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200",
+				disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
+				isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300",
+			)}
+			style={{
+				borderColor: isSelected && option.color ? option.color : undefined,
+				backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
+			}}
+			onClick={disabled ? undefined : onClick}
+		>
 				<div className="flex flex-col items-center text-center space-y-2">
 					{IconComponent && (
 						<div
@@ -528,7 +531,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					)}
 					<span className={cn("text-sm font-medium transition-colors", isSelected ? "text-gray-900" : "text-gray-600")}>{option.label}</span>
 				</div>
-			</div>
+			</button>
 		);
 	};
 
@@ -632,7 +635,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div key={option.value} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onClick={(e) => handleOptionToggle(option.value, e)}>
+									<div key={option.value} role="button" tabIndex={0} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleOptionToggle(option.value); }} onClick={(e) => handleOptionToggle(option.value, e)}>
 										<Checkbox id={`option-${option.value}`} checked={value.includes(option.value)} onCheckedChange={() => handleOptionToggle(option.value)} />
 										<div className="flex items-center space-x-2 flex-1">
 											{IconComponent && (
@@ -706,7 +709,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 										disabled={isDisabled}
 										value={field.value || ""}
 										onChange={(e) => {
-											const value = e.target.value === "" ? undefined : parseInt(e.target.value);
+											const value = e.target.value === "" ? undefined : parseInt(e.target.value, 10);
 											field.onChange(value);
 										}}
 									/>
@@ -857,6 +860,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							<div className="flex gap-2 flex-shrink-0">
 								{config.successActions.map((action, index) => {
 									const Icon = action.icon;
+									// biome-ignore lint/suspicious/noArrayIndexKey: actions have no stable ID
 									return (
 										<Button key={index} variant="outline" size="sm" asChild className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100">
 											<a href={action.url(submissionData.formData, submissionData.response)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">

@@ -55,11 +55,11 @@ export const SiteList: React.FC<{
 			hasCategories: searchParams.get("hasCategories") === "true" ? true : searchParams.get("hasCategories") === "false" ? false : null,
 			hasDownloadsProtection: searchParams.get("hasDownloadsProtection") === "true" ? true : searchParams.get("hasDownloadsProtection") === "false" ? false : null,
 			dateRange: {
-				from: searchParams.get("dateFrom") ? new Date(searchParams.get("dateFrom")!) : undefined,
-				to: searchParams.get("dateTo") ? new Date(searchParams.get("dateTo")!) : undefined,
+				from: searchParams.get("dateFrom") ? new Date(searchParams.get("dateFrom") as string) : undefined,
+				to: searchParams.get("dateTo") ? new Date(searchParams.get("dateTo") as string) : undefined,
 			},
-			languages: searchParams.get("languages") ? searchParams.get("languages")!.split(",").filter(Boolean) : [],
-			categories: searchParams.get("categories") ? searchParams.get("categories")!.split(",").filter(Boolean) : [],
+			languages: searchParams.get("languages") ? searchParams.get("languages")?.split(",").filter(Boolean) : [],
+			categories: searchParams.get("categories") ? searchParams.get("categories")?.split(",").filter(Boolean) : [],
 		};
 
 		return filters;
@@ -342,7 +342,7 @@ export const SiteList: React.FC<{
 			sortable: false,
 			render: (site) => (
 				<TooltipProvider>
-					<div className="flex gap-1.5 items-center py-1" onClick={(e) => e.stopPropagation()}>
+					<div className="flex gap-1.5 items-center py-1" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
 						{permissions.includes(PERMISSIONS.SITES.READ) && (
 							<Tooltip>
 								<TooltipTrigger asChild>
@@ -461,7 +461,7 @@ export const SiteList: React.FC<{
 								<div className="space-y-6">
 									<div className="grid gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.url.label")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.url.label")}</p>
 											<Input
 												onChange={(e) => {
 													updateFilters({ ...filters, url: e.target.value });
@@ -475,7 +475,7 @@ export const SiteList: React.FC<{
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.theme.label")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.theme.label")}</p>
 											<Select
 												onValueChange={(value) =>
 													updateFilters({
@@ -499,7 +499,7 @@ export const SiteList: React.FC<{
 											</Select>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.infrastructure.label")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.infrastructure.label")}</p>
 											<Select
 												onValueChange={(value) => {
 													const infra = value === "all" ? "" : value;
@@ -524,7 +524,7 @@ export const SiteList: React.FC<{
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.languages")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.languages")}</p>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(LANGUAGES).map((language) => (
 													<div key={language.locale} className="flex items-center space-x-2">
@@ -553,7 +553,7 @@ export const SiteList: React.FC<{
 											</div>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.categories")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.categories")}</p>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(OPTIONAL_CATEGORIES).map((category) => (
 													<div key={category.NAME} className="flex items-center space-x-2">
@@ -614,7 +614,7 @@ export const SiteList: React.FC<{
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.date.from")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.date.from")}</p>
 											<Input
 												type="date"
 												value={filters.dateRange.from ? filters.dateRange.from.toISOString().split("T")[0] : ""}
@@ -630,7 +630,7 @@ export const SiteList: React.FC<{
 											/>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">{t("tools.filters.date.to")}</label>
+											<p className="text-sm font-medium mb-2">{t("tools.filters.date.to")}</p>
 											<Input
 												type="date"
 												value={filters.dateRange.to ? filters.dateRange.to.toISOString().split("T")[0] : ""}
@@ -827,8 +827,8 @@ export const SiteList: React.FC<{
 													{t("tools.statistics.theme.distribution")}
 												</h4>
 												<div className="space-y-2">
-													{statistics.themeStats.slice(0, 5).map((stat, index) => (
-														<div key={index} className="flex justify-between items-center">
+													{statistics.themeStats.slice(0, 5).map((stat) => (
+														<div key={stat.name} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
 																<Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
@@ -853,8 +853,8 @@ export const SiteList: React.FC<{
 													{t("tools.statistics.language.distribution")}
 												</h4>
 												<div className="space-y-2">
-													{statistics.languageStats.slice(0, 5).map((stat, index) => (
-														<div key={index} className="flex justify-between items-center">
+													{statistics.languageStats.slice(0, 5).map((stat) => (
+														<div key={stat.name} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
 																<Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
@@ -879,8 +879,8 @@ export const SiteList: React.FC<{
 													{t("tools.statistics.category.distribution")}
 												</h4>
 												<div className="space-y-2">
-													{statistics.categoryStats.slice(0, 5).map((stat, index) => (
-														<div key={index} className="flex justify-between items-center">
+													{statistics.categoryStats.slice(0, 5).map((stat) => (
+														<div key={stat.name} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
 																<Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">

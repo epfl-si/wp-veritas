@@ -1,6 +1,6 @@
-import { auth } from "@/services/auth";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { PERMISSIONS } from "@/constants/permissions";
+import { auth } from "@/services/auth";
 import { getPermissions } from "@/services/policy";
 
 const ROUTE_PERMISSIONS: Record<string, string> = {
@@ -15,10 +15,10 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
 };
 
 const DYNAMIC_ROUTES = [
-	{ pattern: /^\/tags\/[^\/]+\/edit$/, permission: PERMISSIONS.TAGS.UPDATE },
-	{ pattern: /^\/sites\/[^\/]+\/edit$/, permission: PERMISSIONS.SITES.UPDATE },
+	{ pattern: /^\/tags\/[^/]+\/edit$/, permission: PERMISSIONS.TAGS.UPDATE },
+	{ pattern: /^\/sites\/[^/]+\/edit$/, permission: PERMISSIONS.SITES.UPDATE },
 	{
-		pattern: /^\/sites\/[^\/]+\/tags$/,
+		pattern: /^\/sites\/[^/]+\/tags$/,
 		permission: PERMISSIONS.TAGS.ASSOCIATE,
 	},
 ];

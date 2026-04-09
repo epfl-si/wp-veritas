@@ -140,7 +140,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
 		const { searchParams } = new URL(request.url);
 		const taggedFilter = searchParams.get("tagged")?.toLowerCase() === "true";
-		const siteUrlFilter = searchParams.get("siteUrl") ? ensureSlashAtEnd(decodeURIComponent(searchParams.get("siteUrl")!)) : null;
+		const siteUrlRaw = searchParams.get("siteUrl");
+		const siteUrlFilter = siteUrlRaw ? ensureSlashAtEnd(decodeURIComponent(siteUrlRaw)) : null;
 		const hasTaggedFilter = searchParams.has("tagged");
 		const infrastructureFilter = searchParams.get("infrastructure");
 
@@ -172,7 +173,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 							if (!tagMap.has(siteId)) {
 								tagMap.set(siteId, []);
 							}
-							tagMap.get(siteId)!.push(tagObj);
+							tagMap.get(siteId)?.push(tagObj);
 						}
 					}
 				}

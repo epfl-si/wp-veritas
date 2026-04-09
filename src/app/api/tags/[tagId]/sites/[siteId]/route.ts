@@ -12,7 +12,7 @@ interface RouteParams {
 	}>;
 }
 
-export async function POST(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function POST(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
 	try {
 		const session = await auth();
 		if (!session?.user) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest, { params }: RouteParams): Promi
 	}
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
+export async function DELETE(_request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
 	try {
 		const session = await auth();
 		if (!session?.user) {

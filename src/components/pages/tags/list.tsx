@@ -101,30 +101,27 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 							</Button>
 						)}
 
-						{permissions.includes(PERMISSIONS.TAGS.DELETE) && (
-							<>
-								{canDelete ? (
-									<DeleteDialog icon={TagIcon} displayName={locale === "fr" ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />
-								) : hasAssociatedSites ? (
-									<TooltipProvider>
-										<Tooltip>
-											<TooltipTrigger asChild>
-												<div className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 opacity-70 rounded-md flex items-center justify-center cursor-not-allowed">
-													<Trash2 strokeWidth={2.3} className="size-5" />
-												</div>
-											</TooltipTrigger>
-											<TooltipContent>
-												<p className="text-sm">
-													{t("actions.deleteTooltip", {
-														count: tag.sites.length,
-													})}
-												</p>
-											</TooltipContent>
-										</Tooltip>
-									</TooltipProvider>
-								) : null}
-							</>
-						)}
+						{permissions.includes(PERMISSIONS.TAGS.DELETE) &&
+							(canDelete ? (
+								<DeleteDialog icon={TagIcon} displayName={locale === "fr" ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />
+							) : hasAssociatedSites ? (
+								<TooltipProvider>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="p-1 w-9 h-9 border-2 border-gray-200 text-gray-600 opacity-70 rounded-md flex items-center justify-center cursor-not-allowed">
+												<Trash2 strokeWidth={2.3} className="size-5" />
+											</div>
+										</TooltipTrigger>
+										<TooltipContent>
+											<p className="text-sm">
+												{t("actions.deleteTooltip", {
+													count: tag.sites.length,
+												})}
+											</p>
+										</TooltipContent>
+									</Tooltip>
+								</TooltipProvider>
+							) : null)}
 					</div>
 				);
 			},

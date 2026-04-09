@@ -6,8 +6,8 @@ export async function GET(request: NextRequest) {
 	const search = searchParams.get("search") || "";
 	const level = searchParams.get("level") || "";
 	const actions = searchParams.get("actions") || "";
-	const limit = parseInt(searchParams.get("limit") || "0");
-	const skip = parseInt(searchParams.get("skip") || "0");
+	const limit = parseInt(searchParams.get("limit") || "0", 10);
+	const skip = parseInt(searchParams.get("skip") || "0", 10);
 
 	const result = await searchLogs({
 		search,

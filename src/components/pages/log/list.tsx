@@ -22,6 +22,7 @@ const parseMessage = (message: string) => {
 	return message.split(/('''.*?''')/gs).flatMap((part, i) => {
 		if (part.startsWith("'''") && part.endsWith("'''")) {
 			return (
+				// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
 				<pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono break-all overflow-hidden whitespace-pre-wrap">
 					{part.slice(3, -3)}
 				</pre>
@@ -29,7 +30,8 @@ const parseMessage = (message: string) => {
 		}
 		return part.split(/(\*\*.*?\*\*)/g).map((bp, j) =>
 			bp.startsWith("**") && bp.endsWith("**") ? (
-				<strong key={`${i}-${j}`} className="font-semibold">
+				// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
+			<strong key={`${i}-${j}`} className="font-semibold">
 					{bp.slice(2, -2)}
 				</strong>
 			) : (

@@ -163,7 +163,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 			const backupSite = sites?.find((s: KubernetesSite) => s.id === site.backupSite);
 			if (!backupSite) throw new Error("Backup site not found");
 
-			const oldSite = await fetch(config.api.url + `/${backupSite.id}`, {
+			const oldSite = await fetch(`${config.api.url}/${backupSite.id}`, {
 				method: "GET",
 				headers: { "Content-Type": "application/json" },
 				signal: AbortSignal.timeout(10000),
@@ -600,7 +600,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			namespace,
 		});
 
-		const ingress = ingresses.items.find((ing) => ing.metadata && ing.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid));
+		const ingress = ingresses.items.find((ing) => ing.metadata?.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid));
 
 		const databases = await k8sCustomObjectsApi.listNamespacedCustomObject({
 			group: "k8s.mariadb.com",

@@ -429,7 +429,7 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 			};
 		}
 
-		if (tag.sites && tag.sites.includes(siteId)) {
+		if (tag.sites?.includes(siteId)) {
 			await warn("Site already associated with tag", {
 				type: "tag",
 				action: "associate",
@@ -525,7 +525,7 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 			};
 		}
 
-		if (!tag.sites || !tag.sites.includes(siteId)) {
+		if (!tag.sites?.includes(siteId)) {
 			await warn("Site not associated with tag", {
 				type: "tag",
 				action: "disassociate",

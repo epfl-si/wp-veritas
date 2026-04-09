@@ -61,7 +61,7 @@ export const SiteAdd: React.FC = () => {
 			}
 		};
 		loadEnvironments();
-	}, [formRef]);
+	}, [formRef, loadBackupSites]);
 
 	useEffect(() => {
 		const loadUnits = async () => {
@@ -482,7 +482,7 @@ export const SiteAdd: React.FC = () => {
 				},
 				{
 					label: t("actions.edit"),
-					url: (formData: SiteFormType, response: unknown) => {
+					url: (_formData: SiteFormType, response: unknown) => {
 						const siteId = (response as { siteId?: string })?.siteId;
 						return siteId ? `/sites/${siteId}/edit` : "/error";
 					},

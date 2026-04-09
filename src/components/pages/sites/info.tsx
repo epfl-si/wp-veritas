@@ -48,13 +48,8 @@ export const SiteInfo: React.FC = () => {
 	}, [locale]);
 
 	useEffect(() => {
-		const urlParam = searchParams.get("url");
-		if (urlParam) {
-			setSearch({ url: urlParam });
-
-			searchSites({ url: urlParam });
-		}
-	}, [searchParams]);
+		moment.locale(locale);
+	}, [locale]);
 
 	const updateURL = useCallback(
 		(newUrl: string) => {
@@ -115,6 +110,15 @@ export const SiteInfo: React.FC = () => {
 			setLoading(false);
 		}
 	}, 300);
+
+	useEffect(() => {
+		const urlParam = searchParams.get("url");
+		if (urlParam) {
+			setSearch({ url: urlParam });
+
+			searchSites({ url: urlParam });
+		}
+	}, [searchParams, searchSites]);
 
 	const handleSearch = () => {
 		updateURL(search.url);
@@ -265,8 +269,8 @@ export const SiteInfo: React.FC = () => {
 							<span className="text-sm font-semibold text-gray-700">{t("info.details.recentModifications")}</span>
 						</div>
 						<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
-							{site.recentModifications.map((mod, index) => (
-								<div key={index} className="flex items-start gap-2 text-xs">
+							{site.recentModifications.map((mod) => (
+								<div key={`${mod.user}-${mod.date}-${mod.page}`} className="flex items-start gap-2 text-xs">
 									<span className="text-gray-400 mt-1">•</span>
 									<div className="flex flex-wrap items-center gap-1">
 										<Badge variant="outline" className="text-xs">
@@ -305,8 +309,8 @@ export const SiteInfo: React.FC = () => {
 								</Badge>
 							</div>
 							<div className="flex flex-wrap gap-1">
-								{site.permissions.editors.map((editor, index) => (
-									<Badge key={index} variant="outline" className="text-xs">
+								{site.permissions.editors.map((editor) => (
+									<Badge key={editor.userId} variant="outline" className="text-xs">
 										{editor.name}
 									</Badge>
 								))}
