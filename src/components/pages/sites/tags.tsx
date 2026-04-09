@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SiteType } from "@/types/site";
@@ -17,6 +19,7 @@ interface SiteTagsUpdateProps {
 
 export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) => {
 	const t = useTranslations("site.tags");
+	const tSite = useTranslations("site");
 	const locale = useLocale();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -146,8 +149,19 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("title")}<a href={site.url} target="_blank" className="ml-1 text-blue-500 hover:underline">{site.url}</a></h1>
+				<div className="flex items-start justify-between">
+					<div>
+						<h1 className="text-3xl font-bold">{t("title")}</h1>
+						<a href={site.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline mt-1 inline-block font-mono">
+							{site.url}
+						</a>
+					</div>
+					<Button variant="outline" asChild>
+						<Link href={`/sites/${site.id}/edit`}>
+							<Pencil className="size-4" />
+							{tSite("actions.edit")}
+						</Link>
+					</Button>
 				</div>
 			</div>
 

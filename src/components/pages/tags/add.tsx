@@ -103,9 +103,7 @@ export const TagAdd: React.FC = () => {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("add.title")}</h1>
-				</div>
+				<h1 className="text-3xl font-bold">{t("add.title")}</h1>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Form config={getFormConfig()} />
