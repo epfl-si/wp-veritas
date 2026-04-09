@@ -1,17 +1,18 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import { SearchSiteType } from "@/types/site";
-import { GlobeIcon, Search, Loader2, AlertCircle, Calendar, Link as LinkIcon, Clock, ExternalLink, Shield, Users, Edit, User, Server, Database, Network, Pencil } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { AlertCircle, Calendar, Clock, Database, Edit, ExternalLink, GlobeIcon, Link as LinkIcon, Loader2, Network, Pencil, Search, Server, Shield, User, Users } from "lucide-react";
+import moment from "moment";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import moment from "moment";
+import type { SearchSiteType } from "@/types/site";
 import "moment/locale/fr";
 import { useDebouncedCallback } from "@/hooks/useDebounce";
 
@@ -72,51 +73,48 @@ export const SiteInfo: React.FC = () => {
 		[searchParams, pathname, router],
 	);
 
-	const searchSites = useDebouncedCallback(
-		async (searchParams: SearchState) => {
-			if (!searchParams.url.trim()) {
-				setSites([]);
-				setHasSearched(false);
-				return;
-			}
+	const searchSites = useDebouncedCallback(async (searchParams: SearchState) => {
+		if (!searchParams.url.trim()) {
+			setSites([]);
+			setHasSearched(false);
+			return;
+		}
 
-			setLoading(true);
-			setError(null);
-			setHasSearched(true);
+		setLoading(true);
+		setError(null);
+		setHasSearched(true);
 
-			try {
-				const queryParams = new URLSearchParams();
-				if (searchParams.url) queryParams.append("url", searchParams.url);
+		try {
+			const queryParams = new URLSearchParams();
+			if (searchParams.url) queryParams.append("url", searchParams.url);
 
-				const response = await fetch(`/api/sites/search?${queryParams.toString()}`);
-				const data: SearchResponse = await response.json();
+			const response = await fetch(`/api/sites/search?${queryParams.toString()}`);
+			const data: SearchResponse = await response.json();
 
-				if (response.ok && data.items) {
-					setSites(data.items);
-				} else {
-					switch (data.status) {
-						case 404:
-							setError(t("info.error.notFound"));
-							break;
-						case 500:
-							setError(t("info.error.server"));
-							break;
-						default:
-							setError(data.message || t("info.error.server"));
-							break;
-					}
-					setSites([]);
+			if (response.ok && data.items) {
+				setSites(data.items);
+			} else {
+				switch (data.status) {
+					case 404:
+						setError(t("info.error.notFound"));
+						break;
+					case 500:
+						setError(t("info.error.server"));
+						break;
+					default:
+						setError(data.message || t("info.error.server"));
+						break;
 				}
-			} catch (error) {
-				console.error("Error fetching sites:", error);
-				setError(t("error.connection"));
 				setSites([]);
-			} finally {
-				setLoading(false);
 			}
-		},
-		300,
-	);
+		} catch (error) {
+			console.error("Error fetching sites:", error);
+			setError(t("error.connection"));
+			setSites([]);
+		} finally {
+			setLoading(false);
+		}
+	}, 300);
 
 	const handleSearch = () => {
 		updateURL(search.url);
@@ -328,7 +326,7 @@ export const SiteInfo: React.FC = () => {
 
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
-			<div className="p-6 pb-4 flex-shrink-0 mt-1">
+			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
 					<h1 className="text-3xl font-bold">{t("info.title")}</h1>
 				</div>

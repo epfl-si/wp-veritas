@@ -1,9 +1,9 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSiteExtraInfo, getKubernetesSites } from "@/lib/kubernetes";
 import db from "@/lib/mongo";
 import { TagModel } from "@/models/Tag";
 import { isDatabaseSite, isKubernetesSite } from "@/types/site";
-import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
 	params: Promise<{
@@ -161,13 +161,9 @@ interface RouteParams {
 
 export async function GET(request: NextRequest, { params }: RouteParams): Promise<NextResponse> {
 	try {
-
 		const { siteId } = await params;
 
-		const [kubernetesResult, databaseResult] = await Promise.all([
-			getKubernetesSites(),
-			listDatabaseSites(),
-		]);
+		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
 
 		const kubernetesSites = kubernetesResult.sites || [];
 		const databaseSites = databaseResult.sites || [];
@@ -191,21 +187,23 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 
 		const foundSite = allSites.find((site) => site.id === siteId);
 		if (!foundSite) {
-			return NextResponse.json(
-				{ message: "Site not found" },
-				{ status: 404 },
-			);
+			return NextResponse.json({ message: "Site not found" }, { status: 404 });
 		}
 
 		const site = {
 			id: foundSite.id,
 			...(isKubernetesSite(foundSite) ? { title: foundSite.title, tagline: foundSite.tagline } : {}),
-			...(isKubernetesSite(foundSite) ? { kubernetesExtraInfo: await getKubernetesSiteExtraInfo(foundSite.id) } : {}),
+			...(isKubernetesSite(foundSite)
+				? {
+						kubernetesExtraInfo: await getKubernetesSiteExtraInfo(foundSite.id),
+					}
+				: {}),
 			infrastructure: foundSite.infrastructure,
 			url: foundSite.url,
 			monitored: foundSite.monitored,
 			tags: tags
-				.filter((tag) => tag.sites.includes(foundSite.id)).map((tag) => ({
+				.filter((tag) => tag.sites.includes(foundSite.id))
+				.map((tag) => ({
 					id: tag.id,
 					nameFr: tag.nameFr,
 					nameEn: tag.nameEn,
@@ -219,11 +217,6 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
 		return NextResponse.json(site, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving sites:", error);
-		return NextResponse.json(
-			{ message: "Internal Server Error" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
 	}
 }
-
-

@@ -1,7 +1,12 @@
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { LucideIcon } from "lucide-react";
 
-export const Error: React.FC<{ text: string; subText: string; Icon: LucideIcon; color: string }> = ({ text, subText, Icon, color }) => {
+export const Error: React.FC<{
+	text: string;
+	subText: string;
+	Icon: LucideIcon;
+	color: string;
+}> = ({ text, subText, Icon, color }) => {
 	return (
 		<div className="w-full h-full flex flex-1 flex-col items-center justify-center text-center p-4">
 			<Icon className={cn("w-16 h-16 mb-4", color)} />

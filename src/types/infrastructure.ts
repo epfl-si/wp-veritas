@@ -1,5 +1,5 @@
-import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { LucideIcon } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import type { INFRASTRUCTURES } from "@/constants/infrastructures";
 
 export type InfrastructureType = {
 	NAME: string;

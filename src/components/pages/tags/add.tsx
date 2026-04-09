@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
 import { useLocale, useTranslations } from "next-intl";
-import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form";
-import { tagSchema, TagFormType } from "@/types/tag";
-import { useZodErrorMessages } from "@/hooks/zod";
+import type React from "react";
+import Form, { type FieldConfig, type FormConfig, type SectionConfig } from "@/components/form";
 import { TAG_CATEGORIES } from "@/constants/tags";
+import { useZodErrorMessages } from "@/hooks/zod";
+import { type TagFormType, tagSchema } from "@/types/tag";
 
 export const TagAdd: React.FC = () => {
 	const t = useTranslations("tag");

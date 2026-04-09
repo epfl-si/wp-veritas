@@ -1,10 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import { Trash2, AlertTriangle, LucideIcon, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertTriangle, Info, type LucideIcon, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 interface DeleteDialogProps {
 	displayName: string;
@@ -18,16 +18,7 @@ interface DeleteDialogProps {
 	isPlural?: boolean;
 }
 
-export const DeleteDialog: React.FC<DeleteDialogProps> = ({
-	displayName,
-	apiEndpoint,
-	type,
-	icon,
-	onBulkDelete,
-	itemCount,
-	triggerText,
-	isPlural = false,
-}) => {
+export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndpoint, type, icon, onBulkDelete, itemCount, triggerText, isPlural = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -88,9 +79,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
 						<AlertTriangle className="size-5" />
 						{isPlural ? t("titlePlural", { object: type, count: itemCount ?? 0 }) : t("title", { object: type })}
 					</DialogTitle>
-					<DialogDescription className="text-gray-600">
-						{isPlural ? t("descriptionPlural", { object: type, count: itemCount ?? 0 }) : t("description", { object: type })}
-					</DialogDescription>
+					<DialogDescription className="text-gray-600">{isPlural ? t("descriptionPlural", { object: type, count: itemCount ?? 0 }) : t("description", { object: type })}</DialogDescription>
 				</DialogHeader>
 
 				{error && (
@@ -111,9 +100,7 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({
 						<Info className="size-4" />
 						<p className="">{t("irreversible")}</p>
 					</div>
-					<p className="text-xs text-red-600 mt-1">
-						{isPlural ? t("warningPlural", { object: type, count: itemCount ?? 0 }) : t("warning", { object: type })}
-					</p>
+					<p className="text-xs text-red-600 mt-1">{isPlural ? t("warningPlural", { object: type, count: itemCount ?? 0 }) : t("warning", { object: type })}</p>
 				</div>
 
 				<DialogFooter className="flex gap-2 sm:gap-2">

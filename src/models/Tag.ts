@@ -1,6 +1,6 @@
-import mongoose, { Document } from "mongoose";
-import type { TagCategoryEnumType } from "@/types/tag";
+import mongoose, { type Document } from "mongoose";
 import { TAG_CATEGORIES_VALUES } from "@/constants/tags";
+import type { TagCategoryEnumType } from "@/types/tag";
 
 export interface ITag extends Document {
 	id: string;

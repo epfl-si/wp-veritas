@@ -1,12 +1,12 @@
-import { SiteFormType, DatabaseSite, DatabaseSiteFormType, SiteExtras } from "@/types/site";
-import { ensureSlashAtEnd } from "./utils";
-import { APIError } from "@/types/error";
-import { SiteModel } from "@/models/Site";
 import { v4 as uuid } from "uuid";
-import db from "./mongo";
-import { getKubernetesSite } from "./kubernetes";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { cache, withCache } from "@/lib/redis";
+import { SiteModel } from "@/models/Site";
+import type { APIError } from "@/types/error";
+import type { DatabaseSite, DatabaseSiteFormType, SiteExtras, SiteFormType } from "@/types/site";
+import { getKubernetesSite } from "./kubernetes";
+import db from "./mongo";
+import { ensureSlashAtEnd } from "./utils";
 
 export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite; error?: APIError }> {
 	try {
@@ -14,7 +14,9 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 
 		const site = await SiteModel.findOne({ id });
 		if (!site) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		const databaseSite: DatabaseSite = {
@@ -40,44 +42,55 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 	}
 }
 
-export async function listDatabaseSites(): Promise<{ sites?: DatabaseSite[]; error?: APIError }> {
-	return withCache("database-sites", async () => {
-		try {
-			await db.connect();
+export async function listDatabaseSites(): Promise<{
+	sites?: DatabaseSite[];
+	error?: APIError;
+}> {
+	return withCache(
+		"database-sites",
+		async () => {
+			try {
+				await db.connect();
 
-			const persistentInfrastructures = Object.values(INFRASTRUCTURES)
-				.filter((infra) => infra.PERSISTENCE)
-				.map((infra) => infra.NAME);
+				const persistentInfrastructures = Object.values(INFRASTRUCTURES)
+					.filter((infra) => infra.PERSISTENCE)
+					.map((infra) => infra.NAME);
 
-			const sites = await SiteModel.find({
-				infrastructure: { $in: persistentInfrastructures },
-			})
-				.select("id url infrastructure title tagline createdAt ticket comment monitored")
-				.sort("-createdAt")
-				.lean();
+				const sites = await SiteModel.find({
+					infrastructure: { $in: persistentInfrastructures },
+				})
+					.select("id url infrastructure title tagline createdAt ticket comment monitored")
+					.sort("-createdAt")
+					.lean();
 
-			const databaseSites: DatabaseSite[] = sites.map((site) => ({
-				id: site.id,
-				url: ensureSlashAtEnd(site.url),
-				infrastructure: site.infrastructure as DatabaseSite["infrastructure"],
-				createdAt: site.createdAt || new Date(),
-				tags: [],
-				title: site.title,
-				tagline: site.tagline,
-				ticket: site.ticket,
-				comment: site.comment,
-				monitored: site.monitored,
-				managed: true,
-			}));
+				const databaseSites: DatabaseSite[] = sites.map((site) => ({
+					id: site.id,
+					url: ensureSlashAtEnd(site.url),
+					infrastructure: site.infrastructure as DatabaseSite["infrastructure"],
+					createdAt: site.createdAt || new Date(),
+					tags: [],
+					title: site.title,
+					tagline: site.tagline,
+					ticket: site.ticket,
+					comment: site.comment,
+					monitored: site.monitored,
+					managed: true,
+				}));
 
-			return { sites: databaseSites };
-		} catch (error) {
-			console.error("Error listing sites from database:", error);
-			return {
-				error: { status: 500, message: "Internal Server Error", success: false },
-			};
-		}
-	}, 480); // 8 minutes cache
+				return { sites: databaseSites };
+			} catch (error) {
+				console.error("Error listing sites from database:", error);
+				return {
+					error: {
+						status: 500,
+						message: "Internal Server Error",
+						success: false,
+					},
+				};
+			}
+		},
+		480,
+	); // 8 minutes cache
 }
 
 export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
@@ -88,7 +101,13 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 				.map((infra) => infra.NAME)
 				.includes(site.infrastructure)
 		) {
-			return { error: { status: 400, message: "Invalid infrastructure for database creation", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid infrastructure for database creation",
+					success: false,
+				},
+			};
 		}
 
 		const databaseSite = site as DatabaseSiteFormType;
@@ -113,7 +132,9 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 		return { siteId: id };
 	} catch (error) {
 		console.error("Error creating site in database:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -122,12 +143,24 @@ export async function createDatabaseSiteExtras(siteId: string, extras: SiteExtra
 		await db.connect();
 
 		const { site, error } = await getKubernetesSite(siteId);
-		if (error) return { error: { status: error.status, message: error.message, success: false } };
-		if (!site) return { error: { status: 404, message: "Site not found", success: false } };
+		if (error)
+			return {
+				error: { status: error.status, message: error.message, success: false },
+			};
+		if (!site)
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 
 		const existingSite = await SiteModel.findOne({ id: siteId });
 		if (existingSite) {
-			return { error: { status: 409, message: "Site extras already exist", success: false } };
+			return {
+				error: {
+					status: 409,
+					message: "Site extras already exist",
+					success: false,
+				},
+			};
 		}
 
 		const newSite = new SiteModel({
@@ -157,7 +190,9 @@ export async function createDatabaseSiteExtras(siteId: string, extras: SiteExtra
 		return { site: result };
 	} catch (error) {
 		console.error("Error creating site extras in database:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -169,7 +204,9 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 		if (!databaseSite) {
 			const { site } = await getKubernetesSite(siteId);
 			if (!site) {
-				return { error: { status: 404, message: "Site not found", success: false } };
+				return {
+					error: { status: 404, message: "Site not found", success: false },
+				};
 			}
 			await SiteModel.create({
 				id: siteId,
@@ -194,7 +231,13 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 		);
 
 		if (!updatedSite) {
-			return { error: { status: 404, message: "Site extras not found", success: false } };
+			return {
+				error: {
+					status: 404,
+					message: "Site extras not found",
+					success: false,
+				},
+			};
 		}
 
 		cache.invalidateSitesCache();
@@ -213,7 +256,9 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 		return { site: result };
 	} catch (error) {
 		console.error("Error updating site extras in database:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -223,13 +268,23 @@ export async function deleteDatabaseSiteExtras(siteId: string): Promise<{ succes
 
 		const result = await SiteModel.deleteOne({ id: siteId });
 		if (result.deletedCount === 0) {
-			return { success: false, error: { status: 404, message: "Site extras not found", success: false } };
+			return {
+				success: false,
+				error: {
+					status: 404,
+					message: "Site extras not found",
+					success: false,
+				},
+			};
 		}
 		cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting site extras from database:", error);
-		return { success: false, error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			success: false,
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -241,7 +296,13 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 				.map((infra) => infra.NAME)
 				.includes(site.infrastructure)
 		) {
-			return { error: { status: 400, message: "Invalid infrastructure for database update", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid infrastructure for database update",
+					success: false,
+				},
+			};
 		}
 
 		const databaseSite = site as DatabaseSiteFormType;
@@ -261,7 +322,9 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 		const updatedSite = await SiteModel.findOneAndUpdate({ id: siteId }, updateData, { new: true });
 
 		if (!updatedSite) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		cache.invalidateSitesCache();
@@ -282,7 +345,9 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 		return { site: result };
 	} catch (error) {
 		console.error("Error updating site in database:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -295,6 +360,9 @@ export async function deleteDatabaseSite(id: string): Promise<{ success: boolean
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting site from database:", error);
-		return { success: false, error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			success: false,
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }

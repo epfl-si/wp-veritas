@@ -1,18 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import { decode } from "html-entities";
+import { Edit, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { UseFormReturn } from "react-hook-form";
-import Form, { FormConfig, FieldConfig, SectionConfig, SelectOption } from "@/components/form";
-import { SiteFormType, siteSchema, SiteType } from "@/types/site";
-import { useZodErrorMessages } from "@/hooks/zod";
-import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { THEMES } from "@/constants/theme";
-import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import type React from "react";
+import { useEffect, useState } from "react";
+import type { UseFormReturn } from "react-hook-form";
+import Form, { type FieldConfig, type FormConfig, type SectionConfig, type SelectOption } from "@/components/form";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { ENVIRONMENTS } from "@/constants/environments";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import { THEMES } from "@/constants/theme";
+import { useZodErrorMessages } from "@/hooks/zod";
 import { getAvailableEnvironments } from "@/services/backup";
-import { decode } from "html-entities";
-import { Eye, Edit } from "lucide-react";
+import { type SiteFormType, type SiteType, siteSchema } from "@/types/site";
 
 export const SiteAdd: React.FC = () => {
 	const t = useTranslations("site");
@@ -31,10 +32,11 @@ export const SiteAdd: React.FC = () => {
 			const response = await fetch(`/api/sites/backup?environment=${environment}`);
 			if (response.ok) {
 				const data = await response.json();
-				const sites = data.items?.map((site: SiteType) => ({
-					value: site.id,
-					label: `${site.url}`,
-				})) || [];
+				const sites =
+					data.items?.map((site: SiteType) => ({
+						value: site.id,
+						label: `${site.url}`,
+					})) || [];
 				setBackupSites(sites);
 			} else {
 				setBackupSites([]);
@@ -68,10 +70,12 @@ export const SiteAdd: React.FC = () => {
 				const response = await fetch("/api/units");
 				if (response.ok) {
 					const data = await response.json();
-					setUnits(data.items.map((u: { unitId: string; name: string }) => ({
-						value: Number(u.unitId),
-						label: `${u.name} (${u.unitId})`,
-					})));
+					setUnits(
+						data.items.map((u: { unitId: string; name: string }) => ({
+							value: Number(u.unitId),
+							label: `${u.name} (${u.unitId})`,
+						})),
+					);
 				}
 			} catch (error) {
 				console.error("Error loading units:", error);
@@ -309,52 +313,60 @@ export const SiteAdd: React.FC = () => {
 					},
 				],
 			},
-			...(availableEnvironments.length >= 1 ? [{
-				name: "createFromBackup" as const,
-				type: "checkbox" as const,
-				label: `${t("form.createFromBackup.label")}`,
-				placeholder: t("form.createFromBackup.placeholder"),
-				section: "advanced" as const,
-				width: "full" as const,
-				disabled: false,
-				conditions: [
-					{
-						field: "infrastructure",
-						operator: "equals" as const,
-						value: "Kubernetes",
-						type: "display" as const,
-					},
-				],
-			}] : []),
-			...(availableEnvironments.length > 1 ? [{
-				name: "backupEnvironment" as const,
-				type: "select" as const,
-				label: t("form.backupEnvironment.label"),
-				placeholder: t("form.backupEnvironment.placeholder"),
-				section: "advanced" as const,
-				width: "full" as const,
-				options: availableEnvironments.map((env) => {
-					const envConfig = ENVIRONMENTS.find(e => e.name === env);
-					return {
-						value: env,
-						label: envConfig?.displayName || env,
-					};
-				}),
-				conditions: [
-					{
-						field: "infrastructure",
-						operator: "equals" as const,
-						value: "Kubernetes",
-						type: "display" as const,
-					},
-					{
-						field: "createFromBackup",
-						operator: "equals" as const,
-						value: true,
-						type: "display" as const,
-					},
-				],
-			}] : []),
+			...(availableEnvironments.length >= 1
+				? [
+						{
+							name: "createFromBackup" as const,
+							type: "checkbox" as const,
+							label: `${t("form.createFromBackup.label")}`,
+							placeholder: t("form.createFromBackup.placeholder"),
+							section: "advanced" as const,
+							width: "full" as const,
+							disabled: false,
+							conditions: [
+								{
+									field: "infrastructure",
+									operator: "equals" as const,
+									value: "Kubernetes",
+									type: "display" as const,
+								},
+							],
+						},
+					]
+				: []),
+			...(availableEnvironments.length > 1
+				? [
+						{
+							name: "backupEnvironment" as const,
+							type: "select" as const,
+							label: t("form.backupEnvironment.label"),
+							placeholder: t("form.backupEnvironment.placeholder"),
+							section: "advanced" as const,
+							width: "full" as const,
+							options: availableEnvironments.map((env) => {
+								const envConfig = ENVIRONMENTS.find((e) => e.name === env);
+								return {
+									value: env,
+									label: envConfig?.displayName || env,
+								};
+							}),
+							conditions: [
+								{
+									field: "infrastructure",
+									operator: "equals" as const,
+									value: "Kubernetes",
+									type: "display" as const,
+								},
+								{
+									field: "createFromBackup",
+									operator: "equals" as const,
+									value: true,
+									type: "display" as const,
+								},
+							],
+						},
+					]
+				: []),
 			{
 				name: "backupSite",
 				type: "search",
@@ -478,7 +490,7 @@ export const SiteAdd: React.FC = () => {
 				},
 			],
 			errorMessage: t("add.error.title"),
-			onSuccess: () => { },
+			onSuccess: () => {},
 			onError: (error) => {
 				console.error("Error creating site:", error);
 			},

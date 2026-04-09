@@ -1,9 +1,9 @@
 "use server";
 
-import { getConfigMapValue } from "@/lib/kubernetes";
-import { BackupConfig, BackupEnvironment } from "@/types/backup";
-import { KubernetesSiteFormType, KubernetesSite } from "@/types/site";
 import * as yaml from "js-yaml";
+import { getConfigMapValue } from "@/lib/kubernetes";
+import type { BackupConfig, BackupEnvironment } from "@/types/backup";
+import type { KubernetesSite, KubernetesSiteFormType } from "@/types/site";
 
 const BACKUP_CONFIG_MAP_NAME = "restore-config";
 
@@ -37,18 +37,18 @@ export async function getBackupSites(environment: BackupEnvironment): Promise<Ku
 		const data = await response.json();
 		return Array.isArray(data)
 			? data.map((site: KubernetesSite) => ({
-				infrastructure: "Kubernetes",
-				id: site.id,
-				url: site.url,
-				title: site.title || site.url,
-				tagline: site.tagline || "",
-				theme: site.theme,
-				unitId: site.unitId,
-				languages: site.languages || [],
-				categories: site.categories || [],
-				downloadsProtectionScript: site.downloadsProtectionScript || false,
-				monitored: site.monitored || false,
-			}))
+					infrastructure: "Kubernetes",
+					id: site.id,
+					url: site.url,
+					title: site.title || site.url,
+					tagline: site.tagline || "",
+					theme: site.theme,
+					unitId: site.unitId,
+					languages: site.languages || [],
+					categories: site.categories || [],
+					downloadsProtectionScript: site.downloadsProtectionScript || false,
+					monitored: site.monitored || false,
+				}))
 			: [];
 	} catch (error) {
 		console.error(`Error fetching backup sites for ${environment}:`, error);
@@ -67,9 +67,7 @@ export async function getAvailableEnvironments(): Promise<BackupEnvironment[]> {
 		const config = await loadBackupConfig();
 		if (!config) return [];
 
-		return Object.keys(config).filter(env =>
-			config[env as BackupEnvironment]?.api?.url,
-		) as BackupEnvironment[];
+		return Object.keys(config).filter((env) => config[env as BackupEnvironment]?.api?.url) as BackupEnvironment[];
 	} catch (error) {
 		console.error("Error loading available environments:", error);
 		return [];

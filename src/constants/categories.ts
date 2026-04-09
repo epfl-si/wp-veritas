@@ -1,4 +1,4 @@
-import { KubernetesSite } from "@/types/site";
+import type { KubernetesSite } from "@/types/site";
 import { LANGUAGES } from "./languages";
 
 export const WP_CATEGORIES = {
@@ -112,7 +112,8 @@ export const WP_CATEGORIES = {
 							theme_maintenance: "on",
 							status_code: "no",
 							page_title: "Coming soon",
-							page_content: '&nbsp;  &nbsp; <p style="text-align: center;"><img class="img-fluid aligncenter" src="https://web2018.epfl.ch/5.0.2/icons/epfl-logo.svg" alt="Logo EPFL" width="388" height="113" /></p>  <h3 style="text-align: center; color: #ff0000; font-family: Helvetica, Arial, sans-serif;">Something new is coming...</h3> <p style="position: absolute; bottom: 0; left: 0; width: 100%; text-align: center;"><a href="wp-admin/">Connexion / Login</a></p>',
+							page_content:
+								'&nbsp;  &nbsp; <p style="text-align: center;"><img class="img-fluid aligncenter" src="https://web2018.epfl.ch/5.0.2/icons/epfl-logo.svg" alt="Logo EPFL" width="388" height="113" /></p>  <h3 style="text-align: center; color: #ff0000; font-family: Helvetica, Arial, sans-serif;">Something new is coming...</h3> <p style="position: absolute; bottom: 0; left: 0; width: 100%; text-align: center;"><a href="wp-admin/">Connexion / Login</a></p>',
 						},
 					},
 				],
@@ -242,7 +243,10 @@ export const WP_CATEGORIES = {
 			"wp-media-folder": {
 				wp_options: [
 					{ name: "wpmf_use_taxonomy", value: 1 },
-					{ name: "wpmf_gallery_image_size_value", value: '["thumbnail","medium","large","full"]' },
+					{
+						name: "wpmf_gallery_image_size_value",
+						value: '["thumbnail","medium","large","full"]',
+					},
 					{ name: "wpmf_padding_masonry", value: 5 },
 					{ name: "wpmf_padding_portfolio", value: 10 },
 					{ name: "wpmf_usegellery", value: 0 },
@@ -255,7 +259,10 @@ export const WP_CATEGORIES = {
 					{ name: "wpmf_option_searchall", value: 1 },
 					{ name: "wpmf_usegellery_lightbox", value: 0 },
 					{ name: "wpmf_media_rename", value: 0 },
-					{ name: "wpmf_patern_rename", value: "{sitename} - {foldername} - #" },
+					{
+						name: "wpmf_patern_rename",
+						value: "{sitename} - {foldername} - #",
+					},
 					{ name: "wpmf_rename_number", value: 0 },
 					{ name: "wpmf_option_media_remove", value: 0 },
 					{
@@ -409,8 +416,14 @@ export const WP_CATEGORIES = {
 			"daggerhart-openid-connect-generic": {},
 			"accred.entra": {
 				wp_options: [
-					{ name: "plugin:epfl_accred:administrator_group", value: "WP-SuperAdmin" },
-					{ name: "plugin:epfl_accred:subscriber_group", value: site.categories.includes(WP_CATEGORIES.INSIDE.NAME) ? "*" : "" },
+					{
+						name: "plugin:epfl_accred:administrator_group",
+						value: "WP-SuperAdmin",
+					},
+					{
+						name: "plugin:epfl_accred:subscriber_group",
+						value: site.categories.includes(WP_CATEGORIES.INSIDE.NAME) ? "*" : "",
+					},
 					{ name: "plugin:epfl_accred:unit_id", value: site.unitId },
 					{ name: "plugin:epfl_accred:unit", value: site.unitName },
 				],
@@ -432,8 +445,14 @@ export const WP_CATEGORIES = {
 		getPlugins: () => ({
 			"epfl-restauration": {
 				wp_options: [
-					{ name: "epfl_restauration_api_url", value: "https://nutrimenu.ch/nmapi/getMenu" },
-					{ name: "epfl_restauration_api_username", value: "epfl.getmenu@nutrimenu.ch" },
+					{
+						name: "epfl_restauration_api_url",
+						value: "https://nutrimenu.ch/nmapi/getMenu",
+					},
+					{
+						name: "epfl_restauration_api_username",
+						value: "epfl.getmenu@nutrimenu.ch",
+					},
 					{
 						name: "epfl_restauration_api_password",
 						valueFrom: {
@@ -648,4 +667,16 @@ export const WP_CATEGORIES = {
 	},
 };
 
-export const OPTIONAL_CATEGORIES = [WP_CATEGORIES.INSIDE, WP_CATEGORIES.RESTAURATION, WP_CATEGORIES.LIBRARY, WP_CATEGORIES.CDHSHS, WP_CATEGORIES.WPFORMS, WP_CATEGORIES.PAYONLINE, WP_CATEGORIES.SURVEYS, WP_CATEGORIES.DIPLOMA_VERIFICATION, WP_CATEGORIES.PARTNER_UNIVERSITIES, WP_CATEGORIES.EPFL_MENUS, WP_CATEGORIES.EPFL_TRANSLATE];
+export const OPTIONAL_CATEGORIES = [
+	WP_CATEGORIES.INSIDE,
+	WP_CATEGORIES.RESTAURATION,
+	WP_CATEGORIES.LIBRARY,
+	WP_CATEGORIES.CDHSHS,
+	WP_CATEGORIES.WPFORMS,
+	WP_CATEGORIES.PAYONLINE,
+	WP_CATEGORIES.SURVEYS,
+	WP_CATEGORIES.DIPLOMA_VERIFICATION,
+	WP_CATEGORIES.PARTNER_UNIVERSITIES,
+	WP_CATEGORIES.EPFL_MENUS,
+	WP_CATEGORIES.EPFL_TRANSLATE,
+];

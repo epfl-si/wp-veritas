@@ -1,11 +1,11 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
 import db from "@/lib/mongo";
-import { TagModel } from "@/models/Tag";
-import { isKubernetesSite } from "@/types/site";
-import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
 import { ensureSlashAtEnd } from "@/lib/utils";
+import { TagModel } from "@/models/Tag";
+import { isKubernetesSite } from "@/types/site";
 
 /**
  * @swagger
@@ -144,58 +144,73 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const hasTaggedFilter = searchParams.has("tagged");
 		const infrastructureFilter = searchParams.get("infrastructure");
 
-		const sites = await withCache("api-v2-sites", async () => {
-			const [[k8sResult, dbResult], tags] = await Promise.all([
-				Promise.all([getKubernetesSites(), listDatabaseSites()]),
-				db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
-			]);
+		const sites = await withCache(
+			"api-v2-sites",
+			async () => {
+				const [[k8sResult, dbResult], tags] = await Promise.all([
+					Promise.all([getKubernetesSites(), listDatabaseSites()]),
+					db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
+				]);
 
-			const k8sSites = k8sResult.sites || [];
-			const dbSites = dbResult.sites || [];
+				const k8sSites = k8sResult.sites || [];
+				const dbSites = dbResult.sites || [];
 
-			const tagMap = new Map();
-			const siteMap = new Map();
+				const tagMap = new Map();
+				const siteMap = new Map();
 
-			for (const tag of tags) {
-				if (tag.sites?.length) {
-					const tagObj = {
-						id: tag.id,
-						nameFr: tag.nameFr,
-						nameEn: tag.nameEn,
-						urlFr: tag.urlFr,
-						urlEn: tag.urlEn,
-						type: tag.type,
-					};
-					for (const siteId of tag.sites) {
-						if (!tagMap.has(siteId)) {
-							tagMap.set(siteId, []);
+				for (const tag of tags) {
+					if (tag.sites?.length) {
+						const tagObj = {
+							id: tag.id,
+							nameFr: tag.nameFr,
+							nameEn: tag.nameEn,
+							urlFr: tag.urlFr,
+							urlEn: tag.urlEn,
+							type: tag.type,
+						};
+						for (const siteId of tag.sites) {
+							if (!tagMap.has(siteId)) {
+								tagMap.set(siteId, []);
+							}
+							tagMap.get(siteId)!.push(tagObj);
 						}
-						tagMap.get(siteId)!.push(tagObj);
 					}
 				}
-			}
 
-			[...dbSites, ...k8sSites].forEach(site => {
-				const existing = siteMap.get(site.id);
-				siteMap.set(site.id, {
-					id: site.id,
-					infrastructure: site.infrastructure,
-					url: site.url,
-					monitored: (existing?.monitored ?? site.monitored) || false,
-					tags: tagMap.get(site.id) || [],
-					createdAt: site.createdAt,
-					...(isKubernetesSite(site) ? { title: site.title, tagline: site.tagline, theme: site.theme, unitId: site.unitId, languages: site.languages, categories: site.categories, downloadsProtectionScript: site.downloadsProtectionScript } : {}),
-					...(!isKubernetesSite(site) && (site.title || site.tagline) ? { title: site.title, tagline: site.tagline } : {}),
+				[...dbSites, ...k8sSites].forEach((site) => {
+					const existing = siteMap.get(site.id);
+					siteMap.set(site.id, {
+						id: site.id,
+						infrastructure: site.infrastructure,
+						url: site.url,
+						monitored: (existing?.monitored ?? site.monitored) || false,
+						tags: tagMap.get(site.id) || [],
+						createdAt: site.createdAt,
+						...(isKubernetesSite(site)
+							? {
+									title: site.title,
+									tagline: site.tagline,
+									theme: site.theme,
+									unitId: site.unitId,
+									languages: site.languages,
+									categories: site.categories,
+									downloadsProtectionScript: site.downloadsProtectionScript,
+								}
+							: {}),
+						...(!isKubernetesSite(site) && (site.title || site.tagline) ? { title: site.title, tagline: site.tagline } : {}),
+					});
 				});
-			});
 
-			return Array.from(siteMap.values());
-		}, 480);
+				return Array.from(siteMap.values());
+			},
+			480,
+		);
 
-		const filtered = sites.filter(site =>
-			(!siteUrlFilter || site.url === siteUrlFilter) &&
-			(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)) &&
-			(!infrastructureFilter || site.infrastructure.toLowerCase() === infrastructureFilter.toLowerCase()),
+		const filtered = sites.filter(
+			(site) =>
+				(!siteUrlFilter || site.url === siteUrlFilter) &&
+				(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)) &&
+				(!infrastructureFilter || site.infrastructure.toLowerCase() === infrastructureFilter.toLowerCase()),
 		);
 
 		return NextResponse.json(filtered);

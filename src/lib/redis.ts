@@ -74,11 +74,7 @@ class RedisCache {
 
 export const cache = RedisCache.getInstance();
 
-export async function withCache<T>(
-	cacheKey: string,
-	fetchFn: () => Promise<T>,
-	ttlSeconds = 480,
-): Promise<T> {
+export async function withCache<T>(cacheKey: string, fetchFn: () => Promise<T>, ttlSeconds = 480): Promise<T> {
 	const cached = await cache.get<T>(cacheKey);
 	if (cached) {
 		return cached;

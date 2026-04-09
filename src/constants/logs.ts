@@ -1,4 +1,4 @@
-import { Bug, Info, AlertTriangle, XCircle, Settings } from "lucide-react";
+import { AlertTriangle, Bug, Info, Settings, XCircle } from "lucide-react";
 
 export const LOG_LEVELS = {
 	DEBUG: {

@@ -1,11 +1,11 @@
+import { decode } from "html-entities";
+import { type NextRequest, NextResponse } from "next/server";
 import { listDatabaseSites } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
 import db from "@/lib/mongo";
-import { TagModel } from "@/models/Tag";
-import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
 import { ensureSlashAtEnd } from "@/lib/utils";
-import { decode } from "html-entities";
+import { TagModel } from "@/models/Tag";
 
 /**
  * @swagger
@@ -143,58 +143,59 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const siteUrlFilter = searchParams.get("site_url") ? ensureSlashAtEnd(decodeURIComponent(searchParams.get("site_url")!)) : null;
 		const hasTaggedFilter = searchParams.has("tagged");
 
-		const sites = await withCache("api-v1-sites", async () => {
-			const [[k8sResult, dbResult], tags] = await Promise.all([
-				Promise.all([getKubernetesSites(), listDatabaseSites()]),
-				db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
-			]);
+		const sites = await withCache(
+			"api-v1-sites",
+			async () => {
+				const [[k8sResult, dbResult], tags] = await Promise.all([
+					Promise.all([getKubernetesSites(), listDatabaseSites()]),
+					db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
+				]);
 
-			const k8sSites = k8sResult.sites || [];
-			const dbSites = dbResult.sites || [];
+				const k8sSites = k8sResult.sites || [];
+				const dbSites = dbResult.sites || [];
 
-			const tagMap = new Map();
-			const siteMap = new Map();
+				const tagMap = new Map();
+				const siteMap = new Map();
 
-			for (const tag of tags) {
-				if (tag.sites?.length) {
-					const tagObj = {
-						id: tag.id,
-						name_fr: tag.nameFr,
-						name_en: tag.nameEn,
-						url_fr: tag.urlFr,
-						url_en: tag.urlEn,
-						type: tag.type,
-					};
-					for (const siteId of tag.sites) {
-						if (!tagMap.has(siteId)) {
-							tagMap.set(siteId, []);
+				for (const tag of tags) {
+					if (tag.sites?.length) {
+						const tagObj = {
+							id: tag.id,
+							name_fr: tag.nameFr,
+							name_en: tag.nameEn,
+							url_fr: tag.urlFr,
+							url_en: tag.urlEn,
+							type: tag.type,
+						};
+						for (const siteId of tag.sites) {
+							if (!tagMap.has(siteId)) {
+								tagMap.set(siteId, []);
+							}
+							tagMap.get(siteId)!.push(tagObj);
 						}
-						tagMap.get(siteId)!.push(tagObj);
 					}
 				}
-			}
 
-			[...dbSites, ...k8sSites].forEach(site => {
-				const existing = siteMap.get(site.id);
-				siteMap.set(site.id, {
-					id: site.id,
-					infrastructure: site.infrastructure,
-					url: site.url,
-					monitored: existing?.monitored ?? site.monitored,
-					tags: tagMap.get(site.id) || [],
-					createdAt: site.createdAt,
-					title: "title" in site && site.title ? decode(site.title) : "",
-					tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
+				[...dbSites, ...k8sSites].forEach((site) => {
+					const existing = siteMap.get(site.id);
+					siteMap.set(site.id, {
+						id: site.id,
+						infrastructure: site.infrastructure,
+						url: site.url,
+						monitored: existing?.monitored ?? site.monitored,
+						tags: tagMap.get(site.id) || [],
+						createdAt: site.createdAt,
+						title: "title" in site && site.title ? decode(site.title) : "",
+						tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
+					});
 				});
-			});
 
-			return Array.from(siteMap.values());
-		}, 480);
-
-		const filtered = sites.filter(site =>
-			(!siteUrlFilter || site.url === siteUrlFilter) &&
-			(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)),
+				return Array.from(siteMap.values());
+			},
+			480,
 		);
+
+		const filtered = sites.filter((site) => (!siteUrlFilter || site.url === siteUrlFilter) && (!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)));
 
 		return NextResponse.json(filtered);
 	} catch (error) {

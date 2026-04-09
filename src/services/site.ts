@@ -1,15 +1,37 @@
 "use server";
-import { APIError } from "@/types/error";
-import { SearchSiteType, SiteFormType, SiteType, KubernetesSite, DatabaseSite, isKubernetesSite, isDatabaseSite, getSitePersistence, isCreatableInfrastructure, SiteExtras, SITE_EXTRAS } from "@/types/site";
-import { hasPermission } from "./policy";
+import { getInfrastructureByName } from "@/constants/infrastructures";
 import { PERMISSIONS } from "@/constants/permissions";
 import { getEditors, getNames, getUnit } from "@/lib/api";
-import { getInfrastructureByName } from "@/constants/infrastructures";
-import { createKubernetesSite, getKubernetesSite, getKubernetesSites, updateKubernetesSite, deleteKubernetesSite, getKubernetesSiteExtraInfo } from "@/lib/kubernetes";
-import { createDatabaseSite, listDatabaseSites, getDatabaseSite, updateDatabaseSite, deleteDatabaseSite, createDatabaseSiteExtras, updateDatabaseSiteExtras, deleteDatabaseSiteExtras } from "@/lib/database";
-import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
-import { info, warn, error } from "@/lib/log";
+import {
+	createDatabaseSite,
+	createDatabaseSiteExtras,
+	deleteDatabaseSite,
+	deleteDatabaseSiteExtras,
+	getDatabaseSite,
+	listDatabaseSites,
+	updateDatabaseSite,
+	updateDatabaseSiteExtras,
+} from "@/lib/database";
+import { createKubernetesSite, deleteKubernetesSite, getKubernetesSite, getKubernetesSiteExtraInfo, getKubernetesSites, updateKubernetesSite } from "@/lib/kubernetes";
+import { error, info, warn } from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
+import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
+import type { APIError } from "@/types/error";
+import {
+	type DatabaseSite,
+	getSitePersistence,
+	isCreatableInfrastructure,
+	isDatabaseSite,
+	isKubernetesSite,
+	type KubernetesSite,
+	type KubernetesSiteExtraInfo,
+	type SearchSiteType,
+	SITE_EXTRAS,
+	type SiteExtras,
+	type SiteFormType,
+	type SiteType,
+} from "@/types/site";
+import { hasPermission } from "./policy";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
 
 function extractExtras(site: SiteFormType): SiteExtras {
@@ -63,17 +85,31 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 
 		const infrastructure = getInfrastructureByName(site.infrastructure);
 		if (!infrastructure) {
-			return { error: { status: 400, message: "Invalid infrastructure", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid infrastructure",
+					success: false,
+				},
+			};
 		}
 
 		if (!isCreatableInfrastructure(site.infrastructure)) {
-			return { error: { status: 400, message: "Infrastructure is not creatable", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Infrastructure is not creatable",
+					success: false,
+				},
+			};
 		}
 
 		const { sites } = await listSites();
 		const siteUrl = ensureSlashAtEnd(site.url);
 		if (sites && sites.some((s) => s.url === siteUrl)) {
-			return { error: { status: 409, message: "Site already exists", success: false } };
+			return {
+				error: { status: 409, message: "Site already exists", success: false },
+			};
 		}
 
 		const persistence = getSitePersistence(site.infrastructure);
@@ -144,7 +180,9 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 					persistence,
 					error: "Not implemented",
 				});
-				return { error: { status: 501, message: "Not implemented", success: false } };
+				return {
+					error: { status: 501, message: "Not implemented", success: false },
+				};
 		}
 	} catch (errorData) {
 		await error("Failed to create site.", {
@@ -154,7 +192,9 @@ export async function createSite(site: SiteFormType): Promise<{ siteId?: string;
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
 		console.error("Error creating site.", errorData);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -181,17 +221,22 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				id: siteId,
 				error: fetchError?.message || "Site not found",
 			});
-			return { error: fetchError || { status: 404, message: "Site not found", success: false } };
+			return {
+				error: fetchError || {
+					status: 404,
+					message: "Site not found",
+					success: false,
+				},
+			};
 		}
 
 		const immutableFieldsChanged: string[] = [];
 		for (const [key, value] of Object.entries(site)) {
-			if (!UPDATABLE_FIELDS.includes(key) && existingSite.hasOwnProperty(key)) {
+			if (!UPDATABLE_FIELDS.includes(key) && Object.hasOwn(existingSite, key)) {
 				const existingValue = existingSite[key as keyof typeof existingSite];
 
 				if (Array.isArray(value) && Array.isArray(existingValue)) {
-					if (value.length !== existingValue.length ||
-						!value.every((item, index) => item === existingValue[index])) {
+					if (value.length !== existingValue.length || !value.every((item, index) => item === existingValue[index])) {
 						immutableFieldsChanged.push(key);
 					}
 				} else if (existingValue !== value) {
@@ -213,8 +258,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					const newSet = new Set(newValue);
 					const existingSet = new Set(existingValue);
 
-					hasChanged = newSet.size !== existingSet.size ||
-						![...newSet].every(item => existingSet.has(item));
+					hasChanged = newSet.size !== existingSet.size || ![...newSet].every((item) => existingSet.has(item));
 				} else {
 					hasChanged = newValue !== existingValue;
 				}
@@ -256,7 +300,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					};
 
 					if (field === "categories" && site.infrastructure === "Kubernetes") {
-						const oldCategories = existingValue as string[] || [];
+						const oldCategories = (existingValue as string[]) || [];
 						const newCategories = (newValue || []) as string[];
 
 						const added = newCategories.filter((c: string) => !oldCategories.includes(c));
@@ -269,7 +313,6 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 							changes.push(`some categories were removed: '''${removed.join(", ")}'''`);
 						}
 					} else {
-
 						const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
 						changes.push(generateChangeMessage(fieldName, existingValue, newValue));
 					}
@@ -304,7 +347,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					return { error: databaseError };
 				}
 
-				await info(`The site ${site.url} (${site.infrastructure}) was updated. ${changes.join(", ").replace(/^./, c => c.toUpperCase())}.`, {
+				await info(`The site ${site.url} (${site.infrastructure}) was updated. ${changes.join(", ").replace(/^./, (c) => c.toUpperCase())}.`, {
 					type: "site",
 					action: "update",
 					id: siteId,
@@ -342,7 +385,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					}
 				}
 
-				await info(`Site ${site.url} (${site.infrastructure}) updated: ${changes.join(", ").replace(/^./, c => c.toUpperCase())}.`, {
+				await info(`Site ${site.url} (${site.infrastructure}) updated: ${changes.join(", ").replace(/^./, (c) => c.toUpperCase())}.`, {
 					type: "site",
 					action: "update",
 					id: siteId,
@@ -351,7 +394,6 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 				break;
 			}
 
-			case "none":
 			default:
 				await warn(`This type of site cannot be updated: ${site.url}.`, {
 					type: "site",
@@ -361,7 +403,9 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 					persistence,
 					error: "Not implemented",
 				});
-				return { error: { status: 400, message: "Bad Request", success: false } };
+				return {
+					error: { status: 400, message: "Bad Request", success: false },
+				};
 		}
 
 		return {};
@@ -373,7 +417,9 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			object: site,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -397,7 +443,9 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 				id: siteId,
 				error: "Site not found",
 			});
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		const persistence = getSitePersistence(site.infrastructure);
@@ -470,7 +518,13 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 
 			case "none":
 			default:
-				return { error: { status: 501, message: "Cannot delete sites with no persistence", success: false } };
+				return {
+					error: {
+						status: 501,
+						message: "Cannot delete sites with no persistence",
+						success: false,
+					},
+				};
 		}
 
 		return {};
@@ -481,7 +535,9 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 			id: siteId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -537,7 +593,9 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			return { site: enrichedSite };
 		}
 
-		return { error: { status: 404, message: "Site not found", success: false } };
+		return {
+			error: { status: 404, message: "Site not found", success: false },
+		};
 	} catch (errorData) {
 		await error("Failed to get site", {
 			type: "site",
@@ -545,11 +603,16 @@ export async function getSite(siteId: string): Promise<{ site?: SiteType; error?
 			id: siteId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
-export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIError }> {
+export async function listSites(): Promise<{
+	sites?: SiteType[];
+	error?: APIError;
+}> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
 			await warn("Permission denied for sites listing", {
@@ -589,7 +652,9 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 				action: "list",
 				count: 0,
 			});
-			return { error: { status: 404, message: "No sites found", success: false } };
+			return {
+				error: { status: 404, message: "No sites found", success: false },
+			};
 		}
 
 		await info("Sites listed successfully", {
@@ -607,7 +672,9 @@ export async function listSites(): Promise<{ sites?: SiteType[]; error?: APIErro
 			action: "list",
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -622,7 +689,9 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			normalizedUrl = `https://${normalizedUrl}`;
 		}
 
-		const urlNotFound = await fetch(normalizedUrl, { method: "HEAD" }).then(r => r.status === 404).catch(() => false);
+		const urlNotFound = await fetch(normalizedUrl, { method: "HEAD" })
+			.then((r) => r.status === 404)
+			.catch(() => false);
 
 		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
 
@@ -648,7 +717,9 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 		const sites = Array.from(siteMap.values());
 
 		if (!sites?.length) {
-			return { error: { status: 404, message: "No sites found", success: false } };
+			return {
+				error: { status: 404, message: "No sites found", success: false },
+			};
 		}
 
 		const filteredSites = sites
@@ -667,10 +738,17 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 				const bPath = new URL(b.url).pathname.replace(/\/$/, "") || "/";
 				return bPath.length - aPath.length;
 			})
-			.slice(0, 1).filter((site) => isKubernetesSite(site));
+			.slice(0, 1)
+			.filter((site) => isKubernetesSite(site));
 
 		if (!filteredSites.length) {
-			return { error: { status: 404, message: "No sites found matching the URL", success: false } };
+			return {
+				error: {
+					status: 404,
+					message: "No sites found matching the URL",
+					success: false,
+				},
+			};
 		}
 
 		const fetchWpData = async (endpoint: string, siteUrl: string) => {
@@ -688,7 +766,12 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			filteredSites.map(async (site) => {
 				const [revisions, lastChange] = await Promise.all([fetchWpData("lastrevisions", site.url), fetchWpData(`lastchange?url=${normalizedUrl}`, site.url)]);
 
-				type Revision = { username: string; last_modified: string; post_title?: string; post_url?: string };
+				type Revision = {
+					username: string;
+					last_modified: string;
+					post_title?: string;
+					post_url?: string;
+				};
 				const userIds = [...(revisions?.map((r: Revision) => r.username).filter(Boolean) || []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
 				const names = userIds.length ? await getNames([...new Set(userIds)], "username") : [];
 				const nameMap = new Map(names.map((n) => [n.userId, n.name]));
@@ -698,7 +781,7 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					unitId = site.unitId?.toString() || "0";
 				}
 
-				let kubernetesExtraInfo;
+				let kubernetesExtraInfo: KubernetesSiteExtraInfo | undefined;
 				if (isKubernetesSite(site)) {
 					try {
 						kubernetesExtraInfo = await getKubernetesSiteExtraInfo(site.id);
@@ -715,9 +798,9 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					unit: await getUnit(unitId),
 					lastModified: lastChange?.[0]?.last_modified
 						? {
-							date: lastChange?.[0]?.last_modified || "",
-							user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || "",
-						}
+								date: lastChange?.[0]?.last_modified || "",
+								user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || "",
+							}
 						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({
@@ -752,6 +835,8 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 			object: { url },
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }

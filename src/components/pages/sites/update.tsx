@@ -1,17 +1,18 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
-import { Tags, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Form, { FormConfig, FieldConfig, SectionConfig, SelectOption } from "@/components/form";
-import { isKubernetesSite, SiteFormType, siteSchema, SiteType } from "@/types/site";
-import { useZodErrorMessages } from "@/hooks/zod";
-import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { THEMES } from "@/constants/theme";
-import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
-import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { decode } from "html-entities";
+import { Info, Tags } from "lucide-react";
+import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
+import type React from "react";
+import { useEffect, useState } from "react";
+import Form, { type FieldConfig, type FormConfig, type SectionConfig, type SelectOption } from "@/components/form";
+import { Button } from "@/components/ui/button";
+import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import { THEMES } from "@/constants/theme";
+import { useZodErrorMessages } from "@/hooks/zod";
+import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
 
 interface SiteUpdateProps {
 	site: SiteType;
@@ -31,10 +32,12 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 				const response = await fetch("/api/units");
 				if (response.ok) {
 					const data = await response.json();
-					setUnits(data.items.map((u: { unitId: string; name: string }) => ({
-						value: Number(u.unitId),
-						label: `${u.name} (${u.unitId})`,
-					})));
+					setUnits(
+						data.items.map((u: { unitId: string; name: string }) => ({
+							value: Number(u.unitId),
+							label: `${u.name} (${u.unitId})`,
+						})),
+					);
 				}
 			} catch (error) {
 				console.error("Error loading units:", error);
@@ -304,7 +307,7 @@ export const SiteUpdate: React.FC<SiteUpdateProps> = ({ site }) => {
 			successTitle: t("update.success.title"),
 			successMessage: t("update.success.message"),
 			errorMessage: t("update.error.title"),
-			onSuccess: () => { },
+			onSuccess: () => {},
 			onError: (error) => {
 				console.error("Error updating site:", error);
 			},

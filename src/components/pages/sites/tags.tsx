@@ -1,16 +1,16 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { CircleAlert, CircleCheck, Loader2, Pencil, Plus, X } from "lucide-react";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { SiteType } from "@/types/site";
-import { TagsType } from "@/types/tag";
-import { CircleAlert, CircleCheck, Loader2, X, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { TAG_CATEGORIES } from "@/constants/tags";
-import { ApiResponse } from "@/types/api";
+import { cn } from "@/lib/utils";
+import type { ApiResponse } from "@/types/api";
+import type { SiteType } from "@/types/site";
+import type { TagsType } from "@/types/tag";
 
 interface SiteTagsUpdateProps {
 	site: SiteType;
@@ -104,7 +104,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 			setSubmissionResult(successResult);
 			setOriginalTags(selectedTags);
 			setHasSubmitted(false);
-			
+
 			scrollToTop();
 		} catch (error) {
 			const elapsedTime = Date.now() - startTime;
@@ -117,7 +117,7 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 			};
 
 			setSubmissionResult(errorResult);
-			
+
 			scrollToTop();
 		} finally {
 			setIsSubmitting(false);
@@ -127,20 +127,23 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 	const getTagStatus = (tagId: string) => {
 		const isSelected = selectedTags.includes(tagId);
 		const wasOriginal = originalTags.includes(tagId);
-		
+
 		if (isSelected && wasOriginal) return "existing";
 		if (isSelected && !wasOriginal) return "new";
 		if (!isSelected && wasOriginal) return "removed";
 		return "unselected";
 	};
 
-	const tagsByType = tags.reduce((acc, tag) => {
-		if (!acc[tag.type]) {
-			acc[tag.type] = [];
-		}
-		acc[tag.type].push(tag);
-		return acc;
-	}, {} as Record<string, TagsType[]>);
+	const tagsByType = tags.reduce(
+		(acc, tag) => {
+			if (!acc[tag.type]) {
+				acc[tag.type] = [];
+			}
+			acc[tag.type].push(tag);
+			return acc;
+		},
+		{} as Record<string, TagsType[]>,
+	);
 
 	Object.keys(tagsByType).forEach((type) => {
 		tagsByType[type].sort((a, b) => (locale === "fr" ? (a.nameFr || a.nameEn).localeCompare(b.nameFr || b.nameEn) : (a.nameEn || a.nameFr).localeCompare(b.nameEn || b.nameFr)));
@@ -209,7 +212,8 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 												style={{
 													backgroundColor: categoryConfig.COLOR ? `${categoryConfig.COLOR}20` : "#f3f4f6",
 													color: categoryConfig.COLOR || "#6b7280",
-												}}>
+												}}
+											>
 												<CategoryIcon className="w-5 h-5" />
 											</div>
 										)}
@@ -246,15 +250,15 @@ export const SiteTagsUpdate: React.FC<SiteTagsUpdateProps> = ({ site, tags }) =>
 											}
 
 											return (
-												<div 
-													key={tag.id} 
+												<div
+													key={tag.id}
 													className={cn(
 														"relative cursor-pointer border-2 p-4 rounded-lg transition-all duration-200",
 														isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
 														borderClass,
 														bgClass,
 														isSelected && "shadow-sm",
-													)} 
+													)}
 													onClick={isSubmitting ? undefined : () => handleTagToggle(tag.id)}
 												>
 													<div className="flex items-start space-x-3">

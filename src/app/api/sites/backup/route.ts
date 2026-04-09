@@ -1,9 +1,9 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { PERMISSIONS } from "@/constants/permissions";
 import { auth } from "@/services/auth";
-import { hasPermission } from "@/services/policy";
 import { getBackupSites } from "@/services/backup";
-import { NextRequest, NextResponse } from "next/server";
-import { BackupEnvironment } from "@/types/backup";
+import { hasPermission } from "@/services/policy";
+import type { BackupEnvironment } from "@/types/backup";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {
@@ -21,7 +21,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const sites = await getBackupSites(environment as BackupEnvironment);
 		if (!sites) return NextResponse.json({ status: 404, message: "No backup sites found" }, { status: 404 });
 
-		return NextResponse.json({ status: 200, message: "Backup sites retrieved successfully", items: sites }, { status: 200 });
+		return NextResponse.json(
+			{
+				status: 200,
+				message: "Backup sites retrieved successfully",
+				items: sites,
+			},
+			{ status: 200 },
+		);
 	} catch (error) {
 		console.error("Error retrieving backup sites:", error);
 		return NextResponse.json({ status: 500, message: "Internal Server Error" }, { status: 500 });

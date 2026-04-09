@@ -17,19 +17,13 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
 const DYNAMIC_ROUTES = [
 	{ pattern: /^\/tags\/[^\/]+\/edit$/, permission: PERMISSIONS.TAGS.UPDATE },
 	{ pattern: /^\/sites\/[^\/]+\/edit$/, permission: PERMISSIONS.SITES.UPDATE },
-	{ pattern: /^\/sites\/[^\/]+\/tags$/, permission: PERMISSIONS.TAGS.ASSOCIATE },
+	{
+		pattern: /^\/sites\/[^\/]+\/tags$/,
+		permission: PERMISSIONS.TAGS.ASSOCIATE,
+	},
 ];
 
-const ROUTE_PRIORITY = [
-	"/",
-	"/search",
-	"/tags",
-	"/themes",
-	"/new",
-	"/tags/add",
-	"/logs",
-	"/api-docs",
-];
+const ROUTE_PRIORITY = ["/", "/search", "/tags", "/themes", "/new", "/tags/add", "/logs", "/api-docs"];
 
 function getClientIP(req: NextRequest): string {
 	const forwarded = req.headers.get("x-forwarded-for");
@@ -41,7 +35,6 @@ function getClientIP(req: NextRequest): string {
 	}
 	if (realIP) {
 		return realIP;
-
 	}
 	if (cfConnectingIP) {
 		return cfConnectingIP;
@@ -50,12 +43,7 @@ function getClientIP(req: NextRequest): string {
 	return "unknown";
 }
 
-function logRequest(
-	method: string,
-	pathname: string,
-	ip: string,
-	userAgent: string,
-) {
+function logRequest(method: string, pathname: string, ip: string, userAgent: string) {
 	const timestamp = new Date().toISOString();
 	const logMessage = `[${timestamp}] ${method} ${pathname} - IP: ${ip} - User-Agent: ${userAgent}`;
 	console.info(logMessage);
@@ -88,9 +76,7 @@ export default async function middleware(req: NextRequest) {
 	const { pathname } = req.nextUrl;
 	const ip = getClientIP(req);
 
-	if (pathname.startsWith("/api/") ||
-		pathname.startsWith("/_next/") ||
-		pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
+	if (pathname.startsWith("/api/") || pathname.startsWith("/_next/") || pathname.match(/\.(png|jpg|jpeg|gif|svg|css|js|ico)$/)) {
 		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return NextResponse.next();
 	}
@@ -123,7 +109,6 @@ export default async function middleware(req: NextRequest) {
 
 		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 		return NextResponse.next();
-
 	} catch (error) {
 		console.error("Erreur middleware:", error);
 		logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
