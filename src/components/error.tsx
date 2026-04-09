@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const Error: React.FC<{
+export const ErrorComponent: React.FC<{
 	text: string;
 	subText: string;
 	Icon: LucideIcon;
