@@ -1,10 +1,10 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { PERMISSIONS } from "@/constants/permissions";
 import { isValidUUID } from "@/lib/utils";
 import { auth } from "@/services/auth";
 import { hasPermission } from "@/services/policy";
 import { deleteSite, updateSite } from "@/services/site";
 import { createSiteSchema } from "@/types/site";
-import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
 	params: Promise<{
@@ -42,7 +42,15 @@ export async function PUT(request: Request, { params }: RouteParams): Promise<Ne
 		const siteSchema = await createSiteSchema();
 		const validate = await siteSchema.safeParseAsync(body);
 
-		if (!validate.success) return NextResponse.json({ status: 400, message: "Invalid body", errors: validate.error.flatten().fieldErrors }, { status: 400 });
+		if (!validate.success)
+			return NextResponse.json(
+				{
+					status: 400,
+					message: "Invalid body",
+					errors: validate.error.flatten().fieldErrors,
+				},
+				{ status: 400 },
+			);
 
 		const { siteId } = await params;
 		if (!siteId) return NextResponse.json({ status: 400, message: "Site ID is required" }, { status: 400 });

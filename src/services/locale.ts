@@ -1,7 +1,7 @@
 "use server";
 
-import { defaultLocale, Locale } from "@/i18n/config";
 import { cookies } from "next/headers";
+import { defaultLocale, type Locale } from "@/i18n/config";
 
 const COOKIE_NAME = "locale";
 

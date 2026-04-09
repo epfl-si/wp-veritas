@@ -1,11 +1,11 @@
 "use client";
-import { useTranslations } from "next-intl";
-import { GalleryVerticalEnd, House, CirclePlus, Bookmark, BadgeInfo, Palette, Bot } from "lucide-react";
+import { BadgeInfo, Bookmark, Bot, CirclePlus, GalleryVerticalEnd, House, Palette } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { User } from "next-auth";
+import type { User } from "next-auth";
+import { useTranslations } from "next-intl";
 import { PERMISSIONS } from "@/constants/permissions";
+import { cn } from "@/lib/utils";
 import pjson from "../../package.json";
 
 export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
@@ -77,14 +77,23 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 		<aside className="max-w-72 flex-1 space-y-2 border-r p-4 flex flex-col justify-between">
 			<nav className="space-y-2 w-full">
 				{filteredNavItems.map((item) => (
-					<Link key={item.href} href={item.href} prefetch={true} className={cn("px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2", pathname === item.href ? "text-primary font-semibold" : "hover:bg-muted/80")}>
+					<Link
+						key={item.href}
+						href={item.href}
+						prefetch={true}
+						className={cn(
+							"px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2",
+							pathname === item.href ? "text-primary font-semibold" : "hover:bg-muted/80",
+						)}
+					>
 						<item.icon className="w-5 h-5" />
 						{item.label}
 					</Link>
 				))}
 			</nav>
 			<p className="text-xs text-center text-gray-500/70 mt-4">
-				<a href="https://go.epfl.ch/fsd">ISAS-FSD</a>&nbsp;&mdash;&nbsp;<a href="https://github.com/epfl-si/wp-veritas">{pjson.version}</a>
+				<a href="https://go.epfl.ch/fsd">ISAS-FSD</a>&nbsp;&mdash;&nbsp;
+				<a href="https://github.com/epfl-si/wp-veritas">{pjson.version}</a>
 			</p>
 		</aside>
 	);

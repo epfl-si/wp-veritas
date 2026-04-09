@@ -1,14 +1,14 @@
-import { APIError } from "@/types/error";
-import { hasPermission } from "./policy";
-import { PERMISSIONS } from "@/constants/permissions";
-import { TagFormType, TagsType, TagType } from "@/types/tag";
-import db from "@/lib/mongo";
-import { ITag, TagModel } from "@/models/Tag";
 import { v4 as uuidv4 } from "uuid";
-import { isValidUUID } from "@/lib/utils";
-import { info, warn, error } from "@/lib/log";
-import { getSite, listSites } from "./site";
+import { PERMISSIONS } from "@/constants/permissions";
+import { error, info, warn } from "@/lib/log";
+import db from "@/lib/mongo";
 import { cache } from "@/lib/redis";
+import { isValidUUID } from "@/lib/utils";
+import { type ITag, TagModel } from "@/models/Tag";
+import type { APIError } from "@/types/error";
+import type { TagFormType, TagsType, TagType } from "@/types/tag";
+import { hasPermission } from "./policy";
+import { getSite, listSites } from "./site";
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
@@ -56,7 +56,9 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 			object: tag,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -76,7 +78,13 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid tag ID format",
+					success: false,
+				},
+			};
 		}
 
 		const updatedTag = await TagModel.findOneAndUpdate(
@@ -92,7 +100,9 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 		);
 
 		if (!updatedTag) {
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return {
+				error: { status: 404, message: "Tag not found", success: false },
+			};
 		}
 
 		cache.invalidateTagsCache();
@@ -116,7 +126,9 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 			object: tag,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -150,7 +162,11 @@ export async function deleteTag(tagId: string): Promise<APIError> {
 				id: tagId,
 				error: "Tag cannot be deleted while associated with sites",
 			});
-			return { status: 400, message: "Tag cannot be deleted while associated with sites", success: false };
+			return {
+				status: 400,
+				message: "Tag cannot be deleted while associated with sites",
+				success: false,
+			};
 		}
 
 		await TagModel.deleteOne({ id: tagId });
@@ -191,13 +207,21 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid tag ID format",
+					success: false,
+				},
+			};
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
 
 		if (!tag) {
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return {
+				error: { status: 404, message: "Tag not found", success: false },
+			};
 		}
 
 		await info(`The tag ${tag.nameEn} (${tag.type}) retrieved successfully.`, {
@@ -233,11 +257,16 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 			id: tagId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
-export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError }> {
+export async function listTags(): Promise<{
+	tags?: TagsType[];
+	error?: APIError;
+}> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) {
 			await warn("Permission denied for tags listing", {
@@ -276,7 +305,9 @@ export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError 
 			action: "list",
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -295,7 +326,13 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 		await db.connect();
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid site ID format",
+					success: false,
+				},
+			};
 		}
 
 		const tags = await TagModel.find({ sites: siteId });
@@ -307,7 +344,9 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 				siteId,
 				error: "No sites available",
 			});
-			return { error: { status: 404, message: "No sites found", success: false } };
+			return {
+				error: { status: 404, message: "No sites found", success: false },
+			};
 		}
 		const site = sites.find((s) => s.id === siteId);
 
@@ -336,7 +375,9 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 			siteId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 export async function associateTagWithSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
@@ -355,11 +396,23 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid tag ID format",
+					success: false,
+				},
+			};
 		}
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid site ID format",
+					success: false,
+				},
+			};
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
@@ -371,7 +424,9 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 				siteId,
 				error: "Tag not found",
 			});
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return {
+				error: { status: 404, message: "Tag not found", success: false },
+			};
 		}
 
 		if (tag.sites && tag.sites.includes(siteId)) {
@@ -382,7 +437,13 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 				siteId,
 				error: "Site already associated",
 			});
-			return { error: { status: 409, message: "Site already associated with this tag", success: false } };
+			return {
+				error: {
+					status: 409,
+					message: "Site already associated with this tag",
+					success: false,
+				},
+			};
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $addToSet: { sites: siteId } }, { new: true });
@@ -409,7 +470,9 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 			siteId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -429,11 +492,23 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid tag ID format",
+					success: false,
+				},
+			};
 		}
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid site ID format",
+					success: false,
+				},
+			};
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
@@ -445,7 +520,9 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 				siteId,
 				error: "Tag not found",
 			});
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return {
+				error: { status: 404, message: "Tag not found", success: false },
+			};
 		}
 
 		if (!tag.sites || !tag.sites.includes(siteId)) {
@@ -456,7 +533,13 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 				siteId,
 				error: "Site not associated",
 			});
-			return { error: { status: 404, message: "Site is not associated with this tag", success: false } };
+			return {
+				error: {
+					status: 404,
+					message: "Site is not associated with this tag",
+					success: false,
+				},
+			};
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $pull: { sites: siteId } }, { new: true });
@@ -482,6 +565,8 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 			siteId,
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }

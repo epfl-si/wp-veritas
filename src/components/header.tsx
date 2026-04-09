@@ -1,9 +1,9 @@
 "use client";
-import React from "react";
-import { LanguageSelector } from "@/components/language-selector";
-import { User } from "next-auth";
 import { UserRound } from "lucide-react";
 import Image from "next/image";
+import type { User } from "next-auth";
+import type React from "react";
+import { LanguageSelector } from "@/components/language-selector";
 
 export const Header: React.FC<{ user: User }> = ({ user }) => {
 	return (

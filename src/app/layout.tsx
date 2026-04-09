@@ -1,32 +1,32 @@
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
 import { Inter } from "next/font/google";
 import localFont from "next/font/local";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
+
 import { SessionProvider } from "@/components/session-provider";
 import { auth } from "@/services/auth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 const suisse = localFont({
-    src: [
-        {
-            path: "../../fonts/SuisseIntl-Regular-WebS.woff2",
-            weight: "400",
-            style: "normal",
-        },
-        {
-            path: "../../fonts/SuisseIntl-SemiBold-WebS.woff2",
-            weight: "600",
-            style: "normal",
-        },
-    ],
-    variable: "--font-suisse",
+	src: [
+		{
+			path: "../../fonts/SuisseIntl-Regular-WebS.woff2",
+			weight: "400",
+			style: "normal",
+		},
+		{
+			path: "../../fonts/SuisseIntl-SemiBold-WebS.woff2",
+			weight: "600",
+			style: "normal",
+		},
+	],
+	variable: "--font-suisse",
 });
-
 
 export const metadata: Metadata = {
 	title: "WP-Veritas",

@@ -1,7 +1,7 @@
+import { type NextRequest, NextResponse } from "next/server";
 import db from "@/lib/mongo";
-import { TagModel } from "@/models/Tag";
-import { NextRequest, NextResponse } from "next/server";
 import { withCache } from "@/lib/redis";
+import { TagModel } from "@/models/Tag";
 
 /**
  * @swagger
@@ -93,38 +93,36 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const { searchParams } = new URL(request.url);
 		const typeFilter = searchParams.get("type");
 
-		const allTags = await withCache("api-v1-tags", async () => {
-			await db.connect();
-			const tags = await TagModel.find({}, { __id: 0, __v: 0 });
-			return tags.map((tag) => ({
-				id: tag.id,
-				type: tag.type,
-				name_fr: tag.nameFr,
-				name_en: tag.nameEn,
-				url_fr: tag.urlFr,
-				url_en: tag.urlEn,
-			}));
-		}, 480); // 8 minutes cache
+		const allTags = await withCache(
+			"api-v1-tags",
+			async () => {
+				await db.connect();
+				const tags = await TagModel.find({}, { __id: 0, __v: 0 });
+				return tags.map((tag) => ({
+					id: tag.id,
+					type: tag.type,
+					name_fr: tag.nameFr,
+					name_en: tag.nameEn,
+					url_fr: tag.urlFr,
+					url_en: tag.urlEn,
+				}));
+			},
+			480,
+		); // 8 minutes cache
 
 		let filteredTags = allTags;
 
 		if (typeFilter) {
-			filteredTags = allTags.filter(tag => tag.type === typeFilter);
+			filteredTags = allTags.filter((tag) => tag.type === typeFilter);
 		}
 
 		if (!filteredTags || filteredTags.length === 0) {
-			return NextResponse.json(
-				{ status: 404, message: "No tags found" },
-				{ status: 404 },
-			);
+			return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });
 		}
 
 		return NextResponse.json(filteredTags, { status: 200 });
 	} catch (error) {
 		console.error("Error retrieving tags:", error);
-		return NextResponse.json(
-			{ status: 500, message: "Internal Server Error" },
-			{ status: 500 },
-		);
+		return NextResponse.json({ status: 500, message: "Internal Server Error" }, { status: 500 });
 	}
 }

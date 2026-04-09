@@ -1,10 +1,10 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { PERMISSIONS } from "@/constants/permissions";
 import { isValidUUID } from "@/lib/utils";
 import { auth } from "@/services/auth";
 import { hasPermission } from "@/services/policy";
 import { deleteTag, updateTag } from "@/services/tag";
 import { createTagSchema } from "@/types/tag";
-import { NextRequest, NextResponse } from "next/server";
 
 interface RouteParams {
 	params: Promise<{
@@ -43,7 +43,15 @@ export async function PUT(request: Request, { params }: RouteParams): Promise<Ne
 		const tagSchema = await createTagSchema();
 		const validate = await tagSchema.safeParseAsync(body);
 
-		if (!validate.success) return NextResponse.json({ status: 400, message: "Invalid body", errors: validate.error.flatten().fieldErrors }, { status: 400 });
+		if (!validate.success)
+			return NextResponse.json(
+				{
+					status: 400,
+					message: "Invalid body",
+					errors: validate.error.flatten().fieldErrors,
+				},
+				{ status: 400 },
+			);
 
 		const { tagId } = await params;
 		if (!tagId) return NextResponse.json({ status: 400, message: "Tag ID is required" }, { status: 400 });

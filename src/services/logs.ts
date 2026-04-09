@@ -1,13 +1,16 @@
-import { APIError } from "@/types/error";
-import { hasPermission } from "./policy";
 import { PERMISSIONS } from "@/constants/permissions";
-import db from "@/lib/mongo";
-import { info, error, warn } from "@/lib/log";
-import { LogType, SearchLogsParams } from "@/types/log";
-import { ILog, LogModel } from "@/models/Log";
 import { getNames } from "@/lib/api";
+import { error, info, warn } from "@/lib/log";
+import db from "@/lib/mongo";
+import { type ILog, LogModel } from "@/models/Log";
+import type { APIError } from "@/types/error";
+import type { LogType, SearchLogsParams } from "@/types/log";
+import { hasPermission } from "./policy";
 
-export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }> {
+export async function listLogs(): Promise<{
+	logs?: LogType[];
+	error?: APIError;
+}> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.LOGS.LIST))) {
 			await warn("Permission denied for logs listing", {
@@ -54,10 +57,11 @@ export async function listLogs(): Promise<{ logs?: LogType[]; error?: APIError }
 			action: "list",
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
-
 
 export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: LogType[]; total?: number; error?: APIError }> {
 	try {
@@ -91,7 +95,13 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 		const logsQuery = LogModel.find<ILog>(query).sort({ timestamp: -1 });
 
 		if (params.limit && params.limit > 250) {
-			return { error: { status: 400, message: "Limit cannot exceed 250", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Limit cannot exceed 250",
+					success: false,
+				},
+			};
 		}
 
 		if (params.skip && params.skip > 0) {
@@ -131,6 +141,8 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 			action: "search",
 			error: errorData instanceof Error ? errorData.stack : "Unknown error",
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }

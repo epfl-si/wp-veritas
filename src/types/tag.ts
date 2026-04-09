@@ -1,8 +1,8 @@
-import { useZodErrorMessages, getZodErrorMessages } from "@/hooks/zod";
 import { z } from "zod";
-import { ErrorMessages } from "./error";
-import { TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from "@/constants/tags";
-import { InfrastructureName } from "./infrastructure";
+import { type TAG_CATEGORIES, TAG_CATEGORIES_VALUES } from "@/constants/tags";
+import { getZodErrorMessages, type useZodErrorMessages } from "@/hooks/zod";
+import type { ErrorMessages } from "./error";
+import type { InfrastructureName } from "./infrastructure";
 
 export interface BaseTagType {
 	id: string;

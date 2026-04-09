@@ -1,8 +1,8 @@
-import { searchSites } from "@/services/site";
+import { type NextRequest, NextResponse } from "next/server";
 import { PERMISSIONS } from "@/constants/permissions";
 import { auth } from "@/services/auth";
 import { hasPermission } from "@/services/policy";
-import { NextRequest, NextResponse } from "next/server";
+import { searchSites } from "@/services/site";
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
 	try {

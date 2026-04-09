@@ -1,6 +1,6 @@
-import mongoose, { Document } from "mongoose";
-import type { InfrastructureName } from "@/types/infrastructure";
+import mongoose, { type Document } from "mongoose";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import type { InfrastructureName } from "@/types/infrastructure";
 
 export interface ISite extends Document {
 	id: string;

@@ -1,5 +1,5 @@
-import { TagCategoryEnumType } from "@/types/tag";
-import { GraduationCap, Microscope, Building2, University } from "lucide-react";
+import { Building2, GraduationCap, Microscope, University } from "lucide-react";
+import type { TagCategoryEnumType } from "@/types/tag";
 
 export const TAG_CATEGORIES = {
 	DOCTORAL_PROGRAM: {

@@ -1,8 +1,8 @@
+import { v4 as uuid } from "uuid";
 import { LOG_LEVELS } from "@/constants/logs";
 import { LogModel } from "@/models/Log";
 import { getUser } from "@/services/auth";
-import { LogType } from "@/types/log";
-import { v4 as uuid } from "uuid";
+import type { LogType } from "@/types/log";
 import db from "./mongo";
 
 async function log({ message, data, level }: { message: string; level: LogType["level"]; data?: LogType["data"] }): Promise<void> {
@@ -37,7 +37,11 @@ async function log({ message, data, level }: { message: string; level: LogType["
 }
 
 export async function debug(message: string, data: LogType["data"]): Promise<void> {
-	await log({ message, data, level: LOG_LEVELS.DEBUG.NAME as LogType["level"] });
+	await log({
+		message,
+		data,
+		level: LOG_LEVELS.DEBUG.NAME as LogType["level"],
+	});
 }
 
 export async function info(message: string, data: LogType["data"]): Promise<void> {
@@ -49,9 +53,17 @@ export async function warn(message: string, data: LogType["data"]): Promise<void
 }
 
 export async function error(message: string, data: LogType["data"]): Promise<void> {
-	await log({ message, data, level: LOG_LEVELS.ERROR.NAME as LogType["level"] });
+	await log({
+		message,
+		data,
+		level: LOG_LEVELS.ERROR.NAME as LogType["level"],
+	});
 }
 
 export async function system(message: string, data: LogType["data"]): Promise<void> {
-	await log({ message, data, level: LOG_LEVELS.SYSTEM.NAME as LogType["level"] });
+	await log({
+		message,
+		data,
+		level: LOG_LEVELS.SYSTEM.NAME as LogType["level"],
+	});
 }
