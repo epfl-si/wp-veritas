@@ -1,11 +1,11 @@
+import { NextResponse } from "next/server";
+import { v4 as uuid } from "uuid";
 import { PERMISSIONS } from "@/constants/permissions";
+import { withCache } from "@/lib/redis";
 import { auth } from "@/services/auth";
 import { hasPermission } from "@/services/policy";
 import { createTag, listTags } from "@/services/tag";
 import { createTagSchema } from "@/types/tag";
-import { NextResponse } from "next/server";
-import { v4 as uuid } from "uuid";
-import { withCache } from "@/lib/redis";
 
 export async function GET(): Promise<NextResponse> {
 	try {
@@ -13,9 +13,13 @@ export async function GET(): Promise<NextResponse> {
 		if (!session?.user) return NextResponse.json({ status: 401, message: "Unauthorized" }, { status: 401 });
 		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) return NextResponse.json({ status: 403, message: "Forbidden" }, { status: 403 });
 
-		const tags = await withCache("api-tags", async () => {
-			return await listTags();
-		}, 480); // 8 minutes cache
+		const tags = await withCache(
+			"api-tags",
+			async () => {
+				return await listTags();
+			},
+			480,
+		); // 8 minutes cache
 
 		if (!tags) return NextResponse.json({ status: 404, message: "No tags found" }, { status: 404 });
 		return NextResponse.json({ status: 200, message: "Tags retrieved successfully", items: tags }, { status: 200 });
@@ -36,7 +40,15 @@ export async function POST(request: Request): Promise<NextResponse> {
 		const tagSchema = await createTagSchema();
 		const validate = await tagSchema.safeParseAsync(body);
 
-		if (!validate.success) return NextResponse.json({ status: 400, message: "Invalid body", errors: validate.error.flatten().fieldErrors }, { status: 400 });
+		if (!validate.success)
+			return NextResponse.json(
+				{
+					status: 400,
+					message: "Invalid body",
+					errors: validate.error.flatten().fieldErrors,
+				},
+				{ status: 400 },
+			);
 
 		const id = uuid();
 		const tag = {

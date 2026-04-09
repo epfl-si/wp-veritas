@@ -1,4 +1,4 @@
-import mongoose, { Document } from "mongoose";
+import mongoose, { type Document } from "mongoose";
 
 export interface ILog extends Document {
 	id: string;
@@ -24,9 +24,7 @@ const logSchema = new mongoose.Schema<ILog>({
 		type: mongoose.Schema.Types.Mixed,
 		required: true,
 		validate: {
-			validator: function (v: object) {
-				return typeof v === "object" && v !== null && "type" in v && "action" in v && typeof v.type === "string" && typeof v.action === "string";
-			},
+			validator: (v: object) => typeof v === "object" && v !== null && "type" in v && "action" in v && typeof v.type === "string" && typeof v.action === "string",
 			message: "Data must contain at least type and action fields",
 		},
 	},

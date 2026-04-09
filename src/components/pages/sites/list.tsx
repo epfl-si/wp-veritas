@@ -1,28 +1,30 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { isKubernetesSite, SiteType, isDatabaseSite, isNoneSite } from "@/types/site";
-import { GlobeIcon, Info, Pencil, Plus, Tags, MoreHorizontal, Filter, Download, BarChart3, Languages, ChevronRight, Calendar, Layers, Zap, ArrowLeft, AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { useLocale, useTranslations } from "next-intl";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableColumn } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { AlertTriangle, ArrowLeft, BarChart3, Calendar, ChevronRight, Download, Filter, GlobeIcon, Info, Languages, Layers, MoreHorizontal, Pencil, Plus, Tags, Zap } from "lucide-react";
 import moment from "moment";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import React, { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, type TableColumn } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { isDatabaseSite, isKubernetesSite, isNoneSite, type SiteType } from "@/types/site";
 import "moment/locale/fr";
+import { useSearchParams } from "next/navigation";
+import { DeleteDialog } from "@/components/dialog/delete";
+import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { LANGUAGES } from "@/constants/languages";
 import { PERMISSIONS } from "@/constants/permissions";
 import { THEMES } from "@/constants/theme";
-import { ThemeType } from "@/types/theme";
-import { DeleteDialog } from "@/components/dialog/delete";
-import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { InfrastructureType } from "@/types/infrastructure";
-import { useSearchParams } from "next/navigation";
-import { LANGUAGES } from "@/constants/languages";
-import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import type { InfrastructureType } from "@/types/infrastructure";
+import type { ThemeType } from "@/types/theme";
 
 interface Filters {
 	url: string;
@@ -38,8 +40,12 @@ interface Filters {
 	categories: string[];
 }
 
-export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = ({ sites, permissions }) => {
+export const SiteList: React.FC<{
+	sites: SiteType[];
+	permissions: string[];
+}> = ({ sites, permissions }) => {
 	const searchParams = useSearchParams();
+	const router = useRouter();
 
 	const getInitialFilters = () => {
 		const filters: Filters = {
@@ -150,10 +156,11 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 		const matchesTheme = !filters.theme || (isKubernetesSite(site) && site.theme === filters.theme);
 		const matchesDateFrom = !filters.dateRange.from || !site.createdAt || moment(site.createdAt).isAfter(moment(filters.dateRange.from));
 		const matchesDateTo = !filters.dateRange.to || !site.createdAt || moment(site.createdAt).isBefore(moment(filters.dateRange.to));
-		const matchesLanguages = !filters.languages.length || (isKubernetesSite(site) && site.languages && filters.languages.some(lang => site.languages.includes(lang)));
-		const matchesCategories = !filters.categories.length || (isKubernetesSite(site) && site.categories && filters.categories.some(cat => site.categories.includes(cat)));
-		const matchesHasCategories = filters.hasCategories === null || (isKubernetesSite(site) && site.categories !== undefined && (site.categories.length > 0) === filters.hasCategories);
-		const matchesDownloadsProtection = filters.hasDownloadsProtection === null || (isKubernetesSite(site) && site.downloadsProtectionScript !== undefined && site.downloadsProtectionScript === filters.hasDownloadsProtection);
+		const matchesLanguages = !filters.languages.length || (isKubernetesSite(site) && site.languages && filters.languages.some((lang) => site.languages.includes(lang)));
+		const matchesCategories = !filters.categories.length || (isKubernetesSite(site) && site.categories && filters.categories.some((cat) => site.categories.includes(cat)));
+		const matchesHasCategories = filters.hasCategories === null || (isKubernetesSite(site) && site.categories !== undefined && site.categories.length > 0 === filters.hasCategories);
+		const matchesDownloadsProtection =
+			filters.hasDownloadsProtection === null || (isKubernetesSite(site) && site.downloadsProtectionScript !== undefined && site.downloadsProtectionScript === filters.hasDownloadsProtection);
 
 		return matchesUrl && matchesType && matchesTheme && matchesDateFrom && matchesDateTo && matchesLanguages && matchesCategories && matchesHasCategories && matchesDownloadsProtection;
 	});
@@ -166,37 +173,35 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 		const infrastructureStats = Object.values(INFRASTRUCTURES).map((infrastructure) => ({
 			name: infrastructure.LABEL[locale as "fr" | "en"] || infrastructure.NAME,
-			count: sites.filter(site => site.infrastructure === infrastructure.NAME).length,
-			percentage: Math.round((sites.filter(site => site.infrastructure === infrastructure.NAME).length / totalSites) * 100),
+			count: sites.filter((site) => site.infrastructure === infrastructure.NAME).length,
+			percentage: Math.round((sites.filter((site) => site.infrastructure === infrastructure.NAME).length / totalSites) * 100),
 		}));
 
 		const themeStats = Object.values(THEMES).map((theme) => ({
 			name: theme.LABEL[locale as "fr" | "en"] || theme.NAME,
-			count: kubernetesSites.filter(site => site.theme === theme.NAME).length,
-			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter(site => site.theme === theme.NAME).length / kubernetesSites.length) * 100) : 0,
+			count: kubernetesSites.filter((site) => site.theme === theme.NAME).length,
+			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => site.theme === theme.NAME).length / kubernetesSites.length) * 100) : 0,
 		}));
 
-		const languageStats = Object.values(LANGUAGES).map(language => ({
+		const languageStats = Object.values(LANGUAGES).map((language) => ({
 			name: language.common,
-			count: kubernetesSites.filter(site => site.languages.includes(language.locale)).length,
-			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter(site => site.languages.includes(language.locale)).length / kubernetesSites.length) * 100) : 0,
+			count: kubernetesSites.filter((site) => site.languages.includes(language.locale)).length,
+			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => site.languages.includes(language.locale)).length / kubernetesSites.length) * 100) : 0,
 		}));
 
-		const categoryStats = OPTIONAL_CATEGORIES.map(category => ({
+		const categoryStats = OPTIONAL_CATEGORIES.map((category) => ({
 			name: category.LABEL,
-			count: kubernetesSites.filter(site => site.categories.includes(category.NAME)).length,
-			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter(site => site.categories.includes(category.NAME)).length / kubernetesSites.length) * 100) : 0,
+			count: kubernetesSites.filter((site) => site.categories.includes(category.NAME)).length,
+			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => site.categories.includes(category.NAME)).length / kubernetesSites.length) * 100) : 0,
 		}));
 
-		const recentSites = sites.filter(site =>
-			moment(site.createdAt).isAfter(moment().subtract(30, "days")),
-		).length;
+		const recentSites = sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(30, "days"))).length;
 
-		const sitesWithDownloadsProtection = kubernetesSites.filter(site => site.downloadsProtectionScript).length;
-		const sitesWithCategories = kubernetesSites.filter(site => site.categories.length > 0).length;
-		const multilingualSites = kubernetesSites.filter(site => site.languages.length > 1).length;
+		const sitesWithDownloadsProtection = kubernetesSites.filter((site) => site.downloadsProtectionScript).length;
+		const sitesWithCategories = kubernetesSites.filter((site) => site.categories.length > 0).length;
+		const multilingualSites = kubernetesSites.filter((site) => site.languages.length > 1).length;
 
-		const unitIds = kubernetesSites.map(site => site.unitId);
+		const unitIds = kubernetesSites.map((site) => site.unitId);
 		const uniqueUnits = new Set(unitIds).size;
 		const avgSitesPerUnit = uniqueUnits > 0 ? Math.round(kubernetesSites.length / uniqueUnits) : 0;
 
@@ -205,10 +210,10 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			kubernetesSites: kubernetesSites.length,
 			databaseSites: databaseSites.length,
 			noneSites: noneSites.length,
-			infrastructureStats: infrastructureStats.filter(stat => stat.count > 0),
-			themeStats: themeStats.filter(stat => stat.count > 0),
-			languageStats: languageStats.filter(stat => stat.count > 0).sort((a, b) => b.count - a.count),
-			categoryStats: categoryStats.filter(stat => stat.count > 0).sort((a, b) => b.count - a.count),
+			infrastructureStats: infrastructureStats.filter((stat) => stat.count > 0),
+			themeStats: themeStats.filter((stat) => stat.count > 0),
+			languageStats: languageStats.filter((stat) => stat.count > 0).sort((a, b) => b.count - a.count),
+			categoryStats: categoryStats.filter((stat) => stat.count > 0).sort((a, b) => b.count - a.count),
 			recentSites,
 			sitesWithDownloadsProtection,
 			sitesWithCategories,
@@ -219,22 +224,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 	};
 
 	const exportToCSV = () => {
-		const headers = [
-			"URL",
-			"Infrastructure",
-			"Theme",
-			"Title",
-			"Tagline",
-			"Unit ID",
-			"Languages",
-			"Categories",
-			"Downloads Protection",
-			"Created At",
-			"Ticket",
-			"Comment",
-		];
+		const headers = ["URL", "Infrastructure", "Theme", "Title", "Tagline", "Unit ID", "Languages", "Categories", "Downloads Protection", "Created At", "Ticket", "Comment"];
 
-		const csvData = filteredSites.map(site => [
+		const csvData = filteredSites.map((site) => [
 			site.url,
 			site.infrastructure,
 			isKubernetesSite(site) ? site.theme || "" : "",
@@ -249,9 +241,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			site.comment || "",
 		]);
 
-		const csvContent = [headers, ...csvData]
-			.map(row => row.map(field => `"${field}"`).join(","))
-			.join("\n");
+		const csvContent = [headers, ...csvData].map((row) => row.map((field) => `"${field}"`).join(",")).join("\n");
 
 		const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
 		const link = document.createElement("a");
@@ -294,18 +284,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			align: "left",
 			sortable: true,
 			render: (site) => (
-				<div className="flex items-center justify-between gap-2">
-					<a href={site.url} className="flex items-center gap-2 font-medium text-blue-600 hover:underline group" target="_blank" rel="noopener noreferrer">
-						<GlobeIcon className="size-6 flex-shrink-0" />
+				<Link href={`/sites/${site.id}/edit`} className="flex items-center justify-between gap-2">
+					<div className="flex items-center gap-2 font-medium text-blue-600 group">
+						<GlobeIcon className="size-6 shrink-0" />
 						<span className="text-base font-medium leading-relaxed">{site.url}</span>
-					</a>
+					</div>
 					{!site.managed && (
 						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
 							<AlertTriangle className="size-5" />
 							<p className="font-medium">{t("list.error.unmanaged")}</p>
 						</div>
 					)}
-				</div>
+				</Link>
 			),
 		},
 		{
@@ -318,7 +308,12 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 				const infrastructureConfig = getInfrastructureConfig(site.infrastructure);
 				return (
 					<div className="p-2 h-9 flex gap-1 justify-center items-center border-2 border-gray-200 text-gray-600">
-						{infrastructureConfig?.ICON ? React.createElement(infrastructureConfig.ICON, { className: "size-4", strokeWidth: 2.3 }) : null}
+						{infrastructureConfig?.ICON
+							? React.createElement(infrastructureConfig.ICON, {
+									className: "size-4",
+									strokeWidth: 2.3,
+								})
+							: null}
 						<span className="text-sm font-semibold uppercase">{infrastructureConfig?.LABEL[locale as "fr" | "en"] || infrastructureConfig?.NAME}</span>
 					</div>
 				);
@@ -333,7 +328,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			sortKey: "createdAt",
 			render: (site) => (
 				<div className="text-center">
-					<p className="text-sm font-medium text-gray-700" title={site.createdAt.toString()}>{formatRelativeDate(site.createdAt)}</p>
+					<p className="text-sm font-medium text-gray-700" title={site.createdAt.toString()}>
+						{formatRelativeDate(site.createdAt)}
+					</p>
 				</div>
 			),
 		},
@@ -344,33 +341,50 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 			align: "left",
 			sortable: false,
 			render: (site) => (
-				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITES.READ) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
-							<Link prefetch={false} href={`/search?url=${site.url}`}>
-								<Info strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+				<TooltipProvider>
+					<div className="flex gap-1.5 items-center py-1" onClick={(e) => e.stopPropagation()}>
+						{permissions.includes(PERMISSIONS.SITES.READ) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
+										<Link prefetch={false} href={`/search?url=${site.url}`}>
+											<Info strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.info")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/edit`}>
-								<Pencil strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+						{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
+										<Link prefetch={false} href={`/sites/${site.id}/edit`}>
+											<Pencil strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.edit")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/tags`}>
-								<Tags strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
+						{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
+										<Link prefetch={false} href={`/sites/${site.id}/tags`}>
+											<Tags strokeWidth={2.3} className="size-5" />
+										</Link>
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>{t("actions.editTags")}</TooltipContent>
+							</Tooltip>
+						)}
 
-					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" apiEndpoint={`/api/sites/${site.id}`} />}
-				</div>
+						{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" apiEndpoint={`/api/sites/${site.id}`} />}
+					</div>
+				</TooltipProvider>
 			),
 		},
 	];
@@ -415,12 +429,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 								</DialogHeader>
 								<div className="space-y-1">
 									{toolsMenuItems.map((tool) => (
-										<Button
-											key={tool.id}
-											variant="ghost"
-											className="w-full justify-start h-auto p-4 text-left"
-											onClick={() => handleToolSelect(tool.id)}
-										>
+										<Button key={tool.id} variant="ghost" className="w-full justify-start h-auto p-4 text-left" onClick={() => handleToolSelect(tool.id)}>
 											<div className="flex items-center justify-between w-full gap-3">
 												<div className="flex items-center gap-3">
 													<tool.icon className="size-5 text-gray-600" />
@@ -452,9 +461,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 								<div className="space-y-6">
 									<div className="grid gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.url.label")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.url.label")}</label>
 											<Input
 												onChange={(e) => {
 													updateFilters({ ...filters, url: e.target.value });
@@ -464,16 +471,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 												className="w-full"
 											/>
 										</div>
-
 									</div>
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.theme.label")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.theme.label")}</label>
 											<Select
-												onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })}
+												onValueChange={(value) =>
+													updateFilters({
+														...filters,
+														theme: value === "all" ? "" : value,
+													})
+												}
 												value={filters.theme || "all"}
 											>
 												<SelectTrigger className="w-full">
@@ -490,9 +499,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											</Select>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.infrastructure.label")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.infrastructure.label")}</label>
 											<Select
 												onValueChange={(value) => {
 													const infra = value === "all" ? "" : value;
@@ -517,9 +524,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.languages")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.languages")}</label>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(LANGUAGES).map((language) => (
 													<div key={language.locale} className="flex items-center space-x-2">
@@ -535,20 +540,20 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 																} else {
 																	updateFilters({
 																		...filters,
-																		languages: filters.languages.filter(l => l !== language.locale),
+																		languages: filters.languages.filter((l) => l !== language.locale),
 																	});
 																}
 															}}
 														/>
-														<label htmlFor={`lang-${language}`} className="text-sm">{language.common}</label>
+														<label htmlFor={`lang-${language}`} className="text-sm">
+															{language.common}
+														</label>
 													</div>
 												))}
 											</div>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.categories")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.categories")}</label>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(OPTIONAL_CATEGORIES).map((category) => (
 													<div key={category.NAME} className="flex items-center space-x-2">
@@ -564,12 +569,14 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 																} else {
 																	updateFilters({
 																		...filters,
-																		categories: filters.categories.filter(c => c !== category.NAME),
+																		categories: filters.categories.filter((c) => c !== category.NAME),
 																	});
 																}
 															}}
 														/>
-														<label htmlFor={`cat-${category}`} className="text-sm">{category.LABEL}</label>
+														<label htmlFor={`cat-${category}`} className="text-sm">
+															{category.LABEL}
+														</label>
 													</div>
 												))}
 											</div>
@@ -582,7 +589,10 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 												id="has-categories"
 												checked={filters.hasCategories === true}
 												onCheckedChange={(checked) =>
-													updateFilters({ ...filters, hasCategories: checked ? true : null })
+													updateFilters({
+														...filters,
+														hasCategories: checked ? true : null,
+													})
 												}
 											/>
 											<Label htmlFor="has-categories">{t("tools.filters.has.categories")}</Label>
@@ -592,7 +602,10 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 												id="has-downloads"
 												checked={filters.hasDownloadsProtection === true}
 												onCheckedChange={(checked) =>
-													updateFilters({ ...filters, hasDownloadsProtection: checked ? true : null })
+													updateFilters({
+														...filters,
+														hasDownloadsProtection: checked ? true : null,
+													})
 												}
 											/>
 											<Label htmlFor="has-downloads">{t("tools.filters.has.downloads")}</Label>
@@ -601,35 +614,35 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.date.from")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.date.from")}</label>
 											<Input
 												type="date"
 												value={filters.dateRange.from ? filters.dateRange.from.toISOString().split("T")[0] : ""}
-												onChange={(e) => updateFilters({
-													...filters,
-													dateRange: {
-														...filters.dateRange,
-														from: e.target.value ? new Date(e.target.value) : undefined,
-													},
-												})}
+												onChange={(e) =>
+													updateFilters({
+														...filters,
+														dateRange: {
+															...filters.dateRange,
+															from: e.target.value ? new Date(e.target.value) : undefined,
+														},
+													})
+												}
 											/>
 										</div>
 										<div>
-											<label className="text-sm font-medium mb-2 block">
-												{t("tools.filters.date.to")}
-											</label>
+											<label className="text-sm font-medium mb-2 block">{t("tools.filters.date.to")}</label>
 											<Input
 												type="date"
 												value={filters.dateRange.to ? filters.dateRange.to.toISOString().split("T")[0] : ""}
-												onChange={(e) => updateFilters({
-													...filters,
-													dateRange: {
-														...filters.dateRange,
-														to: e.target.value ? new Date(e.target.value) : undefined,
-													},
-												})}
+												onChange={(e) =>
+													updateFilters({
+														...filters,
+														dateRange: {
+															...filters.dateRange,
+															to: e.target.value ? new Date(e.target.value) : undefined,
+														},
+													})
+												}
 											/>
 										</div>
 									</div>
@@ -658,7 +671,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 								</DialogHeader>
 								<div className="space-y-4">
 									<p className="text-sm text-gray-600">
-										{t("tools.export.description", { count: filteredSites.length })}
+										{t("tools.export.description", {
+											count: filteredSites.length,
+										})}
 									</p>
 									<div className="space-y-2">
 										<Button onClick={exportToCSV} className="w-full">
@@ -666,9 +681,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 											{t("tools.export.csv.button")}
 										</Button>
 									</div>
-									<div className="text-xs text-gray-500">
-										{t("tools.export.format.info")}
-									</div>
+									<div className="text-xs text-gray-500">{t("tools.export.format.info")}</div>
 								</div>
 							</DialogContent>
 						</Dialog>
@@ -685,9 +698,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 								</DialogHeader>
 								<div className="space-y-8">
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-											{t("tools.statistics.overview.title")}
-										</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.overview.title")}</h3>
 										<div className="grid grid-cols-2 md:grid-cols-5 gap-2">
 											<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-blue-600">{statistics.totalSites}</div>
@@ -712,9 +723,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 										</div>
 									</div>
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-											{t("tools.statistics.breakdown.title")}
-										</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.breakdown.title")}</h3>
 										<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
 											<div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
 												<h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
@@ -725,28 +734,28 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.kubernetes")}</span>
 														<div className="flex items-center gap-2">
-															<Badge variant="secondary" className="bg-blue-100 text-blue-800">{statistics.kubernetesSites}</Badge>
-															<span className="text-xs text-gray-600 w-10 text-right font-medium">
-																{Math.round((statistics.kubernetesSites / statistics.totalSites) * 100)}%
-															</span>
+															<Badge variant="secondary" className="bg-blue-100 text-blue-800">
+																{statistics.kubernetesSites}
+															</Badge>
+															<span className="text-xs text-gray-600 w-10 text-right font-medium">{Math.round((statistics.kubernetesSites / statistics.totalSites) * 100)}%</span>
 														</div>
 													</div>
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.database")}</span>
 														<div className="flex items-center gap-2">
-															<Badge variant="secondary" className="bg-green-100 text-green-800">{statistics.databaseSites}</Badge>
-															<span className="text-xs text-gray-600 w-10 text-right font-medium">
-																{Math.round((statistics.databaseSites / statistics.totalSites) * 100)}%
-															</span>
+															<Badge variant="secondary" className="bg-green-100 text-green-800">
+																{statistics.databaseSites}
+															</Badge>
+															<span className="text-xs text-gray-600 w-10 text-right font-medium">{Math.round((statistics.databaseSites / statistics.totalSites) * 100)}%</span>
 														</div>
 													</div>
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.none")}</span>
 														<div className="flex items-center gap-2">
-															<Badge variant="secondary" className="bg-gray-100 text-gray-800">{statistics.noneSites}</Badge>
-															<span className="text-xs text-gray-600 w-10 text-right font-medium">
-																{Math.round((statistics.noneSites / statistics.totalSites) * 100)}%
-															</span>
+															<Badge variant="secondary" className="bg-gray-100 text-gray-800">
+																{statistics.noneSites}
+															</Badge>
+															<span className="text-xs text-gray-600 w-10 text-right font-medium">{Math.round((statistics.noneSites / statistics.totalSites) * 100)}%</span>
 														</div>
 													</div>
 												</div>
@@ -760,7 +769,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.features.downloads")}</span>
 														<div className="flex items-center">
-															<Badge variant="secondary" className="bg-purple-100 text-purple-800">{statistics.sitesWithDownloadsProtection}</Badge>
+															<Badge variant="secondary" className="bg-purple-100 text-purple-800">
+																{statistics.sitesWithDownloadsProtection}
+															</Badge>
 															<span className="text-xs text-gray-600 w-10 text-right font-medium">
 																{statistics.kubernetesSites > 0 ? Math.round((statistics.sitesWithDownloadsProtection / statistics.kubernetesSites) * 100) : 0}%
 															</span>
@@ -769,7 +780,9 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.features.categories")}</span>
 														<div className="flex items-center">
-															<Badge variant="secondary" className="bg-orange-100 text-orange-800">{statistics.sitesWithCategories}</Badge>
+															<Badge variant="secondary" className="bg-orange-100 text-orange-800">
+																{statistics.sitesWithCategories}
+															</Badge>
 															<span className="text-xs text-gray-600 w-10 text-right font-medium">
 																{statistics.kubernetesSites > 0 ? Math.round((statistics.sitesWithCategories / statistics.kubernetesSites) * 100) : 0}%
 															</span>
@@ -786,17 +799,19 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.time.lastWeek")}</span>
 														<Badge variant="secondary" className="bg-green-100 text-green-800">
-															{sites.filter(site => moment(site.createdAt).isAfter(moment().subtract(7, "days"))).length}
+															{sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(7, "days"))).length}
 														</Badge>
 													</div>
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.time.lastMonth")}</span>
-														<Badge variant="secondary" className="bg-blue-100 text-blue-800">{statistics.recentSites}</Badge>
+														<Badge variant="secondary" className="bg-blue-100 text-blue-800">
+															{statistics.recentSites}
+														</Badge>
 													</div>
 													<div className="flex justify-between items-center">
 														<span className="text-sm font-medium">{t("tools.statistics.time.lastQuarter")}</span>
 														<Badge variant="secondary" className="bg-purple-100 text-purple-800">
-															{sites.filter(site => moment(site.createdAt).isAfter(moment().subtract(3, "months"))).length}
+															{sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(3, "months"))).length}
 														</Badge>
 													</div>
 												</div>
@@ -804,9 +819,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 										</div>
 									</div>
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-											{t("tools.statistics.distributions.title")}
-										</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.distributions.title")}</h3>
 										<div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
 											<div className="border border-gray-200 rounded-lg p-4">
 												<h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
@@ -818,14 +831,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 														<div key={index} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
-																<Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">{stat.count}</Badge>
+																<Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+																	{stat.count}
+																</Badge>
 																<span className="text-xs text-gray-500 w-8 text-right font-medium">{stat.percentage}%</span>
 															</div>
 														</div>
 													))}
 													{statistics.themeStats.length > 5 && (
 														<div className="text-xs text-gray-500 text-center pt-1 italic">
-															{t("tools.statistics.more", { count: statistics.themeStats.length - 5 })}
+															{t("tools.statistics.more", {
+																count: statistics.themeStats.length - 5,
+															})}
 														</div>
 													)}
 												</div>
@@ -840,14 +857,18 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 														<div key={index} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
-																<Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">{stat.count}</Badge>
+																<Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+																	{stat.count}
+																</Badge>
 																<span className="text-xs text-gray-500 w-8 text-right font-medium">{stat.percentage}%</span>
 															</div>
 														</div>
 													))}
 													{statistics.languageStats.length > 5 && (
 														<div className="text-xs text-gray-500 text-center pt-1 italic">
-															{t("tools.statistics.more", { count: statistics.languageStats.length - 5 })}
+															{t("tools.statistics.more", {
+																count: statistics.languageStats.length - 5,
+															})}
 														</div>
 													)}
 												</div>
@@ -862,21 +883,21 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 														<div key={index} className="flex justify-between items-center">
 															<span className="text-sm truncate font-medium">{stat.name}</span>
 															<div className="flex items-center gap-1">
-																<Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">{stat.count}</Badge>
+																<Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+																	{stat.count}
+																</Badge>
 																<span className="text-xs text-gray-500 w-8 text-right font-medium">{stat.percentage}%</span>
 															</div>
 														</div>
 													))}
 													{statistics.categoryStats.length > 5 && (
 														<div className="text-xs text-gray-500 text-center pt-1 italic">
-															{t("tools.statistics.more", { count: statistics.categoryStats.length - 5 })}
+															{t("tools.statistics.more", {
+																count: statistics.categoryStats.length - 5,
+															})}
 														</div>
 													)}
-													{statistics.categoryStats.length === 0 && (
-														<div className="text-xs text-gray-500 text-center py-4 italic">
-															{t("tools.statistics.noData")}
-														</div>
-													)}
+													{statistics.categoryStats.length === 0 && <div className="text-xs text-gray-500 text-center py-4 italic">{t("tools.statistics.noData")}</div>}
 												</div>
 											</div>
 										</div>
@@ -895,15 +916,15 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 					</div>
 				</div>
 				<div className="flex gap-2 mt-6">
-					<Input
-						onChange={(e) => updateFilters({ ...filters, url: e.target.value })}
-						value={filters.url}
-						placeholder={t("list.search.url.placeholder")}
-						className="flex-1 h-10"
-					/>
+					<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={t("list.search.url.placeholder")} className="flex-1 h-10" />
 
 					<Select
-						onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })}
+						onValueChange={(value) =>
+							updateFilters({
+								...filters,
+								infrastructure: value === "all" ? "" : value,
+							})
+						}
 						value={filters.infrastructure || "all"}
 					>
 						<SelectTrigger className="w-64 !h-10">
@@ -921,10 +942,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						</SelectContent>
 					</Select>
 
-					<Select
-						onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })}
-						value={filters.theme || "all"}
-					>
+					<Select onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })} value={filters.theme || "all"}>
 						<SelectTrigger className="w-48 !h-10">
 							<SelectValue placeholder={t("list.search.theme.placeholder")} />
 						</SelectTrigger>
@@ -947,6 +965,7 @@ export const SiteList: React.FC<{ sites: SiteType[]; permissions: string[] }> = 
 						key: "createdAt",
 						direction: "desc",
 					}}
+					onRowClick={(site) => router.push(`/sites/${site.id}/edit`)}
 				/>
 			</div>
 		</div>

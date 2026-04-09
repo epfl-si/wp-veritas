@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { getZodErrorMessages, useZodErrorMessages } from "@/hooks/zod";
-import type { KubernetesInfrastructureName, DatabaseInfrastructureName, NoneInfrastructureName, InfrastructureName } from "@/types/infrastructure";
-import { INFRASTRUCTURES, getCreatableInfrastructures } from "@/constants/infrastructures";
-import { PolylangPlugin } from "./languages";
+import { getCreatableInfrastructures, INFRASTRUCTURES } from "@/constants/infrastructures";
+import { getZodErrorMessages, type useZodErrorMessages } from "@/hooks/zod";
+import type { DatabaseInfrastructureName, InfrastructureName, KubernetesInfrastructureName, NoneInfrastructureName } from "@/types/infrastructure";
+import type { PolylangPlugin } from "./languages";
 
 export interface WordPressPlugins {
 	polylang?: PolylangPlugin;
@@ -55,11 +55,7 @@ export interface KubernetesSiteExtraInfo {
 	namespace: string;
 }
 
-export const SITE_EXTRAS = [
-	"ticket",
-	"comment",
-	"monitored",
-];
+export const SITE_EXTRAS = ["ticket", "comment", "monitored"];
 
 export type SiteExtras = {
 	ticket?: string;
@@ -262,7 +258,10 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 		throw new Error("No creatable infrastructures found");
 	}
 
-	return z.discriminatedUnion("infrastructure", allSchemas as unknown as [z.ZodDiscriminatedUnionOption<"infrastructure">, ...z.ZodDiscriminatedUnionOption<"infrastructure">[]]) as unknown as z.ZodType<SiteFormType>;
+	return z.discriminatedUnion(
+		"infrastructure",
+		allSchemas as unknown as [z.ZodDiscriminatedUnionOption<"infrastructure">, ...z.ZodDiscriminatedUnionOption<"infrastructure">[]],
+	) as unknown as z.ZodType<SiteFormType>;
 };
 
 export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {

@@ -1,13 +1,13 @@
-import { KubernetesSiteType, SiteFormType, KubernetesSite, KubernetesSiteFormType, KubernetesSiteExtraInfo, WordPressPlugins } from "@/types/site";
-import { BackupEnvironment } from "@/types/backup";
 import * as k8s from "@kubernetes/client-node";
-import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
-import { ensureNoSlashAtEnd, ensureSlashAtEnd } from "./utils";
-import { APIError } from "@/types/error";
-import { extractLanguages } from "./languages";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
-import { cache, withCache } from "./redis";
 import { getBackupConfig } from "@/services/backup";
+import type { BackupEnvironment } from "@/types/backup";
+import type { APIError } from "@/types/error";
+import type { KubernetesSite, KubernetesSiteExtraInfo, KubernetesSiteFormType, KubernetesSiteType, SiteFormType, WordPressPlugins } from "@/types/site";
+import { extractLanguages } from "./languages";
+import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
+import { cache, withCache } from "./redis";
+import { ensureNoSlashAtEnd, ensureSlashAtEnd } from "./utils";
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -83,18 +83,24 @@ async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: Kuberne
 
 		const items = response.items as KubernetesSiteType[];
 		if (!items || items.length === 0) {
-			return { error: { status: 404, message: "No sites found", success: false } };
+			return {
+				error: { status: 404, message: "No sites found", success: false },
+			};
 		}
 
 		const k8sSite = items.find((item: KubernetesSiteType) => item.metadata.uid === uid);
 		if (!k8sSite) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		return { k8sSite };
 	} catch (error) {
 		console.error("Error finding Kubernetes site by UID:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -152,7 +158,7 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 				method: "GET",
 				headers: { "Content-Type": "application/json" },
 				signal: AbortSignal.timeout(10000),
-			}).then(res => res.json());
+			}).then((res) => res.json());
 
 			const backupSite = sites?.find((s: KubernetesSite) => s.id === site.backupSite);
 			if (!backupSite) throw new Error("Backup site not found");
@@ -161,13 +167,16 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 				method: "GET",
 				headers: { "Content-Type": "application/json" },
 				signal: AbortSignal.timeout(10000),
-			}).then(res => res.json());
+			}).then((res) => res.json());
 
 			dbName = oldSite.kubernetesExtraInfo?.databaseName;
 			dbRef = oldSite.kubernetesExtraInfo?.databaseRef;
 			urlSource = ensureNoSlashAtEnd(oldSite.url);
 
-			const mediaPvcSubPath = process.env.PVC_NAME === config.media.claimName ? oldSite.kubernetesExtraInfo?.wordpressSiteName : `${oldSite.kubernetesExtraInfo?.namespace}-${oldSite.kubernetesExtraInfo?.pvcName}-${oldSite.kubernetesExtraInfo?.pvName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
+			const mediaPvcSubPath =
+				process.env.PVC_NAME === config.media.claimName
+					? oldSite.kubernetesExtraInfo?.wordpressSiteName
+					: `${oldSite.kubernetesExtraInfo?.namespace}-${oldSite.kubernetesExtraInfo?.pvcName}-${oldSite.kubernetesExtraInfo?.pvName}/${oldSite.kubernetesExtraInfo?.wordpressSiteName}`;
 
 			restoreConfig = {
 				s3: {
@@ -240,21 +249,24 @@ async function createSiteSpec(site: KubernetesSiteFormType, name: string, namesp
 				},
 			},
 			wordpress: createWordPressConfig(plugins),
-			...(site.createFromBackup && backupConfig.restoreConfig && {
-				restore: backupConfig.restoreConfig,
-			}),
+			...(site.createFromBackup &&
+				backupConfig.restoreConfig && {
+					restore: backupConfig.restoreConfig,
+				}),
 			hostname: url.hostname,
 			path: url.pathname.replace(/\/$/, "") || "/",
 		},
 	};
-};
+}
 
 export async function getKubernetesSite(id: string): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
 		const { k8sSite, error } = await findKubernetesSiteByUid(id);
 		if (error) return { error };
 		if (!k8sSite) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		const site = mapKubernetesToSite(k8sSite);
@@ -263,14 +275,22 @@ export async function getKubernetesSite(id: string): Promise<{ site?: Kubernetes
 		return { site, ...extras };
 	} catch (error) {
 		console.error("Error fetching WordPress site:", error);
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
 export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
 	try {
 		if (site.infrastructure !== "Kubernetes") {
-			return { error: { status: 400, message: "Invalid infrastructure for Kubernetes creation", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid infrastructure for Kubernetes creation",
+					success: false,
+				},
+			};
 		}
 
 		const kubernetesSite = site as KubernetesSiteFormType;
@@ -288,29 +308,57 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 		});
 
 		if (!response) {
-			return { error: { status: 500, message: "Failed to create WordPress site", success: false } };
+			return {
+				error: {
+					status: 500,
+					message: "Failed to create WordPress site",
+					success: false,
+				},
+			};
 		}
 
 		cache.invalidateSitesCache();
 		const siteId = response.metadata?.uid;
 		if (!siteId) {
-			return { error: { status: 500, message: "Site created but no ID returned", success: false } };
+			return {
+				error: {
+					status: 500,
+					message: "Site created but no ID returned",
+					success: false,
+				},
+			};
 		}
 
 		return { siteId };
 	} catch (error) {
 		console.error("Error creating WordPress site:", error);
-		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: "Site already exists", success: false } };
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"response" in error &&
+			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
+			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
+		) {
+			return {
+				error: { status: 409, message: "Site already exists", success: false },
+			};
 		}
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
 export async function updateKubernetesSite(id: string, siteData: SiteFormType): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
 		if (siteData.infrastructure !== "Kubernetes") {
-			return { error: { status: 400, message: "Invalid infrastructure for Kubernetes update", success: false } };
+			return {
+				error: {
+					status: 400,
+					message: "Invalid infrastructure for Kubernetes update",
+					success: false,
+				},
+			};
 		}
 
 		const kubernetesSiteData = siteData as KubernetesSiteFormType;
@@ -319,13 +367,21 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		const { site: existingSite, error: fetchError } = await getKubernetesSite(id);
 		if (fetchError) return { error: fetchError };
 		if (!existingSite) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return { error: { status: 404, message: "Site not found in Kubernetes", success: false } };
+			return {
+				error: {
+					status: 404,
+					message: "Site not found in Kubernetes",
+					success: false,
+				},
+			};
 		}
 
 		const patchOperations = [];
@@ -432,10 +488,20 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 		return { site: updatedSite };
 	} catch (error) {
 		console.error("Error updating WordPress site:", error);
-		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: "Site already exists", success: false } };
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"response" in error &&
+			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
+			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
+		) {
+			return {
+				error: { status: 409, message: "Site already exists", success: false },
+			};
 		}
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
@@ -446,7 +512,9 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return { error: { status: 404, message: "Site not found", success: false } };
+			return {
+				error: { status: 404, message: "Site not found", success: false },
+			};
 		}
 
 		await k8sCustomObjectsApi.deleteNamespacedCustomObject({
@@ -461,43 +529,64 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 		return { success: true };
 	} catch (error) {
 		console.error("Error deleting WordPress site:", error);
-		if (typeof error === "object" && error !== null && "response" in error && typeof (error as { response?: { statusCode?: number } }).response === "object" && (error as { response?: { statusCode?: number } }).response?.statusCode === 409) {
-			return { error: { status: 409, message: "Site already exists", success: false } };
+		if (
+			typeof error === "object" &&
+			error !== null &&
+			"response" in error &&
+			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
+			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
+		) {
+			return {
+				error: { status: 409, message: "Site already exists", success: false },
+			};
 		}
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return {
+			error: { status: 500, message: "Internal Server Error", success: false },
+		};
 	}
 }
 
-export async function getKubernetesSites(): Promise<{ sites?: KubernetesSite[]; error?: APIError }> {
+export async function getKubernetesSites(): Promise<{
+	sites?: KubernetesSite[];
+	error?: APIError;
+}> {
 	const cacheKey = "kubernetes-sites";
 
-	return withCache(cacheKey, async () => {
-		try {
-			const namespace = await getNamespace();
-			const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
-				group: WORDPRESS_GROUP,
-				version: WORDPRESS_VERSION,
-				namespace,
-				plural: WORDPRESS_PLURAL,
-			});
-			const items = response.items as KubernetesSiteType[];
+	return withCache(
+		cacheKey,
+		async () => {
+			try {
+				const namespace = await getNamespace();
+				const response = await k8sCustomObjectsApi.listNamespacedCustomObject({
+					group: WORDPRESS_GROUP,
+					version: WORDPRESS_VERSION,
+					namespace,
+					plural: WORDPRESS_PLURAL,
+				});
+				const items = response.items as KubernetesSiteType[];
 
-			if (!items) {
+				if (!items) {
+					return {
+						error: { status: 404, message: "No sites found", success: false },
+					};
+				}
+
+				const kubernetesSites = items.map(mapKubernetesToSite);
+
+				return { sites: kubernetesSites };
+			} catch (error) {
+				console.error("Error fetching Kubernetes sites:", error);
 				return {
-					error: { status: 404, message: "No sites found", success: false },
+					error: {
+						status: 500,
+						message: "Internal Server Error",
+						success: false,
+					},
 				};
 			}
-
-			const kubernetesSites = items.map(mapKubernetesToSite);
-
-			return { sites: kubernetesSites };
-		} catch (error) {
-			console.error("Error fetching Kubernetes sites:", error);
-			return {
-				error: { status: 500, message: "Internal Server Error", success: false },
-			};
-		}
-	}, 480); // 8 minutes cache
+		},
+		480,
+	); // 8 minutes cache
 }
 
 export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {
@@ -513,9 +602,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			namespace,
 		});
 
-		const ingress = ingresses.items.find((ing) =>
-			ing.metadata && ing.metadata.ownerReferences?.some(ref => ref.uid === k8sSite.metadata.uid),
-		);
+		const ingress = ingresses.items.find((ing) => ing.metadata && ing.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid));
 
 		const databases = await k8sCustomObjectsApi.listNamespacedCustomObject({
 			group: "k8s.mariadb.com",
@@ -536,9 +623,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			};
 		};
 
-		const database = (databases.items as DatabaseType[]).find((db) =>
-			db.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid),
-		);
+		const database = (databases.items as DatabaseType[]).find((db) => db.metadata.ownerReferences?.some((ref) => ref.uid === k8sSite.metadata.uid));
 
 		const pvName = await getPersistentVolumeName(process.env.PVC_NAME || "wordpress-data");
 
@@ -552,7 +637,6 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			pvcName: process.env.PVC_NAME || "wordpress-data",
 			namespace: namespace,
 		} as KubernetesSiteExtraInfo;
-
 	} catch (error) {
 		console.error("Error extracting Kubernetes site info:", error);
 		throw { status: 500, message: "Internal Server Error", success: false };

@@ -1,9 +1,10 @@
 "use client";
-import React, { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import type React from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Table, TableColumn } from "@/components/ui/table";
-import { ThemeType } from "@/types/theme";
+import { Table, type TableColumn } from "@/components/ui/table";
+import type { ThemeType } from "@/types/theme";
 
 export const ThemeList: React.FC<{ themes: ThemeType[] }> = ({ themes }) => {
 	const [search, setSearch] = useState({

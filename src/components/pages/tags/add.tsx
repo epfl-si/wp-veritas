@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
 import { useLocale, useTranslations } from "next-intl";
-import Form, { FormConfig, FieldConfig, SectionConfig } from "@/components/form";
-import { tagSchema, TagFormType } from "@/types/tag";
-import { useZodErrorMessages } from "@/hooks/zod";
+import type React from "react";
+import Form, { type FieldConfig, type FormConfig, type SectionConfig } from "@/components/form";
 import { TAG_CATEGORIES } from "@/constants/tags";
+import { useZodErrorMessages } from "@/hooks/zod";
+import { type TagFormType, tagSchema } from "@/types/tag";
 
 export const TagAdd: React.FC = () => {
 	const t = useTranslations("tag");
@@ -103,9 +103,7 @@ export const TagAdd: React.FC = () => {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 flex-shrink-0 mt-1">
-				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("add.title")}</h1>
-				</div>
+				<h1 className="text-3xl font-bold">{t("add.title")}</h1>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Form config={getFormConfig()} />

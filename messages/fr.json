@@ -354,7 +354,10 @@
 			"viewSite": "Visiter le site",
 			"create": "Créer",
 			"reset": "Réinitialiser",
-			"creating": "Création en cours"
+			"creating": "Création en cours",
+			"manageTags": "Gérer les tags",
+			"info": "Informations",
+			"editTags": "Modifier les tags"
 		}
 	},
 	"status": {

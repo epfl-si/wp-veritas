@@ -1,20 +1,20 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { useForm, SubmitHandler, FieldValues, Path, DefaultValues, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Input } from "@/components/ui/input";
+import { ChevronDown, CircleAlert, CircleCheck, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
+import { type DefaultValues, type FieldValues, type Path, type SubmitHandler, type UseFormReturn, useForm } from "react-hook-form";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormField, Form as UiForm, FormItem, FormLabel, FormControl, FormDescription, FormMessage } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form as UiForm } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CircleAlert, CircleCheck, Loader2, X, ChevronDown, ExternalLink, LinkIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useTranslations } from "next-intl";
-import { ApiResponse } from "@/types/api";
+import type { ApiResponse } from "@/types/api";
 
 export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes" | "url" | "search";
 
@@ -89,7 +89,10 @@ interface ReusableFormProps<T extends FieldValues> {
 export default function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
-	const [submissionData, setSubmissionData] = useState<{ formData: T; response: unknown } | null>(null);
+	const [submissionData, setSubmissionData] = useState<{
+		formData: T;
+		response: unknown;
+	} | null>(null);
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
@@ -208,7 +211,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 	const resetConditionalValue = (field: FieldConfig, currentValue: unknown, conditionalDefault: unknown, schemaDefault: unknown) => {
 		if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(currentValue) && Array.isArray(conditionalDefault)) {
-			const filteredValue = currentValue.filter(item => !conditionalDefault.includes(item));
+			const filteredValue = currentValue.filter((item) => !conditionalDefault.includes(item));
 			form.setValue(field.name as Path<T>, filteredValue as never);
 			return;
 		}
@@ -248,7 +251,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 				if (!Array.isArray(currentValue)) {
 					return true;
 				}
-				return !defaultValue.every(item => currentValue.includes(item));
+				return !defaultValue.every((item) => currentValue.includes(item));
 			}
 
 			return currentValue !== defaultValue;
@@ -278,25 +281,21 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 			const conditionalKey = conditionalDefault !== undefined ? `${field.name}-conditional-${JSON.stringify(conditionalDefault)}` : null;
 			const schemaKey = `${field.name}-schema-${JSON.stringify(schemaDefault)}`;
 
-			const hadConditionalDefault = Array.from(appliedDefaults.current).some(key => key.startsWith(`${field.name}-conditional-`));
+			const hadConditionalDefault = Array.from(appliedDefaults.current).some((key) => key.startsWith(`${field.name}-conditional-`));
 
 			if (conditionalDefault !== undefined) {
 				if (conditionalKey && !appliedDefaults.current.has(conditionalKey)) {
-					const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key =>
-						key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey,
-					);
+					const previousConditionalKeys = Array.from(appliedDefaults.current).filter((key) => key.startsWith(`${field.name}-conditional-`) && key !== conditionalKey);
 
 					if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(conditionalDefault)) {
 						let baseValue = Array.isArray(currentValue) ? [...currentValue] : [];
 
-						previousConditionalKeys.forEach(prevKey => {
+						previousConditionalKeys.forEach((prevKey) => {
 							const prevValueStr = prevKey.replace(`${field.name}-conditional-`, "");
 							try {
 								const prevValue = JSON.parse(prevValueStr);
 								if (Array.isArray(prevValue)) {
-									baseValue = baseValue.filter(item =>
-										!prevValue.includes(item) || conditionalDefault.includes(item),
-									);
+									baseValue = baseValue.filter((item) => !prevValue.includes(item) || conditionalDefault.includes(item));
 								}
 							} catch {
 								// ignore
@@ -311,10 +310,10 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 					appliedDefaults.current.add(conditionalKey);
 
-					previousConditionalKeys.forEach(key => appliedDefaults.current.delete(key));
+					previousConditionalKeys.forEach((key) => appliedDefaults.current.delete(key));
 				}
 			} else if (hadConditionalDefault) {
-				const previousConditionalKeys = Array.from(appliedDefaults.current).filter(key => key.startsWith(`${field.name}-conditional-`));
+				const previousConditionalKeys = Array.from(appliedDefaults.current).filter((key) => key.startsWith(`${field.name}-conditional-`));
 
 				const previousConditionalKey = previousConditionalKeys[0];
 				let previousConditionalValue: unknown;
@@ -327,7 +326,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					}
 				}
 
-				previousConditionalKeys.forEach(key => appliedDefaults.current.delete(key));
+				previousConditionalKeys.forEach((key) => appliedDefaults.current.delete(key));
 
 				resetConditionalValue(field, currentValue, previousConditionalValue, schemaDefault);
 
@@ -373,7 +372,19 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		return section.conditions.filter((condition) => !condition.type || condition.type === "display").every(evaluateCondition);
 	};
 
-	const SearchField = ({ value = "", onChange, options = [], placeholder, disabled = false }: { value?: string; onChange: (value: string | number) => void; options?: SelectOption[]; placeholder?: string; disabled?: boolean; }) => {
+	const SearchField = ({
+		value = "",
+		onChange,
+		options = [],
+		placeholder,
+		disabled = false,
+	}: {
+		value?: string;
+		onChange: (value: string | number) => void;
+		options?: SelectOption[];
+		placeholder?: string;
+		disabled?: boolean;
+	}) => {
 		const t = useTranslations("form");
 		const [query, setQuery] = useState("");
 		const [results, setResults] = useState<SelectOption[]>([]);
@@ -385,7 +396,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		useEffect(() => {
 			if (!isEditing) {
 				if (value && options.length > 0) {
-					const foundOption = options.find(option => option.value.toString() === value.toString());
+					const foundOption = options.find((option) => option.value.toString() === value.toString());
 					if (foundOption) {
 						setQuery(foundOption.label);
 					}
@@ -413,12 +424,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 		useEffect(() => {
 			const handleClickOutside = (event: MouseEvent) => {
-				if (
-					dropdownRef.current &&
-					!dropdownRef.current.contains(event.target as Node) &&
-					inputRef.current &&
-					!inputRef.current.contains(event.target as Node)
-				) {
+				if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) && inputRef.current && !inputRef.current.contains(event.target as Node)) {
 					setIsOpen(false);
 				}
 			};
@@ -472,11 +478,8 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					className="h-10"
 				/>
 
-				{isOpen && (query.trim().length > 0) && (
-					<div
-						ref={dropdownRef}
-						className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto"
-					>
+				{isOpen && query.trim().length > 0 && (
+					<div ref={dropdownRef} className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
 						{results.length > 0 ? (
 							results.map((option) => (
 								<button
@@ -484,15 +487,11 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 									onClick={() => handleSelectOption(option)}
 									className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
 								>
-									<div className="text-sm">
-										{highlightMatch(option.label, query)}
-									</div>
+									<div className="text-sm">{highlightMatch(option.label, query)}</div>
 								</button>
 							))
 						) : (
-							<div className="px-4 py-3 text-sm text-gray-500">
-								{t("search.noResults")}
-							</div>
+							<div className="px-4 py-3 text-sm text-gray-500">{t("search.noResults")}</div>
 						)}
 					</div>
 				)}
@@ -504,12 +503,17 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		const IconComponent = option.icon;
 		return (
 			<div
-				className={cn("relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200", disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md", isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")}
+				className={cn(
+					"relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200",
+					disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
+					isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300",
+				)}
 				style={{
 					borderColor: isSelected && option.color ? option.color : undefined,
 					backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
 				}}
-				onClick={disabled ? undefined : onClick}>
+				onClick={disabled ? undefined : onClick}
+			>
 				<div className="flex flex-col items-center text-center space-y-2">
 					{IconComponent && (
 						<div
@@ -517,7 +521,8 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							style={{
 								backgroundColor: option.color ? `${option.color}20` : "#f3f4f6",
 								color: option.color || "#6b7280",
-							}}>
+							}}
+						>
 							{typeof IconComponent === "string" ? <span className="text-lg">{IconComponent}</span> : <IconComponent className="w-5 h-5" />}
 						</div>
 					)}
@@ -527,24 +532,32 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		);
 	};
 
-	const MultiSelectField = ({ options, value, onChange, disabled, placeholder = "Select options..." }: { options: SelectOption[]; value: (string | number)[]; onChange: (value: (string | number)[]) => void; disabled?: boolean; placeholder?: string; }) => {
+	const MultiSelectField = ({
+		options,
+		value,
+		onChange,
+		disabled,
+		placeholder = "Select options...",
+	}: {
+		options: SelectOption[];
+		value: (string | number)[];
+		onChange: (value: (string | number)[]) => void;
+		disabled?: boolean;
+		placeholder?: string;
+	}) => {
 		const [isOpen, setIsOpen] = useState(false);
 		const [showAll, setShowAll] = useState(false);
 
-		const defaultOptions = options.filter(option => option.default === true);
-		const nonDefaultOptions = options.filter(option => option.default !== true);
+		const defaultOptions = options.filter((option) => option.default === true);
+		const nonDefaultOptions = options.filter((option) => option.default !== true);
 		const hasDefaultOptions = defaultOptions.length > 0;
 
-		const visibleOptions = showAll || !hasDefaultOptions
-			? options
-			: defaultOptions;
+		const visibleOptions = showAll || !hasDefaultOptions ? options : defaultOptions;
 
 		const handleOptionToggle = (optionValue: string | number, e?: React.MouseEvent) => {
 			e?.stopPropagation();
 			if (disabled) return;
-			const newValue = value.includes(optionValue)
-				? value.filter((v) => v !== optionValue)
-				: [...value, optionValue];
+			const newValue = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
 			onChange(newValue);
 		};
 
@@ -596,20 +609,12 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 																color: option.color || "#6b7280",
 															}}
 														>
-															{typeof IconComponent === "string" ? (
-																<span className="text-xs">{IconComponent}</span>
-															) : (
-																<IconComponent className="w-2 h-2" />
-															)}
+															{typeof IconComponent === "string" ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
 														</div>
 													)}
 													<span className="font-medium truncate max-w-20">{option.label}</span>
 													{!disabled && (
-														<button
-															type="button"
-															onClick={(e) => handleRemoveItem(option.value, e)}
-															className="cursor-pointer p-0.5 transition-colors ml-0.5"
-														>
+														<button type="button" onClick={(e) => handleRemoveItem(option.value, e)} className="cursor-pointer p-0.5 transition-colors ml-0.5">
 															<X className="w-2 h-2" />
 														</button>
 													)}
@@ -622,25 +627,13 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							<ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0 ml-2" />
 						</div>
 					</PopoverTrigger>
-					<PopoverContent
-						className="p-0"
-						style={{ width: "var(--radix-popover-trigger-width)" }}
-						align="start"
-					>
+					<PopoverContent className="p-0" style={{ width: "var(--radix-popover-trigger-width)" }} align="start">
 						<div className="max-h-64 overflow-y-auto">
 							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div
-										key={option.value}
-										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer"
-										onClick={(e) => handleOptionToggle(option.value, e)}
-									>
-										<Checkbox
-											id={`option-${option.value}`}
-											checked={value.includes(option.value)}
-											onCheckedChange={() => handleOptionToggle(option.value)}
-										/>
+									<div key={option.value} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onClick={(e) => handleOptionToggle(option.value, e)}>
+										<Checkbox id={`option-${option.value}`} checked={value.includes(option.value)} onCheckedChange={() => handleOptionToggle(option.value)} />
 										<div className="flex items-center space-x-2 flex-1">
 											{IconComponent && (
 												<div
@@ -650,17 +643,10 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 														color: option.color || "#6b7280",
 													}}
 												>
-													{typeof IconComponent === "string" ? (
-														<span className="text-sm">{IconComponent}</span>
-													) : (
-														<IconComponent className="w-4 h-4" />
-													)}
+													{typeof IconComponent === "string" ? <span className="text-sm">{IconComponent}</span> : <IconComponent className="w-4 h-4" />}
 												</div>
 											)}
-											<label
-												htmlFor={`option-${option.value}`}
-												className="text-sm font-medium leading-none cursor-pointer flex-1"
-											>
+											<label htmlFor={`option-${option.value}`} className="text-sm font-medium leading-none cursor-pointer flex-1">
 												{option.label}
 											</label>
 										</div>
@@ -670,22 +656,14 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 							{!showAll && hasDefaultOptions && nonDefaultOptions.length > 0 && (
 								<div className="border-t border-gray-100">
-									<button
-										type="button"
-										onClick={handleShowMore}
-										className="w-full p-3 text-sm text-blue-600 hover:bg-blue-50 cursor-pointer transition-colors flex items-center justify-center gap-2"
-									>
+									<button type="button" onClick={handleShowMore} className="w-full p-3 text-sm text-blue-600 hover:bg-blue-50 cursor-pointer transition-colors flex items-center justify-center gap-2">
 										<span>{t("showMore")}</span>
 										<ChevronDown className="w-4 h-4" />
 									</button>
 								</div>
 							)}
 
-							{visibleOptions.length === 0 && (
-								<div className="p-4 text-sm text-gray-500 text-center">
-									No options available
-								</div>
-							)}
+							{visibleOptions.length === 0 && <div className="p-4 text-sm text-gray-500 text-center">No options available</div>}
 						</div>
 					</PopoverContent>
 				</Popover>
@@ -748,13 +726,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 										</SelectContent>
 									</Select>
 								) : type === "search" ? (
-									<SearchField
-										value={field.value?.toString() || ""}
-										onChange={field.onChange}
-										options={options}
-										placeholder={placeholder}
-										disabled={isDisabled}
-									/>
+									<SearchField value={field.value?.toString() || ""} onChange={field.onChange} options={options} placeholder={placeholder} disabled={isDisabled} />
 								) : type === "multiselect" ? (
 									<MultiSelectField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} />
 								) : type === "boxes" ? (
@@ -799,12 +771,15 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		);
 	};
 
-	const fieldsBySection = config.fields.reduce((acc, field) => {
-		const section = field.section || "default";
-		if (!acc[section]) acc[section] = [];
-		acc[section].push(field);
-		return acc;
-	}, {} as Record<string, FieldConfig[]>);
+	const fieldsBySection = config.fields.reduce(
+		(acc, field) => {
+			const section = field.section || "default";
+			if (!acc[section]) acc[section] = [];
+			acc[section].push(field);
+			return acc;
+		},
+		{} as Record<string, FieldConfig[]>,
+	);
 
 	const onSubmit: SubmitHandler<T> = async (data) => {
 		setHasSubmitted(true);
@@ -876,28 +851,15 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 						</div>
 						<div className="flex-1 min-w-0">
 							<h3 className="text-sm font-semibold text-green-800">{config.successTitle}</h3>
-							{config.successMessage && (
-								<p className="text-sm text-green-700 mt-1">{config.successMessage}</p>
-							)}
+							{config.successMessage && <p className="text-sm text-green-700 mt-1">{config.successMessage}</p>}
 						</div>
 						{config.successActions && submissionData && (
 							<div className="flex gap-2 flex-shrink-0">
 								{config.successActions.map((action, index) => {
 									const Icon = action.icon;
 									return (
-										<Button
-											key={index}
-											variant="outline"
-											size="sm"
-											asChild
-											className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100"
-										>
-											<a
-												href={action.url(submissionData.formData, submissionData.response)}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="flex items-center gap-1.5"
-											>
+										<Button key={index} variant="outline" size="sm" asChild className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100">
+											<a href={action.url(submissionData.formData, submissionData.response)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
 												{Icon && <Icon className="h-3 w-3" />}
 												{action.label}
 												<ExternalLink className="h-3 w-3" />
@@ -957,7 +919,8 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 									setSubmissionResult(null);
 								}}
 								className="cursor-pointer"
-								disabled={isSubmitting}>
+								disabled={isSubmitting}
+							>
 								{config.resetButtonText || "Reset"}
 							</Button>
 						)}

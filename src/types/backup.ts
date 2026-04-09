@@ -7,7 +7,6 @@ export interface BackupConfig {
 			secretName: string;
 			accessKeyIdSecretKeyRef: string;
 			secretAccessKeySecretKeyRef: string;
-
 		};
 		media: {
 			claimName: string;

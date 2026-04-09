@@ -1,19 +1,20 @@
 "use client";
-import React, { useEffect, useState } from "react";
 import { Pencil, Plus, TagIcon, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import moment from "moment";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableColumn } from "@/components/ui/table";
+import { Table, type TableColumn } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import moment from "moment";
 import "moment/locale/fr";
-import { TagCategoryType, TagsType } from "@/types/tag";
-import { PERMISSIONS } from "@/constants/permissions";
 import { DeleteDialog } from "@/components/dialog/delete";
+import { PERMISSIONS } from "@/constants/permissions";
 import { TAG_CATEGORIES } from "@/constants/tags";
+import type { TagCategoryType, TagsType } from "@/types/tag";
 
 export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({ tags, permissions }) => {
 	const [search, setSearch] = useState({
@@ -103,12 +104,7 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 						{permissions.includes(PERMISSIONS.TAGS.DELETE) && (
 							<>
 								{canDelete ? (
-									<DeleteDialog 
-										icon={TagIcon} 
-										displayName={locale === "fr" ? tag.nameFr : tag.nameEn} 
-										type="tag" 
-										apiEndpoint={`/api/tags/${tag.id}`} 
-									/>
+									<DeleteDialog icon={TagIcon} displayName={locale === "fr" ? tag.nameFr : tag.nameEn} type="tag" apiEndpoint={`/api/tags/${tag.id}`} />
 								) : hasAssociatedSites ? (
 									<TooltipProvider>
 										<Tooltip>
@@ -122,7 +118,6 @@ export const TagList: React.FC<{ tags: TagsType[]; permissions: string[] }> = ({
 													{t("actions.deleteTooltip", {
 														count: tag.sites.length,
 													})}
-													
 												</p>
 											</TooltipContent>
 										</Tooltip>

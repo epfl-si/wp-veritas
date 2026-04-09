@@ -1,18 +1,18 @@
 "use client";
-import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { useLocale, useTranslations } from "next-intl";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableColumn } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
 import moment from "moment";
+import { useLocale, useTranslations } from "next-intl";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, type TableColumn } from "@/components/ui/table";
 import "moment/locale/fr";
-import { LogType } from "@/types/log";
-import { LOG_LEVELS } from "@/constants/logs";
-import { UserRound, ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, UserRound } from "lucide-react";
 import Link from "next/link";
+import { LOG_LEVELS } from "@/constants/logs";
+import type { LogType } from "@/types/log";
 
 const getLogLevelConfig = (level: string) => {
 	return Object.values(LOG_LEVELS).find((config) => config.NAME.toLowerCase() === level.toLowerCase());
@@ -21,12 +21,20 @@ const getLogLevelConfig = (level: string) => {
 const parseMessage = (message: string) => {
 	return message.split(/('''.*?''')/gs).flatMap((part, i) => {
 		if (part.startsWith("'''") && part.endsWith("'''")) {
-			return <pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono break-all overflow-hidden whitespace-pre-wrap">{part.slice(3, -3)}</pre>;
+			return (
+				<pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono break-all overflow-hidden whitespace-pre-wrap">
+					{part.slice(3, -3)}
+				</pre>
+			);
 		}
 		return part.split(/(\*\*.*?\*\*)/g).map((bp, j) =>
-			bp.startsWith("**") && bp.endsWith("**")
-				? <strong key={`${i}-${j}`} className="font-semibold">{bp.slice(2, -2)}</strong>
-				: bp,
+			bp.startsWith("**") && bp.endsWith("**") ? (
+				<strong key={`${i}-${j}`} className="font-semibold">
+					{bp.slice(2, -2)}
+				</strong>
+			) : (
+				bp
+			),
 		);
 	});
 };
@@ -53,7 +61,11 @@ export const LogList: React.FC<LogListProps> = () => {
 
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const isLoadingRef = useRef(false);
-	const searchParamsRef = useRef<{ message: string; level: string; actions: string[] }>({
+	const searchParamsRef = useRef<{
+		message: string;
+		level: string;
+		actions: string[];
+	}>({
 		message: "",
 		level: "",
 		actions: DEFAULT_SELECTED_ACTIONS,
@@ -81,12 +93,7 @@ export const LogList: React.FC<LogListProps> = () => {
 		};
 	}, [selectedActions]);
 
-
-
-	const fetchLogs = useCallback(async (
-		searchParams: { message: string; level: string; actions: string[] },
-		page: number,
-	) => {
+	const fetchLogs = useCallback(async (searchParams: { message: string; level: string; actions: string[] }, page: number) => {
 		try {
 			const params = new URLSearchParams();
 			if (searchParams.message.trim()) params.append("search", searchParams.message.trim());
@@ -123,9 +130,7 @@ export const LogList: React.FC<LogListProps> = () => {
 		}
 	}, []);
 
-	const fetchTotalWithoutActionFilter = useCallback(async (
-		searchParams: { message: string; level: string },
-	) => {
+	const fetchTotalWithoutActionFilter = useCallback(async (searchParams: { message: string; level: string }) => {
 		try {
 			const params = new URLSearchParams();
 			if (searchParams.message.trim()) params.append("search", searchParams.message.trim());
@@ -147,32 +152,38 @@ export const LogList: React.FC<LogListProps> = () => {
 		}
 	}, []);
 
-	const searchLogs = useCallback(async (searchParams: { message: string; level: string; actions: string[] }) => {
-		if (isLoadingRef.current) return;
+	const searchLogs = useCallback(
+		async (searchParams: { message: string; level: string; actions: string[] }) => {
+			if (isLoadingRef.current) return;
 
-		setLoading(true);
-		isLoadingRef.current = true;
-		searchParamsRef.current = searchParams;
+			setLoading(true);
+			isLoadingRef.current = true;
+			searchParamsRef.current = searchParams;
 
-		try {
-			const [result] = await Promise.all([
-				fetchLogs(searchParams, 0),
-				fetchTotalWithoutActionFilter({ message: searchParams.message, level: searchParams.level }),
-			]);
+			try {
+				const [result] = await Promise.all([
+					fetchLogs(searchParams, 0),
+					fetchTotalWithoutActionFilter({
+						message: searchParams.message,
+						level: searchParams.level,
+					}),
+				]);
 
-			setLogs(result.logs);
-			setFilteredTotal(result.total);
-			setCurrentPage(0);
-			setHasMore(result.logs.length === ITEMS_PER_PAGE);
+				setLogs(result.logs);
+				setFilteredTotal(result.total);
+				setCurrentPage(0);
+				setHasMore(result.logs.length === ITEMS_PER_PAGE);
 
-			if (scrollContainerRef.current) {
-				scrollContainerRef.current.scrollTop = 0;
+				if (scrollContainerRef.current) {
+					scrollContainerRef.current.scrollTop = 0;
+				}
+			} finally {
+				setLoading(false);
+				isLoadingRef.current = false;
 			}
-		} finally {
-			setLoading(false);
-			isLoadingRef.current = false;
-		}
-	}, [fetchLogs, fetchTotalWithoutActionFilter]);
+		},
+		[fetchLogs, fetchTotalWithoutActionFilter],
+	);
 
 	const loadMore = useCallback(async () => {
 		if (isLoadingRef.current || !hasMore || loadingMore) {
@@ -188,7 +199,7 @@ export const LogList: React.FC<LogListProps> = () => {
 			const result = await fetchLogs(searchParamsRef.current, nextPage);
 
 			if (result.logs.length > 0) {
-				setLogs(prev => [...prev, ...result.logs]);
+				setLogs((prev) => [...prev, ...result.logs]);
 				setCurrentPage(nextPage);
 				setHasMore(result.logs.length === ITEMS_PER_PAGE);
 			} else {
@@ -253,7 +264,9 @@ export const LogList: React.FC<LogListProps> = () => {
 			}
 		};
 
-		container.addEventListener("scroll", throttledHandleScroll, { passive: true });
+		container.addEventListener("scroll", throttledHandleScroll, {
+			passive: true,
+		});
 
 		return () => {
 			container.removeEventListener("scroll", throttledHandleScroll);
@@ -261,11 +274,7 @@ export const LogList: React.FC<LogListProps> = () => {
 	}, [handleScroll]);
 
 	const handleActionToggle = (action: string) => {
-		setSelectedActions((prev) =>
-			prev.includes(action)
-				? prev.filter((a) => a !== action)
-				: [...prev, action],
-		);
+		setSelectedActions((prev) => (prev.includes(action) ? prev.filter((a) => a !== action) : [...prev, action]));
 	};
 
 	const getActionButtonText = () => {
@@ -277,7 +286,9 @@ export const LogList: React.FC<LogListProps> = () => {
 			return t("list.search.action.empty");
 		}
 
-		return t("list.search.action.selected", { count: actionStats.selectedCount });
+		return t("list.search.action.selected", {
+			count: actionStats.selectedCount,
+		});
 	};
 
 	const columns: TableColumn<LogType>[] = [
@@ -302,12 +313,18 @@ export const LogList: React.FC<LogListProps> = () => {
 			render: (log) => {
 				const levelConfig = getLogLevelConfig(log.level);
 				return (
-					<div className="text-black p-1.5 sm:p-2 h-8 sm:h-9 flex gap-0.5 sm:gap-1 justify-center items-center border-2 rounded-sm" style={{ borderColor: levelConfig?.COLOR, color: levelConfig?.COLOR }}>
+					<div
+						className="text-black p-1.5 sm:p-2 h-8 sm:h-9 flex gap-0.5 sm:gap-1 justify-center items-center border-2 rounded-sm"
+						style={{
+							borderColor: levelConfig?.COLOR,
+							color: levelConfig?.COLOR,
+						}}
+					>
 						{levelConfig?.ICON
 							? React.createElement(levelConfig.ICON, {
-								className: "size-3 sm:size-4",
-								strokeWidth: 2.3,
-							})
+									className: "size-3 sm:size-4",
+									strokeWidth: 2.3,
+								})
 							: null}
 						<span className="text-xs sm:text-sm font-semibold uppercase hidden sm:inline">{levelConfig?.LABEL[locale as "fr" | "en"] || log.level}</span>
 					</div>
@@ -409,12 +426,12 @@ export const LogList: React.FC<LogListProps> = () => {
 
 				{filteredTotal > 0 && (
 					<div className="mt-2 flex items-center gap-4 text-sm">
-						<div className="text-gray-600">
-							{t("list.results", { count: logs.length, total: filteredTotal })}
-						</div>
+						<div className="text-gray-600">{t("list.results", { count: logs.length, total: filteredTotal })}</div>
 						{actionStats.hiddenCount > 0 && totalWithoutActionFilter > filteredTotal && (
 							<div className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs">
-								{t("list.filtered.hidden", { count: totalWithoutActionFilter - filteredTotal })}
+								{t("list.filtered.hidden", {
+									count: totalWithoutActionFilter - filteredTotal,
+								})}
 							</div>
 						)}
 					</div>
@@ -422,11 +439,7 @@ export const LogList: React.FC<LogListProps> = () => {
 			</div>
 
 			<div className="px-3 sm:px-4 md:px-6 pb-0 flex-1 overflow-hidden">
-				<div
-					ref={scrollContainerRef}
-					className="h-full overflow-y-auto"
-					style={{ scrollBehavior: "smooth" }}
-				>
+				<div ref={scrollContainerRef} className="h-full overflow-y-auto" style={{ scrollBehavior: "smooth" }}>
 					{logs.length > 0 ? (
 						<>
 							<Table data={logs} columns={columns} />
@@ -456,6 +469,6 @@ export const LogList: React.FC<LogListProps> = () => {
 					)}
 				</div>
 			</div>
-		</div >
+		</div>
 	);
 };
