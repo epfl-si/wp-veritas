@@ -464,9 +464,49 @@ export const WP_CATEGORIES = {
 		}),
 	},
 
-	WPFORMS: {
-		NAME: "WPForms",
-		LABEL: "WPForms",
+	SURVEYS: {
+		NAME: "Surveys",
+		LABEL: "Surveys",
+		getPlugins: () => ({
+			"wpforms-surveys-polls": {},
+		}),
+	},
+
+	DIPLOMA_VERIFICATION: {
+		NAME: "DiplomaVerification",
+		LABEL: "Diploma Verification",
+		getPlugins: () => ({
+			"epfl-diploma-verification": {},
+		}),
+	},
+
+	PARTNER_UNIVERSITIES: {
+		NAME: "PartnerUniversities",
+		LABEL: "Partner Universities",
+		getPlugins: () => ({
+			"epfl-partner-universities": {},
+		}),
+	},
+
+	EPFL_MENUS: {
+		NAME: "epfl-menus",
+		LABEL: "EPFL Menus",
+		getPlugins: () => ({
+			"epfl-menus": {},
+		}),
+	},
+
+	EPFL_TRANSLATE: {
+		NAME: "EPFL Translate",
+		LABEL: "EPFL Translate",
+		getPlugins: () => ({
+			"epfl-translate": {},
+		}),
+	},
+
+	EPFL_FORMS: {
+		NAME: "EPFL Forms",
+		LABEL: "EPFL Forms",
 		getPlugins: () => ({
 			wpforms: {
 				wp_options: [
@@ -522,12 +562,6 @@ export const WP_CATEGORIES = {
 					},
 				],
 			},
-		}),
-	},
-	PAYONLINE: {
-		NAME: "Payonline",
-		LABEL: "Payonline",
-		getPlugins: () => ({
 			"wpforms-epfl-payonline": {
 				wp_options: [
 					{
@@ -606,46 +640,6 @@ export const WP_CATEGORIES = {
 			},
 		}),
 	},
+} as const;
 
-	SURVEYS: {
-		NAME: "Surveys",
-		LABEL: "Surveys",
-		getPlugins: () => ({
-			"wpforms-surveys-polls": {},
-		}),
-	},
-
-	DIPLOMA_VERIFICATION: {
-		NAME: "DiplomaVerification",
-		LABEL: "Diploma Verification",
-		getPlugins: () => ({
-			"epfl-diploma-verification": {},
-		}),
-	},
-
-	PARTNER_UNIVERSITIES: {
-		NAME: "PartnerUniversities",
-		LABEL: "Partner Universities",
-		getPlugins: () => ({
-			"epfl-partner-universities": {},
-		}),
-	},
-
-	EPFL_MENUS: {
-		NAME: "epfl-menus",
-		LABEL: "EPFL Menus",
-		getPlugins: () => ({
-			"epfl-menus": {},
-		}),
-	},
-
-	EPFL_TRANSLATE: {
-		NAME: "EPFL Translate",
-		LABEL: "EPFL Translate",
-		getPlugins: () => ({
-			"epfl-translate": {},
-		}),
-	},
-};
-
-export const OPTIONAL_CATEGORIES = [WP_CATEGORIES.INSIDE, WP_CATEGORIES.RESTAURATION, WP_CATEGORIES.LIBRARY, WP_CATEGORIES.CDHSHS, WP_CATEGORIES.WPFORMS, WP_CATEGORIES.PAYONLINE, WP_CATEGORIES.SURVEYS, WP_CATEGORIES.DIPLOMA_VERIFICATION, WP_CATEGORIES.PARTNER_UNIVERSITIES, WP_CATEGORIES.EPFL_MENUS, WP_CATEGORIES.EPFL_TRANSLATE];
+export const OPTIONAL_CATEGORIES = [WP_CATEGORIES.INSIDE, WP_CATEGORIES.RESTAURATION, WP_CATEGORIES.LIBRARY, WP_CATEGORIES.CDHSHS, WP_CATEGORIES.EPFL_FORMS, WP_CATEGORIES.SURVEYS, WP_CATEGORIES.DIPLOMA_VERIFICATION, WP_CATEGORIES.PARTNER_UNIVERSITIES, WP_CATEGORIES.EPFL_MENUS, WP_CATEGORIES.EPFL_TRANSLATE];
