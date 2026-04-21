@@ -279,7 +279,7 @@ export async function updateSite(siteId: string, site: SiteFormType): Promise<{ 
 			}
 		}
 
-		if (changes.length === 0) {
+		if (changes.length === 0 && persistence !== "kubernetes") {
 			await info(`No changes were detected for the site ${existingSite.url}.`, {
 				type: "site",
 				action: "update",
