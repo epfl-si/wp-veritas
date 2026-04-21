@@ -354,18 +354,16 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 			});
 		}
 
-		const languagesChanged = JSON.stringify(kubernetesSiteData.languages?.sort()) !== JSON.stringify(existingSite.languages?.sort());
-		const categoriesChanged = JSON.stringify(kubernetesSiteData.categories?.sort()) !== JSON.stringify(existingSite.categories?.sort());
-		const unitId = kubernetesSiteData.unitId !== existingSite.unitId;
+		const tempSite: KubernetesSite = {
+			...existingSite,
+			languages: kubernetesSiteData.languages || [],
+			categories: kubernetesSiteData.categories || [],
+			unitId: kubernetesSiteData.unitId,
+		};
+		const plugins = await getKubernetesPluginStruct(tempSite);
+		const pluginsChanged = JSON.stringify(k8sSite.spec.wordpress.plugins) !== JSON.stringify(plugins);
 
-		if (categoriesChanged || languagesChanged || unitId) {
-			const tempSite: KubernetesSite = {
-				...existingSite,
-				languages: kubernetesSiteData.languages || [],
-				categories: kubernetesSiteData.categories || [],
-				unitId: kubernetesSiteData.unitId,
-			};
-			const plugins = await getKubernetesPluginStruct(tempSite);
+		if (pluginsChanged) {
 			patchOperations.push({
 				op: "replace",
 				path: "/spec/wordpress/plugins",
