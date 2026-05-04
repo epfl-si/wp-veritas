@@ -1,3 +1,4 @@
+"use server";
 import { PERMISSIONS } from "@/constants/permissions";
 import { getNames } from "@/lib/api";
 import { error, info, warn } from "@/lib/log";
@@ -144,4 +145,10 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 			error: { status: 500, message: "Internal Server Error", success: false },
 		};
 	}
+}
+
+export async function searchLogsAction(params: SearchLogsParams): Promise<{ logs: LogType[]; total: number; success: boolean }> {
+	const result = await searchLogs(params);
+	if (result.error) return { logs: [], total: 0, success: false };
+	return { logs: result.logs || [], total: result.total || 0, success: true };
 }

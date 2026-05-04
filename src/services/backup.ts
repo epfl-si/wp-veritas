@@ -2,8 +2,8 @@
 
 import * as yaml from "js-yaml";
 import { getConfigMapValue } from "@/lib/kubernetes";
-import type { BackupConfig, BackupEnvironment } from "@/types/backup";
-import type { KubernetesSite, KubernetesSiteFormType } from "@/types/site";
+import type { BackupConfig, BackupEnvironment, BackupSite } from "@/types/backup";
+import type { KubernetesSite } from "@/types/site";
 
 const BACKUP_CONFIG_MAP_NAME = "restore-config";
 
@@ -17,7 +17,7 @@ async function loadBackupConfig(): Promise<BackupConfig | null> {
 	}
 }
 
-export async function getBackupSites(environment: BackupEnvironment): Promise<KubernetesSiteFormType[]> {
+export async function getBackupSites(environment: BackupEnvironment): Promise<BackupSite[]> {
 	try {
 		const config = await loadBackupConfig();
 		const apiUrl = config?.[environment]?.api?.url;
@@ -36,19 +36,21 @@ export async function getBackupSites(environment: BackupEnvironment): Promise<Ku
 
 		const data = await response.json();
 		return Array.isArray(data)
-			? data.map((site: KubernetesSite) => ({
-					infrastructure: "Kubernetes",
-					id: site.id,
-					url: site.url,
-					title: site.title || site.url,
-					tagline: site.tagline || "",
-					theme: site.theme,
-					unitId: site.unitId,
-					languages: site.languages || [],
-					categories: site.categories || [],
-					downloadsProtectionScript: site.downloadsProtectionScript || false,
-					monitored: site.monitored || false,
-				}))
+			? data.map(
+					(site: KubernetesSite): BackupSite => ({
+						id: site.id,
+						infrastructure: "Kubernetes",
+						url: site.url,
+						title: site.title || site.url,
+						tagline: site.tagline || "",
+						theme: site.theme,
+						unitId: site.unitId,
+						languages: site.languages || [],
+						categories: site.categories || [],
+						downloadsProtectionScript: site.downloadsProtectionScript || false,
+						monitored: site.monitored || false,
+					}),
+				)
 			: [];
 	} catch (error) {
 		console.error(`Error fetching backup sites for ${environment}:`, error);

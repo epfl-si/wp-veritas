@@ -1,3 +1,4 @@
+"use server";
 import { v4 as uuidv4 } from "uuid";
 import { PERMISSIONS } from "@/constants/permissions";
 import { error, info, warn } from "@/lib/log";
@@ -6,7 +7,8 @@ import { cache } from "@/lib/redis";
 import { isValidUUID } from "@/lib/utils";
 import { type ITag, TagModel } from "@/models/Tag";
 import type { APIError } from "@/types/error";
-import type { TagFormType, TagsType, TagType } from "@/types/tag";
+import { createTagSchema, type TagFormType, type TagsType, type TagType } from "@/types/tag";
+import type { ServiceResponse } from "@/types/response";
 import { hasPermission } from "./policy";
 import { getSite, listSites } from "./site";
 
@@ -570,3 +572,36 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 		};
 	}
 }
+
+export const createTagAction = async (tag: TagFormType): Promise<ServiceResponse<{ tagId: string }>> => {
+	try {
+		const schema = await createTagSchema();
+		const validate = await schema.safeParseAsync(tag);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const result = await createTag(validate.data);
+		if (result.error) return { success: false, error: result.error.message, code: "DB_ERROR" };
+		if (!result.tagId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
+		return { success: true, data: { tagId: result.tagId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const updateTagAction = async (tagId: string, tag: TagFormType): Promise<ServiceResponse<{ tagId: string }>> => {
+	try {
+		const schema = await createTagSchema();
+		const validate = await schema.safeParseAsync(tag);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const result = await updateTag(tagId, validate.data);
+		if (result.error) return { success: false, error: result.error.message, code: "DB_ERROR" };
+		if (!result.tagId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
+		return { success: true, data: { tagId: result.tagId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const deleteTagAction = async (tagId: string): Promise<void> => {
+	const result = await deleteTag(tagId);
+	if (!result.success) throw new Error(result.message);
+};

@@ -16,8 +16,10 @@ import { createKubernetesSite, deleteKubernetesSite, getKubernetesSite, getKuber
 import { error, info, warn } from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
 import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
-import type { APIError } from "@/types/error";
+import type { APIError, ErrorCode } from "@/types/error";
+import type { ServiceResponse } from "@/types/response";
 import {
+	createSiteSchema,
 	type DatabaseSite,
 	getSitePersistence,
 	isCreatableInfrastructure,
@@ -836,3 +838,45 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 		};
 	}
 }
+
+const statusToErrorCode = (status: number): ErrorCode => {
+	if (status === 401) return "UNAUTHORIZED";
+	if (status === 403) return "FORBIDDEN";
+	if (status === 404) return "NOT_FOUND";
+	if (status === 409) return "SITE_ALREADY_EXISTS";
+	if (status >= 500) return "DB_ERROR";
+	return "UNKNOWN";
+};
+
+export const updateSiteAction = async (siteId: string, site: SiteFormType): Promise<ServiceResponse<{ siteId: string }>> => {
+	try {
+		const schema = await createSiteSchema();
+		const validate = await schema.safeParseAsync(site);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const result = await updateSite(siteId, validate.data);
+		if (result.error) return { success: false, error: result.error.message, code: statusToErrorCode(result.error.status) };
+		return { success: true, data: { siteId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const deleteSiteAction = async (siteId: string): Promise<void> => {
+	const result = await deleteSite(siteId);
+	if (result.error) throw new Error(result.error.message);
+};
+
+export const createSiteAction = async (site: SiteFormType): Promise<ServiceResponse<{ siteId: string }>> => {
+	try {
+		const schema = await createSiteSchema();
+		const validate = await schema.safeParseAsync(site);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+
+		const result = await createSite(validate.data);
+		if (result.error) return { success: false, error: result.error.message, code: statusToErrorCode(result.error.status) };
+		if (!result.siteId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
+		return { success: true, data: { siteId: result.siteId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
