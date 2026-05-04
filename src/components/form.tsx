@@ -490,9 +490,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		const inputRef = useRef<HTMLInputElement>(null);
 		const dropdownRef = useRef<HTMLDivElement>(null);
 
-		const filtered = query.trim()
-			? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase())).slice(0, 8)
-			: [];
+		const filtered = query.trim() ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [];
 
 		const selectedOptions = options.filter((o) => value.includes(o.value));
 
@@ -521,11 +519,23 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			return () => document.removeEventListener("mousedown", handleClickOutside);
 		}, []);
 
+		useEffect(() => {
+			if (isOpen) {
+				inputRef.current?.focus();
+			}
+		}, [isOpen]);
+
 		return (
 			<div className="relative w-full">
-				{selectedOptions.length > 0 && (
-					<div className="flex flex-wrap gap-1 mb-1.5">
-						{selectedOptions.map((o) => (
+				<div
+					className={cn(
+						"flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+						disabled && "pointer-events-none opacity-50",
+					)}
+					onClick={() => setIsOpen(true)}
+				>
+					{selectedOptions.length > 0 &&
+						selectedOptions.map((o) => (
 							<div key={o.value} className="flex items-center gap-1 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 text-xs">
 								<span className="font-medium truncate max-w-32">{o.label}</span>
 								{!disabled && (
@@ -535,34 +545,42 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 								)}
 							</div>
 						))}
-					</div>
-				)}
-				<Input
-					ref={inputRef}
-					type="text"
-					value={query}
-					onChange={(e) => {
-						setQuery(e.target.value);
-						setIsOpen(e.target.value.trim().length > 0);
-					}}
-					onFocus={() => query.trim().length > 0 && setIsOpen(true)}
-					placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "Add another..."}
-					disabled={disabled}
-					className="h-10"
-				/>
-				{isOpen && filtered.length > 0 && (
-					<div ref={dropdownRef} className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-						{filtered.map((o) => (
-							<button
-								key={o.value}
-								type="button"
-								onClick={() => handleToggle(o.value)}
-								className="w-full px-4 py-2.5 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center gap-2"
-							>
-								<Checkbox checked={value.includes(o.value)} onCheckedChange={() => handleToggle(o.value)} />
-								<span className="text-sm">{o.label}</span>
-							</button>
-						))}
+					<span className={cn("text-sm text-muted-foreground", selectedOptions.length > 0 && "sr-only")}>{placeholder}</span>
+				</div>
+				{isOpen && (
+					<div ref={dropdownRef} className="absolute z-10 w-full top-full mt-1 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg">
+						<div className="border-b border-gray-200 p-2">
+							<Input
+								ref={inputRef}
+								type="text"
+								value={query}
+								onChange={(e) => {
+									const nextQuery = e.target.value;
+									setQuery(nextQuery);
+									setIsOpen(true);
+								}}
+								placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "Add another..."}
+								disabled={disabled}
+								className="h-10"
+							/>
+						</div>
+						<div className="max-h-60 overflow-auto">
+							{filtered.length > 0 ? (
+								filtered.map((o) => (
+									<button
+										key={o.value}
+										type="button"
+										onClick={() => handleToggle(o.value)}
+										className="flex w-full items-center gap-2 border-b border-gray-100 px-4 py-2.5 text-left hover:bg-gray-50 last:border-b-0"
+									>
+										<Checkbox checked={value.includes(o.value)} onCheckedChange={() => handleToggle(o.value)} />
+										<span className="text-sm">{o.label}</span>
+									</button>
+								))
+							) : (
+								<div className="px-4 py-3 text-sm text-gray-500">{t("search.noResults")}</div>
+							)}
+						</div>
 					</div>
 				)}
 			</div>
