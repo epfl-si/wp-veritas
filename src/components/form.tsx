@@ -472,6 +472,103 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		);
 	};
 
+	const MultiComboboxField = ({
+		options,
+		value,
+		onChange,
+		disabled,
+		placeholder = "Search and select...",
+	}: {
+		options: SelectOption[];
+		value: (string | number)[];
+		onChange: (value: (string | number)[]) => void;
+		disabled?: boolean;
+		placeholder?: string;
+	}) => {
+		const [query, setQuery] = useState("");
+		const [isOpen, setIsOpen] = useState(false);
+		const inputRef = useRef<HTMLInputElement>(null);
+		const dropdownRef = useRef<HTMLDivElement>(null);
+
+		const filtered = query.trim()
+			? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase())).slice(0, 8)
+			: [];
+
+		const selectedOptions = options.filter((o) => value.includes(o.value));
+
+		const handleToggle = (optionValue: string | number) => {
+			if (disabled) return;
+			const next = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
+			onChange(next);
+			setQuery("");
+			setIsOpen(false);
+			inputRef.current?.focus();
+		};
+
+		const handleRemove = (optionValue: string | number, e: React.MouseEvent) => {
+			e.stopPropagation();
+			if (disabled) return;
+			onChange(value.filter((v) => v !== optionValue));
+		};
+
+		useEffect(() => {
+			const handleClickOutside = (e: MouseEvent) => {
+				if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) && inputRef.current && !inputRef.current.contains(e.target as Node)) {
+					setIsOpen(false);
+				}
+			};
+			document.addEventListener("mousedown", handleClickOutside);
+			return () => document.removeEventListener("mousedown", handleClickOutside);
+		}, []);
+
+		return (
+			<div className="relative w-full">
+				{selectedOptions.length > 0 && (
+					<div className="flex flex-wrap gap-1 mb-1.5">
+						{selectedOptions.map((o) => (
+							<div key={o.value} className="flex items-center gap-1 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 text-xs">
+								<span className="font-medium truncate max-w-32">{o.label}</span>
+								{!disabled && (
+									<button type="button" onClick={(e) => handleRemove(o.value, e)} className="cursor-pointer p-0.5">
+										<X className="w-2 h-2" />
+									</button>
+								)}
+							</div>
+						))}
+					</div>
+				)}
+				<Input
+					ref={inputRef}
+					type="text"
+					value={query}
+					onChange={(e) => {
+						setQuery(e.target.value);
+						setIsOpen(e.target.value.trim().length > 0);
+					}}
+					onFocus={() => query.trim().length > 0 && setIsOpen(true)}
+					placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "Add another..."}
+					disabled={disabled}
+					className="h-10"
+				/>
+				{isOpen && filtered.length > 0 && (
+					<div ref={dropdownRef} className="absolute z-10 w-full bottom-full mb-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+						{filtered.map((o) => (
+							<button
+								key={o.value}
+								type="button"
+								onClick={() => handleToggle(o.value)}
+								className="w-full px-4 py-2.5 text-left hover:bg-gray-50 border-b border-gray-100 last:border-b-0 flex items-center gap-2"
+							>
+								<Checkbox checked={value.includes(o.value)} onCheckedChange={() => handleToggle(o.value)} />
+								<span className="text-sm">{o.label}</span>
+							</button>
+						))}
+					</div>
+				)}
+			</div>
+		);
+	};
+
 	const MultiSelectField = ({
 		options,
 		value,
@@ -678,6 +775,8 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 									<SearchField value={field.value?.toString() || ""} onChange={field.onChange} options={options} placeholder={placeholder} disabled={isDisabled} />
 								) : type === "multiselect" ? (
 									<MultiSelectField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} />
+								) : type === "multicombobox" ? (
+									<MultiComboboxField options={options || []} value={Array.isArray(field.value) ? field.value : []} onChange={field.onChange} disabled={isDisabled} placeholder={placeholder} />
 								) : type === "boxes" ? (
 									<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
 										{options?.map((option) => (
