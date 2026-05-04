@@ -13,7 +13,7 @@ import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { getSite, updateSiteAction } from "@/services/site";
-import { getUnitsAction } from "@/services/units";
+import { getUnits } from "@/services/units";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
 import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
@@ -36,7 +36,7 @@ export default function SiteUpdatePage() {
 
 	useEffect(() => {
 		setLoadingUnits(true);
-		getUnitsAction()
+		getUnits()
 			.then((result) => {
 				if (result.success) {
 					setUnits(

@@ -1,12 +1,21 @@
 "use server";
-import { getUnits } from "@/lib/api";
+import { makeRequest } from "@/lib/api";
 import type { ServiceResponse } from "@/types/response";
 
-export const getUnitsAction = async (): Promise<ServiceResponse<{ unitId: string; name: string }[]>> => {
+export async function getUnits(): Promise<ServiceResponse<{ unitId: string; name: string }[]>> {
 	try {
-		const units = await getUnits();
-		return { success: true, data: units };
-	} catch {
-		return { success: false, error: "Failed to load units", code: "DB_ERROR" };
+		const data = await makeRequest<{ units: { id: string; name: string }[] }>("/units", {
+			method: "GET",
+		});
+		return {
+			success: true,
+			data: data.units.map((u) => ({
+				unitId: u.id,
+				name: u.name,
+			})),
+		};
+	} catch (error) {
+		console.error("Error fetching units:", error);
+		return { success: false, error: "Failed to fetch units", code: "API_ERROR" };
 	}
-};
+}

@@ -1,4 +1,4 @@
-export type ErrorCode = "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_ERROR" | "DB_ERROR" | "MAIL_ERROR" | "UNKNOWN" | "SITE_ALREADY_EXISTS";
+export type ErrorCode = "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "VALIDATION_ERROR" | "DB_ERROR" | "MAIL_ERROR" | "UNKNOWN" | "SITE_ALREADY_EXISTS" | "API_ERROR";
 
 export interface APIError {
 	success: boolean;

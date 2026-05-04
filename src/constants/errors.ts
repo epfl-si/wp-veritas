@@ -10,6 +10,7 @@ export const ERROR_TRANSLATIONS: Record<"fr" | "en", Record<ErrorCode, string>> 
 		MAIL_ERROR: "Erreur d'envoi de mail",
 		UNKNOWN: "Erreur inconnue",
 		SITE_ALREADY_EXISTS: "Ce site existe déjà",
+		API_ERROR: "Erreur lors de la communication avec l'API",
 	},
 	en: {
 		UNAUTHORIZED: "Unauthorized",
@@ -20,5 +21,6 @@ export const ERROR_TRANSLATIONS: Record<"fr" | "en", Record<ErrorCode, string>> 
 		MAIL_ERROR: "Email sending error",
 		UNKNOWN: "Unknown error",
 		SITE_ALREADY_EXISTS: "This site already exists",
+		API_ERROR: "Error communicating with the API",
 	},
 };

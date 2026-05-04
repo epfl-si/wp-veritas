@@ -13,7 +13,7 @@ import { THEMES } from "@/constants/theme";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { getAvailableEnvironments, getBackupSites } from "@/services/backup";
 import { createSiteAction } from "@/services/site";
-import { getUnitsAction } from "@/services/units";
+import { getUnits } from "@/services/units";
 import type { BackupEnvironment } from "@/types/backup";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
@@ -33,7 +33,7 @@ export default function SiteAddPage() {
 		const init = async () => {
 			const envs = await getAvailableEnvironments();
 			setEnvironments(envs);
-			const [unitsResult, initialBackupSites] = await Promise.all([getUnitsAction(), envs[0] ? getBackupSites(envs[0] as BackupEnvironment) : Promise.resolve([])]);
+			const [unitsResult, initialBackupSites] = await Promise.all([getUnits(), envs[0] ? getBackupSites(envs[0] as BackupEnvironment) : Promise.resolve([])]);
 			setUnits(
 				(unitsResult.success ? unitsResult.data : []).map((u) => ({
 					value: Number(u.unitId),
