@@ -236,7 +236,6 @@ export default function SiteUpdatePage() {
 				<div className="flex items-start justify-between">
 					<div>
 						<h1 className="text-3xl font-bold">{t("update.title")}</h1>
-						<p className="text-sm text-muted-foreground mt-1 font-mono">{site?.url}</p>
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" asChild>
