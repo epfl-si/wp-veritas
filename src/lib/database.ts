@@ -30,6 +30,7 @@ export async function getDatabaseSite(id: string): Promise<{ site?: DatabaseSite
 			ticket: site.ticket,
 			comment: site.comment,
 			monitored: site.monitored,
+			responsibles: site.responsibles,
 			managed: true,
 		};
 
@@ -59,7 +60,7 @@ export async function listDatabaseSites(): Promise<{
 				const sites = await SiteModel.find({
 					infrastructure: { $in: persistentInfrastructures },
 				})
-					.select("id url infrastructure title tagline createdAt ticket comment monitored")
+					.select("id url infrastructure title tagline createdAt ticket comment monitored responsibles")
 					.sort("-createdAt")
 					.lean();
 
@@ -74,6 +75,7 @@ export async function listDatabaseSites(): Promise<{
 					ticket: site.ticket,
 					comment: site.comment,
 					monitored: site.monitored,
+					responsibles: site.responsibles,
 					managed: true,
 				}));
 
@@ -125,6 +127,7 @@ export async function createDatabaseSite(site: SiteFormType): Promise<{ siteId?:
 			ticket: databaseSite.ticket,
 			comment: databaseSite.comment,
 			monitored: databaseSite.monitored,
+			responsibles: databaseSite.responsibles,
 		});
 
 		await newSite.save();
@@ -171,6 +174,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: SiteExtra
 			ticket: extras.ticket,
 			comment: extras.comment,
 			monitored: extras.monitored,
+			responsibles: extras.responsibles,
 		});
 
 		await newSite.save();
@@ -184,6 +188,7 @@ export async function createDatabaseSiteExtras(siteId: string, extras: SiteExtra
 			ticket: extras.ticket,
 			comment: extras.comment,
 			monitored: extras.monitored,
+			responsibles: extras.responsibles,
 			managed: true,
 		};
 
@@ -216,6 +221,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 				...(extras.ticket !== undefined && { ticket: extras.ticket }),
 				...(extras.comment !== undefined && { comment: extras.comment }),
 				...(extras.monitored !== undefined && { monitored: extras.monitored }),
+				...(extras.responsibles !== undefined && { responsibles: extras.responsibles }),
 			});
 			cache.invalidateSitesCache();
 		}
@@ -226,6 +232,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 				...(extras.ticket !== undefined && { ticket: extras.ticket }),
 				...(extras.comment !== undefined && { comment: extras.comment }),
 				...(extras.monitored !== undefined && { monitored: extras.monitored }),
+				...(extras.responsibles !== undefined && { responsibles: extras.responsibles }),
 			},
 			{ new: true },
 		);
@@ -250,6 +257,7 @@ export async function updateDatabaseSiteExtras(siteId: string, extras: SiteExtra
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
 			monitored: updatedSite.monitored,
+			responsibles: updatedSite.responsibles,
 			managed: true,
 		};
 
@@ -318,6 +326,7 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 		if (databaseSite.tagline !== undefined) updateData.tagline = databaseSite.tagline;
 		if (databaseSite.ticket !== undefined) updateData.ticket = databaseSite.ticket;
 		if (databaseSite.comment !== undefined) updateData.comment = databaseSite.comment;
+		if (databaseSite.responsibles !== undefined) updateData.responsibles = databaseSite.responsibles;
 
 		const updatedSite = await SiteModel.findOneAndUpdate({ id: siteId }, updateData, { new: true });
 
@@ -339,6 +348,7 @@ export async function updateDatabaseSite(siteId: string, site: SiteFormType): Pr
 			ticket: updatedSite.ticket,
 			comment: updatedSite.comment,
 			monitored: updatedSite.monitored,
+			responsibles: updatedSite.responsibles,
 			managed: true,
 		};
 

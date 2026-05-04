@@ -58,12 +58,13 @@ export interface KubernetesSiteExtraInfo {
 	namespace: string;
 }
 
-export const SITE_EXTRAS = ["ticket", "comment", "monitored"];
+export const SITE_EXTRAS = ["ticket", "comment", "monitored", "responsibles"];
 
 export type SiteExtras = {
 	ticket?: string;
 	comment?: string;
 	monitored?: boolean;
+	responsibles?: string[];
 };
 
 interface BaseSiteType extends SiteExtras {
@@ -135,6 +136,7 @@ interface BaseSiteFormType {
 	ticket?: string;
 	comment?: string;
 	monitored?: boolean;
+	responsibles?: string[];
 }
 
 export interface KubernetesSiteFormType extends BaseSiteFormType {
@@ -176,6 +178,7 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
 		monitored: z.boolean().optional().default(false),
+		responsibles: z.array(z.string()).optional().default([]),
 		createFromBackup: z.boolean().optional().default(false),
 		backupEnvironment: z.string().optional(),
 		backupSite: z.string().optional(),

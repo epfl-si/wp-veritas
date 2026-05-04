@@ -54,6 +54,7 @@ function mergeSiteWithExtras(kubernetesSite: KubernetesSite, dbSite?: DatabaseSi
 		ticket: dbSite?.ticket,
 		comment: dbSite?.comment,
 		monitored: dbSite?.monitored,
+		responsibles: dbSite?.responsibles,
 	};
 }
 
