@@ -1,29 +1,260 @@
-"use server";
-import { CircleX } from "lucide-react";
-import { getTranslations } from "next-intl/server";
-import { ErrorComponent } from "@/components/error";
-import { SiteUpdate } from "@/components/pages/sites/update";
-import { getSite } from "@/services/site";
+"use client";
+import { decode } from "html-entities";
+import { Info, Tags } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { Form } from "@/components/form";
+import { Button } from "@/components/ui/button";
+import { OPTIONAL_CATEGORIES } from "@/constants/categories";
+import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
+import { THEMES } from "@/constants/theme";
+import { useZodErrorMessages } from "@/hooks/zod";
+import { getSite, updateSiteAction } from "@/services/site";
+import { getUnitsAction } from "@/services/units";
+import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
+import type { ServiceResponse } from "@/types/response";
+import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
 
-export default async function SiteUpdatePage({
-	params,
-}: {
-	params: Promise<{
-		siteId: string;
-	}>;
-}) {
-	const t = await getTranslations("site.update");
-	const { siteId } = await params;
+export default function SiteUpdatePage() {
+	const params = useParams();
+	const siteId = params.siteId as string;
+	const t = useTranslations("site");
+	const locale = useLocale();
+	const errorMessages = useZodErrorMessages();
+	const [site, setSite] = useState<SiteType | null>(null);
+	const [units, setUnits] = useState<SelectOption[]>([]);
+	const [loadingUnits, setLoadingUnits] = useState(false);
 
-	const { site, error } = await getSite(siteId);
+	useEffect(() => {
+		getSite(siteId).then(({ site: data }) => {
+			if (data) setSite(data);
+		});
+	}, [siteId]);
 
-	if (error) {
-		return <ErrorComponent text={t("error.text")} subText={error.message} Icon={CircleX} color="text-red-500" />;
-	}
+	useEffect(() => {
+		setLoadingUnits(true);
+		getUnitsAction()
+			.then((result) => {
+				if (result.success) {
+					setUnits(
+						result.data.map((u) => ({
+							value: Number(u.unitId),
+							label: `${u.name} (${u.unitId})`,
+						})),
+					);
+				}
+			})
+			.catch((error) => console.error("Error loading units:", error))
+			.finally(() => setLoadingUnits(false));
+	}, []);
 
-	if (!site) {
-		return <ErrorComponent text={t("error.empty")} subText={t("error.subText")} Icon={CircleX} color="text-red-500" />;
-	}
+	const getFormConfig = (site: SiteType): FormConfig<SiteFormType> => {
+		const fields: FieldConfig[] = [
+			{
+				name: "infrastructure",
+				type: "boxes",
+				label: t("form.infrastructure.label"),
+				section: "general",
+				width: "full",
+				disabled: true,
+				options: Object.values(INFRASTRUCTURES)
+					.filter((infrastructures) => infrastructures.CREATED)
+					.map((infrastructure) => ({
+						value: infrastructure.NAME,
+						label: infrastructure.LABEL[locale as "fr" | "en"] || infrastructure.NAME,
+						color: infrastructure.COLOR,
+						icon: infrastructure.ICON,
+					})),
+			},
+			{
+				name: "url",
+				type: "url",
+				label: t("form.url.label"),
+				placeholder: t("form.url.placeholder"),
+				section: "general",
+				width: "full",
+				disabled: true,
+			},
+			{
+				name: "title",
+				type: "text",
+				label: t("form.title.label"),
+				placeholder: t("form.title.placeholder"),
+				section: "details",
+				width: "half",
+				disabled: true,
+				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$", type: "display" }],
+			},
+			{
+				name: "tagline",
+				type: "text",
+				label: t("form.tagline.label"),
+				placeholder: t("form.tagline.placeholder"),
+				section: "details",
+				width: "half",
+				disabled: true,
+				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$", type: "display" }],
+			},
+			{
+				name: "theme",
+				type: "select",
+				label: t("form.theme.label"),
+				placeholder: t("form.theme.placeholder"),
+				section: "details",
+				options: Object.values(THEMES).map((theme) => ({ value: theme.NAME, label: theme.LABEL[locale as "fr" | "en"] || theme.NAME })),
+				width: "full",
+				disabled: true,
+				conditions: [
+					{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" },
+					{ field: "url", operator: "regex", value: "^https?://(?!(?:inside|www|wpn-test)[.])([a-zA-Z0-9-]+[.])*[a-zA-Z0-9-]+[.]epfl[.]ch(/.*)?$", type: "default", defaultValue: "wp-theme-light" },
+					{ field: "url", operator: "regex", value: "^https?://(?!(?:inside|www|wpn-test)[.])([a-zA-Z0-9-]+[.])*[a-zA-Z0-9-]+[.]epfl[.]ch(/.*)?$", type: "disabled" },
+				],
+			},
+			{
+				name: "unitId",
+				type: "search",
+				label: t("form.unitId.label"),
+				placeholder: loadingUnits ? "Loading..." : t("form.unitId.placeholder"),
+				section: "details",
+				width: "half",
+				options: units,
+				disabled: loadingUnits,
+			},
+			{
+				name: "languages",
+				type: "multiselect",
+				label: t("form.languages.label"),
+				section: "details",
+				width: "half",
+				options: Object.values(LANGUAGES).map((lang) => ({
+					value: lang.locale,
+					label: lang.common,
+					default: DEFAULT_LANGUAGE.map((lang) => lang.locale).includes(lang.locale),
+				})),
+				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
+			},
+			{
+				name: "categories",
+				type: "multiselect",
+				label: t("form.categories.label"),
+				section: "details",
+				width: "full",
+				options: Object.values(OPTIONAL_CATEGORIES).map((category) => ({ value: category.NAME, label: category.LABEL })),
+				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
+			},
+			{
+				name: "downloadsProtectionScript",
+				type: "checkbox",
+				label: t("form.downloadsProtectionScript.label"),
+				placeholder: t("form.downloadsProtectionScript.placeholder"),
+				section: "advanced",
+				width: "full",
+				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
+				disabled: true,
+			},
+			{
+				name: "monitored",
+				type: "checkbox",
+				label: t("form.monitored.label"),
+				placeholder: t("form.monitored.placeholder"),
+				section: "advanced",
+				width: "full",
+				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
+			},
+			{
+				name: "ticket",
+				type: "text",
+				label: t("form.ticket.label"),
+				placeholder: t("form.ticket.placeholder"),
+				section: "metadata",
+				width: "half",
+			},
+			{
+				name: "comment",
+				type: "textarea",
+				label: t("form.comment.label"),
+				placeholder: t("form.comment.placeholder"),
+				section: "metadata",
+				width: "full",
+			},
+		];
 
-	return <SiteUpdate site={site} />;
+		const sections: SectionConfig[] = [
+			{ name: "general", title: t("form.sections.general.title"), columns: 1 },
+			{
+				name: "details",
+				title: t("form.sections.details.title"),
+				columns: 2,
+				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$" }],
+			},
+			{
+				name: "advanced",
+				title: t("form.sections.advanced.title"),
+				columns: 1,
+				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes" }],
+			},
+			{ name: "metadata", title: t("form.sections.metadata.title"), columns: 2 },
+		];
+
+		return {
+			schema: siteSchema(errorMessages),
+			fields,
+			sections,
+			defaultValues: {
+				infrastructure: site.infrastructure || "kubernetes",
+				url: site.url || "",
+				title: "title" in site && site.title ? decode(site.title) : "",
+				tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
+				theme: (isKubernetesSite(site) && site.theme) || "",
+				unitId: (isKubernetesSite(site) && site.unitId) || 0,
+				languages: (isKubernetesSite(site) && site.languages) || [],
+				categories: (isKubernetesSite(site) && site.categories) || [],
+				downloadsProtectionScript: (isKubernetesSite(site) && site.downloadsProtectionScript) || false,
+				ticket: site.ticket || undefined,
+				comment: site.comment || undefined,
+				monitored: site.monitored ?? false,
+			},
+			serverAction: updateSiteAction.bind(null, site.id) as (data: SiteFormType) => Promise<ServiceResponse<unknown>>,
+			reset: false,
+			submitButtonText: t("actions.update"),
+			resetButtonText: t("actions.reset"),
+			loadingText: t("actions.updating"),
+			successTitle: t("update.success.title"),
+			successMessage: t("update.success.message"),
+			errorMessage: t("update.error.title"),
+			onSuccess: () => {},
+			onError: (error) => console.error("Error updating site:", error),
+		};
+	};
+
+	return (
+		<div className="w-full flex-1 flex flex-col h-full">
+			<div className="p-6 pb-4 shrink-0 mt-1">
+				<div className="flex items-start justify-between">
+					<div>
+						<h1 className="text-3xl font-bold">{t("update.title")}</h1>
+						<p className="text-sm text-muted-foreground mt-1 font-mono">{site?.url}</p>
+					</div>
+					<div className="flex gap-2">
+						<Button variant="outline" asChild>
+							<Link href={`/search?url=${site?.url ?? ""}`}>
+								<Info className="size-4" />
+								{t("actions.info")}
+							</Link>
+						</Button>
+						<Button variant="outline" asChild>
+							<Link href={`/sites/${siteId}/tags`}>
+								<Tags className="size-4" />
+								{t("actions.manageTags")}
+							</Link>
+						</Button>
+					</div>
+				</div>
+			</div>
+			<div className="px-6 pb-0 h-full overflow-y-auto">{site && <Form config={getFormConfig(site)} />}</div>
+		</div>
+	);
 }
