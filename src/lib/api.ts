@@ -1,5 +1,5 @@
 export async function makeRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-	const url = new URL(path, process.env.EPFL_API_URL).toString();
+	const url = new URL(`v1${path}`, process.env.EPFL_API_URL).toString();
 	const response = await fetch(url, {
 		headers: {
 			"Content-Type": "application/json",
