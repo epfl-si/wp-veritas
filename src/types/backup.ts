@@ -1,3 +1,9 @@
+import type { KubernetesSiteFormType } from "@/types/site";
+
+export interface BackupSite extends KubernetesSiteFormType {
+	id: string;
+}
+
 export interface BackupConfig {
 	test: {
 		s3: {

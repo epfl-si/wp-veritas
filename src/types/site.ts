@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { getCreatableInfrastructures, INFRASTRUCTURES } from "@/constants/infrastructures";
 import { getZodErrorMessages, type useZodErrorMessages } from "@/hooks/zod";
+import type { BackupEnvironment } from "@/types/backup";
+import type { SelectOption } from "@/types/form";
 import type { DatabaseInfrastructureName, InfrastructureName, KubernetesInfrastructureName, NoneInfrastructureName } from "@/types/infrastructure";
+import type { TagsType } from "@/types/tag";
 import type { PolylangPlugin } from "./languages";
 
 export interface WordPressPlugins {
@@ -295,3 +298,42 @@ export const isCreatableInfrastructure = (infrastructure: string): boolean => {
 	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
 	return infra?.CREATED || false;
 };
+
+export interface SiteListFilters {
+	url: string;
+	infrastructure: string;
+	theme: string;
+	hasCategories: boolean | null;
+	hasDownloadsProtection: boolean | null;
+	dateRange: {
+		from?: Date;
+		to?: Date;
+	};
+	languages: string[];
+	categories: string[];
+}
+
+export interface SiteAddProps {
+	environments: BackupEnvironment[];
+	units: SelectOption[];
+	initialBackupSites: SelectOption[];
+}
+
+export interface SiteUpdateProps {
+	site: SiteType;
+}
+
+export interface SiteTagsUpdateProps {
+	site: SiteType;
+	tags: TagsType[];
+}
+
+export interface SearchState {
+	url: string;
+}
+
+export interface SearchResponse {
+	status: number;
+	message: string;
+	items?: SearchSiteType[];
+}

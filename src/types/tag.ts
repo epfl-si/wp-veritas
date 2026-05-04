@@ -92,3 +92,7 @@ export const createTagSchema = async () => {
 };
 
 export type TagFormType = z.infer<ReturnType<typeof tagSchema>>;
+
+export interface TagUpdateProps {
+	tag: TagType;
+}
