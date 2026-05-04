@@ -1,10 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, CircleAlert, CircleCheck, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
-import { type DefaultValues, type FieldValues, type Path, type SubmitHandler, type UseFormReturn, useForm } from "react-hook-form";
-import type { z } from "zod";
+import { type FieldValues, type Path, type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form as UiForm } from "@/components/ui/form";
@@ -13,80 +12,13 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ERROR_TRANSLATIONS } from "@/constants/errors";
 import { cn } from "@/lib/utils";
 import type { ApiResponse } from "@/types/api";
+import type { ErrorCode } from "@/types/error";
+import type { FieldCondition, FieldConfig, FieldType, ReusableFormProps, SectionConfig, SelectOption } from "@/types/form";
 
-export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "boxes" | "url" | "search";
-
-export interface SelectOption {
-	value: string | number;
-	label: string;
-	color?: string;
-	icon?: React.ComponentType<{ className?: string }> | string;
-	default?: boolean;
-}
-
-export interface FieldCondition {
-	field: string;
-	operator: "equals" | "includes" | "not_equals" | "not_includes" | "regex" | "not_regex";
-	value: unknown;
-	type?: "display" | "default" | "disabled";
-	defaultValue?: unknown;
-}
-
-export interface FieldConfig {
-	name: string;
-	type: FieldType;
-	label: string;
-	placeholder?: string;
-	description?: string;
-	required?: boolean;
-	options?: SelectOption[];
-	conditions?: FieldCondition[];
-	disabled?: boolean;
-	width?: "half" | "full";
-	section?: string;
-}
-
-export interface SectionConfig {
-	name: string;
-	title: string;
-	description?: string;
-	columns?: 1 | 2;
-	conditions?: FieldCondition[];
-}
-
-export interface FormConfig<T extends FieldValues> {
-	schema: z.ZodType<T>;
-	fields: FieldConfig[];
-	sections?: SectionConfig[];
-	defaultValues?: DefaultValues<T>;
-	apiEndpoint: string;
-	method?: "POST" | "PUT" | "PATCH";
-	onSuccess?: (data: T, response: unknown) => void;
-	onError?: (error: Error) => void;
-	onFieldChange?: (fieldName: string, value: unknown) => void;
-	onFormRef?: (ref: UseFormReturn<T>) => void;
-	reset?: boolean;
-	submitButtonText?: string;
-	resetButtonText?: string;
-	loadingText?: string;
-	successTitle?: string;
-	successMessage?: string;
-	successActions?: Array<{
-		label: string;
-		url: (data: T, response: unknown) => string;
-		icon?: React.ComponentType<{ className?: string }>;
-	}>;
-	errorMessage?: string;
-}
-
-interface ReusableFormProps<T extends FieldValues> {
-	config: FormConfig<T>;
-	className?: string;
-}
-
-export default function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
+export function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
 	const [submissionData, setSubmissionData] = useState<{
@@ -97,6 +29,7 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
 	const t = useTranslations("form");
+	const locale = useLocale();
 
 	const form = useForm<T>({
 		resolver: zodResolver(config.schema as never),
@@ -310,7 +243,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 					appliedDefaults.current.add(conditionalKey);
 
-					previousConditionalKeys.forEach((key) => { appliedDefaults.current.delete(key); });
+					previousConditionalKeys.forEach((key) => {
+						appliedDefaults.current.delete(key);
+					});
 				}
 			} else if (hadConditionalDefault) {
 				const previousConditionalKeys = Array.from(appliedDefaults.current).filter((key) => key.startsWith(`${field.name}-conditional-`));
@@ -326,7 +261,9 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 					}
 				}
 
-				previousConditionalKeys.forEach((key) => { appliedDefaults.current.delete(key); });
+				previousConditionalKeys.forEach((key) => {
+					appliedDefaults.current.delete(key);
+				});
 
 				resetConditionalValue(field, currentValue, previousConditionalValue, schemaDefault);
 
@@ -502,21 +439,21 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 
 	const BoxOption = ({ option, isSelected, onClick, disabled }: { option: SelectOption; isSelected: boolean; onClick: () => void; disabled?: boolean }) => {
 		const IconComponent = option.icon;
-	return (
-		<button
-			type="button"
-			disabled={disabled}
-			className={cn(
-				"relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200",
-				disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
-				isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300",
-			)}
-			style={{
-				borderColor: isSelected && option.color ? option.color : undefined,
-				backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
-			}}
-			onClick={disabled ? undefined : onClick}
-		>
+		return (
+			<button
+				type="button"
+				disabled={disabled}
+				className={cn(
+					"relative cursor-pointer mb-3 border-3 p-4 transition-all duration-200",
+					disabled ? "opacity-50 cursor-not-allowed" : "hover:shadow-md",
+					isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300",
+				)}
+				style={{
+					borderColor: isSelected && option.color ? option.color : undefined,
+					backgroundColor: isSelected && option.color ? `${option.color}10` : undefined,
+				}}
+				onClick={disabled ? undefined : onClick}
+			>
 				<div className="flex flex-col items-center text-center space-y-2">
 					{IconComponent && (
 						<div
@@ -635,7 +572,16 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div key={option.value} role="button" tabIndex={0} className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleOptionToggle(option.value); }} onClick={(e) => handleOptionToggle(option.value, e)}>
+									<div
+										key={option.value}
+										role="button"
+										tabIndex={0}
+										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer"
+										onKeyDown={(e) => {
+											if (e.key === "Enter" || e.key === " ") handleOptionToggle(option.value);
+										}}
+										onClick={(e) => handleOptionToggle(option.value, e)}
+									>
 										<Checkbox id={`option-${option.value}`} checked={value.includes(option.value)} onCheckedChange={() => handleOptionToggle(option.value)} />
 										<div className="flex items-center space-x-2 flex-1">
 											{IconComponent && (
@@ -792,19 +738,18 @@ export default function Form<T extends FieldValues>({ config, className = "" }: 
 		const startTime = Date.now();
 
 		try {
-			const response = await fetch(config.apiEndpoint, {
-				method: config.method || "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
-			});
+			let result: unknown;
 
-			const result: unknown = await response.json();
-
-			if (!response.ok) {
-				const errorResult = result as { message?: string };
-				throw new Error(errorResult.message || "Error during submission");
+			if (config.serverAction) {
+				const response = await config.serverAction(data);
+				if (!response.success) {
+					const lang = (locale as "fr" | "en") in ERROR_TRANSLATIONS ? (locale as "fr" | "en") : "en";
+					const translated = ERROR_TRANSLATIONS[lang][response.code as ErrorCode] ?? response.error;
+					throw new Error(translated);
+				}
+				result = response;
+			} else {
+				throw new Error("No server action configured");
 			}
 
 			const elapsedTime = Date.now() - startTime;

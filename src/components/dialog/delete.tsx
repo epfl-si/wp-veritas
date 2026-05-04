@@ -8,17 +8,16 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 
 interface DeleteDialogProps {
 	displayName: string;
-	apiEndpoint?: string;
 	type: string;
 	icon: LucideIcon;
-	// Bulk deletion props
+	onDelete?: () => Promise<void>;
 	onBulkDelete?: () => Promise<void>;
 	itemCount?: number;
 	triggerText?: string;
 	isPlural?: boolean;
 }
 
-export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndpoint, type, icon, onBulkDelete, itemCount, triggerText, isPlural = false }) => {
+export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, type, icon, onDelete, onBulkDelete, itemCount, triggerText, isPlural = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -32,20 +31,9 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, apiEndp
 
 		try {
 			if (onBulkDelete) {
-				// Handle bulk deletion
 				await onBulkDelete();
-			} else if (apiEndpoint) {
-				// Handle single item deletion
-				const response = await fetch(apiEndpoint, {
-					method: "DELETE",
-					headers: {
-						"Content-Type": "application/json",
-					},
-				});
-
-				if (!response.ok) {
-					throw new Error(t("error", { object: type }));
-				}
+			} else if (onDelete) {
+				await onDelete();
 			}
 
 			setIsOpen(false);
