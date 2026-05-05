@@ -1,7 +1,7 @@
 "use server";
 import { getInfrastructureByName } from "@/constants/infrastructures";
 import { PERMISSIONS } from "@/constants/permissions";
-import { getEditors, getNames, getUnit } from "@/lib/api";
+import { getEditors } from "@/lib/api";
 import {
 	createDatabaseSite,
 	createDatabaseSiteExtras,
@@ -33,6 +33,7 @@ import {
 	type SiteFormType,
 	type SiteType,
 } from "@/types/site";
+import { getPersonsByUsernames, getUnitById } from "./api";
 import { hasPermission } from "./policy";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
 
@@ -771,9 +772,10 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					post_title?: string;
 					post_url?: string;
 				};
-				const userIds = [...(revisions?.map((r: Revision) => r.username).filter(Boolean) || []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
-				const names = userIds.length ? await getNames([...new Set(userIds)], "username") : [];
-				const nameMap = new Map(names.map((n) => [n.userId, n.name]));
+				console.log("Fetched revisions:", revisions);
+
+				const userIds = [...(revisions?.map((r: Revision) => r.username) ?? []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
+				const persons = await getPersonsByUsernames(userIds).then((res) => (res.success ? res.data : []));
 
 				let unitId = "0";
 				if (isKubernetesSite(site)) {
@@ -794,17 +796,17 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					url: site.url,
 					loginUrl: site.url.endsWith("/") ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
 					infrastructure: site.infrastructure,
-					unit: await getUnit(unitId),
+					unit: await getUnitById(unitId).then((res) => (res.success ? res.data : null)),
 					lastModified: lastChange?.[0]?.last_modified
 						? {
 								date: lastChange?.[0]?.last_modified || "",
-								user: nameMap.get(lastChange?.[0]?.username) || lastChange?.[0]?.username || "",
+								user: persons.find((p) => p.userId === lastChange?.[0]?.username)?.name || lastChange?.[0]?.username || "",
 							}
 						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({
 							date: r.last_modified,
-							user: nameMap.get(r.username) || r.username,
+							user: persons.find((p) => p.userId === r.username)?.name || r.username,
 							page: r.post_title || "page non disponible",
 							available: Boolean(r.post_title && r.post_url),
 						})) || [],

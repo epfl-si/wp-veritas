@@ -1,11 +1,11 @@
 "use server";
 import { PERMISSIONS } from "@/constants/permissions";
-import { getNames } from "@/lib/api";
 import { error, info, warn } from "@/lib/log";
 import db from "@/lib/mongo";
 import { type ILog, LogModel } from "@/models/Log";
 import type { APIError } from "@/types/error";
 import type { LogType, SearchLogsParams } from "@/types/log";
+import { getPersonsByIds } from "./api";
 import { hasPermission } from "./policy";
 
 export async function listLogs(): Promise<{
@@ -33,7 +33,7 @@ export async function listLogs(): Promise<{
 		});
 
 		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === "string"));
-		const users = await getNames(Array.from(userIds));
+		const users = await getPersonsByIds(Array.from(userIds)).then((res) => (res.success ? res.data : []));
 
 		return {
 			logs: logs.map((log) => ({
@@ -115,7 +115,7 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 		const logs = await logsQuery.exec();
 
 		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === "string"));
-		const users = await getNames(Array.from(userIds));
+		const users = await getPersonsByIds(Array.from(userIds)).then((res) => (res.success ? res.data : []));
 
 		return {
 			logs: logs.map((log) => ({

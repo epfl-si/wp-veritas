@@ -1,6 +1,6 @@
 import { OPTIONAL_CATEGORIES, WP_CATEGORIES } from "@/constants/categories";
+import { getUnitById } from "@/services/api";
 import type { KubernetesSite, WordPressPlugins } from "@/types/site";
-import { getUnit } from "./api";
 
 export function getCategoriesFromPlugins(plugins: WordPressPlugins): string[] {
 	const categories = [];
@@ -19,7 +19,7 @@ export function getCategoriesFromPlugins(plugins: WordPressPlugins): string[] {
 }
 
 export async function getKubernetesPluginStruct(site: KubernetesSite): Promise<Record<string, object>> {
-	const unitName = await getUnit(site.unitId.toString()).then((unit) => unit?.name || "");
+	const unitName = await getUnitById(site.unitId.toString()).then((unit) => (unit.success ? unit.data?.name : "Unknown Unit"));
 	let plugins: Record<string, object> = WP_CATEGORIES.DEFAULT.getPlugins({
 		...site,
 		unitName,
