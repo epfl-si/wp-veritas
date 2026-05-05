@@ -28,7 +28,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
-	const t = useTranslations("form");
+	const translations = { form: useTranslations("form") };
 	const locale = useLocale();
 
 	const form = useForm<T>({
@@ -322,7 +322,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		placeholder?: string;
 		disabled?: boolean;
 	}) => {
-		const t = useTranslations("form");
+		const translations = { form: useTranslations("form") };
 		const [query, setQuery] = useState("");
 		const [results, setResults] = useState<SelectOption[]>([]);
 		const [isOpen, setIsOpen] = useState(false);
@@ -411,7 +411,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 					value={query}
 					onChange={handleInputChange}
 					onFocus={() => query.trim().length > 0 && setIsOpen(true)}
-					placeholder={placeholder || t("search.placeholder")}
+					placeholder={placeholder || translations.form("search.placeholder")}
 					disabled={disabled}
 					className="h-10"
 				/>
@@ -429,7 +429,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 								</button>
 							))
 						) : (
-							<div className="px-4 py-3 text-sm text-gray-500">{t("search.noResults")}</div>
+							<div className="px-4 py-3 text-sm text-gray-500">{translations.form("search.noResults")}</div>
 						)}
 					</div>
 				)}
@@ -559,7 +559,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 									setQuery(nextQuery);
 									setIsOpen(true);
 								}}
-								placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "Add another..."}
+								placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "TODO ADD TRANSLATION FOR THIS"}
 								disabled={disabled}
 								className="h-10"
 							/>
@@ -578,7 +578,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 									</button>
 								))
 							) : (
-								<div className="px-4 py-3 text-sm text-gray-500">{t("search.noResults")}</div>
+								<div className="px-4 py-3 text-sm text-gray-500">{translations.form("search.noResults")}</div>
 							)}
 						</div>
 					</div>
@@ -721,7 +721,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 							{!showAll && hasDefaultOptions && nonDefaultOptions.length > 0 && (
 								<div className="border-t border-gray-100">
 									<button type="button" onClick={handleShowMore} className="w-full p-3 text-sm text-blue-600 hover:bg-blue-50 cursor-pointer transition-colors flex items-center justify-center gap-2">
-										<span>{t("showMore")}</span>
+										<span>{translations.form("showMore")}</span>
 										<ChevronDown className="w-4 h-4" />
 									</button>
 								</div>
