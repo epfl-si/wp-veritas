@@ -18,7 +18,10 @@ import { type TagCategoryEnumType, type TagFormType, type TagsType, tagSchema } 
 export default function TagUpdatePage() {
 	const params = useParams();
 	const tagId = params.tagId as string;
-	const t = useTranslations("tag");
+	const translations = {
+		tag: useTranslations("tag"),
+		actions: useTranslations("actions"),
+	};
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
 	const [tag, setTag] = useState<TagsType | null>(null);
@@ -39,7 +42,7 @@ export default function TagUpdatePage() {
 			{
 				name: "type",
 				type: "boxes",
-				label: t("form.type.label"),
+				label: translations.tag("form.type.label"),
 				section: "general",
 				width: "full",
 				options: Object.values(TAG_CATEGORIES).map((type) => ({
@@ -52,40 +55,40 @@ export default function TagUpdatePage() {
 			{
 				name: "nameFr",
 				type: "text",
-				label: t("form.nameFr.label"),
-				placeholder: t("form.nameFr.placeholder"),
+				label: translations.tag("form.nameFr.label"),
+				placeholder: translations.tag("form.nameFr.placeholder"),
 				section: "names",
 				width: "half",
 			},
 			{
 				name: "nameEn",
 				type: "text",
-				label: t("form.nameEn.label"),
-				placeholder: t("form.nameEn.placeholder"),
+				label: translations.tag("form.nameEn.label"),
+				placeholder: translations.tag("form.nameEn.placeholder"),
 				section: "names",
 				width: "half",
 			},
 			{
 				name: "urlFr",
 				type: "text",
-				label: t("form.urlFr.label"),
-				placeholder: t("form.urlFr.placeholder"),
+				label: translations.tag("form.urlFr.label"),
+				placeholder: translations.tag("form.urlFr.placeholder"),
 				section: "names",
 				width: "full",
 			},
 			{
 				name: "urlEn",
 				type: "text",
-				label: t("form.urlEn.label"),
-				placeholder: t("form.urlEn.placeholder"),
+				label: translations.tag("form.urlEn.label"),
+				placeholder: translations.tag("form.urlEn.placeholder"),
 				section: "names",
 				width: "full",
 			},
 		];
 
 		const sections: SectionConfig[] = [
-			{ name: "general", title: t("form.sections.general.title"), columns: 1 },
-			{ name: "names", title: t("form.sections.names.title"), columns: 2 },
+			{ name: "general", title: translations.tag("form.sections.general.title"), columns: 1 },
+			{ name: "names", title: translations.tag("form.sections.names.title"), columns: 2 },
 		];
 
 		return {
@@ -101,12 +104,12 @@ export default function TagUpdatePage() {
 			},
 			serverAction: updateTagAction.bind(null, tagId) as (data: TagFormType) => Promise<ServiceResponse<unknown>>,
 			reset: false,
-			submitButtonText: t("actions.update"),
-			resetButtonText: t("actions.reset"),
-			loadingText: t("actions.updating"),
-			successTitle: t("update.success.title"),
-			successMessage: t("update.success.message"),
-			errorMessage: t("update.error.title"),
+			submitButtonText: translations.tag("update.label"),
+			resetButtonText: translations.tag("reset"),
+			loadingText: translations.actions("updating"),
+			successTitle: translations.tag("update.success"),
+			successMessage: translations.tag("update.successMessage"),
+			errorMessage: translations.tag("update.error"),
 			onSuccess: () => {},
 			onError: (error) => console.error("Error updating tag:", error),
 		};
@@ -162,14 +165,14 @@ export default function TagUpdatePage() {
 		<Fragment>
 			<div className="p-6 pb-0 shrink-0 mt-1">
 				<div className="flex items-center justify-between mb-6">
-					<h1 className="text-3xl font-bold">{t("update.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.tag("update.title")}</h1>
 					<div className="flex bg-gray-100 rounded-lg p-1">
 						<button
 							type="button"
 							onClick={() => setActiveTab("form")}
 							className={cn("px-4 py-2 rounded-md text-sm font-medium transition-all duration-200", activeTab === "form" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900")}
 						>
-							{t("form.tabs.configuration")}
+							{translations.tag("form.configTab")}
 						</button>
 						<button
 							type="button"
@@ -179,7 +182,7 @@ export default function TagUpdatePage() {
 								activeTab === "sites" ? "bg-white text-gray-900 shadow-sm" : "text-gray-600 hover:text-gray-900",
 							)}
 						>
-							<span>{t("form.tabs.sites")}</span>
+							<span>{translations.tag("form.sitesTab")}</span>
 							<span
 								className={cn(
 									"inline-flex items-center justify-center w-5 h-5 rounded-full",
@@ -199,13 +202,13 @@ export default function TagUpdatePage() {
 					<div className="space-y-6">
 						<div className="flex items-center justify-between">
 							<div>
-								<h2 className="text-xl font-semibold text-gray-900">{t("sites.title")}</h2>
-								<p className="text-sm text-gray-500 mt-1">{t("sites.count", { count: sites.length })}</p>
+								<h2 className="text-xl font-semibold text-gray-900">{translations.tag("sites.title")}</h2>
+								<p className="text-sm text-gray-500 mt-1">{translations.tag("sites.count", { count: sites.length })}</p>
 							</div>
 							{sites.length > 0 && (
 								<div className="flex space-x-2">
 									<Button onClick={handleSelectAll} disabled={isRemoving} variant="outline">
-										{selectedSites.length === sites.length ? t("sites.bulk.deselectAll") : t("sites.bulk.selectAll")}
+										{selectedSites.length === sites.length ? translations.tag("sites.deselectAll") : translations.tag("sites.selectAll")}
 									</Button>
 									{selectedSites.length > 0 && (
 										<DeleteDialog
@@ -214,7 +217,7 @@ export default function TagUpdatePage() {
 											icon={Trash2}
 											onBulkDelete={handleRemoveSelected}
 											itemCount={selectedSites.length}
-											triggerText={isRemoving ? t("sites.bulk.removing") : t("sites.bulk.removeSelected", { count: selectedSites.length })}
+											triggerText={isRemoving ? translations.tag("sites.removing") : translations.tag("sites.removeSelected", { count: selectedSites.length })}
 											isPlural={true}
 										/>
 									)}
@@ -224,7 +227,7 @@ export default function TagUpdatePage() {
 										icon={Trash2}
 										onBulkDelete={handleRemoveAll}
 										itemCount={sites.length}
-										triggerText={isRemoving ? t("sites.bulk.removing") : t("sites.bulk.removeAll")}
+										triggerText={isRemoving ? translations.tag("sites.removing") : translations.tag("sites.removeAll")}
 										isPlural={true}
 									/>
 								</div>
@@ -262,8 +265,8 @@ export default function TagUpdatePage() {
 						) : (
 							<div className="text-center py-12">
 								<Frown className="mx-auto mb-4 size-12 text-gray-400" />
-								<h3 className="mt-2 text-sm font-medium text-gray-900">{t("sites.empty.title")}</h3>
-								<p className="mt-1 text-sm text-gray-500">{t("sites.empty.description")}</p>
+								<h3 className="mt-2 text-sm font-medium text-gray-900">{translations.tag("sites.empty.title")}</h3>
+								<p className="mt-1 text-sm text-gray-500">{translations.tag("sites.empty.description")}</p>
 							</div>
 						)}
 					</div>

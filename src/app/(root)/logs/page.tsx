@@ -69,7 +69,9 @@ export default function LogListPage() {
 	const [selectedActions, setSelectedActions] = useState<string[]>(DEFAULT_SELECTED_ACTIONS);
 	const [search, setSearch] = useState({ message: "", level: "" });
 
-	const t = useTranslations("log");
+	const translations = {
+		logList: useTranslations("pages.logList"),
+	};
 	const locale = useLocale();
 
 	const actionStats = useMemo(() => {
@@ -193,15 +195,15 @@ export default function LogListPage() {
 	};
 
 	const getActionButtonText = () => {
-		if (actionStats.showingAll) return t("list.search.action.all");
-		if (actionStats.selectedCount === 0) return t("list.search.action.empty");
-		return t("list.search.action.selected", { count: actionStats.selectedCount });
+		if (actionStats.showingAll) return translations.logList("filter.action.all");
+		if (actionStats.selectedCount === 0) return translations.logList("filter.action.empty");
+		return translations.logList("filter.action.selected", { count: actionStats.selectedCount });
 	};
 
 	const columns: TableColumn<LogType>[] = [
 		{
 			key: "timestamp",
-			label: t("list.column.timestamp"),
+			label: translations.logList("column.timestamp"),
 			width: "w-[10%]",
 			align: "left",
 			sortable: true,
@@ -213,7 +215,7 @@ export default function LogListPage() {
 		},
 		{
 			key: "level",
-			label: t("list.column.level"),
+			label: translations.logList("column.level"),
 			width: "w-[10%]",
 			align: "left",
 			sortable: true,
@@ -232,7 +234,7 @@ export default function LogListPage() {
 		},
 		{
 			key: "message",
-			label: t("list.column.message"),
+			label: translations.logList("column.message"),
 			width: "w-[50%]",
 			align: "left",
 			sortable: true,
@@ -244,7 +246,7 @@ export default function LogListPage() {
 		},
 		{
 			key: "userId",
-			label: t("list.column.user"),
+			label: translations.logList("column.user"),
 			width: "w-[18%]",
 			align: "left",
 			sortable: true,
@@ -267,23 +269,23 @@ export default function LogListPage() {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("list.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.logList("title")}</h1>
 					{loading && <Loader2 className="h-5 w-5 animate-spin" />}
 				</div>
 				<div className="flex gap-2 mt-6">
 					<Input
 						onChange={(e) => setSearch({ ...search, message: e.target.value })}
 						value={search.message}
-						placeholder={t("list.search.message.placeholder")}
+						placeholder={translations.logList("search.message")}
 						className="flex-1 h-10"
 						disabled={loading}
 					/>
 					<Select onValueChange={(value) => setSearch({ ...search, level: value === "all" ? "" : value })} value={search.level || "all"} disabled={loading}>
 						<SelectTrigger className="w-48 h-10!">
-							<SelectValue placeholder={t("list.search.level.placeholder")} />
+							<SelectValue placeholder={translations.logList("filter.level.placeholder")} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t("list.search.level.all")}</SelectItem>
+							<SelectItem value="all">{translations.logList("filter.level.all")}</SelectItem>
 							{logLevels.map((levelName: string) => {
 								const levelConfig = getLogLevelConfig(levelName);
 								return (
@@ -321,9 +323,9 @@ export default function LogListPage() {
 				</div>
 				{filteredTotal > 0 && (
 					<div className="mt-2 flex items-center gap-4 text-sm">
-						<div className="text-gray-600">{t("list.results", { count: logs.length, total: filteredTotal })}</div>
+						<div className="text-gray-600">{translations.logList("results", { count: logs.length, total: filteredTotal })}</div>
 						{actionStats.hiddenCount > 0 && totalWithoutActionFilter > filteredTotal && (
-							<div className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs">{t("list.filtered.hidden", { count: totalWithoutActionFilter - filteredTotal })}</div>
+							<div className="text-orange-600 bg-orange-100 px-2 py-1 rounded text-xs">{translations.logList("filteredHidden", { count: totalWithoutActionFilter - filteredTotal })}</div>
 						)}
 					</div>
 				)}
@@ -336,23 +338,23 @@ export default function LogListPage() {
 							{loadingMore && (
 								<div className="flex justify-center items-center py-4">
 									<Loader2 className="h-5 w-5 animate-spin" />
-									<span className="ml-2 text-sm text-gray-600">{t("list.loading.more")}</span>
+									<span className="ml-2 text-sm text-gray-600">{translations.logList("loadingMore")}</span>
 								</div>
 							)}
 							{!hasMore && (
 								<div className="flex justify-center py-4">
-									<span className="text-sm text-gray-500">{t("list.no.more")}</span>
+									<span className="text-sm text-gray-500">{translations.logList("noMore")}</span>
 								</div>
 							)}
 						</React.Fragment>
 					) : loading ? (
 						<div className="flex justify-center items-center py-8">
 							<Loader2 className="h-8 w-8 animate-spin" />
-							<span className="ml-2 text-sm text-gray-600">{t("list.loading.initial")}</span>
+							<span className="ml-2 text-sm text-gray-600">{translations.logList("loading")}</span>
 						</div>
 					) : (
 						<div className="flex justify-center py-8">
-							<span className="text-sm text-gray-500">{t("list.error.empty")}</span>
+							<span className="text-sm text-gray-500">{translations.logList("empty")}</span>
 						</div>
 					)}
 				</div>

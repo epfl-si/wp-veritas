@@ -12,8 +12,8 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { useZodErrorMessages } from "@/hooks/zod";
+import { getPersons, getUnits } from "@/services/api";
 import { getSite, updateSiteAction } from "@/services/site";
-import { getUnits } from "@/services/units";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
 import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
@@ -21,12 +21,18 @@ import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "
 export default function SiteUpdatePage() {
 	const params = useParams();
 	const siteId = params.siteId as string;
-	const t = useTranslations("site");
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
+
 	const [site, setSite] = useState<SiteType | null>(null);
 	const [units, setUnits] = useState<SelectOption[]>([]);
-	const [loadingUnits, setLoadingUnits] = useState(false);
+	const [persons, setPersons] = useState<SelectOption[]>([]);
+	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
+
+	const translations = {
+		site: useTranslations("site"),
+		actions: useTranslations("actions"),
+	};
 
 	useEffect(() => {
 		getSite(siteId).then(({ site: data }) => {
@@ -35,20 +41,20 @@ export default function SiteUpdatePage() {
 	}, [siteId]);
 
 	useEffect(() => {
-		setLoadingUnits(true);
-		getUnits()
-			.then((result) => {
-				if (result.success) {
-					setUnits(
-						result.data.map((u) => ({
-							value: Number(u.unitId),
-							label: `${u.name} (${u.unitId})`,
-						})),
-					);
-				}
-			})
-			.catch((error) => console.error("Error loading units:", error))
-			.finally(() => setLoadingUnits(false));
+		const loadData = async () => {
+			setLoadings({ units: true, persons: true });
+			await Promise.all([
+				getUnits()
+					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.unitId), label: u.name }))))
+					.finally(() => setLoadings((prev) => ({ ...prev, units: false })))
+					.catch((error) => console.error("Error loading units:", error)),
+				getPersons()
+					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.userId, label: p.name }))))
+					.finally(() => setLoadings((prev) => ({ ...prev, persons: false })))
+					.catch((error) => console.error("Error loading persons:", error)),
+			]);
+		};
+		loadData();
 	}, []);
 
 	const getFormConfig = (site: SiteType): FormConfig<SiteFormType> => {
@@ -56,7 +62,7 @@ export default function SiteUpdatePage() {
 			{
 				name: "infrastructure",
 				type: "boxes",
-				label: t("form.infrastructure.label"),
+				label: translations.site("form.infrastructure.label"),
 				section: "general",
 				width: "full",
 				disabled: true,
@@ -72,8 +78,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "url",
 				type: "url",
-				label: t("form.url.label"),
-				placeholder: t("form.url.placeholder"),
+				label: translations.site("form.url.label"),
+				placeholder: translations.site("form.url.placeholder"),
 				section: "general",
 				width: "full",
 				disabled: true,
@@ -81,8 +87,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "title",
 				type: "text",
-				label: t("form.title.label"),
-				placeholder: t("form.title.placeholder"),
+				label: translations.site("form.title.label"),
+				placeholder: translations.site("form.title.placeholder"),
 				section: "details",
 				width: "half",
 				disabled: true,
@@ -91,8 +97,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "tagline",
 				type: "text",
-				label: t("form.tagline.label"),
-				placeholder: t("form.tagline.placeholder"),
+				label: translations.site("form.tagline.label"),
+				placeholder: translations.site("form.tagline.placeholder"),
 				section: "details",
 				width: "half",
 				disabled: true,
@@ -101,8 +107,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "theme",
 				type: "select",
-				label: t("form.theme.label"),
-				placeholder: t("form.theme.placeholder"),
+				label: translations.site("form.theme.label"),
+				placeholder: translations.site("form.theme.placeholder"),
 				section: "details",
 				options: Object.values(THEMES).map((theme) => ({ value: theme.NAME, label: theme.LABEL[locale as "fr" | "en"] || theme.NAME })),
 				width: "full",
@@ -116,17 +122,17 @@ export default function SiteUpdatePage() {
 			{
 				name: "unitId",
 				type: "search",
-				label: t("form.unitId.label"),
-				placeholder: loadingUnits ? "Loading..." : t("form.unitId.placeholder"),
+				label: translations.site("form.unitId.label"),
+				placeholder: loadings.units ? "Loading..." : translations.site("form.unitId.placeholder"),
 				section: "details",
 				width: "half",
 				options: units,
-				disabled: loadingUnits,
+				disabled: loadings.units,
 			},
 			{
 				name: "languages",
 				type: "multiselect",
-				label: t("form.languages.label"),
+				label: translations.site("form.languages.label"),
 				section: "details",
 				width: "half",
 				options: Object.values(LANGUAGES).map((lang) => ({
@@ -139,7 +145,7 @@ export default function SiteUpdatePage() {
 			{
 				name: "categories",
 				type: "multiselect",
-				label: t("form.categories.label"),
+				label: translations.site("form.categories.label"),
 				section: "details",
 				width: "full",
 				options: Object.values(OPTIONAL_CATEGORIES).map((category) => ({ value: category.NAME, label: category.LABEL })),
@@ -148,8 +154,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "downloadsProtectionScript",
 				type: "checkbox",
-				label: t("form.downloadsProtectionScript.label"),
-				placeholder: t("form.downloadsProtectionScript.placeholder"),
+				label: translations.site("form.downloadsProtectionScript.label"),
+				placeholder: translations.site("form.downloadsProtectionScript.placeholder"),
 				section: "advanced",
 				width: "full",
 				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
@@ -158,8 +164,8 @@ export default function SiteUpdatePage() {
 			{
 				name: "monitored",
 				type: "checkbox",
-				label: t("form.monitored.label"),
-				placeholder: t("form.monitored.placeholder"),
+				label: translations.site("form.monitored.label"),
+				placeholder: translations.site("form.monitored.placeholder"),
 				section: "advanced",
 				width: "full",
 				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
@@ -167,36 +173,46 @@ export default function SiteUpdatePage() {
 			{
 				name: "ticket",
 				type: "text",
-				label: t("form.ticket.label"),
-				placeholder: t("form.ticket.placeholder"),
+				label: translations.site("form.ticket.label"),
+				placeholder: translations.site("form.ticket.placeholder"),
 				section: "metadata",
 				width: "half",
 			},
 			{
+				name: "responsibles",
+				type: "multicombobox",
+				label: translations.site("form.responsibles.label"),
+				placeholder: loadings.persons ? "Loading..." : translations.site("form.responsibles.placeholder"),
+				section: "metadata",
+				width: "half",
+				options: persons,
+				disabled: loadings.persons,
+			},
+			{
 				name: "comment",
 				type: "textarea",
-				label: t("form.comment.label"),
-				placeholder: t("form.comment.placeholder"),
+				label: translations.site("form.comment.label"),
+				placeholder: translations.site("form.comment.placeholder"),
 				section: "metadata",
 				width: "full",
 			},
 		];
 
 		const sections: SectionConfig[] = [
-			{ name: "general", title: t("form.sections.general.title"), columns: 1 },
+			{ name: "general", title: translations.site("form.sections.general.title"), columns: 1 },
 			{
 				name: "details",
-				title: t("form.sections.details.title"),
+				title: translations.site("form.sections.details.title"),
 				columns: 2,
 				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$" }],
 			},
 			{
 				name: "advanced",
-				title: t("form.sections.advanced.title"),
+				title: translations.site("form.sections.advanced.title"),
 				columns: 1,
 				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes" }],
 			},
-			{ name: "metadata", title: t("form.sections.metadata.title"), columns: 2 },
+			{ name: "metadata", title: translations.site("form.sections.metadata.title"), columns: 2 },
 		];
 
 		return {
@@ -216,15 +232,16 @@ export default function SiteUpdatePage() {
 				ticket: site.ticket || undefined,
 				comment: site.comment || undefined,
 				monitored: site.monitored ?? false,
+				responsibles: site.responsibles || [],
 			},
 			serverAction: updateSiteAction.bind(null, site.id) as (data: SiteFormType) => Promise<ServiceResponse<unknown>>,
 			reset: false,
-			submitButtonText: t("actions.update"),
-			resetButtonText: t("actions.reset"),
-			loadingText: t("actions.updating"),
-			successTitle: t("update.success.title"),
-			successMessage: t("update.success.message"),
-			errorMessage: t("update.error.title"),
+			submitButtonText: translations.site("update.label"),
+			resetButtonText: translations.actions("reset"),
+			loadingText: translations.actions("updating"),
+			successTitle: translations.site("update.success"),
+			successMessage: translations.site("update.successMessage"),
+			errorMessage: translations.site("update.error"),
 			onSuccess: () => {},
 			onError: (error) => console.error("Error updating site:", error),
 		};
@@ -235,19 +252,19 @@ export default function SiteUpdatePage() {
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-start justify-between">
 					<div>
-						<h1 className="text-3xl font-bold">{t("update.title")}</h1>
+						<h1 className="text-3xl font-bold">{translations.site("update.title")}</h1>
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" asChild>
 							<Link href={`/search?url=${site?.url ?? ""}`}>
 								<Info className="size-4" />
-								{t("actions.info")}
+								{translations.site("info")}
 							</Link>
 						</Button>
 						<Button variant="outline" asChild>
 							<Link href={`/sites/${siteId}/tags`}>
 								<Tags className="size-4" />
-								{t("actions.manageTags")}
+								{translations.site("manageTags")}
 							</Link>
 						</Button>
 					</div>

@@ -15,8 +15,10 @@ import type { TagsType } from "@/types/tag";
 export default function SiteTagsPage() {
 	const params = useParams();
 	const siteId = params.siteId as string;
-	const t = useTranslations("site.tags");
-	const tSite = useTranslations("site");
+	const translations = {
+		site: useTranslations("site"),
+		actions: useTranslations("actions"),
+	};
 	const locale = useLocale();
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -73,14 +75,14 @@ export default function SiteTagsPage() {
 			for (const tagId of tagsToRemove) await updateTagAssociations(tagId, false);
 			const remainingTime = Math.max(0, 2000 - (Date.now() - startTime));
 			await new Promise((resolve) => setTimeout(resolve, remainingTime));
-			setSubmissionResult({ success: true, message: t("success.message") });
+			setSubmissionResult({ success: true, message: translations.site("tags.successMessage") });
 			setOriginalTags(selectedTags);
 			setHasSubmitted(false);
 			scrollToTop();
 		} catch (error) {
 			const remainingTime = Math.max(0, 2000 - (Date.now() - startTime));
 			await new Promise((resolve) => setTimeout(resolve, remainingTime));
-			setSubmissionResult({ success: false, message: error instanceof Error ? error.message : t("error.unknown") });
+			setSubmissionResult({ success: false, message: error instanceof Error ? error.message : translations.site("tags.errorUnknown") });
 			scrollToTop();
 		} finally {
 			setIsSubmitting(false);
@@ -114,7 +116,7 @@ export default function SiteTagsPage() {
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-start justify-between">
 					<div>
-						<h1 className="text-3xl font-bold">{t("title")}</h1>
+						<h1 className="text-3xl font-bold">{translations.site("tags.title")}</h1>
 						<a href={siteUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline mt-1 inline-block font-mono">
 							{siteUrl}
 						</a>
@@ -122,7 +124,7 @@ export default function SiteTagsPage() {
 					<Button variant="outline" asChild>
 						<Link href={`/sites/${siteId}/edit`}>
 							<Pencil className="size-4" />
-							{tSite("actions.edit")}
+							{translations.site("edit")}
 						</Link>
 					</Button>
 				</div>
@@ -135,7 +137,7 @@ export default function SiteTagsPage() {
 								<CircleCheck className="h-6 w-6 text-green-600" />
 							</div>
 							<div className="flex-1 min-w-0">
-								<h3 className="text-sm font-semibold text-green-800">{t("success.title")}</h3>
+								<h3 className="text-sm font-semibold text-green-800">{translations.site("tags.success")}</h3>
 							</div>
 						</div>
 					</div>
@@ -145,7 +147,7 @@ export default function SiteTagsPage() {
 						<div className="flex items-start gap-2">
 							<CircleAlert className="h-5 w-5 shrink-0 mt-0.5" />
 							<div className="flex-1">
-								<p className="font-medium">{t("error.title")}</p>
+								<p className="font-medium">{translations.site("tags.error")}</p>
 								<p className="text-sm">{submissionResult.message}</p>
 							</div>
 							<Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-red-100 shrink-0" onClick={() => setSubmissionResult(null)}>
@@ -245,16 +247,16 @@ export default function SiteTagsPage() {
 					</div>
 					<div className="flex justify-end gap-2 pt-6 border-t">
 						<Button variant="outline" onClick={handleReset} disabled={isSubmitting || !hasChanges()}>
-							{t("actions.reset")}
+							{translations.actions("reset")}
 						</Button>
 						<Button onClick={onSubmit} disabled={isSubmitting || !hasChanges()} className="min-w-32 gap-1 cursor-pointer">
 							{isSubmitting ? (
 								<React.Fragment>
 									<Loader2 className="h-4 w-4 animate-spin" />
-									{t("actions.saving")}...
+									{translations.site("tags.saving")}...
 								</React.Fragment>
 							) : (
-								t("actions.save")
+								translations.actions("save")
 							)}
 						</Button>
 					</div>

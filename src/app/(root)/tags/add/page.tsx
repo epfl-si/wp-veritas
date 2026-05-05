@@ -9,7 +9,10 @@ import type { ServiceResponse } from "@/types/response";
 import { type TagFormType, tagSchema } from "@/types/tag";
 
 export default function TagAddPage() {
-	const t = useTranslations("tag");
+	const translations = {
+		tag: useTranslations("tag"),
+		actions: useTranslations("actions"),
+	};
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
 
@@ -18,7 +21,7 @@ export default function TagAddPage() {
 			{
 				name: "type",
 				type: "boxes",
-				label: t("form.type.label"),
+				label: translations.tag("form.type.label"),
 				section: "general",
 				width: "full",
 				options: Object.values(TAG_CATEGORIES).map((type) => ({
@@ -31,40 +34,40 @@ export default function TagAddPage() {
 			{
 				name: "nameFr",
 				type: "text",
-				label: t("form.nameFr.label"),
-				placeholder: t("form.nameFr.placeholder"),
+				label: translations.tag("form.nameFr.label"),
+				placeholder: translations.tag("form.nameFr.placeholder"),
 				section: "names",
 				width: "half",
 			},
 			{
 				name: "nameEn",
 				type: "text",
-				label: t("form.nameEn.label"),
-				placeholder: t("form.nameEn.placeholder"),
+				label: translations.tag("form.nameEn.label"),
+				placeholder: translations.tag("form.nameEn.placeholder"),
 				section: "names",
 				width: "half",
 			},
 			{
 				name: "urlFr",
 				type: "text",
-				label: t("form.urlFr.label"),
-				placeholder: t("form.urlFr.placeholder"),
+				label: translations.tag("form.urlFr.label"),
+				placeholder: translations.tag("form.urlFr.placeholder"),
 				section: "names",
 				width: "full",
 			},
 			{
 				name: "urlEn",
 				type: "text",
-				label: t("form.urlEn.label"),
-				placeholder: t("form.urlEn.placeholder"),
+				label: translations.tag("form.urlEn.label"),
+				placeholder: translations.tag("form.urlEn.placeholder"),
 				section: "names",
 				width: "full",
 			},
 		];
 
 		const sections: SectionConfig[] = [
-			{ name: "general", title: t("form.sections.general.title"), columns: 1 },
-			{ name: "names", title: t("form.sections.names.title"), columns: 2 },
+			{ name: "general", title: translations.tag("form.sections.general.title"), columns: 1 },
+			{ name: "names", title: translations.tag("form.sections.names.title"), columns: 2 },
 		];
 
 		return {
@@ -73,12 +76,12 @@ export default function TagAddPage() {
 			sections,
 			defaultValues: { type: "faculty", nameFr: "", nameEn: "", urlFr: "", urlEn: "" },
 			serverAction: createTagAction as (data: TagFormType) => Promise<ServiceResponse<unknown>>,
-			submitButtonText: t("actions.create"),
-			resetButtonText: t("actions.reset"),
-			loadingText: t("actions.creating"),
-			successTitle: t("add.success.title"),
-			successMessage: t("add.success.message"),
-			errorMessage: t("add.error.title"),
+			submitButtonText: translations.tag("create.label"),
+			resetButtonText: translations.tag("reset"),
+			loadingText: translations.actions("creating"),
+			successTitle: translations.tag("create.success"),
+			successMessage: translations.tag("create.successMessage"),
+			errorMessage: translations.tag("create.error"),
 			onSuccess: () => {},
 			onError: (error) => console.error("Error creating tag:", error),
 		};
@@ -87,7 +90,7 @@ export default function TagAddPage() {
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
-				<h1 className="text-3xl font-bold">{t("add.title")}</h1>
+				<h1 className="text-3xl font-bold">{translations.tag("create.title")}</h1>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Form config={getFormConfig()} />

@@ -73,7 +73,10 @@ export default function SiteListPage() {
 	const [showExport, setShowExport] = useState(false);
 	const [showStatistics, setShowStatistics] = useState(false);
 
-	const t = useTranslations("site");
+	const translations = {
+		list: useTranslations("pages.siteList"),
+		site: useTranslations("site"),
+	};
 	const locale = useLocale();
 
 	useEffect(() => {
@@ -243,7 +246,7 @@ export default function SiteListPage() {
 	const columns: TableColumn<SiteType>[] = [
 		{
 			key: "url",
-			label: t("list.column.url"),
+			label: translations.list("column.url"),
 			width: "w-[55%]",
 			align: "left",
 			sortable: true,
@@ -256,7 +259,7 @@ export default function SiteListPage() {
 					{!site.managed && (
 						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
 							<AlertTriangle className="size-5" />
-							<p className="font-medium">{t("list.error.unmanaged")}</p>
+							<p className="font-medium">{translations.site("unmanaged")}</p>
 						</div>
 					)}
 				</Link>
@@ -264,7 +267,7 @@ export default function SiteListPage() {
 		},
 		{
 			key: "infrastructure",
-			label: t("list.column.infrastructure"),
+			label: translations.list("column.infrastructure"),
 			width: "w-[15%]",
 			align: "center",
 			sortable: true,
@@ -280,7 +283,7 @@ export default function SiteListPage() {
 		},
 		{
 			key: "createdAt",
-			label: t("list.column.createdAt"),
+			label: translations.list("column.createdAt"),
 			width: "w-[15%]",
 			align: "center",
 			sortable: true,
@@ -295,7 +298,7 @@ export default function SiteListPage() {
 		},
 		{
 			key: "actions",
-			label: t("list.column.actions"),
+			label: translations.list("column.actions"),
 			width: "w-[15%]",
 			align: "left",
 			sortable: false,
@@ -329,27 +332,27 @@ export default function SiteListPage() {
 	];
 
 	const toolsMenuItems = [
-		{ id: "filters", icon: Filter, title: t("tools.menu.filters.title"), description: t("tools.menu.filters.description") },
-		{ id: "export", icon: Download, title: t("tools.menu.export.title"), description: t("tools.menu.export.description") },
-		{ id: "statistics", icon: BarChart3, title: t("tools.menu.statistics.title"), description: t("tools.menu.statistics.description") },
+		{ id: "filters", icon: Filter, title: translations.list("filters.title"), description: translations.list("filters.description") },
+		{ id: "export", icon: Download, title: translations.list("export.title"), description: translations.list("export.description") },
+		{ id: "statistics", icon: BarChart3, title: translations.list("statistics.title"), description: translations.list("statistics.description") },
 	];
 
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-center justify-between">
-					<h1 className="text-3xl font-bold">{t("list.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.list("title")}</h1>
 					<div className="flex gap-2">
 						<Dialog open={showMoreTools} onOpenChange={setShowMoreTools}>
 							<DialogTrigger asChild>
 								<Button variant="outline" className="h-10">
 									<MoreHorizontal className="size-5" />
-									{t("tools.button")}
+									{translations.list("moreTools")}
 								</Button>
 							</DialogTrigger>
 							<DialogContent className="max-w-md">
 								<DialogHeader>
-									<DialogTitle>{t("tools.menu.title")}</DialogTitle>
+									<DialogTitle>{translations.list("tools.title")}</DialogTitle>
 								</DialogHeader>
 								<div className="space-y-1">
 									{toolsMenuItems.map((tool) => (
@@ -379,25 +382,25 @@ export default function SiteListPage() {
 										<Button type="button" variant="ghost" className="flex bg-gray-100 w-9 h-9 items-center justify-center p-0" onClick={openMoreTools}>
 											<ArrowLeft className="size-5" />
 										</Button>
-										{t("tools.filters.title")}
+										{translations.list("filters.title")}
 									</DialogTitle>
 								</DialogHeader>
 								<div className="space-y-6">
 									<div className="grid gap-4">
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.url.label")}</p>
-											<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={t("tools.filters.url.placeholder")} className="w-full" />
+											<p className="text-sm font-medium mb-2">{translations.list("filter.url.label")}</p>
+											<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={translations.list("filter.url.placeholder")} className="w-full" />
 										</div>
 									</div>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.theme.label")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.theme.label")}</p>
 											<Select onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })} value={filters.theme || "all"}>
 												<SelectTrigger className="w-full">
-													<SelectValue placeholder={t("tools.filters.theme.placeholder")} />
+													<SelectValue placeholder={translations.list("filter.theme.placeholder")} />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="all">{t("tools.filters.theme.all")}</SelectItem>
+													<SelectItem value="all">{translations.list("filter.theme.all")}</SelectItem>
 													{Object.values(THEMES).map((theme: ThemeType) => (
 														<SelectItem key={theme.NAME} value={theme.NAME}>
 															{theme?.LABEL[locale as "fr" | "en"] || theme.NAME}
@@ -407,13 +410,13 @@ export default function SiteListPage() {
 											</Select>
 										</div>
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.infrastructure.label")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.infrastructure.label")}</p>
 											<Select onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })} value={filters.infrastructure || "all"}>
 												<SelectTrigger className="w-full">
-													<SelectValue placeholder={t("tools.filters.infrastructure.placeholder")} />
+													<SelectValue placeholder={translations.list("filter.infrastructure.placeholder")} />
 												</SelectTrigger>
 												<SelectContent>
-													<SelectItem value="all">{t("tools.filters.infrastructure.all")}</SelectItem>
+													<SelectItem value="all">{translations.list("filter.infrastructure.all")}</SelectItem>
 													{Object.values(INFRASTRUCTURES).map((infrastructure: InfrastructureType) => (
 														<SelectItem key={infrastructure.NAME} value={infrastructure.NAME}>
 															{infrastructure?.LABEL[locale as "fr" | "en"] || infrastructure.NAME}
@@ -425,7 +428,7 @@ export default function SiteListPage() {
 									</div>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.languages")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.languages")}</p>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(LANGUAGES).map((language) => (
 													<div key={language.locale} className="flex items-center space-x-2">
@@ -445,7 +448,7 @@ export default function SiteListPage() {
 											</div>
 										</div>
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.categories")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.categories")}</p>
 											<div className="max-h-32 overflow-y-auto border rounded-md p-2 space-y-2">
 												{Object.values(OPTIONAL_CATEGORIES).map((category) => (
 													<div key={category.NAME} className="flex items-center space-x-2">
@@ -468,7 +471,7 @@ export default function SiteListPage() {
 									<div className="grid grid-cols-2 gap-4">
 										<div className="flex items-center space-x-2">
 											<Checkbox id="has-categories" checked={filters.hasCategories === true} onCheckedChange={(checked) => updateFilters({ ...filters, hasCategories: checked ? true : null })} />
-											<Label htmlFor="has-categories">{t("tools.filters.has.categories")}</Label>
+											<Label htmlFor="has-categories">{translations.list("filter.hasCategories")}</Label>
 										</div>
 										<div className="flex items-center space-x-2">
 											<Checkbox
@@ -476,12 +479,12 @@ export default function SiteListPage() {
 												checked={filters.hasDownloadsProtection === true}
 												onCheckedChange={(checked) => updateFilters({ ...filters, hasDownloadsProtection: checked ? true : null })}
 											/>
-											<Label htmlFor="has-downloads">{t("tools.filters.has.downloads")}</Label>
+											<Label htmlFor="has-downloads">{translations.list("filter.hasDownloads")}</Label>
 										</div>
 									</div>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.date.from")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.dateFrom")}</p>
 											<Input
 												type="date"
 												value={filters.dateRange.from ? filters.dateRange.from.toISOString().split("T")[0] : ""}
@@ -489,7 +492,7 @@ export default function SiteListPage() {
 											/>
 										</div>
 										<div>
-											<p className="text-sm font-medium mb-2">{t("tools.filters.date.to")}</p>
+											<p className="text-sm font-medium mb-2">{translations.list("filter.dateTo")}</p>
 											<Input
 												type="date"
 												value={filters.dateRange.to ? filters.dateRange.to.toISOString().split("T")[0] : ""}
@@ -499,10 +502,10 @@ export default function SiteListPage() {
 									</div>
 									<div className="flex gap-2 pt-4">
 										<Button onClick={resetFilters} variant="outline" className="flex-1">
-											{t("tools.filters.reset")}
+											{translations.list("filter.reset")}
 										</Button>
 										<Button onClick={() => setShowFilters(false)} className="flex-1">
-											{t("tools.filters.apply")}
+											{translations.list("filter.apply")}
 										</Button>
 									</div>
 								</div>
@@ -516,18 +519,18 @@ export default function SiteListPage() {
 										<Button type="button" variant="ghost" className="flex bg-gray-100 w-9 h-9 items-center justify-center p-0" onClick={openMoreTools}>
 											<ArrowLeft className="size-5" />
 										</Button>
-										{t("tools.export.title")}
+										{translations.list("export.title")}
 									</DialogTitle>
 								</DialogHeader>
 								<div className="space-y-4">
-									<p className="text-sm text-gray-600">{t("tools.export.description", { count: filteredSites.length })}</p>
+									<p className="text-sm text-gray-600">{translations.list("export.count", { count: filteredSites.length })}</p>
 									<div className="space-y-2">
 										<Button onClick={exportToCSV} className="w-full">
 											<Download className="size-4 mr-2" />
-											{t("tools.export.csv.button")}
+											{translations.list("export.csv")}
 										</Button>
 									</div>
-									<div className="text-xs text-gray-500">{t("tools.export.format.info")}</div>
+									<div className="text-xs text-gray-500">{translations.list("export.formatInfo")}</div>
 								</div>
 							</DialogContent>
 						</Dialog>
@@ -539,46 +542,46 @@ export default function SiteListPage() {
 										<Button type="button" variant="ghost" className="flex bg-gray-100 w-9 h-9 items-center justify-center p-0" onClick={openMoreTools}>
 											<ArrowLeft className="size-5" />
 										</Button>
-										{t("tools.statistics.title")}
+										{translations.list("statistics.title")}
 									</DialogTitle>
 								</DialogHeader>
 								<div className="space-y-8">
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.overview.title")}</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{translations.list("stats.overview")}</h3>
 										<div className="grid grid-cols-2 md:grid-cols-5 gap-2">
 											<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-blue-600">{statistics.totalSites}</div>
-												<div className="text-sm text-blue-700 font-medium">{t("tools.statistics.total.sites")}</div>
+												<div className="text-sm text-blue-700 font-medium">{translations.list("stats.totalSites")}</div>
 											</div>
 											<div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-green-600">{filteredSites.length}</div>
-												<div className="text-sm text-green-700 font-medium">{t("tools.statistics.filtered.sites")}</div>
+												<div className="text-sm text-green-700 font-medium">{translations.list("stats.filteredSites")}</div>
 											</div>
 											<div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-purple-600">{statistics.recentSites}</div>
-												<div className="text-sm text-purple-700 font-medium">{t("tools.statistics.recent.sites")}</div>
+												<div className="text-sm text-purple-700 font-medium">{translations.list("stats.recentSites")}</div>
 											</div>
 											<div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-orange-600">{statistics.kubernetesSites}</div>
-												<div className="text-sm text-orange-700 font-medium">{t("tools.statistics.kubernetes.sites")}</div>
+												<div className="text-sm text-orange-700 font-medium">{translations.list("stats.kubernetesSites")}</div>
 											</div>
 											<div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
 												<div className="text-2xl font-bold text-red-600">{statistics.multilingualSites}</div>
-												<div className="text-sm text-red-700 font-medium">{t("tools.statistics.multilingual.sites")}</div>
+												<div className="text-sm text-red-700 font-medium">{translations.list("stats.multilingualSites")}</div>
 											</div>
 										</div>
 									</div>
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.breakdown.title")}</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{translations.list("stats.breakdown")}</h3>
 										<div className="grid grid-cols-2 md:grid-cols-3 gap-2">
 											<div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
 												<h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
 													<Layers className="size-4" />
-													{t("tools.statistics.infrastructure.title")}
+													{translations.list("stats.infrastructureTitle")}
 												</h4>
 												<div className="space-y-3">
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.kubernetes")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.kubernetes")}</span>
 														<div className="flex items-center gap-2">
 															<Badge variant="secondary" className="bg-blue-100 text-blue-800">
 																{statistics.kubernetesSites}
@@ -587,7 +590,7 @@ export default function SiteListPage() {
 														</div>
 													</div>
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.database")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.database")}</span>
 														<div className="flex items-center gap-2">
 															<Badge variant="secondary" className="bg-green-100 text-green-800">
 																{statistics.databaseSites}
@@ -596,7 +599,7 @@ export default function SiteListPage() {
 														</div>
 													</div>
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.infrastructure.none")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.none")}</span>
 														<div className="flex items-center gap-2">
 															<Badge variant="secondary" className="bg-gray-100 text-gray-800">
 																{statistics.noneSites}
@@ -609,11 +612,11 @@ export default function SiteListPage() {
 											<div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
 												<h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
 													<Zap className="size-4" />
-													{t("tools.statistics.features.title")}
+													{translations.list("stats.featuresTitle")}
 												</h4>
 												<div className="space-y-3">
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.features.downloads")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.downloads")}</span>
 														<div className="flex items-center">
 															<Badge variant="secondary" className="bg-purple-100 text-purple-800">
 																{statistics.sitesWithDownloadsProtection}
@@ -624,7 +627,7 @@ export default function SiteListPage() {
 														</div>
 													</div>
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.features.categories")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.withCategories")}</span>
 														<div className="flex items-center">
 															<Badge variant="secondary" className="bg-orange-100 text-orange-800">
 																{statistics.sitesWithCategories}
@@ -639,23 +642,23 @@ export default function SiteListPage() {
 											<div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
 												<h4 className="font-semibold mb-4 flex items-center gap-2 text-gray-800">
 													<Calendar className="size-4" />
-													{t("tools.statistics.time.title")}
+													{translations.list("stats.timeTitle")}
 												</h4>
 												<div className="space-y-3">
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.time.lastWeek")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.lastWeek")}</span>
 														<Badge variant="secondary" className="bg-green-100 text-green-800">
 															{sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(7, "days"))).length}
 														</Badge>
 													</div>
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.time.lastMonth")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.lastMonth")}</span>
 														<Badge variant="secondary" className="bg-blue-100 text-blue-800">
 															{statistics.recentSites}
 														</Badge>
 													</div>
 													<div className="flex justify-between items-center">
-														<span className="text-sm font-medium">{t("tools.statistics.time.lastQuarter")}</span>
+														<span className="text-sm font-medium">{translations.list("stats.lastQuarter")}</span>
 														<Badge variant="secondary" className="bg-purple-100 text-purple-800">
 															{sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(3, "months"))).length}
 														</Badge>
@@ -665,12 +668,12 @@ export default function SiteListPage() {
 										</div>
 									</div>
 									<div>
-										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{t("tools.statistics.distributions.title")}</h3>
+										<h3 className="text-xl font-semibold mb-4 flex items-center gap-2">{translations.list("stats.distributions")}</h3>
 										<div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
 											<div className="border border-gray-200 rounded-lg p-4">
 												<h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
 													<Layers className="size-4" />
-													{t("tools.statistics.theme.distribution")}
+													{translations.list("stats.themeDistribution")}
 												</h4>
 												<div className="space-y-2">
 													{statistics.themeStats.slice(0, 5).map((stat) => (
@@ -685,14 +688,14 @@ export default function SiteListPage() {
 														</div>
 													))}
 													{statistics.themeStats.length > 5 && (
-														<div className="text-xs text-gray-500 text-center pt-1 italic">{t("tools.statistics.more", { count: statistics.themeStats.length - 5 })}</div>
+														<div className="text-xs text-gray-500 text-center pt-1 italic">{translations.list("stats.more", { count: statistics.themeStats.length - 5 })}</div>
 													)}
 												</div>
 											</div>
 											<div className="border border-gray-200 rounded-lg p-4">
 												<h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
 													<Languages className="size-4" />
-													{t("tools.statistics.language.distribution")}
+													{translations.list("stats.languageDistribution")}
 												</h4>
 												<div className="space-y-2">
 													{statistics.languageStats.slice(0, 5).map((stat) => (
@@ -707,14 +710,14 @@ export default function SiteListPage() {
 														</div>
 													))}
 													{statistics.languageStats.length > 5 && (
-														<div className="text-xs text-gray-500 text-center pt-1 italic">{t("tools.statistics.more", { count: statistics.languageStats.length - 5 })}</div>
+														<div className="text-xs text-gray-500 text-center pt-1 italic">{translations.list("stats.more", { count: statistics.languageStats.length - 5 })}</div>
 													)}
 												</div>
 											</div>
 											<div className="border border-gray-200 rounded-lg p-4">
 												<h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-800">
 													<Tags className="size-4" />
-													{t("tools.statistics.category.distribution")}
+													{translations.list("stats.categoryDistribution")}
 												</h4>
 												<div className="space-y-2">
 													{statistics.categoryStats.slice(0, 5).map((stat) => (
@@ -729,9 +732,9 @@ export default function SiteListPage() {
 														</div>
 													))}
 													{statistics.categoryStats.length > 5 && (
-														<div className="text-xs text-gray-500 text-center pt-1 italic">{t("tools.statistics.more", { count: statistics.categoryStats.length - 5 })}</div>
+														<div className="text-xs text-gray-500 text-center pt-1 italic">{translations.list("stats.more", { count: statistics.categoryStats.length - 5 })}</div>
 													)}
-													{statistics.categoryStats.length === 0 && <div className="text-xs text-gray-500 text-center py-4 italic">{t("tools.statistics.noData")}</div>}
+													{statistics.categoryStats.length === 0 && <div className="text-xs text-gray-500 text-center py-4 italic">{translations.list("stats.noData")}</div>}
 												</div>
 											</div>
 										</div>
@@ -744,20 +747,20 @@ export default function SiteListPage() {
 							<Button className="h-10" asChild>
 								<Link href="/new">
 									<Plus className="size-5" />
-									{t("actions.add")}
+									{translations.site("add")}
 								</Link>
 							</Button>
 						)}
 					</div>
 				</div>
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={t("list.search.url.placeholder")} className="flex-1 h-10" />
+					<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={translations.list("searchUrl")} className="flex-1 h-10" />
 					<Select onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })} value={filters.infrastructure || "all"}>
 						<SelectTrigger className="w-64 h-10!">
-							<SelectValue placeholder={t("list.search.infrastructure.placeholder")} />
+							<SelectValue placeholder={translations.list("filter.infrastructure.placeholder")} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t("list.search.infrastructure.all")}</SelectItem>
+							<SelectItem value="all">{translations.list("filter.infrastructure.all")}</SelectItem>
 							{Object.values(INFRASTRUCTURES).map((infrastructure: InfrastructureType) => (
 								<SelectItem key={infrastructure.NAME} value={infrastructure.NAME}>
 									{infrastructure?.LABEL[locale as "fr" | "en"] || infrastructure.NAME}
@@ -767,10 +770,10 @@ export default function SiteListPage() {
 					</Select>
 					<Select onValueChange={(value) => updateFilters({ ...filters, theme: value === "all" ? "" : value })} value={filters.theme || "all"}>
 						<SelectTrigger className="w-48 h-10!">
-							<SelectValue placeholder={t("list.search.theme.placeholder")} />
+							<SelectValue placeholder={translations.list("filter.theme.placeholder")} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t("list.search.theme.all")}</SelectItem>
+							<SelectItem value="all">{translations.list("filter.theme.all")}</SelectItem>
 							{Object.values(THEMES).map((theme: ThemeType) => (
 								<SelectItem key={theme.NAME} value={theme.NAME}>
 									{theme?.LABEL[locale as "fr" | "en"] || theme.NAME}

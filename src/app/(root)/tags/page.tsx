@@ -23,7 +23,10 @@ export default function TagListPage() {
 	const permissions = session?.user?.permissions ?? [];
 	const [tags, setTags] = useState<TagsType[]>([]);
 	const [search, setSearch] = useState({ name: "", type: "" });
-	const t = useTranslations("tag");
+	const translations = {
+		list: useTranslations("pages.tagList"),
+		tag: useTranslations("tag"),
+	};
 	const locale = useLocale();
 
 	useEffect(() => {
@@ -118,7 +121,7 @@ export default function TagListPage() {
 											</div>
 										</TooltipTrigger>
 										<TooltipContent>
-											<p className="text-sm">{t("actions.deleteTooltip", { count: tag.sites.length })}</p>
+											<p className="text-sm">{translations.tag("deleteTooltip", { count: tag.sites.length })}</p>
 										</TooltipContent>
 									</Tooltip>
 								</TooltipProvider>
@@ -133,12 +136,12 @@ export default function TagListPage() {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-0 shrink-0 mt-1">
 				<div className="flex items-center justify-between">
-					<h1 className="text-3xl font-bold">{t("list.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.list("title")}</h1>
 					{permissions.includes(PERMISSIONS.TAGS.CREATE) && (
 						<Button className="h-10" asChild>
 							<Link href="/tags/add">
 								<Plus className="size-5" />
-								{t("actions.add")}
+								{translations.tag("add")}
 							</Link>
 						</Button>
 					)}
@@ -146,13 +149,13 @@ export default function TagListPage() {
 			</div>
 			<div className="px-6 pb-4 shrink-0">
 				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => setSearch({ ...search, name: e.target.value })} value={search.name} placeholder={t("list.search.name.placeholder")} className="flex-1 h-10" />
+					<Input onChange={(e) => setSearch({ ...search, name: e.target.value })} value={search.name} placeholder={translations.list("search.placeholder")} className="flex-1 h-10" />
 					<Select onValueChange={(value) => setSearch({ ...search, type: value === "all" ? "" : value })} value={search.type || "all"}>
 						<SelectTrigger className="w-48 h-10!">
-							<SelectValue placeholder={t("list.search.type.placeholder")} />
+							<SelectValue placeholder={translations.list("filter.type.placeholder")} />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">{t("list.search.type.all")}</SelectItem>
+							<SelectItem value="all">{translations.list("filter.type.all")}</SelectItem>
 							{Object.values(TAG_CATEGORIES).map((type: TagCategoryType) => (
 								<SelectItem key={type.NAME} value={type.NAME}>
 									{type?.LABEL[locale as "fr" | "en"] || type.NAME}

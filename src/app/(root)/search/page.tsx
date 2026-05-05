@@ -28,7 +28,10 @@ export default function SiteInfoPage() {
 	const [error, setError] = useState<string | null>(null);
 	const [hasSearched, setHasSearched] = useState(false);
 
-	const t = useTranslations("site");
+	const translations = {
+		info: useTranslations("pages.siteInfo"),
+		site: useTranslations("site"),
+	};
 	const locale = useLocale();
 
 	useEffect(() => {
@@ -63,20 +66,20 @@ export default function SiteInfoPage() {
 			} else if (searchError) {
 				switch (searchError.status) {
 					case 404:
-						setError(t("info.error.notFound"));
+						setError(translations.info("error.notFound"));
 						break;
 					case 500:
-						setError(t("info.error.server"));
+						setError(translations.info("error.server"));
 						break;
 					default:
-						setError(searchError.message || t("info.error.server"));
+						setError(searchError.message || translations.info("error.server"));
 						break;
 				}
 				setSites([]);
 			}
 		} catch (error) {
 			console.error("Error fetching sites:", error);
-			setError(t("error.connection"));
+			setError(translations.info("error.connection"));
 			setSites([]);
 		} finally {
 			setLoading(false);
@@ -112,15 +115,15 @@ export default function SiteInfoPage() {
 								<GlobeIcon className="w-6 h-6 text-blue-600" />
 							</div>
 							<div>
-								<CardTitle className="text-xl font-bold text-gray-900">{t("info.details.title")}</CardTitle>
-								<CardDescription className="text-base -mt-1 text-gray-600">{t("info.details.description")}</CardDescription>
+								<CardTitle className="text-xl font-bold text-gray-900">{translations.site("details.title")}</CardTitle>
+								<CardDescription className="text-base -mt-1 text-gray-600">{translations.site("details.description")}</CardDescription>
 							</div>
 						</div>
 					</div>
 					<Button variant="outline" asChild>
 						<Link href={`/sites/${site.id}/edit`}>
 							<Pencil className="size-4" />
-							{t("actions.edit")}
+							{translations.site("edit")}
 						</Link>
 					</Button>
 				</div>
@@ -148,9 +151,9 @@ export default function SiteInfoPage() {
 							<Shield className="size-5 text-blue-700" />
 						</div>
 						<div>
-							<div className="text-sm font-semibold text-gray-700">{t("info.details.loginUrl")}</div>
+							<div className="text-sm font-semibold text-gray-700">{translations.site("details.loginUrl")}</div>
 							<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="mt-0 text-blue-600 hover:text-blue-800 underline text-sm inline-flex items-center gap-1">
-								{t("info.details.adminAccess")}
+								{translations.site("details.adminAccess")}
 								<ExternalLink className="w-3 h-3" strokeWidth={3} />
 							</a>
 						</div>
@@ -160,7 +163,7 @@ export default function SiteInfoPage() {
 							<Users className="size-5 text-orange-700" />
 						</div>
 						<div>
-							<div className="text-sm font-semibold text-gray-700">{t("info.details.unit")}</div>
+							<div className="text-sm font-semibold text-gray-700">{translations.site("details.unit")}</div>
 							<span className="flex items-center gap-1">
 								<p className="text-sm font-medium text-gray-600">{site.unit.name}</p>
 								<p className="text-xs text-gray-500">{site.unit.id}</p>
@@ -172,7 +175,7 @@ export default function SiteInfoPage() {
 							<Calendar className="size-5 text-purple-700" />
 						</div>
 						<div>
-							<div className="text-sm font-medium text-gray-700">{t("info.details.lastModified")}</div>
+							<div className="text-sm font-medium text-gray-700">{translations.site("details.lastModified")}</div>
 							{site.lastModified ? (
 								<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
 									<div className="flex items-center gap-0.5">
@@ -185,7 +188,7 @@ export default function SiteInfoPage() {
 									</div>
 								</div>
 							) : (
-								<p className="text-sm text-gray-500">{t("info.details.neverModified")}</p>
+								<p className="text-sm text-gray-500">{translations.site("details.neverModified")}</p>
 							)}
 						</div>
 					</div>
@@ -225,7 +228,7 @@ export default function SiteInfoPage() {
 					<div className="space-y-2">
 						<div className="flex items-center gap-2 px-2">
 							<Clock className="size-5 text-gray-500" />
-							<span className="text-sm font-semibold text-gray-700">{t("info.details.recentModifications")}</span>
+							<span className="text-sm font-semibold text-gray-700">{translations.site("details.recentModifications")}</span>
 						</div>
 						<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
 							{site.recentModifications.map((mod) => (
@@ -253,13 +256,13 @@ export default function SiteInfoPage() {
 				<div className="space-y-4">
 					<div className="flex items-center gap-2 px-2">
 						<Shield className="size-5 text-blue-600" />
-						<span className="text-sm font-semibold text-gray-700">{t("info.details.permissions")}</span>
+						<span className="text-sm font-semibold text-gray-700">{translations.site("details.permissions")}</span>
 					</div>
 					<div className="w-full">
 						<div className="p-3 bg-blue-50 rounded-lg">
 							<div className="flex items-center gap-2 mb-2">
 								<Edit className="w-4 h-4 text-blue-600" />
-								<span className="text-sm font-medium text-blue-900">{t("info.details.editors")}</span>
+								<span className="text-sm font-medium text-blue-900">{translations.site("details.editors")}</span>
 								<Badge variant="outline" className="text-xs">
 									{site.permissions.editors.length}
 								</Badge>
@@ -275,7 +278,7 @@ export default function SiteInfoPage() {
 					</div>
 					<div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
 						<p className="text-xs text-yellow-800">
-							<strong>{t("info.details.note")}:</strong> {t("info.details.permissionsNote")}
+							<strong>{translations.site("details.note")}:</strong> {translations.site("details.permissionsNote")}
 						</p>
 					</div>
 				</div>
@@ -287,24 +290,24 @@ export default function SiteInfoPage() {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{t("info.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.info("title")}</h1>
 				</div>
 			</div>
 			<div className="px-6 pb-6 h-full overflow-y-auto flex flex-col gap-4">
 				<div className="flex gap-2 shrink-0">
 					<div className="flex-1 relative">
 						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-						<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} onKeyDown={handleKeyDown} value={search.url} placeholder={t("info.search.url.placeholder")} className="pl-10 h-10" />
+						<Input onChange={(e) => setSearch({ ...search, url: e.target.value })} onKeyDown={handleKeyDown} value={search.url} placeholder={translations.info("searchUrl")} className="pl-10 h-10" />
 					</div>
 					<Button onClick={handleSearch} className="h-10" disabled={!search.url.trim() || loading}>
 						{loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-						{t("info.search.button")}
+						{translations.info("searchButton")}
 					</Button>
 				</div>
 				{loading && (
 					<div className="flex items-center justify-center py-12">
 						<Loader2 className="w-6 h-6 animate-spin mr-2" />
-						<span>{t("info.loading")}</span>
+						<span>{translations.info("loading")}</span>
 					</div>
 				)}
 				{error && (
@@ -317,9 +320,9 @@ export default function SiteInfoPage() {
 					<Alert className="border-yellow-500 bg-yellow-50">
 						<AlertCircle className="h-4 w-4 text-yellow-600!" />
 						<AlertDescription className="text-yellow-800">
-							<strong>{t("info.urlNotFound.title")}</strong>
+							<strong>{translations.info("urlNotFound.title")}</strong>
 							<br />
-							{t("info.urlNotFound.message")}
+							{translations.info("urlNotFound.message")}
 						</AlertDescription>
 					</Alert>
 				)}
@@ -327,8 +330,8 @@ export default function SiteInfoPage() {
 					<Card className="text-center py-12">
 						<CardContent className="pt-6">
 							<GlobeIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<CardTitle className="text-xl mb-2">{t("info.noResults.title")}</CardTitle>
-							<CardDescription>{t("info.noResults.description")}</CardDescription>
+							<CardTitle className="text-xl mb-2">{translations.info("noResults.title")}</CardTitle>
+							<CardDescription>{translations.info("noResults.description")}</CardDescription>
 						</CardContent>
 					</Card>
 				)}
@@ -336,8 +339,8 @@ export default function SiteInfoPage() {
 					<Card className="text-center py-12">
 						<CardContent className="pt-6">
 							<Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<CardTitle className="text-xl mb-2">{t("info.searchPrompt.title")}</CardTitle>
-							<CardDescription>{t("info.searchPrompt.description")}</CardDescription>
+							<CardTitle className="text-xl mb-2">{translations.info("searchPrompt.title")}</CardTitle>
+							<CardDescription>{translations.info("searchPrompt.description")}</CardDescription>
 						</CardContent>
 					</Card>
 				)}

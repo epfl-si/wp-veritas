@@ -16,7 +16,7 @@ export default function ThemeListPage() {
 	const name = searchParams.get("name") || "";
 
 	const translations = {
-		themeList: useTranslations("pages.themeList"),
+		page: useTranslations("pages.theme.list"),
 	};
 
 	const themes = Object.values(THEMES).filter((theme: ThemeType) => {
@@ -28,7 +28,7 @@ export default function ThemeListPage() {
 	const columns: TableColumn<ThemeType>[] = [
 		{
 			key: "LABEL",
-			label: translations.themeList("column.label"),
+			label: translations.page("column.label"),
 			width: "w-[60%]",
 			align: "left",
 			sortable: false,
@@ -36,7 +36,7 @@ export default function ThemeListPage() {
 		},
 		{
 			key: "NAME",
-			label: translations.themeList("column.name"),
+			label: translations.page("column.name"),
 			width: "w-[40%]",
 			align: "left",
 			sortable: true,
@@ -48,7 +48,7 @@ export default function ThemeListPage() {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-center justify-between h-10">
-					<h1 className="text-3xl font-bold">{translations.themeList("title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.page("title")}</h1>
 				</div>
 				<div className="flex gap-2 mt-6">
 					<Input
@@ -61,7 +61,7 @@ export default function ThemeListPage() {
 								router.push(`?${params.toString()}`);
 							});
 						}}
-						placeholder={translations.themeList("search.placeholder")}
+						placeholder={translations.page("search.placeholder")}
 						className="flex-1 h-10"
 					/>
 				</div>
@@ -70,7 +70,7 @@ export default function ThemeListPage() {
 				{themes.length === 0 ? (
 					<div className="rounded-md flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
 						<Paintbrush className="size-10 opacity-30" />
-						<p className="text-sm">{translations.themeList("empty")}</p>
+						<p className="text-sm">{translations.page("empty")}</p>
 					</div>
 				) : (
 					<Table data={themes} columns={columns} defaultSort={{ key: "NAME", direction: "asc" }} />
