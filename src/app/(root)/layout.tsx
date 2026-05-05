@@ -10,7 +10,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 	return (
 		<Fragment>
 			<Header user={user} />
-			<main className="flex sm:h-[calc(100%-90px)]">
+			<main className="flex sm:h-[calc(100%-81.5px)]">
 				<Sidebar user={user} />
 				{children}
 			</main>
