@@ -1,0 +1,387 @@
+{
+  "actions": {
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "reset": "Reset",
+    "creating": "Creating",
+    "updating": "Updating",
+    "delete": {
+      "title": "Delete {object}",
+      "description": "Are you sure you want to delete this {object}?",
+      "warning": "This action will permanently delete the {object}.",
+      "titlePlural": "Delete {count} {object}s",
+      "descriptionPlural": "Are you sure you want to delete {count} {object}s?",
+      "warningPlural": "This action will permanently delete {count} {object}s.",
+      "confirmPlural": "Delete {count} {object}s",
+      "irreversible": "This action cannot be undone.",
+      "deleting": "Deleting...",
+      "success": "{object} deleted successfully",
+      "confirm": "Delete {object}",
+      "error": "Error deleting {object}"
+    }
+  },
+  "navigation": {
+    "home": "All Sites",
+    "new": "Create a New Site",
+    "info": "Site Information",
+    "tags": "Manage Tags",
+    "themes": "Manage Themes",
+    "trash": "Deleted Sites",
+    "logs": "Action Logs",
+    "apiDocs": "API Documentation",
+    "redirections": "Redirections"
+  },
+  "site": {
+    "add": "Add New Site",
+    "edit": "Edit Site",
+    "visitSite": "Visit Website",
+    "manageTags": "Manage Tags",
+    "info": "Information",
+    "editTags": "Edit Tags",
+    "unmanaged": "Unmanaged",
+    "create": {
+      "label": "Create",
+      "success": "Website created successfully",
+      "successMessage": "The new website has been added to the system.",
+      "error": "An error occurred while creating the website"
+    },
+    "update": {
+      "label": "Update Site",
+      "title": "Edit Site",
+      "success": "Site updated successfully",
+      "successMessage": "The changes have been saved successfully.",
+      "error": "Error updating site"
+    },
+    "tags": {
+      "title": "Manage Site Tags",
+      "success": "Tags Updated Successfully",
+      "successMessage": "The site tags have been updated successfully.",
+      "error": "Error Updating Tags",
+      "errorUnknown": "An unknown error occurred",
+      "saving": "Saving"
+    },
+    "details": {
+      "title": "Website Details",
+      "description": "Information and permissions",
+      "loginUrl": "WordPress Login",
+      "adminAccess": "Admin access",
+      "unit": "Affiliated unit",
+      "lastModified": "Time page last modified",
+      "recentModifications": "Recent modifications to the website",
+      "permissions": "Permissions and rights",
+      "editors": "WordPress editors",
+      "accreditors": "Unit accreditors",
+      "note": "Note",
+      "neverModified": "This website has never been modified.",
+      "permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
+    },
+    "form": {
+      "infrastructure": {
+        "label": "Infrastructure",
+        "placeholder": "Select website infrastructure..."
+      },
+      "url": {
+        "label": "URL",
+        "placeholder": "https://www.epfl.ch/xxx"
+      },
+      "title": {
+        "label": "Website Title",
+        "placeholder": "Enter website acronym..."
+      },
+      "tagline": {
+        "label": "Tagline (Name)",
+        "placeholder": "Enter full name of the site..."
+      },
+      "theme": {
+        "label": "Theme",
+        "placeholder": "Enter theme name..."
+      },
+      "unitId": {
+        "label": "Unit ID",
+        "placeholder": "Enter unit identifier..."
+      },
+      "languages": {
+        "label": "Languages"
+      },
+      "categories": {
+        "label": "Categories"
+      },
+      "downloadsProtectionScript": {
+        "label": "Downloads Protection Script",
+        "placeholder": "Enable downloads protection"
+      },
+      "monitored": {
+        "label": "Monitored",
+        "placeholder": "Enable monitoring for this site"
+      },
+      "createFromBackup": {
+        "label": "Create from Backup",
+        "placeholder": "Create site from an existing backup"
+      },
+      "backupEnvironment": {
+        "label": "Backup Environment",
+        "placeholder": "Select backup environment..."
+      },
+      "backupSite": {
+        "label": "Source Site",
+        "placeholder": "Select a site to restore from..."
+      },
+      "ticket": {
+        "label": "Ticket",
+        "placeholder": "Enter ticket reference..."
+      },
+      "responsibles": {
+        "label": "Responsibles",
+        "placeholder": "Select responsibles..."
+      },
+      "comment": {
+        "label": "Comment",
+        "placeholder": "Enter additional comments..."
+      },
+      "sections": {
+        "general": { "title": "General Information" },
+        "details": { "title": "Website Details" },
+        "advanced": { "title": "Advanced Configuration" },
+        "metadata": { "title": "Metadata" }
+      }
+    }
+  },
+  "tag": {
+    "add": "Add New Tag",
+    "reset": "Reset Form",
+    "deleteTooltip": "{count, plural, =1 {Cannot delete, used by # site} other {Cannot delete, used by # sites}}",
+    "create": {
+      "label": "Create Tag",
+      "title": "Create New Tag",
+      "success": "Tag Created Successfully",
+      "successMessage": "The new tag has been created and is now available",
+      "error": "Error Creating Tag"
+    },
+    "update": {
+      "label": "Update Tag",
+      "title": "Edit Tag",
+      "success": "Tag Updated Successfully",
+      "successMessage": "Changes have been saved successfully",
+      "error": "Error Updating Tag"
+    },
+    "form": {
+      "configTab": "Configuration",
+      "sitesTab": "Sites",
+      "type": {
+        "label": "Type of Tag"
+      },
+      "nameFr": {
+        "label": "Name (French)",
+        "placeholder": "Tag name in French"
+      },
+      "nameEn": {
+        "label": "Name (English)",
+        "placeholder": "Tag name in English"
+      },
+      "urlFr": {
+        "label": "URL (French)",
+        "placeholder": "https://epfl.ch/xxx"
+      },
+      "urlEn": {
+        "label": "URL (English)",
+        "placeholder": "https://epfl.ch/xxx"
+      },
+      "sections": {
+        "general": { "title": "Tag Type" },
+        "names": { "title": "Information" }
+      }
+    },
+    "sites": {
+      "title": "Sites using this tag",
+      "count": "{count, plural, =0 {No sites found} =1 {# site found} other {# sites found}}",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "removeSelected": "Remove selected ({count})",
+      "removeAll": "Remove all sites",
+      "removing": "Removing...",
+      "empty": {
+        "title": "No sites",
+        "description": "This tag is not currently used by any site."
+      }
+    }
+  },
+  "pages": {
+    "siteList": {
+      "title": "Source of truth for WordPress websites",
+      "searchUrl": "Search for websites...",
+      "empty": "No websites found",
+      "moreTools": "More Tools",
+      "column": {
+        "url": "URL",
+        "infrastructure": "Infrastructure",
+        "createdAt": "Age",
+        "actions": "Actions"
+      },
+      "filter": {
+        "url": {
+          "label": "Filter by URL",
+          "placeholder": "Enter URL to search..."
+        },
+        "infrastructure": {
+          "placeholder": "Filter by infrastructure...",
+          "all": "All infrastructures",
+          "label": "Infrastructure Type"
+        },
+        "theme": {
+          "placeholder": "Filter by theme...",
+          "all": "All themes",
+          "label": "Theme"
+        },
+        "languages": "Languages",
+        "categories": "Categories",
+        "hasCategories": "Has Categories",
+        "hasDownloads": "Downloads Protection",
+        "dateFrom": "from",
+        "dateTo": "to",
+        "reset": "Reset All Filters",
+        "apply": "Apply Filters"
+      },
+      "tools": {
+        "title": "Available Tools"
+      },
+      "filters": {
+        "title": "Advanced Filters",
+        "description": "Filter sites by multiple criteria"
+      },
+      "export": {
+        "title": "Export Data",
+        "description": "Download site data in various formats",
+        "count": "Export {count} filtered sites to CSV format",
+        "formatInfo": "Files will be exported in UTF-8 encoding",
+        "csv": "Export to CSV"
+      },
+      "statistics": {
+        "title": "Site Statistics",
+        "description": "View detailed analytics and insights"
+      },
+      "stats": {
+        "overview": "Overview",
+        "breakdown": "Breakdown",
+        "distributions": "Top Distributions",
+        "totalSites": "Total Sites",
+        "filteredSites": "Filtered Sites",
+        "recentSites": "Recent Sites",
+        "kubernetesSites": "Kubernetes Sites",
+        "multilingualSites": "Multilingual Sites",
+        "featuresTitle": "Features",
+        "downloads": "Downloads Protection",
+        "withCategories": "With Categories",
+        "infrastructureTitle": "Infrastructure Types",
+        "kubernetes": "Kubernetes",
+        "database": "Database",
+        "none": "None/Other",
+        "timeTitle": "Time Distribution",
+        "lastWeek": "Last 7 days",
+        "lastMonth": "Last 30 days",
+        "lastQuarter": "Last 3 months",
+        "themeDistribution": "Themes",
+        "languageDistribution": "Languages",
+        "categoryDistribution": "Categories",
+        "more": "and {count} more...",
+        "noData": "No data available"
+      }
+    },
+    "siteInfo": {
+      "title": "Search for website information",
+      "searchButton": "Search",
+      "searchUrl": "Search for websites...",
+      "loading": "Loading websites...",
+      "noResults": {
+        "title": "No websites found",
+        "description": "Try adjusting your search criteria or check your spelling."
+      },
+      "searchPrompt": {
+        "title": "Search for websites",
+        "description": "Enter a URL or keyword to find matching websites."
+      },
+      "error": {
+        "connection": "Connection error",
+        "server": "Server error",
+        "notFound": "The website is not managed in the DSI infrastructure"
+      },
+      "urlNotFound": {
+        "title": "This address cannot be found (404 error)",
+        "message": "Please check if this is a typo. The information below points to the closest site in the navigation hierarchy (parent site) and may not be relevant to your context."
+      }
+    },
+    "tagList": {
+      "title": "Manage Tags",
+      "search": {
+        "placeholder": "Search for tags..."
+      },
+      "filter": {
+        "type": {
+          "placeholder": "Filter by type...",
+          "all": "All types"
+        }
+      }
+    },
+    "logList": {
+      "title": "Action Logs",
+      "results": "{count, plural, =1 {# result} other {# results}} out of {total} total",
+      "loadingMore": "Loading more results...",
+      "loading": "Loading...",
+      "noMore": "No more logs to load",
+      "empty": "No logs found",
+      "filteredHidden": "{count, plural, =1 {# log hidden} other {# logs hidden}} by action filters",
+      "search": {
+        "message": "Search by message..."
+      },
+      "filter": {
+        "level": {
+          "placeholder": "Filter by level...",
+          "all": "All levels"
+        },
+        "action": {
+          "all": "All actions",
+          "selected": "{count, plural, =1 {# action selected} other {# actions selected}}",
+          "empty": "No actions available"
+        }
+      },
+      "column": {
+        "timestamp": "Timestamp",
+        "level": "Level",
+        "message": "Message",
+        "user": "User"
+      }
+    },
+    "themeList": {
+      "title": "Manage Themes",
+      "empty": "No themes found",
+      "search": {
+        "placeholder": "Search for themes..."
+      }
+    },
+    "notFound": {
+      "title": "Oops! It looks like this page doesn't exist",
+      "home": "Back to home",
+      "back": "Previous page",
+      "contact": "If you think this is an error, contact the team"
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidString": "This field must be a string",
+    "invalidType": "This field is invalid",
+    "url": "Please enter a valid URL",
+    "invalidEnum": "This field must be one of: {options}",
+    "tooSmall": "Minimum length is {min} characters",
+    "tooBig": "Maximum length is {max} characters",
+    "pattern": "Invalid format"
+  },
+  "errors": {
+    "retry": "Please try again later"
+  },
+  "form": {
+    "showMore": "Show more",
+    "search": {
+      "placeholder": "Search...",
+      "noResults": "No results found"
+    }
+  }
+}
