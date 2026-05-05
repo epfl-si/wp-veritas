@@ -6,7 +6,9 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 export default function NotFoundPage() {
-	const t = useTranslations("notFound");
+	const translations = {
+		notFound: useTranslations("pages.notFound"),
+	};
 	return (
 		<div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
 			<div className="max-w-2xl w-full text-center">
@@ -21,21 +23,21 @@ export default function NotFoundPage() {
 					<h2 className="text-[16rem] font-bold text-gray-800 mb-6">
 						4<span className="text-gray-800 ml-1.5">0</span>4
 					</h2>
-					<p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">{t("title")}</p>
+					<p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">{translations.notFound("title")}</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
 						<Button variant="default" size="lg" asChild>
 							<Link href="/">
 								<Home className="w-5 h-5" />
-								{t("home")}
+								{translations.notFound("home")}
 							</Link>
 						</Button>
 						<Button variant="outline" size="lg" onClick={() => window.history.back()}>
 							<ArrowLeft className="w-5 h-5" />
-							{t("back")}
+							{translations.notFound("back")}
 						</Button>
 					</div>
 					<p className="text-sm text-gray-500">
-						{t("contact")}{" "}
+						{translations.notFound("contact")}{" "}
 						<a href="https://go.epfl.ch/fsd" className="text-red-600 hover:text-red-700 underline font-medium" target="_blank" rel="noopener noreferrer">
 							ISAS-FSD
 						</a>
