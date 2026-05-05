@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 	const session = await auth();
 
 	return (
-		<html lang={locale} className={cn("h-full", inter.variable, suisse.variable)}>
+		<html lang={locale} className={cn("h-full", inter.variable, suisse.variable)} suppressHydrationWarning>
 			<head>
 				<script defer src={process.env.UMAMI_URL_SCRIPT} data-website-id={process.env.UMAMI_WEBSITE_ID}></script>
 			</head>
