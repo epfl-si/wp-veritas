@@ -48,7 +48,7 @@ export async function listLogs(): Promise<{
 				},
 				level: log.level,
 				timestamp: log.timestamp,
-				user: users.find((user) => user.userId === log.userId),
+				user: users.find((user) => user.id === log.userId),
 			})),
 		};
 	} catch (errorData) {
@@ -91,6 +91,10 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 			query["data.action"] = { $in: params.actions };
 		}
 
+		if (params.siteId) {
+			query["data.id"] = params.siteId;
+		}
+
 		const total = await LogModel.countDocuments(query);
 		const logsQuery = LogModel.find<ILog>(query).sort({ timestamp: -1 });
 
@@ -130,7 +134,7 @@ export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: Log
 				},
 				level: log.level,
 				timestamp: log.timestamp,
-				user: users.find((user) => user.userId === log.userId),
+				user: users.find((user) => user.id === log.userId),
 			})),
 			total,
 		};
@@ -151,4 +155,10 @@ export async function searchLogsAction(params: SearchLogsParams): Promise<{ logs
 	const result = await searchLogs(params);
 	if (result.error) return { logs: [], total: 0, success: false };
 	return { logs: result.logs || [], total: result.total || 0, success: true };
+}
+
+export async function getSiteLogsAction(siteId: string): Promise<{ logs: LogType[]; success: boolean }> {
+	const result = await searchLogs({ siteId });
+	if (result.error) return { logs: [], success: false };
+	return { logs: result.logs || [], success: true };
 }

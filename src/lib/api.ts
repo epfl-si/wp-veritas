@@ -23,7 +23,7 @@ export async function getEditors(unitId: string): Promise<{ userId: string; name
 
 		const personIds = [...new Set(data.authorizations.map((a: { persid: number; attribution?: string }) => a.persid.toString()))];
 		const names = await getPersonsByIds(personIds).then((res) => (res.success ? res.data : []));
-		const nameMap = new Map(names.map((n) => [n.userId, n.name]));
+		const nameMap = new Map(names.map((n) => [n.id, n.name]));
 
 		return data.authorizations
 			.filter((authorization) => authorization.attribution !== "inherited")

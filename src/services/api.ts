@@ -5,13 +5,13 @@ import type { ServiceResponse } from "@/types/response";
 
 const CACHE_TTL = 10 * 24 * 60 * 60;
 
-export async function getPersons(): Promise<ServiceResponse<{ userId: string; name: string }[]>> {
+export async function getPersons(): Promise<ServiceResponse<{ id: string; name: string }[]>> {
 	try {
 		const persons = await withCacheSWR(
 			"persons-list",
 			async () => {
 				const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>("/v1/persons?isaccredited=1", { method: "GET" });
-				return data.persons.map((p) => ({ userId: p.id, name: `${p.firstname} ${p.lastname}` }));
+				return data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
 			},
 			CACHE_TTL,
 		);
@@ -22,7 +22,7 @@ export async function getPersons(): Promise<ServiceResponse<{ userId: string; na
 	}
 }
 
-export async function getPersonsByIds(userIds: string[]): Promise<ServiceResponse<{ userId: string; name: string }[]>> {
+export async function getPersonsByIds(userIds: string[]): Promise<ServiceResponse<{ id: string; name: string }[]>> {
 	try {
 		if (!userIds?.length) return { success: true, data: [] };
 		const data = await makeRequest<{
@@ -30,20 +30,20 @@ export async function getPersonsByIds(userIds: string[]): Promise<ServiceRespons
 		}>(`/v1/persons?ids=${userIds.join(",")}`, {
 			method: "GET",
 		});
-		return { success: true, data: data.persons.map((p) => ({ userId: p.id, name: `${p.firstname} ${p.lastname}` })) };
+		return { success: true, data: data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` })) };
 	} catch (error) {
 		console.error("Error fetching persons by IDs:", error);
 		return { success: false, error: "Failed to fetch persons", code: "API_ERROR" };
 	}
 }
 
-export async function getPersonsByUsernames(usernames: string[]): Promise<ServiceResponse<{ userId: string; name: string }[]>> {
+export async function getPersonsByUsernames(usernames: string[]): Promise<ServiceResponse<{ id: string; name: string }[]>> {
 	try {
 		if (!usernames?.length) return { success: true, data: [] };
 
 		const results = await Promise.all(
 			usernames.map(async (username) => {
-				if (username === "admin") return { userId: username, name: "Admin" };
+				if (username === "admin") return { id: username, name: "Admin" };
 				try {
 					const data = await makeRequest<{
 						firstname: string;
@@ -52,11 +52,11 @@ export async function getPersonsByUsernames(usernames: string[]): Promise<Servic
 						method: "GET",
 					});
 					return {
-						userId: username,
+						id: username,
 						name: `${data.firstname} ${data.lastname}`.trim(),
 					};
 				} catch {
-					return { userId: username, name: "Unknown" };
+					return { id: username, name: "Unknown" };
 				}
 			}),
 		);
@@ -67,13 +67,13 @@ export async function getPersonsByUsernames(usernames: string[]): Promise<Servic
 	}
 }
 
-export async function getUnits(): Promise<ServiceResponse<{ unitId: string; name: string }[]>> {
+export async function getUnits(): Promise<ServiceResponse<{ id: string; name: string }[]>> {
 	try {
 		const units = await withCacheSWR(
 			"units-list",
 			async () => {
 				const data = await makeRequest<{ units: { id: string; name: string }[] }>("/v1/units", { method: "GET" });
-				return data.units.map((u) => ({ unitId: u.id, name: u.name }));
+				return data.units.map((u) => ({ id: u.id, name: u.name }));
 			},
 			CACHE_TTL,
 		);

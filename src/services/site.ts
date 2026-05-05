@@ -800,13 +800,13 @@ export async function searchSites(url: string): Promise<{ sites?: SearchSiteType
 					lastModified: lastChange?.[0]?.last_modified
 						? {
 								date: lastChange?.[0]?.last_modified || "",
-								user: persons.find((p) => p.userId === lastChange?.[0]?.username)?.name || lastChange?.[0]?.username || "",
+								user: persons.find((p) => p.id === lastChange?.[0]?.username)?.name || lastChange?.[0]?.username || "",
 							}
 						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({
 							date: r.last_modified,
-							user: persons.find((p) => p.userId === r.username)?.name || r.username,
+							user: persons.find((p) => p.id === r.username)?.name || r.username,
 							page: r.post_title || "page non disponible",
 							available: Boolean(r.post_title && r.post_url),
 						})) || [],
