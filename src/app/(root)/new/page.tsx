@@ -2,7 +2,7 @@
 import { decode } from "html-entities";
 import { Edit, Eye } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
 import { Form } from "@/components/form";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
@@ -11,56 +11,61 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { useZodErrorMessages } from "@/hooks/zod";
+import { getPersons, getUnits } from "@/services/api";
 import { getAvailableEnvironments, getBackupSites } from "@/services/backup";
 import { createSiteAction } from "@/services/site";
-import { getUnits } from "@/services/units";
 import type { BackupEnvironment } from "@/types/backup";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
 import { type SiteFormType, siteSchema } from "@/types/site";
 
 export default function SiteAddPage() {
-	const translations = { site: useTranslations("site") };
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
+
 	const [environments, setEnvironments] = useState<string[]>([]);
 	const [units, setUnits] = useState<SelectOption[]>([]);
+	const [persons, setPersons] = useState<SelectOption[]>([]);
 	const [backupSites, setBackupSites] = useState<SelectOption[]>([]);
-	const [loadingBackupSites, setLoadingBackupSites] = useState(false);
 	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
+	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
 
-	useEffect(() => {
-		const init = async () => {
-			const envs = await getAvailableEnvironments();
-			setEnvironments(envs);
-			const [unitsResult, initialBackupSites] = await Promise.all([getUnits(), envs[0] ? getBackupSites(envs[0] as BackupEnvironment) : Promise.resolve([])]);
-			setUnits(
-				(unitsResult.success ? unitsResult.data : []).map((u) => ({
-					value: Number(u.unitId),
-					label: `${u.name} (${u.unitId})`,
-				})),
-			);
-			setBackupSites(
-				initialBackupSites.map((site) => ({
-					value: site.id,
-					label: site.url,
-				})),
-			);
-		};
-		init();
+	const translations = {
+		site: useTranslations("site"),
+		actions: useTranslations("actions"),
+	};
+
+	const loadBackupSites = useCallback((environment: string) => {
+		setLoadings((prev) => ({ ...prev, backupSites: true }));
+		getBackupSites(environment as BackupEnvironment)
+			.then((sites) => setBackupSites(sites.map((site) => ({ value: site.id, label: site.url }))))
+			.catch(() => setBackupSites([]))
+			.finally(() => setLoadings((prev) => ({ ...prev, backupSites: false })));
 	}, []);
 
-	const loadBackupSites = async (environment: string) => {
-		setLoadingBackupSites(true);
-		try {
-			const sites = await getBackupSites(environment as BackupEnvironment);
-			setBackupSites(sites.map((site) => ({ value: site.id, label: site.url })));
-		} catch {
-			setBackupSites([]);
-		} finally {
-			setLoadingBackupSites(false);
-		}
-	};
+	useEffect(() => {
+		const loadData = async () => {
+			setLoadings({ environments: true, units: true, backupSites: true, persons: true });
+			await Promise.all([
+				getAvailableEnvironments()
+					.then((envs) => {
+						setEnvironments(envs);
+						loadBackupSites(envs[0] || "test");
+					})
+					.catch(() => setEnvironments([]))
+					.finally(() => setLoadings((prev) => ({ ...prev, environments: false }))),
+				getUnits()
+					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.unitId), label: `${u.name} (${u.unitId})` }))))
+					.catch(() => setUnits([]))
+					.finally(() => setLoadings((prev) => ({ ...prev, units: false }))),
+				getPersons()
+					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.userId, label: p.name }))))
+					.catch(() => setPersons([]))
+					.finally(() => setLoadings((prev) => ({ ...prev, persons: false }))),
+			]);
+		};
+		loadData();
+	}, [loadBackupSites]);
 
 	const loadSiteDetails = async (siteId: string, environment: string) => {
 		if (!formRef || !siteId) return;
@@ -81,13 +86,11 @@ export default function SiteAddPage() {
 	};
 
 	const getFormConfig = (): FormConfig<SiteFormType> => {
-		const t = translations.site;
-
 		const fields: FieldConfig[] = [
 			{
 				name: "infrastructure",
 				type: "boxes",
-				label: t("form.infrastructure.label"),
+				label: translations.site("form.infrastructure.label"),
 				section: "general",
 				width: "full",
 				options: Object.values(INFRASTRUCTURES)
@@ -102,16 +105,16 @@ export default function SiteAddPage() {
 			{
 				name: "url",
 				type: "text",
-				label: t("form.url.label"),
-				placeholder: t("form.url.placeholder"),
+				label: translations.site("form.url.label"),
+				placeholder: translations.site("form.url.placeholder"),
 				section: "general",
 				width: "full",
 			},
 			{
 				name: "title",
 				type: "text",
-				label: t("form.title.label"),
-				placeholder: t("form.title.placeholder"),
+				label: translations.site("form.title.label"),
+				placeholder: translations.site("form.title.placeholder"),
 				section: "details",
 				width: "half",
 				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$", type: "display" }],
@@ -119,8 +122,8 @@ export default function SiteAddPage() {
 			{
 				name: "tagline",
 				type: "text",
-				label: t("form.tagline.label"),
-				placeholder: t("form.tagline.placeholder"),
+				label: translations.site("form.tagline.label"),
+				placeholder: translations.site("form.tagline.placeholder"),
 				section: "details",
 				width: "half",
 				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$", type: "display" }],
@@ -128,8 +131,8 @@ export default function SiteAddPage() {
 			{
 				name: "theme",
 				type: "select",
-				label: t("form.theme.label"),
-				placeholder: t("form.theme.placeholder"),
+				label: translations.site("form.theme.label"),
+				placeholder: translations.site("form.theme.placeholder"),
 				section: "details",
 				options: Object.values(THEMES).map((theme) => ({ value: theme.NAME, label: theme.LABEL[locale as "fr" | "en"] || theme.NAME })),
 				width: "full",
@@ -142,8 +145,8 @@ export default function SiteAddPage() {
 			{
 				name: "unitId",
 				type: "search",
-				label: t("form.unitId.label"),
-				placeholder: t("form.unitId.placeholder"),
+				label: translations.site("form.unitId.label"),
+				placeholder: translations.site("form.unitId.placeholder"),
 				section: "details",
 				width: "half",
 				options: units,
@@ -151,7 +154,7 @@ export default function SiteAddPage() {
 			{
 				name: "languages",
 				type: "multiselect",
-				label: t("form.languages.label"),
+				label: translations.site("form.languages.label"),
 				section: "details",
 				width: "half",
 				options: Object.values(LANGUAGES).map((lang) => ({ value: lang.locale, label: lang.common, default: DEFAULT_LANGUAGE.map((l) => l.locale).includes(lang.locale) })),
@@ -160,7 +163,7 @@ export default function SiteAddPage() {
 			{
 				name: "categories",
 				type: "multiselect",
-				label: t("form.categories.label"),
+				label: translations.site("form.categories.label"),
 				section: "details",
 				width: "full",
 				options: Object.values(OPTIONAL_CATEGORIES).map((category) => ({ value: category.NAME, label: category.LABEL })),
@@ -174,8 +177,8 @@ export default function SiteAddPage() {
 			{
 				name: "downloadsProtectionScript",
 				type: "checkbox",
-				label: t("form.downloadsProtectionScript.label"),
-				placeholder: t("form.downloadsProtectionScript.placeholder"),
+				label: translations.site("form.downloadsProtectionScript.label"),
+				placeholder: translations.site("form.downloadsProtectionScript.placeholder"),
 				section: "advanced",
 				width: "full",
 				conditions: [
@@ -187,8 +190,8 @@ export default function SiteAddPage() {
 			{
 				name: "monitored",
 				type: "checkbox",
-				label: t("form.monitored.label"),
-				placeholder: t("form.monitored.placeholder"),
+				label: translations.site("form.monitored.label"),
+				placeholder: translations.site("form.monitored.placeholder"),
 				section: "advanced",
 				width: "full",
 				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" }],
@@ -198,8 +201,8 @@ export default function SiteAddPage() {
 						{
 							name: "createFromBackup" as const,
 							type: "checkbox" as const,
-							label: `${t("form.createFromBackup.label")}`,
-							placeholder: t("form.createFromBackup.placeholder"),
+							label: `${translations.site("form.createFromBackup.label")}`,
+							placeholder: translations.site("form.createFromBackup.placeholder"),
 							section: "advanced" as const,
 							width: "full" as const,
 							disabled: false,
@@ -212,8 +215,8 @@ export default function SiteAddPage() {
 						{
 							name: "backupEnvironment" as const,
 							type: "select" as const,
-							label: t("form.backupEnvironment.label"),
-							placeholder: t("form.backupEnvironment.placeholder"),
+							label: translations.site("form.backupEnvironment.label"),
+							placeholder: translations.site("form.backupEnvironment.placeholder"),
 							section: "advanced" as const,
 							width: "full" as const,
 							options: environments.map((env) => {
@@ -230,12 +233,12 @@ export default function SiteAddPage() {
 			{
 				name: "backupSite",
 				type: "search",
-				label: t("form.backupSite.label"),
-				placeholder: loadingBackupSites ? "Loading..." : t("form.backupSite.placeholder"),
+				label: translations.site("form.backupSite.label"),
+				placeholder: loadings.backupSites ? "Loading..." : translations.site("form.backupSite.placeholder"),
 				section: "advanced",
 				width: "full",
 				options: backupSites,
-				disabled: loadingBackupSites,
+				disabled: loadings.backupSites,
 				conditions: [
 					{ field: "infrastructure", operator: "equals", value: "Kubernetes", type: "display" },
 					{ field: "createFromBackup", operator: "equals", value: true, type: "display" },
@@ -244,36 +247,46 @@ export default function SiteAddPage() {
 			{
 				name: "ticket",
 				type: "text",
-				label: t("form.ticket.label"),
-				placeholder: t("form.ticket.placeholder"),
+				label: translations.site("form.ticket.label"),
+				placeholder: translations.site("form.ticket.placeholder"),
 				section: "metadata",
 				width: "half",
 			},
 			{
+				name: "responsibles",
+				type: "multicombobox",
+				label: translations.site("form.responsibles.label"),
+				placeholder: loadings.persons ? "Loading..." : translations.site("form.responsibles.placeholder"),
+				section: "metadata",
+				width: "half",
+				options: persons,
+				disabled: loadings.persons,
+			},
+			{
 				name: "comment",
 				type: "textarea",
-				label: t("form.comment.label"),
-				placeholder: t("form.comment.placeholder"),
+				label: translations.site("form.comment.label"),
+				placeholder: translations.site("form.comment.placeholder"),
 				section: "metadata",
 				width: "full",
 			},
 		];
 
 		const sections: SectionConfig[] = [
-			{ name: "general", title: t("form.sections.general.title"), columns: 1 },
+			{ name: "general", title: translations.site("form.sections.general.title"), columns: 1 },
 			{
 				name: "details",
-				title: t("form.sections.details.title"),
+				title: translations.site("form.sections.details.title"),
 				columns: 2,
 				conditions: [{ field: "infrastructure", operator: "regex", value: "^(Kubernetes|External|LAMP|Archived)$" }],
 			},
 			{
 				name: "advanced",
-				title: t("form.sections.advanced.title"),
+				title: translations.site("form.sections.advanced.title"),
 				columns: 1,
 				conditions: [{ field: "infrastructure", operator: "equals", value: "Kubernetes" }],
 			},
-			{ name: "metadata", title: t("form.sections.metadata.title"), columns: 2 },
+			{ name: "metadata", title: translations.site("form.sections.metadata.title"), columns: 2 },
 		];
 
 		return {
@@ -296,21 +309,22 @@ export default function SiteAddPage() {
 				backupSite: "",
 				ticket: "",
 				comment: "",
+				responsibles: [],
 			},
 			serverAction: createSiteAction as (data: SiteFormType) => Promise<ServiceResponse<unknown>>,
-			submitButtonText: t("actions.create"),
-			resetButtonText: t("actions.reset"),
-			loadingText: t("actions.creating"),
-			successTitle: t("add.success.title"),
-			successMessage: t("add.success.message"),
+			submitButtonText: translations.site("create.label"),
+			resetButtonText: translations.actions("reset"),
+			loadingText: translations.actions("creating"),
+			successTitle: translations.site("create.success"),
+			successMessage: translations.site("create.successMessage"),
 			successActions: [
 				{
-					label: t("actions.viewSite"),
+					label: translations.site("visitSite"),
 					url: (formData: SiteFormType) => formData.url,
 					icon: Eye,
 				},
 				{
-					label: t("actions.edit"),
+					label: translations.site("edit"),
 					url: (_formData: SiteFormType, response: unknown) => {
 						const r = response as ServiceResponse<{ siteId: string }>;
 						if (r?.success) return `/sites/${r.data.siteId}/edit`;
@@ -319,7 +333,7 @@ export default function SiteAddPage() {
 					icon: Edit,
 				},
 			],
-			errorMessage: t("add.error.title"),
+			errorMessage: translations.site("create.error"),
 			onSuccess: () => {},
 			onError: (err) => console.error("Error creating site:", err),
 			onFieldChange: async (fieldName: string, value: unknown) => {
@@ -338,7 +352,7 @@ export default function SiteAddPage() {
 		<div className="w-full flex-1 flex flex-col h-full overflow-y-auto">
 			<div className="pb-3">
 				<div className="p-6 pb-4 shrink-0 mt-1">
-					<h1 className="text-3xl font-bold">{translations.site("add.title")}</h1>
+					<h1 className="text-3xl font-bold">{translations.site("add")}</h1>
 				</div>
 				<div className="px-6 pb-0 h-full">
 					<Form config={getFormConfig()} />
