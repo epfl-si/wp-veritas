@@ -10,60 +10,62 @@ import pjson from "../../package.json";
 
 export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 	const pathname = usePathname();
-	const t = useTranslations("sidebar");
+	const translations = {
+		navigation: useTranslations("navigation"),
+	};
 
 	const navItems = [
 		{
 			href: "/",
-			label: t("home"),
+			label: translations.navigation("home"),
 			icon: House,
 			permissions: PERMISSIONS.SITES.LIST,
 		},
 		{
 			href: "/new",
-			label: t("new"),
+			label: translations.navigation("new"),
 			icon: CirclePlus,
 			permissions: PERMISSIONS.SITES.CREATE,
 		},
 		{
 			href: "/search",
-			label: t("info"),
+			label: translations.navigation("info"),
 			icon: BadgeInfo,
 			permissions: PERMISSIONS.SITES.SEARCH,
 		},
 		{
 			href: "/tags",
-			label: t("tags"),
+			label: translations.navigation("tags"),
 			icon: Bookmark,
 			permissions: PERMISSIONS.TAGS.LIST,
 		},
 		{
 			href: "/themes",
-			label: t("themes"),
+			label: translations.navigation("themes"),
 			icon: Palette,
 			permissions: PERMISSIONS.THEME.LIST,
 		},
 		{
 			href: "/api-docs",
-			label: t("apiDocs"),
+			label: translations.navigation("apiDocs"),
 			icon: Bot,
 			permissions: PERMISSIONS.SITES.LIST,
 		},
 		// {
 		// 	href: '/trash',
-		// 	label: t('trash'),
+		// 	label: translations.navigation('trash'),
 		// 	icon: Trash2,
 		// 	permissions: PERMISSIONS.SITES.DELETE,
 		// },
 		// {
 		// 	href: '/redirections',
-		// 	label: t('redirections'),
+		// 	label: translations.navigation('redirections'),
 		// 	icon: LinkIcon,
 		// 	permissions: PERMISSIONS.REDIRECTIONS.LIST,
 		// },
 		{
 			href: "/logs",
-			label: t("logs"),
+			label: translations.navigation("logs"),
 			icon: GalleryVerticalEnd,
 			permissions: PERMISSIONS.LOGS.LIST,
 		},
