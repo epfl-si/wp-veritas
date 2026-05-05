@@ -55,11 +55,11 @@ export default function SiteAddPage() {
 					.catch(() => setEnvironments([]))
 					.finally(() => setLoadings((prev) => ({ ...prev, environments: false }))),
 				getUnits()
-					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.unitId), label: `${u.name} (${u.unitId})` }))))
+					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.id), label: `${u.name} (${u.id})` }))))
 					.catch(() => setUnits([]))
 					.finally(() => setLoadings((prev) => ({ ...prev, units: false }))),
 				getPersons()
-					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.userId, label: p.name }))))
+					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.id, label: p.name }))))
 					.catch(() => setPersons([]))
 					.finally(() => setLoadings((prev) => ({ ...prev, persons: false }))),
 			]);

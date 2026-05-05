@@ -325,7 +325,17 @@ export default function SiteListPage() {
 							</Link>
 						</Button>
 					)}
-					{permissions.includes(PERMISSIONS.SITES.DELETE) && <DeleteDialog icon={GlobeIcon} displayName={site.url} type="site" onDelete={() => deleteSiteAction(site.id)} />}
+					{permissions.includes(PERMISSIONS.SITES.DELETE) && (
+						<DeleteDialog
+							icon={GlobeIcon}
+							displayName={site.url}
+							type="site"
+							onDelete={async () => {
+								await deleteSiteAction(site.id);
+								setSites((prev) => prev.filter((s) => s.id !== site.id));
+							}}
+						/>
+					)}
 				</div>
 			),
 		},

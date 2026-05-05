@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Form } from "@/components/form";
+import { SiteLogs } from "@/components/site-logs";
 import { Button } from "@/components/ui/button";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
@@ -45,11 +46,11 @@ export default function SiteUpdatePage() {
 			setLoadings({ units: true, persons: true });
 			await Promise.all([
 				getUnits()
-					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.unitId), label: u.name }))))
+					.then((result) => result.success && setUnits(result.data.map((u) => ({ value: Number(u.id), label: `${u.name} (${u.id})` }))))
 					.finally(() => setLoadings((prev) => ({ ...prev, units: false })))
 					.catch((error) => console.error("Error loading units:", error)),
 				getPersons()
-					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.userId, label: p.name }))))
+					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.id, label: p.name }))))
 					.finally(() => setLoadings((prev) => ({ ...prev, persons: false })))
 					.catch((error) => console.error("Error loading persons:", error)),
 			]);
@@ -253,6 +254,7 @@ export default function SiteUpdatePage() {
 				<div className="flex items-start justify-between">
 					<div>
 						<h1 className="text-3xl font-bold">{translations.site("update.title")}</h1>
+						{site && <SiteLogs siteId={siteId} siteUrl={site.url} />}
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" asChild>
