@@ -488,16 +488,15 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		const [query, setQuery] = useState("");
 		const [isOpen, setIsOpen] = useState(false);
 		const inputRef = useRef<HTMLInputElement>(null);
-		const dropdownRef = useRef<HTMLDivElement>(null);
+		const containerRef = useRef<HTMLDivElement>(null);
 
-		const filtered = query.trim() ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase())).slice(0, 8) : [];
+		const filtered = query.trim() ? options.filter((o) => !value.includes(o.value) && o.label.toLowerCase().includes(query.toLowerCase())).slice(0, 7) : [];
 
 		const selectedOptions = options.filter((o) => value.includes(o.value));
 
-		const handleToggle = (optionValue: string | number) => {
+		const handleSelect = (optionValue: string | number) => {
 			if (disabled) return;
-			const next = value.includes(optionValue) ? value.filter((v) => v !== optionValue) : [...value, optionValue];
-			onChange(next);
+			onChange([...value, optionValue]);
 			setQuery("");
 			setIsOpen(false);
 			inputRef.current?.focus();
@@ -509,77 +508,92 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			onChange(value.filter((v) => v !== optionValue));
 		};
 
+		const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+			if (e.key === "Backspace" && query === "" && selectedOptions.length > 0) {
+				onChange(value.slice(0, -1));
+			}
+			if (e.key === "Escape") {
+				setIsOpen(false);
+				setQuery("");
+			}
+		};
+
 		useEffect(() => {
 			const handleClickOutside = (e: MouseEvent) => {
-				if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node) && inputRef.current && !inputRef.current.contains(e.target as Node)) {
+				if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
 					setIsOpen(false);
+					setQuery("");
 				}
 			};
 			document.addEventListener("mousedown", handleClickOutside);
 			return () => document.removeEventListener("mousedown", handleClickOutside);
 		}, []);
 
-		useEffect(() => {
-			if (isOpen) {
-				inputRef.current?.focus();
-			}
-		}, [isOpen]);
-
 		return (
-			<div className="relative w-full">
+			<div ref={containerRef} className="relative w-full">
 				<div
 					className={cn(
-						"flex min-h-10 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
-						disabled && "pointer-events-none opacity-50",
+						"flex min-h-10 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-background px-2 py-1 shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
+						disabled && "pointer-events-none opacity-50 cursor-not-allowed",
 					)}
-					onClick={() => setIsOpen(true)}
+					onClick={() => inputRef.current?.focus()}
 				>
-					{selectedOptions.length > 0 &&
-						selectedOptions.map((o) => (
-							<div key={o.value} className="flex items-center gap-1 bg-gray-100 border border-gray-200 rounded px-1.5 py-0.5 text-xs">
+					{selectedOptions.map((o) => {
+						const IconComponent = o.icon;
+						return (
+							<div
+								key={o.value}
+								className="flex items-center space-x-1 border rounded px-1.5 py-0.5 text-xs"
+								style={{
+									borderColor: o.color || "#e5e7eb",
+									backgroundColor: o.color ? `${o.color}15` : "#f3f4f6",
+								}}
+							>
+								{IconComponent && (
+									<div className="size-3 flex items-center justify-center rounded-sm" style={{ backgroundColor: o.color ? `${o.color}30` : "#e5e7eb", color: o.color || "#6b7280" }}>
+										{typeof IconComponent === "string" ? <span className="text-xs">{IconComponent}</span> : <IconComponent className="w-2 h-2" />}
+									</div>
+								)}
 								<span className="font-medium truncate max-w-32">{o.label}</span>
 								{!disabled && (
-									<button type="button" onClick={(e) => handleRemove(o.value, e)} className="cursor-pointer p-0.5">
-										<X className="w-2 h-2" />
+									<button type="button" onClick={(e) => handleRemove(o.value, e)} className="cursor-pointer p-0.5 transition-colors ml-0.5 focus:outline-none">
+										<X className="w-2.5 h-2.5" />
 									</button>
 								)}
 							</div>
-						))}
-					<span className={cn("text-sm text-muted-foreground", selectedOptions.length > 0 && "sr-only")}>{placeholder}</span>
+						);
+					})}
+					<input
+						ref={inputRef}
+						type="text"
+						value={query}
+						// size controls the inline width: tiny cursor when badges are present, wider when empty
+						size={query.length || (selectedOptions.length === 0 ? 20 : 3)}
+						onChange={(e) => {
+							setQuery(e.target.value);
+							setIsOpen(e.target.value.trim().length > 0);
+						}}
+						onKeyDown={handleKeyDown}
+						onFocus={() => query.trim().length > 0 && setIsOpen(true)}
+						placeholder={selectedOptions.length === 0 ? placeholder : ""}
+						disabled={disabled}
+						className="min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+					/>
 				</div>
-				{isOpen && (
-					<div ref={dropdownRef} className="absolute z-10 w-full top-full mt-1 overflow-hidden rounded-md border border-gray-300 bg-white shadow-lg">
-						<div className="border-b border-gray-200 p-2">
-							<Input
-								ref={inputRef}
-								type="text"
-								value={query}
-								onChange={(e) => {
-									const nextQuery = e.target.value;
-									setQuery(nextQuery);
-									setIsOpen(true);
-								}}
-								placeholder={disabled ? placeholder : selectedOptions.length === 0 ? placeholder : "TODO ADD TRANSLATION FOR THIS"}
-								disabled={disabled}
-								className="h-10"
-							/>
-						</div>
-						<div className="max-h-60 overflow-auto">
-							{filtered.length > 0 ? (
-								filtered.map((o) => (
-									<button
-										key={o.value}
-										type="button"
-										onClick={() => handleToggle(o.value)}
-										className="flex w-full items-center gap-2 border-b border-gray-100 px-4 py-2.5 text-left hover:bg-gray-50 last:border-b-0"
-									>
-										<Checkbox checked={value.includes(o.value)} onCheckedChange={() => handleToggle(o.value)} />
-										<span className="text-sm">{o.label}</span>
-									</button>
-								))
-							) : (
-								<div className="px-4 py-3 text-sm text-gray-500">{translations.form("search.noResults")}</div>
-							)}
+				{isOpen && filtered.length > 0 && (
+					<div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-white shadow-md">
+						<div className="max-h-56 overflow-auto py-1">
+							{filtered.map((o) => (
+								<button
+									key={o.value}
+									type="button"
+									onMouseDown={(e) => e.preventDefault()}
+									onClick={() => handleSelect(o.value)}
+									className="flex w-full text-left items-center px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+								>
+									{o.label}
+								</button>
+							))}
 						</div>
 					</div>
 				)}
