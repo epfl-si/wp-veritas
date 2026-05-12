@@ -60,6 +60,12 @@
 			"errorUnknown": "An unknown error occurred",
 			"saving": "Saving"
 		},
+		"logs": {
+			"title": "Recent Activity",
+			"viewAll": "View all logs",
+			"loading": "Loading...",
+			"empty": "No logs found for this site"
+		},
 		"details": {
 			"title": "Website Details",
 			"description": "Information and permissions",
@@ -381,7 +387,18 @@
 		"pattern": "Invalid format"
 	},
 	"errors": {
-		"retry": "Please try again later"
+		"retry": "Please try again later",
+		"codes": {
+			"UNAUTHORIZED": "Unauthorized",
+			"FORBIDDEN": "Access denied",
+			"NOT_FOUND": "Resource not found",
+			"VALIDATION_ERROR": "Invalid data",
+			"DB_ERROR": "Database error",
+			"MAIL_ERROR": "Email sending error",
+			"UNKNOWN": "Unknown error",
+			"SITE_ALREADY_EXISTS": "This site already exists",
+			"API_ERROR": "Error communicating with the API"
+		}
 	},
 	"form": {
 		"showMore": "Show more",
