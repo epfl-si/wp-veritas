@@ -30,7 +30,11 @@ const LOG_ACTION_CONFIG: Record<string, { color: string; icon: React.ComponentTy
 
 function cleanLogMessage(message: string, siteUrl?: string): string {
 	let msg = message.replace(/'''|(\*\*)/g, "");
-	if (siteUrl) msg = msg.replace(`Site ${siteUrl}`, "").replace(/\s*\(Kubernetes\)\s*updated:\s*/i, "").trim();
+	if (siteUrl)
+		msg = msg
+			.replace(`Site ${siteUrl}`, "")
+			.replace(/\s*\(Kubernetes\)\s*updated:\s*/i, "")
+			.trim();
 	return msg;
 }
 
@@ -237,9 +241,7 @@ export default function SiteUpdatePage() {
 											<Icon className="size-3" />
 										</span>
 										<span className="truncate flex-1 text-foreground">{cleanLogMessage(log.message, site.url)}</span>
-										<span className="shrink-0 whitespace-nowrap text-[10px] text-muted-foreground">
-											{moment(log.timestamp).locale(locale).fromNow()}
-										</span>
+										<span className="shrink-0 whitespace-nowrap text-[10px] text-muted-foreground">{moment(log.timestamp).locale(locale).fromNow()}</span>
 									</div>
 								);
 							})
