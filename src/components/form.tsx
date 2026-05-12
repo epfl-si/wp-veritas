@@ -874,9 +874,19 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			if (config.serverAction) {
 				const response = await config.serverAction(data);
 				if (!response.success) {
-					const lang = (locale as "fr" | "en") in ERROR_TRANSLATIONS ? (locale as "fr" | "en") : "en";
-					const translated = ERROR_TRANSLATIONS[lang][response.code as ErrorCode] ?? response.error;
-					throw new Error(translated);
+					const code = response.code as ErrorCode;
+					const errorMessages: Record<ErrorCode, string> = {
+						UNAUTHORIZED: translations.errors("codes.UNAUTHORIZED"),
+						FORBIDDEN: translations.errors("codes.FORBIDDEN"),
+						NOT_FOUND: translations.errors("codes.NOT_FOUND"),
+						VALIDATION_ERROR: translations.errors("codes.VALIDATION_ERROR"),
+						DB_ERROR: translations.errors("codes.DB_ERROR"),
+						MAIL_ERROR: translations.errors("codes.MAIL_ERROR"),
+						UNKNOWN: translations.errors("codes.UNKNOWN"),
+						SITE_ALREADY_EXISTS: translations.errors("codes.SITE_ALREADY_EXISTS"),
+						API_ERROR: translations.errors("codes.API_ERROR"),
+					};
+					throw new Error(errorMessages[code] ?? response.error);
 				}
 				result = response;
 			} else {
@@ -954,10 +964,11 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			)}
 			{hasSubmitted && submissionResult && !submissionResult.success && (
 				<div className="w-full mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-					<div className="flex items-start gap-2">
+					<div className="flex items-center gap-2">
 						<CircleAlert className="h-5 w-5 flex-shrink-0 mt-0.5" />
 						<div className="flex-1">
 							<p className="font-medium">{config.errorMessage}</p>
+							{submissionResult.message && <p className="text-sm opacity-80">{submissionResult.message}</p>}
 						</div>
 						<Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-red-100 flex-shrink-0" onClick={() => setSubmissionResult(null)}>
 							<X className="h-4 w-4" />
