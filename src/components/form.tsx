@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, CircleAlert, CircleCheck, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { type FieldValues, type Path, type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,23 @@ import { cn } from "@/lib/utils";
 import type { ApiResponse } from "@/types/api";
 import type { ErrorCode } from "@/types/error";
 import type { FieldCondition, FieldConfig, FieldType, ReusableFormProps, SectionConfig, SelectOption } from "@/types/form";
+
+function isValueUnset(value: unknown, fieldType: FieldType): boolean {
+	switch (fieldType) {
+		case "checkbox":
+			return value === undefined;
+
+		case "multi-checkbox":
+		case "multiselect":
+			return value === undefined || value === null;
+
+		case "number":
+			return value === undefined || value === null || value === "";
+
+		default:
+			return value === undefined || value === null || value === "";
+	}
+}
 
 export function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -66,39 +83,42 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		}
 	}, [watchedValues, config]);
 
-	const evaluateCondition = (condition: FieldCondition): boolean => {
-		const fieldValue = watchedValues[condition.field as keyof T];
-		const fieldValueStr = String(fieldValue || "");
+	const evaluateCondition = useCallback(
+		(condition: FieldCondition): boolean => {
+			const fieldValue = watchedValues[condition.field as keyof T];
+			const fieldValueStr = String(fieldValue || "");
 
-		switch (condition.operator) {
-			case "equals":
-				return fieldValue === condition.value;
-			case "not_equals":
-				return fieldValue !== condition.value;
-			case "includes":
-				return Array.isArray(fieldValue) ? fieldValue.includes(condition.value) : false;
-			case "not_includes":
-				return Array.isArray(fieldValue) ? !fieldValue.includes(condition.value) : true;
-			case "regex": {
-				try {
-					const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
-					return regex ? regex.test(fieldValueStr) : false;
-				} catch {
-					return false;
+			switch (condition.operator) {
+				case "equals":
+					return fieldValue === condition.value;
+				case "not_equals":
+					return fieldValue !== condition.value;
+				case "includes":
+					return Array.isArray(fieldValue) ? fieldValue.includes(condition.value) : false;
+				case "not_includes":
+					return Array.isArray(fieldValue) ? !fieldValue.includes(condition.value) : true;
+				case "regex": {
+					try {
+						const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+						return regex ? regex.test(fieldValueStr) : false;
+					} catch {
+						return false;
+					}
 				}
-			}
-			case "not_regex": {
-				try {
-					const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
-					return regex ? !regex.test(fieldValueStr) : true;
-				} catch {
+				case "not_regex": {
+					try {
+						const regex = typeof condition.value === "string" ? new RegExp(condition.value) : condition.value instanceof RegExp ? condition.value : null;
+						return regex ? !regex.test(fieldValueStr) : true;
+					} catch {
+						return true;
+					}
+				}
+				default:
 					return true;
-				}
 			}
-			default:
-				return true;
-		}
-	};
+		},
+		[watchedValues],
+	);
 
 	const shouldShowField = (field: FieldConfig): boolean => {
 		if (!field.conditions || field.conditions.length === 0) return true;
@@ -113,65 +133,57 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		return field.conditions.filter((condition) => condition.type === "disabled").some(evaluateCondition);
 	};
 
-	const getConditionalDefault = (field: FieldConfig): unknown => {
-		if (!field.conditions || field.conditions.length === 0) return undefined;
+	const getConditionalDefault = useCallback(
+		(field: FieldConfig): unknown => {
+			if (!field.conditions || field.conditions.length === 0) return undefined;
 
-		const defaultCondition = field.conditions.filter((condition) => condition.type === "default").find(evaluateCondition);
+			const defaultCondition = field.conditions.filter((condition) => condition.type === "default").find(evaluateCondition);
 
-		return defaultCondition?.defaultValue;
-	};
+			return defaultCondition?.defaultValue;
+		},
+		[evaluateCondition],
+	);
 
-	const isValueUnset = (value: unknown, fieldType: FieldType): boolean => {
-		switch (fieldType) {
-			case "checkbox":
-				return value === undefined;
+	const getSchemaDefaultValue = useCallback(
+		(fieldName: string): unknown => {
+			const defaultValues = config.defaultValues as Record<string, unknown>;
+			return defaultValues?.[fieldName];
+		},
+		[config.defaultValues],
+	);
 
-			case "multi-checkbox":
-			case "multiselect":
-				return value === undefined || value === null;
-
-			case "number":
-				return value === undefined || value === null || value === "";
-
-			default:
-				return value === undefined || value === null || value === "";
-		}
-	};
-
-	const getSchemaDefaultValue = (fieldName: string): unknown => {
-		const defaultValues = config.defaultValues as Record<string, unknown>;
-		return defaultValues?.[fieldName];
-	};
-
-	const resetConditionalValue = (field: FieldConfig, currentValue: unknown, conditionalDefault: unknown, schemaDefault: unknown) => {
-		if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(currentValue) && Array.isArray(conditionalDefault)) {
-			const filteredValue = currentValue.filter((item) => !conditionalDefault.includes(item));
-			form.setValue(field.name as Path<T>, filteredValue as never);
-			return;
-		}
-
-		if (schemaDefault !== undefined) {
-			form.setValue(field.name as Path<T>, schemaDefault as never);
-		} else {
-			switch (field.type) {
-				case "checkbox":
-					form.setValue(field.name as Path<T>, false as never);
-					break;
-				case "multi-checkbox":
-				case "multiselect":
-					form.setValue(field.name as Path<T>, [] as never);
-					break;
-				case "number":
-					form.setValue(field.name as Path<T>, undefined as never);
-					break;
-				default:
-					form.setValue(field.name as Path<T>, "" as never);
-					break;
+	const resetConditionalValue = useCallback(
+		(field: FieldConfig, currentValue: unknown, conditionalDefault: unknown, schemaDefault: unknown) => {
+			if ((field.type === "multiselect" || field.type === "multi-checkbox") && Array.isArray(currentValue) && Array.isArray(conditionalDefault)) {
+				const filteredValue = currentValue.filter((item) => !conditionalDefault.includes(item));
+				form.setValue(field.name as Path<T>, filteredValue as never);
+				return;
 			}
-		}
-	};
 
-	const shouldApplyDefault = (field: FieldConfig, currentValue: unknown, defaultValue: unknown, isConditional: boolean = false): boolean => {
+			if (schemaDefault !== undefined) {
+				form.setValue(field.name as Path<T>, schemaDefault as never);
+			} else {
+				switch (field.type) {
+					case "checkbox":
+						form.setValue(field.name as Path<T>, false as never);
+						break;
+					case "multi-checkbox":
+					case "multiselect":
+						form.setValue(field.name as Path<T>, [] as never);
+						break;
+					case "number":
+						form.setValue(field.name as Path<T>, undefined as never);
+						break;
+					default:
+						form.setValue(field.name as Path<T>, "" as never);
+						break;
+				}
+			}
+		},
+		[form],
+	);
+
+	const shouldApplyDefault = useCallback((field: FieldConfig, currentValue: unknown, defaultValue: unknown, isConditional: boolean = false): boolean => {
 		if (defaultValue === undefined) {
 			return false;
 		}
@@ -204,7 +216,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 		}
 
 		return defaultValue !== "" && defaultValue !== null;
-	};
+	}, []);
 
 	useEffect(() => {
 		config.fields.forEach((field) => {
@@ -392,16 +404,19 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			const regex = new RegExp(`(${escaped})`, "gi");
 			const parts = text.split(regex);
 
-			// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
-			return parts.map((part, index) =>
-				regex.test(part) ? (
-					<strong key={index} className="font-semibold">
-						{part}
-					</strong>
-				) : (
-					part
-				),
-			);
+			let offset = 0;
+			return parts.map((part) => {
+				const key = offset;
+				offset += part.length;
+				if (regex.test(part)) {
+					return (
+						<strong key={key} className="font-semibold">
+							{part}
+						</strong>
+					);
+				}
+				return part;
+			});
 		};
 
 		return (
@@ -423,6 +438,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 							results.map((option) => (
 								<button
 									key={option.value}
+									type="button"
 									onClick={() => handleSelectOption(option)}
 									className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
 								>
@@ -532,12 +548,13 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 
 		return (
 			<div ref={containerRef} className="relative w-full">
-				<div
+				<fieldset
 					className={cn(
 						"flex min-h-10 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-background px-2 py-1 shadow-xs transition-[color,box-shadow] focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
 						disabled && "pointer-events-none opacity-50 cursor-not-allowed",
 					)}
 					onClick={() => inputRef.current?.focus()}
+					onKeyDown={() => inputRef.current?.focus()}
 				>
 					{selectedOptions.map((o) => {
 						const IconComponent = o.icon;
@@ -580,7 +597,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 						disabled={disabled}
 						className="min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
 					/>
-				</div>
+				</fieldset>
 				{isOpen && filtered.length > 0 && (
 					<div className="absolute z-10 mt-1 w-full rounded-md border border-border bg-white shadow-md">
 						<div className="max-h-56 overflow-auto py-1">
@@ -702,11 +719,10 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 							{visibleOptions.map((option) => {
 								const IconComponent = option.icon;
 								return (
-									<div
+									<button
 										key={option.value}
-										role="button"
-										tabIndex={0}
-										className="flex items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer"
+										type="button"
+										className="flex w-full items-center space-x-2 p-3 hover:bg-gray-50 cursor-pointer text-left"
 										onKeyDown={(e) => {
 											if (e.key === "Enter" || e.key === " ") handleOptionToggle(option.value);
 										}}
@@ -729,7 +745,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 												{option.label}
 											</label>
 										</div>
-									</div>
+									</button>
 								);
 							})}
 
@@ -953,12 +969,11 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 							{config.successMessage && <p className="text-sm text-green-700 mt-1">{config.successMessage}</p>}
 						</div>
 						{config.successActions && submissionData && (
-							<div className="flex gap-2 flex-shrink-0">
-								{config.successActions.map((action, index) => {
+							<div className="flex gap-2 shrink-0">
+								{config.successActions.map((action) => {
 									const Icon = action.icon;
-									// biome-ignore lint/suspicious/noArrayIndexKey: actions have no stable ID
 									return (
-										<Button key={index} variant="outline" size="sm" asChild className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100">
+										<Button key={action.label} variant="outline" size="sm" asChild className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100">
 											<a href={action.url(submissionData.formData, submissionData.response)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
 												{Icon && <Icon className="h-3 w-3" />}
 												{action.label}

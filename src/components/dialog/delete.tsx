@@ -70,7 +70,9 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, type, i
 						<AlertTriangle className="size-5" />
 						{isPlural ? translations.delete("titlePlural", { object: type, count: itemCount ?? 0 }) : translations.delete("title", { object: type })}
 					</DialogTitle>
-					<DialogDescription className="text-gray-600">{isPlural ? translations.delete("descriptionPlural", { object: type, count: itemCount ?? 0 }) : translations.delete("description", { object: type })}</DialogDescription>
+					<DialogDescription className="text-gray-600">
+						{isPlural ? translations.delete("descriptionPlural", { object: type, count: itemCount ?? 0 }) : translations.delete("description", { object: type })}
+					</DialogDescription>
 				</DialogHeader>
 
 				{error && (

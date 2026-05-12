@@ -92,9 +92,7 @@ export default function SiteInfoPage() {
 			setSearch({ url: urlParam });
 			searchSites({ url: urlParam });
 		}
-		// searchSites est une fonction débouncée stable — pas besoin en deps
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchParams]);
+	}, [searchParams, searchSites]);
 
 	const handleSearch = () => {
 		updateURL(search.url);
