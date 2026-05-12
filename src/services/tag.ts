@@ -7,8 +7,8 @@ import { cache } from "@/lib/redis";
 import { isValidUUID } from "@/lib/utils";
 import { type ITag, TagModel } from "@/models/Tag";
 import type { APIError } from "@/types/error";
-import { createTagSchema, type TagFormType, type TagsType, type TagType } from "@/types/tag";
 import type { ServiceResponse } from "@/types/response";
+import { createTagSchema, type TagFormType, type TagsType, type TagType } from "@/types/tag";
 import { hasPermission } from "./policy";
 import { getSite, listSites } from "./site";
 
