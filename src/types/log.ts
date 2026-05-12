@@ -22,6 +22,7 @@ export interface SearchLogsParams {
 	search?: string;
 	level?: string;
 	actions?: string[];
+	siteId?: string;
 	limit?: number;
 	skip?: number;
 }

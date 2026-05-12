@@ -3,7 +3,7 @@ import type { DefaultValues, FieldValues, UseFormReturn } from "react-hook-form"
 import type { z } from "zod";
 import type { ServiceResponse } from "@/types/response";
 
-export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "multicombobox" | "boxes" | "url" | "search";
+export type FieldType = "text" | "email" | "password" | "number" | "textarea" | "select" | "checkbox" | "multi-checkbox" | "multiselect" | "multicombobox" | "boxes" | "url" | "search" | "custom";
 
 export interface SelectOption {
 	value: string | number;
@@ -33,6 +33,8 @@ export interface FieldConfig {
 	disabled?: boolean;
 	width?: "half" | "full";
 	section?: string;
+	render?: () => React.ReactNode;
+	fieldClassName?: string;
 }
 
 export interface SectionConfig {
