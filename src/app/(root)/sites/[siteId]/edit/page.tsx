@@ -1,12 +1,13 @@
 "use client";
 import { decode } from "html-entities";
-import { Info, Tags } from "lucide-react";
+import { Info, Pencil, Plus, Tags, Trash2 } from "lucide-react";
+import moment from "moment";
+import "moment/locale/fr";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Form } from "@/components/form";
-import { SiteLogs } from "@/components/site-logs";
 import { Button } from "@/components/ui/button";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
@@ -14,10 +15,24 @@ import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { getPersons, getUnits } from "@/services/api";
+import { getSiteLogsAction } from "@/services/logs";
 import { getSite, updateSiteAction } from "@/services/site";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
+import type { LogType } from "@/types/log";
 import type { ServiceResponse } from "@/types/response";
 import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
+
+const LOG_ACTION_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ className?: string }> }> = {
+	create: { color: "#10b981", icon: Plus },
+	update: { color: "#3b82f6", icon: Pencil },
+	delete: { color: "#ef4444", icon: Trash2 },
+};
+
+function cleanLogMessage(message: string, siteUrl?: string): string {
+	let msg = message.replace(/'''|(\*\*)/g, "");
+	if (siteUrl) msg = msg.replace(`Site ${siteUrl}`, "").replace(/\s*\(Kubernetes\)\s*updated:\s*/i, "").trim();
+	return msg;
+}
 
 export default function SiteUpdatePage() {
 	const params = useParams();
@@ -29,6 +44,7 @@ export default function SiteUpdatePage() {
 	const [units, setUnits] = useState<SelectOption[]>([]);
 	const [persons, setPersons] = useState<SelectOption[]>([]);
 	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
+	const [siteLogs, setSiteLogs] = useState<LogType[]>([]);
 
 	const translations = {
 		site: useTranslations("site"),
@@ -38,6 +54,9 @@ export default function SiteUpdatePage() {
 	useEffect(() => {
 		getSite(siteId).then(({ site: data }) => {
 			if (data) setSite(data);
+		});
+		getSiteLogsAction(siteId).then(({ logs }) => {
+			setSiteLogs(logs.filter((l) => ["create", "update", "delete"].includes(l.data.action)).slice(0, 2));
 		});
 	}, [siteId]);
 
@@ -195,7 +214,38 @@ export default function SiteUpdatePage() {
 				label: translations.site("form.comment.label"),
 				placeholder: translations.site("form.comment.placeholder"),
 				section: "metadata",
-				width: "full",
+				width: "half",
+				fieldClassName: "h-[120px]",
+			},
+			{
+				name: "siteLogs",
+				type: "custom",
+				label: translations.site("logs.title"),
+				section: "metadata",
+				width: "half",
+				render: () => (
+					<div className="border border-input rounded-md divide-y divide-input">
+						{siteLogs.length === 0 ? (
+							<p className="px-2.5 py-2 text-xs text-muted-foreground">{translations.site("logs.empty")}</p>
+						) : (
+							siteLogs.map((log) => {
+								const cfg = LOG_ACTION_CONFIG[log.data.action] ?? LOG_ACTION_CONFIG.update;
+								const Icon = cfg.icon;
+								return (
+									<div key={log.id} className="flex items-center gap-2 px-2.5 py-2 text-xs">
+										<span className="shrink-0 rounded p-1" style={{ color: cfg.color, backgroundColor: `${cfg.color}18` }}>
+											<Icon className="size-3" />
+										</span>
+										<span className="truncate flex-1 text-foreground">{cleanLogMessage(log.message, site.url)}</span>
+										<span className="shrink-0 whitespace-nowrap text-[10px] text-muted-foreground">
+											{moment(log.timestamp).locale(locale).fromNow()}
+										</span>
+									</div>
+								);
+							})
+						)}
+					</div>
+				),
 			},
 		];
 
@@ -254,7 +304,6 @@ export default function SiteUpdatePage() {
 				<div className="flex items-start justify-between">
 					<div>
 						<h1 className="text-3xl font-bold">{translations.site("update.title")}</h1>
-						{site && <SiteLogs siteId={siteId} siteUrl={site.url} />}
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" asChild>

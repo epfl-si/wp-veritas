@@ -1,7 +1,7 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, CircleAlert, CircleCheck, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { type FieldValues, type Path, type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { ERROR_TRANSLATIONS } from "@/constants/errors";
 import { cn } from "@/lib/utils";
 import type { ApiResponse } from "@/types/api";
 import type { ErrorCode } from "@/types/error";
@@ -28,8 +27,10 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
-	const translations = { form: useTranslations("form") };
-	const locale = useLocale();
+	const translations = {
+		form: useTranslations("form"),
+		errors: useTranslations("errors"),
+	};
 
 	const form = useForm<T>({
 		resolver: zodResolver(config.schema as never),
@@ -750,8 +751,17 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 	};
 
 	const renderField = (fieldConfig: FieldConfig) => {
-		const { name, type, label, placeholder, description, options, width = "half" } = fieldConfig;
+		const { name, type, label, placeholder, description, options, width = "half", fieldClassName } = fieldConfig;
 		const isDisabled = shouldDisableField(fieldConfig);
+
+		if (type === "custom") {
+			return (
+				<div key={name} className={`flex flex-col ${width === "full" ? "col-span-full" : ""} min-h-[85px]`}>
+					<span className="text-sm font-medium mb-2">{label}</span>
+					{fieldConfig.render?.()}
+				</div>
+			);
+		}
 
 		return (
 			<div key={name} className={`flex flex-col ${width === "full" ? "col-span-full" : ""} ${type !== "checkbox" ? "min-h-[85px]" : "min-h-[30px]"}`}>
@@ -789,7 +799,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 										}}
 									/>
 								) : type === "textarea" ? (
-									<Textarea placeholder={placeholder} disabled={isDisabled} {...field} className="h-10" />
+									<Textarea placeholder={placeholder} disabled={isDisabled} {...field} className={fieldClassName ?? "h-10"} />
 								) : type === "select" ? (
 									<Select onValueChange={field.onChange} value={field.value?.toString() || ""} disabled={isDisabled}>
 										<SelectTrigger className="w-full !h-10">
