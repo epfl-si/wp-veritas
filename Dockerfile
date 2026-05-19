@@ -8,6 +8,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+RUN node scripts/generate-openapi.js
 RUN node node_modules/.bin/next build
 
 FROM oven/bun:1-slim AS runner
