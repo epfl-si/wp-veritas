@@ -1,18 +1,11 @@
 import mongoose, { type Document } from "mongoose";
+import type { LogData, LogLevel } from "@/types/log";
 
 export interface ILog extends Document {
 	id: string;
 	message: string;
-	data: {
-		type: string;
-		action: string;
-		id?: string;
-		object?: object;
-		error?: string;
-		count?: number;
-		[key: string]: string | number | boolean | object | undefined;
-	};
-	level: "info" | "error" | "warn" | "debug" | "system";
+	data: LogData;
+	level: LogLevel;
 	timestamp: Date;
 	userId?: string;
 }
@@ -20,21 +13,19 @@ export interface ILog extends Document {
 const logSchema = new mongoose.Schema<ILog>({
 	id: { type: String, required: true, unique: true },
 	message: { type: String, required: true },
-	data: {
-		type: mongoose.Schema.Types.Mixed,
-		required: true,
-		validate: {
-			validator: (v: object) => typeof v === "object" && v !== null && "type" in v && "action" in v && typeof v.type === "string" && typeof v.action === "string",
-			message: "Data must contain at least type and action fields",
-		},
-	},
+	data: { type: mongoose.Schema.Types.Mixed, required: true },
 	level: {
 		type: String,
-		enum: ["info", "error", "warn", "debug", "system"],
+		enum: ["debug", "info", "warn", "error", "system"],
 		required: true,
 	},
 	timestamp: { type: Date, default: Date.now },
 	userId: { type: String, required: false },
 });
+
+logSchema.index({ timestamp: -1 });
+logSchema.index({ level: 1, timestamp: -1 });
+logSchema.index({ "data.action": 1, timestamp: -1 });
+logSchema.index({ "data.id": 1, timestamp: -1 });
 
 export const LogModel = mongoose.models.Log || mongoose.model<ILog>("Log", logSchema);
