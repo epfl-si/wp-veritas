@@ -1,0 +1,109 @@
+name: Release
+
+on:
+    push:
+        branches: [master]
+        paths:
+            - package.json
+
+jobs:
+    lint:
+        uses: ./.github/workflows/_lint.yaml
+
+    detect-version:
+        name: Detect Version
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: read
+        outputs:
+            version: ${{ steps.get_version.outputs.version }}
+            should_release: ${{ steps.check.outputs.should_release }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Get version from package.json
+              id: get_version
+              run: |
+                  VERSION=$(jq -r .version package.json)
+                  [ "$VERSION" = "null" ] && echo "No version in package.json" && exit 1
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Check if release exists
+              id: check
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release view "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1 \
+                    && echo "should_release=false" >> $GITHUB_OUTPUT \
+                    || echo "should_release=true" >> $GITHUB_OUTPUT
+
+    build:
+        name: Build and Push
+        needs: [lint, detect-version]
+        if: needs.detect-version.outputs.should_release == 'true'
+        uses: ./.github/workflows/_build.yaml
+        with:
+            tags: |
+                quay-its.epfl.ch/svc0041/wp-veritas:latest
+                quay-its.epfl.ch/svc0041/wp-veritas:${{ needs.detect-version.outputs.version }}
+        secrets: inherit
+
+    create-release:
+        name: Create Release
+        needs: [detect-version, build]
+        if: needs.build.outputs.build_success == 'true'
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0
+
+            - name: Generate release notes
+              run: |
+                  set -x
+                  VERSION="${{ needs.detect-version.outputs.version }}"
+                  LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+                  LOG_RANGE="${LAST_TAG:+${LAST_TAG}..HEAD}"
+                  COMMITS=$(git log ${LOG_RANGE} --oneline --pretty=format:"%h %s")
+                  COUNT=$(git rev-list ${LOG_RANGE:-HEAD} --count)
+                  AUTHORS=$(git log ${LOG_RANGE} --pretty=format:"%an" | sort -u | sed 's/.*$/`&`/' | paste -sd ',' | sed 's/,/, /g')
+
+                  if [ -z "$LAST_TAG" ]; then
+                  echo "Initial release v$VERSION with $COUNT commits by $AUTHORS." > notes.md
+                  else
+                  echo "Release v$VERSION includes $COUNT commits since $LAST_TAG by $AUTHORS." > notes.md
+                  fi
+
+                  PATTERNS="feature|add|fix|bugfix|hotfix|refactor|chore|perf|update|version|docs|doc"
+
+                  section() {
+                    local title=$1 pattern=$2
+                    local matches
+                    set +e
+                    matches=$(grep -iE "^\S+ \[(${pattern})\]" <<< "$COMMITS" | sed 's/^/- /')
+                    set -e
+                    [[ -n "$matches" ]] && printf "\n### %s\n%s\n" "$title" "$matches" >> notes.md || true
+                  }
+
+                  section "✨ Features"       "feature|add"
+                  section "🐛 Bug Fixes"      "fix|bugfix|hotfix"
+                  section "🔧 Maintenance"    "refactor|chore|perf|update|version"
+                  section "📚 Documentation"  "docs|doc"
+
+                  set +e
+                  OTHER=$(grep -ivE "^\S+ \[(${PATTERNS})\]" <<< "$COMMITS" | sed 's/^/- /')
+                  set -e
+                  [ -n "$OTHER" ] && printf "\n### 📦 Other\n%s\n" "$OTHER" >> notes.md || true
+
+            - name: Create GitHub Release
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  gh release create "v${{ needs.detect-version.outputs.version }}" \
+                    --title "v${{ needs.detect-version.outputs.version }}" \
+                    --notes-file notes.md \
+                    --latest
