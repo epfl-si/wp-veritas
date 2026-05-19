@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { disassociateTagFromSite, getTag, updateTagAction } from "@/services/tag";
 import type { FieldConfig, FormConfig, SectionConfig } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
-import { type TagCategoryEnumType, type TagFormType, type TagsType, tagSchema } from "@/types/tag";
+import { type TagCategoryEnumType, type TagFormType, type TagType, tagSchema } from "@/types/tag";
 
 export default function TagUpdatePage() {
 	const params = useParams();
@@ -24,7 +24,7 @@ export default function TagUpdatePage() {
 	};
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
-	const [tag, setTag] = useState<TagsType | null>(null);
+	const [tag, setTag] = useState<TagType | null>(null);
 	const [activeTab, setActiveTab] = useState<"form" | "sites">("form");
 	const [selectedSites, setSelectedSites] = useState<string[]>([]);
 	const [isRemoving, setIsRemoving] = useState(false);

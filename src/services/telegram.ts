@@ -49,7 +49,7 @@ export async function sendSiteCreatedMessage(siteUrl: string, infrastructure: st
 
 	const escapedUrl = escapeMarkdownV2(siteUrl);
 	const escapedInfrastructure = escapeMarkdownV2(infrastructure);
-	const escapedUserName = escapeMarkdownV2(user.name);
+	const escapedUserName = escapeMarkdownV2(user.name ?? "");
 
 	const text = `👀 *Pssst\\!* 👀\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) has just created a new *${escapedInfrastructure}* site\\!\nIt is now live at: [${escapedUrl}](${siteUrl}) \\#siteCreated \\#next`;
 
@@ -61,7 +61,7 @@ export async function sendSiteDeletedMessage(siteUrl: string, infrastructure: st
 
 	const escapedUrl = escapeMarkdownV2(siteUrl);
 	const escapedInfrastructure = escapeMarkdownV2(infrastructure);
-	const escapedUserName = escapeMarkdownV2(user.name);
+	const escapedUserName = escapeMarkdownV2(user.name ?? "");
 
 	const text = `⚠️ *Heads up\\!* ⚠️\n[${escapedUserName}](https://people\\.epfl\\.ch/${user.userId}) has just deleted a *${escapedInfrastructure}* site\\!\nSite at: [${escapedUrl}](${siteUrl}) has been removed \\#siteDeleted \\#next`;
 
