@@ -1,6 +1,6 @@
-import type { KubernetesSiteFormType } from "@/types/site";
+import type { KubernetesSiteForm } from "@/types/site";
 
-export interface BackupSite extends KubernetesSiteFormType {
+export interface BackupSite extends KubernetesSiteForm {
 	id: string;
 }
 

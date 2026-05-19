@@ -1,73 +1,41 @@
 import { z } from "zod";
-import { getCreatableInfrastructures, INFRASTRUCTURES } from "@/constants/infrastructures";
+import { getCreatableInfrastructures, getInfrastructuresByPersistence, INFRASTRUCTURES } from "@/constants/infrastructures";
 import { getZodErrorMessages, type useZodErrorMessages } from "@/hooks/zod";
-import type { BackupEnvironment } from "@/types/backup";
-import type { SelectOption } from "@/types/form";
-import type { DatabaseInfrastructureName, InfrastructureName, KubernetesInfrastructureName, NoneInfrastructureName } from "@/types/infrastructure";
-import type { TagsType } from "@/types/tag";
+import type { DatabaseInfrastructureName, InfrastructureName, KubernetesInfrastructureName } from "@/types/infrastructure";
 import type { PolylangPlugin } from "./languages";
 
+// WordPress plugin structure shared with lib/plugins and lib/kubernetes
 export interface WordPressPlugins {
 	polylang?: PolylangPlugin;
 	[key: string]: unknown;
 }
 
-export interface KubernetesSiteType {
-	metadata: {
-		uid: string;
-		name: string;
-		namespace: string;
-		labels?: Record<string, string>;
-		creationTimestamp: string;
-	};
-	spec: {
-		owner: {
-			epfl: {
-				unitId: number;
-			};
-		};
-		hostname: string;
-		path: string;
-		wordpress: {
-			debug: boolean;
-			downloadsProtectionScript?: string;
-			plugins: WordPressPlugins;
-			tagline: string;
-			theme: string;
-			title: string;
-		};
-	};
-	status?: {
-		wordpresssite?: {
-			lastCronJobRuntime?: string;
-			plugins?: Record<string, object>;
-			tagline?: string;
-			title?: string;
-		};
-	};
-}
+// Extras stored in MongoDB as side-data for Kubernetes sites
+export const SITE_EXTRA_KEYS = ["ticket", "comment", "monitored", "responsibles"] as const;
+export type SiteExtraKey = (typeof SITE_EXTRA_KEYS)[number];
 
-export interface KubernetesSiteExtraInfo {
-	siteId: string;
-	ingressName: string;
-	databaseName: string;
-	databaseRef: string;
-	wordpressSiteName: string;
-	pvName: string;
-	pvcName: string;
-	namespace: string;
-}
-
-export const SITE_EXTRAS = ["ticket", "comment", "monitored", "responsibles"];
-
-export type SiteExtras = {
+export interface SiteExtras {
 	ticket?: string;
 	comment?: string;
 	monitored?: boolean;
 	responsibles?: string[];
-};
+}
 
-interface BaseSiteType extends SiteExtras {
+// Additional info derived from K8s resources (ingress, database, PVC)
+export interface KubernetesSiteExtraInfo {
+	siteId: string;
+	ingressName?: string;
+	databaseName?: string;
+	databaseRef?: string;
+	wordpressSiteName?: string;
+	pvName?: string;
+	pvcName: string;
+	namespace: string;
+}
+
+// --- Domain types returned by the service layer ---
+
+interface BaseSite extends SiteExtras {
 	id: string;
 	url: string;
 	createdAt: Date;
@@ -75,44 +43,54 @@ interface BaseSiteType extends SiteExtras {
 	managed: boolean;
 }
 
-export interface KubernetesSite extends BaseSiteType {
-	infrastructure: KubernetesInfrastructureName | NoneInfrastructureName;
-	tagline: string;
+export interface KubernetesSite extends BaseSite {
+	infrastructure: KubernetesInfrastructureName | "Temporary";
 	title: string;
+	tagline: string;
 	theme: string;
 	unitId: number;
 	unitName?: string;
 	languages: string[];
 	categories: string[];
 	downloadsProtectionScript: boolean;
-	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
 }
 
-export interface DatabaseSite extends BaseSiteType {
+export interface DatabaseSite extends BaseSite {
 	infrastructure: DatabaseInfrastructureName;
 	title?: string;
 	tagline?: string;
 }
 
-export interface NoneSite extends BaseSiteType {
-	infrastructure: NoneInfrastructureName;
-}
+export type Site = KubernetesSite | DatabaseSite;
 
-export type SiteType = KubernetesSite | DatabaseSite | NoneSite;
+// --- Type guards ---
+// Temporary sites run in K8s (managed by wp-kleenex) but have persistence "none".
+// isKubernetesSite includes them since they share the same data shape.
+const K8S_INFRA_NAMES = new Set<string>([...getInfrastructuresByPersistence("kubernetes").map((i) => i.NAME), INFRASTRUCTURES.TEMPORARY.NAME]);
+const DB_INFRA_NAMES = new Set<string>(getInfrastructuresByPersistence("database").map((i) => i.NAME));
 
-export interface SearchSiteType {
+export const isKubernetesSite = (site: Site): site is KubernetesSite => K8S_INFRA_NAMES.has(site.infrastructure);
+export const isDatabaseSite = (site: Site): site is DatabaseSite => DB_INFRA_NAMES.has(site.infrastructure);
+export const isNoneSite = (site: Site): site is KubernetesSite => site.infrastructure === INFRASTRUCTURES.TEMPORARY.NAME;
+
+// --- Persistence helpers ---
+
+export const getSitePersistence = (infrastructure: InfrastructureName): "kubernetes" | "database" | "none" => {
+	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
+	return infra?.PERSISTENCE ?? "none";
+};
+
+export const isCreatableInfrastructure = (infrastructure: string): boolean => getCreatableInfrastructures().some((i) => i.NAME === infrastructure);
+
+// --- Search result type ---
+
+export interface SearchSite {
 	id: string;
 	url: string;
 	loginUrl: string;
-	infrastructure: string;
-	unit: {
-		id: string;
-		name: string;
-	};
-	lastModified: {
-		date: string;
-		user: string;
-	} | null;
+	infrastructure: InfrastructureName;
+	unit: { id: string; name: string } | null;
+	lastModified: { date: string; user: string } | null;
 	recentModifications: Array<{
 		date: string;
 		user: string;
@@ -120,10 +98,7 @@ export interface SearchSiteType {
 		available: boolean;
 	}>;
 	permissions: {
-		editors: {
-			userId: string;
-			name: string;
-		}[];
+		editors: { userId: string; name: string }[];
 		accreditors: string[];
 	};
 	kubernetesExtraInfo?: KubernetesSiteExtraInfo;
@@ -131,18 +106,16 @@ export interface SearchSiteType {
 	searchedUrl?: string;
 }
 
-interface BaseSiteFormType {
+// --- Form types (used by Zod validation and React Hook Form) ---
+
+interface BaseSiteForm extends SiteExtras {
 	url: string;
-	ticket?: string;
-	comment?: string;
-	monitored?: boolean;
-	responsibles?: string[];
 }
 
-export interface KubernetesSiteFormType extends BaseSiteFormType {
+export interface KubernetesSiteForm extends BaseSiteForm {
 	infrastructure: KubernetesInfrastructureName;
-	tagline: string;
 	title: string;
+	tagline: string;
 	theme: string;
 	unitId: number;
 	languages: string[];
@@ -153,28 +126,34 @@ export interface KubernetesSiteFormType extends BaseSiteFormType {
 	backupSite?: string;
 }
 
-export interface DatabaseSiteFormType extends BaseSiteFormType {
+export interface DatabaseSiteForm extends BaseSiteForm {
 	infrastructure: DatabaseInfrastructureName;
 	title?: string;
 	tagline?: string;
 }
 
-export interface NoneSiteFormType extends BaseSiteFormType {
-	infrastructure: NoneInfrastructureName;
+export type SiteForm = KubernetesSiteForm | DatabaseSiteForm;
+
+// --- Site list filters ---
+
+export interface SiteListFilters {
+	url: string;
+	infrastructure: string;
+	theme: string;
+	hasCategories: boolean | null;
+	hasDownloadsProtection: boolean | null;
+	dateRange: { from?: Date; to?: Date };
+	languages: string[];
+	categories: string[];
 }
 
-export type SiteFormType = KubernetesSiteFormType | DatabaseSiteFormType | NoneSiteFormType;
+// --- Zod schemas ---
 
-const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
+const buildSiteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
 	const creatableInfras = getCreatableInfrastructures();
 
 	const baseFields = {
-		url: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.url({ message: errorMessages.invalid_url }),
+		url: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).url({ message: errorMessages.invalid_url }),
 		ticket: z.string().optional(),
 		comment: z.string().optional(),
 		monitored: z.boolean().optional().default(false),
@@ -185,158 +164,46 @@ const createSiteSchemaBase = (errorMessages: ReturnType<typeof useZodErrorMessag
 	};
 
 	const kubernetesFields = {
-		tagline: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(3, { message: errorMessages.too_small(3) }),
-		title: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(3, { message: errorMessages.too_small(3) }),
-		theme: z
-			.string({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.min(1, { message: errorMessages.too_small(1) }),
+		title: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
+		tagline: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(3, { message: errorMessages.too_small(3) }),
+		theme: z.string({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).min(1, { message: errorMessages.too_small(1) }),
 		languages: z.array(z.string()).min(1, { message: errorMessages.too_small(1) }),
 		categories: z.array(z.string()).optional().default([]),
-		unitId: z
-			.number({
-				required_error: errorMessages.required,
-				invalid_type_error: errorMessages.invalid_type,
-			})
-			.positive({ message: errorMessages.too_small(1) }),
+		unitId: z.number({ required_error: errorMessages.required, invalid_type_error: errorMessages.invalid_type }).positive({ message: errorMessages.too_small(1) }),
 		downloadsProtectionScript: z.boolean().optional().default(false),
 	};
 
-	const kubernetesSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === "kubernetes")
-		.map((infra) =>
-			z.object({
-				...baseFields,
-				...kubernetesFields,
-				infrastructure: z.literal(infra.NAME as KubernetesInfrastructureName),
-			}),
-		);
-
 	const databaseFields = {
 		title: z
-			.string({
-				invalid_type_error: errorMessages.invalid_type,
-			})
+			.string({ invalid_type_error: errorMessages.invalid_type })
 			.min(3, { message: errorMessages.too_small(3) })
 			.optional(),
 		tagline: z
-			.string({
-				invalid_type_error: errorMessages.invalid_type,
-			})
+			.string({ invalid_type_error: errorMessages.invalid_type })
 			.min(3, { message: errorMessages.too_small(3) })
 			.optional(),
 	};
 
+	const kubernetesSchemas = creatableInfras
+		.filter((i) => i.PERSISTENCE === "kubernetes")
+		.map((i) => z.object({ ...baseFields, ...kubernetesFields, infrastructure: z.literal(i.NAME as KubernetesInfrastructureName) }));
+
 	const databaseSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === "database")
-		.map((infra) =>
-			z.object({
-				...baseFields,
-				...databaseFields,
-				infrastructure: z.literal(infra.NAME as DatabaseInfrastructureName),
-			}),
-		);
+		.filter((i) => i.PERSISTENCE === "database")
+		.map((i) => z.object({ ...baseFields, ...databaseFields, infrastructure: z.literal(i.NAME as DatabaseInfrastructureName) }));
 
-	const noneSchemas = creatableInfras
-		.filter((infra) => infra.PERSISTENCE === "none")
-		.map((infra) =>
-			z.object({
-				...baseFields,
-				infrastructure: z.literal(infra.NAME as NoneInfrastructureName),
-			}),
-		);
-
-	const allSchemas = [...kubernetesSchemas, ...databaseSchemas, ...noneSchemas];
-
-	if (allSchemas.length === 0) {
-		throw new Error("No creatable infrastructures found");
-	}
+	const allSchemas = [...kubernetesSchemas, ...databaseSchemas];
+	if (allSchemas.length === 0) throw new Error("No creatable infrastructures found");
 
 	return z.discriminatedUnion(
 		"infrastructure",
 		allSchemas as unknown as [z.ZodDiscriminatedUnionOption<"infrastructure">, ...z.ZodDiscriminatedUnionOption<"infrastructure">[]],
-	) as unknown as z.ZodType<SiteFormType>;
+	) as unknown as z.ZodType<SiteForm>;
 };
 
-export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => {
-	return createSiteSchemaBase(errorMessages);
-};
+export const siteSchema = (errorMessages: ReturnType<typeof useZodErrorMessages>) => buildSiteSchema(errorMessages);
 
 export const createSiteSchema = async () => {
 	const errorMessages = await getZodErrorMessages();
-	return createSiteSchemaBase(errorMessages);
+	return buildSiteSchema(errorMessages);
 };
-
-export const isKubernetesSite = (site: SiteType): site is KubernetesSite => {
-	return site.infrastructure === INFRASTRUCTURES.KUBERNETES.NAME || site.infrastructure === INFRASTRUCTURES.TEMPORARY.NAME;
-};
-
-export const isDatabaseSite = (site: SiteType): site is DatabaseSite => {
-	const dbInfras: DatabaseInfrastructureName[] = ["External", "LAMP", "Archived"];
-	return dbInfras.includes(site.infrastructure as DatabaseInfrastructureName);
-};
-
-export const isNoneSite = (site: SiteType): site is NoneSite => {
-	return site.infrastructure === "Temporary";
-};
-
-export const getSitePersistence = (infrastructure: InfrastructureName): "kubernetes" | "database" | "none" => {
-	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
-	return infra?.PERSISTENCE || "none";
-};
-
-export const isCreatableInfrastructure = (infrastructure: string): boolean => {
-	const infra = Object.values(INFRASTRUCTURES).find((i) => i.NAME === infrastructure);
-	return infra?.CREATED || false;
-};
-
-export interface SiteListFilters {
-	url: string;
-	infrastructure: string;
-	theme: string;
-	hasCategories: boolean | null;
-	hasDownloadsProtection: boolean | null;
-	dateRange: {
-		from?: Date;
-		to?: Date;
-	};
-	languages: string[];
-	categories: string[];
-}
-
-export interface SiteAddProps {
-	environments: BackupEnvironment[];
-	units: SelectOption[];
-	initialBackupSites: SelectOption[];
-}
-
-export interface SiteUpdateProps {
-	site: SiteType;
-}
-
-export interface SiteTagsUpdateProps {
-	site: SiteType;
-	tags: TagsType[];
-}
-
-export interface SearchState {
-	url: string;
-}
-
-export interface SearchResponse {
-	status: number;
-	message: string;
-	items?: SearchSiteType[];
-}
