@@ -163,8 +163,8 @@ export default function SiteInfoPage() {
 						<div>
 							<div className="text-sm font-semibold text-gray-700">{translations.site("details.unit")}</div>
 							<span className="flex items-center gap-1">
-								<p className="text-sm font-medium text-gray-600">{site.unit.name}</p>
-								<p className="text-xs text-gray-500">{site.unit.id}</p>
+								<p className="text-sm font-medium text-gray-600">{site.unit?.name}</p>
+								<p className="text-xs text-gray-500">{site.unit?.id}</p>
 							</span>
 						</div>
 					</div>
