@@ -9,6 +9,17 @@ import type { UserSummary } from "@/types/user";
 import { getPersonsByIds } from "./api";
 import { hasPermission } from "./policy";
 
+// Actions only admins can perform (not in editor or public group permissions)
+// - logs:list        → data.type = "log"
+// - sites:create/update/delete → data.type = "site", data.action in ["create","update","delete"]
+// - theme:list       → data.type = "theme"
+//
+// Actions editors can perform but public cannot
+// - tags:*           → data.type = "tag"
+// - sites:list/read  → data.type = "site", data.action in ["list","read"]
+//
+// Public can only perform: sites:search → data.type = "site", data.action = "search"
+
 interface AggregatedUser {
 	_id: string;
 	lastActivity: Date;
@@ -16,6 +27,7 @@ interface AggregatedUser {
 	hasAdminLog: number;
 	hasSiteWrite: number;
 	hasTheme: number;
+	hasEditorAction: number;
 }
 
 export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error?: APIError }> {
@@ -40,9 +52,7 @@ export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error
 					hasSiteWrite: {
 						$max: {
 							$cond: [
-								{
-									$and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["create", "update", "delete"]] }],
-								},
+								{ $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["create", "update", "delete"]] }] },
 								1,
 								0,
 							],
@@ -50,6 +60,20 @@ export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error
 					},
 					hasTheme: {
 						$max: { $cond: [{ $eq: ["$data.type", "theme"] }, 1, 0] },
+					},
+					hasEditorAction: {
+						$max: {
+							$cond: [
+								{
+									$or: [
+										{ $eq: ["$data.type", "tag"] },
+										{ $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["list", "read"]] }] },
+									],
+								},
+								1,
+								0,
+							],
+						},
 					},
 				},
 			},
@@ -63,11 +87,12 @@ export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error
 		const users: UserSummary[] = docs.map((doc) => {
 			const person = persons.find((p) => p.id === doc._id);
 			const isAdmin = doc.hasAdminLog === 1 || doc.hasSiteWrite === 1 || doc.hasTheme === 1;
+			const isEditor = !isAdmin && doc.hasEditorAction === 1;
 			return {
 				userId: doc._id,
 				name: person?.name ?? doc._id,
 				lastActivity: doc.lastActivity,
-				role: isAdmin ? "admin" : "editor",
+				role: isAdmin ? "admin" : isEditor ? "editor" : "public",
 				actionCount: doc.actionCount,
 			};
 		});
