@@ -29,7 +29,8 @@
 		"trash": "Deleted Sites",
 		"logs": "Action Logs",
 		"apiDocs": "API Documentation",
-		"redirections": "Redirections"
+		"redirections": "Redirections",
+		"users": "Users"
 	},
 	"site": {
 		"add": "Add New Site",
@@ -374,6 +375,25 @@
 			"home": "Back to home",
 			"back": "Previous page",
 			"contact": "If you think this is an error, contact the team"
+		},
+		"userList": {
+			"title": "Users",
+			"results": "{count, plural, =1 {# user} other {# users}} out of {total} total",
+			"loading": "Loading...",
+			"empty": "No users found",
+			"search": {
+				"placeholder": "Search by name..."
+			},
+			"column": {
+				"name": "Name",
+				"role": "Role",
+				"lastActivity": "Last activity",
+				"actions": "Actions"
+			},
+			"role": {
+				"admin": "Admin",
+				"editor": "Editor"
+			}
 		}
 	},
 	"validation": {

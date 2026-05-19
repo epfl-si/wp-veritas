@@ -29,7 +29,8 @@
 		"trash": "Sites supprimés",
 		"logs": "Journaux d'actions",
 		"apiDocs": "Documentation API",
-		"redirections": "Redirections"
+		"redirections": "Redirections",
+		"users": "Utilisateurs"
 	},
 	"site": {
 		"add": "Ajouter un site",
@@ -374,6 +375,25 @@
 			"home": "Retour à l'accueil",
 			"back": "Page précédente",
 			"contact": "Si vous pensez qu'il s'agit d'une erreur, contactez l'équipe"
+		},
+		"userList": {
+			"title": "Utilisateurs",
+			"results": "{count, plural, =1 {# utilisateur} other {# utilisateurs}} sur {total} au total",
+			"loading": "Chargement...",
+			"empty": "Aucun utilisateur trouvé",
+			"search": {
+				"placeholder": "Rechercher par nom..."
+			},
+			"column": {
+				"name": "Nom",
+				"role": "Rôle",
+				"lastActivity": "Dernière activité",
+				"actions": "Actions"
+			},
+			"role": {
+				"admin": "Administrateur",
+				"editor": "Éditeur"
+			}
 		}
 	},
 	"validation": {
