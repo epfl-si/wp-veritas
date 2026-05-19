@@ -392,11 +392,11 @@
 			"UNAUTHORIZED": "Non autorisé",
 			"FORBIDDEN": "Accès refusé",
 			"NOT_FOUND": "Ressource introuvable",
+			"CONFLICT": "La ressource existe déjà",
 			"VALIDATION_ERROR": "Données invalides",
-			"DB_ERROR": "Erreur de base de données",
+			"INTERNAL": "Erreur interne du serveur",
 			"MAIL_ERROR": "Erreur d'envoi de mail",
 			"UNKNOWN": "Erreur inconnue",
-			"SITE_ALREADY_EXISTS": "Ce site existe déjà",
 			"API_ERROR": "Erreur lors de la communication avec l'API"
 		}
 	},

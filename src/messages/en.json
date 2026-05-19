@@ -392,11 +392,11 @@
 			"UNAUTHORIZED": "Unauthorized",
 			"FORBIDDEN": "Access denied",
 			"NOT_FOUND": "Resource not found",
+			"CONFLICT": "Resource already exists",
 			"VALIDATION_ERROR": "Invalid data",
-			"DB_ERROR": "Database error",
+			"INTERNAL": "Internal server error",
 			"MAIL_ERROR": "Email sending error",
 			"UNKNOWN": "Unknown error",
-			"SITE_ALREADY_EXISTS": "This site already exists",
 			"API_ERROR": "Error communicating with the API"
 		}
 	},
