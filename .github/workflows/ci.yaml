@@ -1,4 +1,4 @@
-name: Build and Release
+name: CI
 
 on:
     push:
@@ -9,19 +9,22 @@ env:
     REGISTRY_PATH: quay-its.epfl.ch/svc0041/wp-veritas
 
 jobs:
-    code-quality:
-        name: Code Quality
+    lint:
+        name: Lint
         runs-on: ubuntu-24.04
         permissions:
             contents: read
         steps:
-            - uses: actions/checkout@v5
+            - name: Checkout
+              uses: actions/checkout@v5
 
-            - uses: oven-sh/setup-bun@v2
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
               with:
                   bun-version: latest
 
-            - run: bun install --frozen-lockfile
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
 
             - name: Biome CI check
               run: bunx biome ci --reporter=github ./src
@@ -46,9 +49,10 @@ jobs:
             contents: read
         outputs:
             version: ${{ steps.get_version.outputs.version }}
-            should_build: ${{ steps.check.outputs.should_build }}
+            should_release: ${{ steps.check.outputs.should_release }}
         steps:
-            - uses: actions/checkout@v5
+            - name: Checkout
+              uses: actions/checkout@v5
 
             - name: Get version from package.json
               id: get_version
@@ -63,16 +67,16 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   gh release view "v${{ steps.get_version.outputs.version }}" >/dev/null 2>&1 \
-                    && echo "should_build=false" >> $GITHUB_OUTPUT \
-                    || echo "should_build=true" >> $GITHUB_OUTPUT
+                    && echo "should_release=false" >> $GITHUB_OUTPUT \
+                    || echo "should_release=true" >> $GITHUB_OUTPUT
 
     build-and-push:
         name: Build and Push
-        needs: [code-quality, detect-version]
+        needs: [lint, detect-version]
         if: |
             always() &&
-            needs.code-quality.result == 'success' &&
-            (needs.detect-version.result == 'skipped' || needs.detect-version.outputs.should_build == 'true')
+            needs.lint.result == 'success' &&
+            (needs.detect-version.result == 'skipped' || needs.detect-version.outputs.should_release == 'true')
         runs-on: ubuntu-24.04
         permissions:
             contents: read
@@ -80,16 +84,21 @@ jobs:
         outputs:
             build_success: ${{ steps.result.outputs.success }}
         steps:
-            - uses: actions/checkout@v5
-            - uses: docker/setup-buildx-action@v4
+            - name: Checkout
+              uses: actions/checkout@v5
 
-            - uses: docker/login-action@v4
+            - name: Setup Docker Buildx
+              uses: docker/setup-buildx-action@v4
+
+            - name: Login to Quay
+              uses: docker/login-action@v4
               with:
                   registry: quay-its.epfl.ch
                   username: ${{ secrets.QUAY_ROBOT_USERNAME }}
                   password: ${{ secrets.QUAY_ROBOT_PASSWORD }}
 
-            - uses: docker/metadata-action@v6
+            - name: Extract metadata
+              uses: docker/metadata-action@v6
               id: meta
               with:
                   images: ${{ env.REGISTRY_PATH }}
@@ -98,7 +107,8 @@ jobs:
                       type=raw,value=${{ needs.detect-version.outputs.version }},enable=${{ github.event_name == 'push' }}
                       type=ref,event=branch,suffix=-{{sha}},enable=${{ github.event_name == 'pull_request' }}
 
-            - uses: docker/build-push-action@v7
+            - name: Build and push
+              uses: docker/build-push-action@v7
               with:
                   context: .
                   push: true
@@ -108,7 +118,8 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-            - id: result
+            - name: Mark build success
+              id: result
               run: echo "success=true" >> $GITHUB_OUTPUT
 
     create-release:
@@ -119,7 +130,8 @@ jobs:
         permissions:
             contents: write
         steps:
-            - uses: actions/checkout@v5
+            - name: Checkout
+              uses: actions/checkout@v5
               with:
                   fetch-depth: 0
 
