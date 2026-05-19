@@ -1,6 +1,7 @@
 "use server";
 import { PERMISSIONS } from "@/constants/permissions";
-import { error, info, warn } from "@/lib/log";
+import { httpError } from "@/lib/errors";
+import log from "@/lib/log";
 import db from "@/lib/mongo";
 import { type ILog, LogModel } from "@/models/Log";
 import type { APIError } from "@/types/error";
@@ -8,157 +9,73 @@ import type { LogType, SearchLogsParams } from "@/types/log";
 import { getPersonsByIds } from "./api";
 import { hasPermission } from "./policy";
 
-export async function listLogs(): Promise<{
-	logs?: LogType[];
-	error?: APIError;
-}> {
-	try {
-		if (!(await hasPermission(PERMISSIONS.LOGS.LIST))) {
-			await warn("Permission denied for logs listing", {
-				type: "log",
-				action: "list",
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
-		}
+function toLogType(doc: ILog, users: Array<{ id: string; name: string; userId?: string }>): LogType {
+	return {
+		id: doc.id,
+		message: doc.message,
+		data: doc.data,
+		level: doc.level,
+		timestamp: doc.timestamp,
+		user: (() => {
+			const u = users.find((u) => u.id === doc.userId);
+			return u ? { userId: doc.userId as string, name: u.name } : undefined;
+		})(),
+	};
+}
 
-		await db.connect();
-
-		const logs = await LogModel.find<ILog>();
-
-		await info("Logs listed successfully", {
-			type: "log",
-			action: "list",
-			count: logs.length,
-		});
-
-		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === "string"));
-		const users = await getPersonsByIds(Array.from(userIds)).then((res) => (res.success ? res.data : []));
-
-		return {
-			logs: logs.map((log) => ({
-				id: log.id,
-				message: log.message,
-				data: {
-					type: log.data.type,
-					action: log.data.action,
-					id: log.data.id,
-					object: log.data.object,
-					error: log.data.error,
-				},
-				level: log.level,
-				timestamp: log.timestamp,
-				user: users.find((user) => user.id === log.userId),
-			})),
-		};
-	} catch (errorData) {
-		console.error("Error listing logs:", errorData);
-		await error("Failed to list logs", {
-			type: "log",
-			action: "list",
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
-		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
-	}
+async function resolveUsers(logs: ILog[]): Promise<Array<{ id: string; name: string; userId?: string }>> {
+	const userIds = [...new Set(logs.map((l) => l.userId).filter((id): id is string => typeof id === "string"))];
+	return getPersonsByIds(userIds).then((res) => (res.success ? res.data : []));
 }
 
 export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: LogType[]; total?: number; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.LOGS.LIST))) {
-			await warn("Permission denied for logs search", {
-				type: "log",
-				action: "search",
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			await log.warn("Permission denied for logs search", { type: "log", action: "search" });
+			return httpError.forbidden();
+		}
+
+		if (params.limit && params.limit > 250) {
+			return { error: { status: 400, message: "Limit cannot exceed 250", success: false } };
 		}
 
 		await db.connect();
 
 		const query: Record<string, unknown> = {};
+		if (params.search) query.message = { $regex: params.search, $options: "i" };
+		if (params.level) query.level = params.level;
+		if (params.actions?.length) query["data.action"] = { $in: params.actions };
+		if (params.siteId) query["data.id"] = params.siteId;
 
-		if (params.search) {
-			query.message = { $regex: params.search, $options: "i" };
-		}
+		const [total, docs] = await Promise.all([
+			LogModel.countDocuments(query),
+			LogModel.find<ILog>(query)
+				.sort({ timestamp: -1 })
+				.skip(params.skip ?? 0)
+				.limit(params.limit ?? 100)
+				.exec(),
+		]);
 
-		if (params.level) {
-			query.level = params.level;
-		}
-
-		if (params.actions && params.actions.length > 0) {
-			query["data.action"] = { $in: params.actions };
-		}
-
-		if (params.siteId) {
-			query["data.id"] = params.siteId;
-		}
-
-		const total = await LogModel.countDocuments(query);
-		const logsQuery = LogModel.find<ILog>(query).sort({ timestamp: -1 });
-
-		if (params.limit && params.limit > 250) {
-			return {
-				error: {
-					status: 400,
-					message: "Limit cannot exceed 250",
-					success: false,
-				},
-			};
-		}
-
-		if (params.skip && params.skip > 0) {
-			logsQuery.skip(params.skip);
-		}
-
-		if (params.limit && params.limit > 0) {
-			logsQuery.limit(params.limit);
-		}
-
-		const logs = await logsQuery.exec();
-
-		const userIds = new Set(logs.map((log) => log.userId).filter((id): id is string => typeof id === "string"));
-		const users = await getPersonsByIds(Array.from(userIds)).then((res) => (res.success ? res.data : []));
-
-		return {
-			logs: logs.map((log) => ({
-				id: log.id,
-				message: log.message,
-				data: {
-					type: log.data.type,
-					action: log.data.action,
-					id: log.data.id,
-					object: log.data.object,
-					error: log.data.error,
-				},
-				level: log.level,
-				timestamp: log.timestamp,
-				user: users.find((user) => user.id === log.userId),
-			})),
-			total,
-		};
-	} catch (errorData) {
-		console.error("Error searching logs:", errorData);
-		await error("Failed to search logs", {
+		const users = await resolveUsers(docs);
+		return { logs: docs.map((d) => toLogType(d, users)), total };
+	} catch (err) {
+		await log.error("Failed to search logs", {
 			type: "log",
 			action: "search",
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
 		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		return httpError.internal();
 	}
 }
 
 export async function searchLogsAction(params: SearchLogsParams): Promise<{ logs: LogType[]; total: number; success: boolean }> {
 	const result = await searchLogs(params);
 	if (result.error) return { logs: [], total: 0, success: false };
-	return { logs: result.logs || [], total: result.total || 0, success: true };
+	return { logs: result.logs ?? [], total: result.total ?? 0, success: true };
 }
 
 export async function getSiteLogsAction(siteId: string): Promise<{ logs: LogType[]; success: boolean }> {
-	const result = await searchLogs({ siteId });
+	const result = await searchLogs({ siteId, limit: 100 });
 	if (result.error) return { logs: [], success: false };
-	return { logs: result.logs || [], success: true };
+	return { logs: result.logs ?? [], success: true };
 }

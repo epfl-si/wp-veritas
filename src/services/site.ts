@@ -9,855 +9,467 @@ import {
 	deleteDatabaseSiteExtras,
 	getDatabaseSite,
 	listDatabaseSites,
+	listKubernetesExtras,
 	updateDatabaseSite,
-	updateDatabaseSiteExtras,
+	upsertDatabaseSiteExtras,
 } from "@/lib/database";
+import { httpError } from "@/lib/errors";
 import { createKubernetesSite, deleteKubernetesSite, getKubernetesSite, getKubernetesSiteExtraInfo, getKubernetesSites, updateKubernetesSite } from "@/lib/kubernetes";
-import { error, info, warn } from "@/lib/log";
+import log from "@/lib/log";
 import { ensureSlashAtEnd } from "@/lib/utils";
 import { disassociateTagFromSite, getTagsBySite } from "@/services/tag";
-import type { APIError, ErrorCode } from "@/types/error";
+import type { APIError } from "@/types/error";
 import type { ServiceResponse } from "@/types/response";
 import {
 	createSiteSchema,
 	type DatabaseSite,
 	getSitePersistence,
 	isCreatableInfrastructure,
-	isDatabaseSite,
 	isKubernetesSite,
 	type KubernetesSite,
 	type KubernetesSiteExtraInfo,
-	type SearchSiteType,
-	SITE_EXTRAS,
-	type SiteExtras,
-	type SiteFormType,
-	type SiteType,
+	type SearchSite,
+	SITE_EXTRA_KEYS,
+	type Site,
+	type SiteForm,
 } from "@/types/site";
 import { getPersonsByUsernames, getUnitById } from "./api";
 import { hasPermission } from "./policy";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
 
-function extractExtras(site: SiteFormType): SiteExtras {
-	const extras: { [key: string]: unknown } = {};
+async function getAllSites(): Promise<Site[]> {
+	const [{ sites: k8sSites = [] }, { sites: dbSites = [] }, { extras = [] }] = await Promise.all([getKubernetesSites(), listDatabaseSites(), listKubernetesExtras()]);
 
-	SITE_EXTRAS.forEach((extra: string) => {
-		if (extra in site) {
-			extras[extra] = site[extra as keyof SiteFormType];
-		}
-	});
+	const extrasById = new Map(extras.map((e) => [e.id, e]));
 
-	return extras as SiteExtras;
+	return [
+		...dbSites,
+		...k8sSites.map((site) => {
+			const extra = extrasById.get(site.id);
+			if (!extra) return site;
+			const { ticket, comment, monitored, responsibles } = extra;
+			return { ...site, ticket, comment, monitored, responsibles };
+		}),
+	];
 }
 
-function mergeSiteWithExtras(kubernetesSite: KubernetesSite, dbSite?: DatabaseSite): KubernetesSite {
-	return {
-		...kubernetesSite,
-		ticket: dbSite?.ticket,
-		comment: dbSite?.comment,
-		monitored: dbSite?.monitored,
-		responsibles: dbSite?.responsibles,
-	};
-}
-
-async function enrichSiteWithTags(site: SiteType): Promise<SiteType> {
-	try {
-		if (await hasPermission(PERMISSIONS.TAGS.READ)) {
-			const { tags } = await getTagsBySite(site.id);
-			return {
-				...site,
-				tags: tags?.map((tag) => tag.id) || [],
-			};
-		}
-	} catch (tagError) {
-		console.warn(`Failed to load tags for site ${site.id}.`, tagError);
+function valuesEqual(a: unknown, b: unknown): boolean {
+	if (Array.isArray(a) && Array.isArray(b)) {
+		return a.length === b.length && a.every((v, i) => v === b[i]);
 	}
-
-	return site;
+	return a === b;
 }
 
-export async function createSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
+function describeChange(field: string, from: unknown, to: unknown): string {
+	const label = field.charAt(0).toUpperCase() + field.slice(1);
+	const fmt = (v: unknown) => (Array.isArray(v) ? v.join(", ") : String(v ?? ""));
+
+	if (typeof from === "boolean" || typeof to === "boolean") {
+		return `the ${field} was ${to ? "enabled" : "disabled"}`;
+	}
+	if (to && !from) return `${label} was added: '''${fmt(to)}'''`;
+	if (!to && from) return `${label} was removed: '''${fmt(from)}'''`;
+	return `${label} was changed: '''${fmt(from)} → ${fmt(to)}'''`;
+}
+
+const UPDATABLE_FIELDS = ["categories", "languages", "unitId", "title", "tagline", ...SITE_EXTRA_KEYS] as const;
+
+function detectChanges(existing: Site, incoming: SiteForm): Record<string, { from: unknown; to: unknown }> {
+	const changes: Record<string, { from: unknown; to: unknown }> = {};
+	for (const field of UPDATABLE_FIELDS) {
+		const from = field in existing ? existing[field as keyof Site] : undefined;
+		const to = field in incoming ? incoming[field as keyof SiteForm] : undefined;
+		if (!valuesEqual(from, to)) changes[field] = { from, to };
+	}
+	return changes;
+}
+
+function formatChanges(changes: Record<string, { from: unknown; to: unknown }>): string {
+	const messages = Object.entries(changes).map(([field, { from, to }]) => describeChange(field, from, to));
+	if (!messages.length) return "";
+	const joined = messages.join(", ");
+	return `${joined.charAt(0).toUpperCase()}${joined.slice(1)}.`;
+}
+
+export async function getSite(siteId: string): Promise<{ site?: Site; error?: APIError }> {
+	try {
+		if (!(await hasPermission(PERMISSIONS.SITES.READ))) {
+			await log.warn("Permission denied for site read", { type: "site", action: "read", id: siteId });
+			return httpError.forbidden();
+		}
+
+		const canReadTags = await hasPermission(PERMISSIONS.TAGS.READ);
+		const loadTags = () =>
+			canReadTags
+				? getTagsBySite(siteId)
+						.then((r) => r.tags?.map((t) => t.id) ?? [])
+						.catch(() => [])
+				: Promise.resolve([]);
+
+		const { site: k8sSite } = await getKubernetesSite(siteId);
+		if (k8sSite) {
+			const [{ site: dbExtras }, tags] = await Promise.all([getDatabaseSite(siteId), loadTags()]);
+			const { ticket, comment, monitored, responsibles } = dbExtras ?? {};
+			const site: KubernetesSite = { ...k8sSite, ticket, comment, monitored, responsibles, tags };
+			await log.info(`Site ${site.url} (${site.infrastructure}) retrieved.`, { type: "site", action: "read", id: siteId });
+			return { site };
+		}
+
+		const [{ site: dbSite, error }, tags] = await Promise.all([getDatabaseSite(siteId), loadTags()]);
+		if (error) return { error };
+		if (dbSite) {
+			const site: DatabaseSite = { ...dbSite, tags };
+			await log.info(`Site ${site.url} (${site.infrastructure}) retrieved.`, { type: "site", action: "read", id: siteId });
+			return { site };
+		}
+
+		return httpError.notFound();
+	} catch (err) {
+		await log.error("Failed to get site", {
+			type: "site",
+			action: "read",
+			id: siteId,
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
+		});
+		return httpError.internal();
+	}
+}
+
+export async function listSites(): Promise<{ sites?: Site[]; error?: APIError }> {
+	try {
+		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
+			await log.warn("Permission denied for sites listing", { type: "site", action: "list" });
+			return httpError.forbidden();
+		}
+
+		const sites = await getAllSites();
+		if (!sites.length) {
+			return { error: { status: 404, message: "No sites found", success: false } };
+		}
+
+		await log.info(`Listed ${sites.length} sites.`, { type: "site", action: "list", count: sites.length });
+		return { sites };
+	} catch (err) {
+		await log.error("Failed to list sites", { type: "site", action: "list", error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined } });
+		return httpError.internal();
+	}
+}
+
+export async function createSite(form: SiteForm): Promise<{ siteId?: string; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.CREATE))) {
-			await warn("Permission denied for site creation.", {
-				type: "site",
-				action: "create",
-				object: site,
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			await log.warn("Permission denied for site creation", { type: "site", action: "create", object: form });
+			return httpError.forbidden();
 		}
 
-		const infrastructure = getInfrastructureByName(site.infrastructure);
-		if (!infrastructure) {
-			return {
-				error: {
-					status: 400,
-					message: "Invalid infrastructure",
-					success: false,
-				},
-			};
+		if (!getInfrastructureByName(form.infrastructure)) {
+			return { error: { status: 400, message: "Invalid infrastructure", success: false } };
 		}
 
-		if (!isCreatableInfrastructure(site.infrastructure)) {
-			return {
-				error: {
-					status: 400,
-					message: "Infrastructure is not creatable",
-					success: false,
-				},
-			};
+		if (!isCreatableInfrastructure(form.infrastructure)) {
+			return { error: { status: 400, message: "Infrastructure is not creatable", success: false } };
 		}
 
 		const { sites } = await listSites();
-		const siteUrl = ensureSlashAtEnd(site.url);
-		if (sites?.some((s) => s.url === siteUrl)) {
-			return {
-				error: { status: 409, message: "Site already exists", success: false },
-			};
+		if (sites?.some((s) => s.url === ensureSlashAtEnd(form.url))) {
+			return { error: { status: 409, message: "Site already exists", success: false } };
 		}
 
-		const persistence = getSitePersistence(site.infrastructure);
+		const persistence = getSitePersistence(form.infrastructure);
 
-		switch (persistence) {
-			case "kubernetes": {
-				const { siteId, error: kubernetesError } = await createKubernetesSite(site);
-				if (kubernetesError) {
-					console.error("Error creating Kubernetes site.", kubernetesError);
-					await error("Failed to create site.", {
-						type: "site",
-						action: "create",
-						object: site,
-						error: kubernetesError.message,
-					});
-					return { error: kubernetesError };
-				}
-
-				if (siteId) {
-					const extras = extractExtras(site);
-					if (Object.keys(extras).length > 0) {
-						await createDatabaseSiteExtras(siteId, extras);
-					}
-
-					await info(`The site ${site.url} (${site.infrastructure}) created successfully.`, {
-						type: "site",
-						action: "create",
-						id: siteId,
-						object: site,
-					});
-				}
-
-				await sendSiteCreatedMessage(site.url, site.infrastructure);
-				return { siteId };
+		if (persistence === "kubernetes") {
+			const { siteId, error } = await createKubernetesSite(form);
+			if (error) {
+				await log.error("Failed to create site", { type: "site", action: "create", object: form, error: { message: error.message } });
+				return { error };
 			}
-
-			case "database": {
-				const { siteId, error: databaseError } = await createDatabaseSite(site);
-				if (databaseError) {
-					await error("Failed to create site.", {
-						type: "site",
-						action: "create",
-						object: site,
-						error: databaseError.message,
-					});
-					return { error: databaseError };
+			if (siteId) {
+				const { ticket, comment, monitored, responsibles } = form;
+				if (ticket !== undefined || comment !== undefined || monitored !== undefined || responsibles?.length) {
+					await createDatabaseSiteExtras(siteId, { ticket, comment, monitored, responsibles });
 				}
-
-				if (siteId) {
-					await info(`The site ${site.url} (${site.infrastructure}) created successfully.`, {
-						type: "site",
-						action: "create",
-						id: siteId,
-						object: site,
-					});
-				}
-
-				await sendSiteCreatedMessage(site.url, site.infrastructure);
-				return { siteId };
+				await log.info(`Site ${form.url} (${form.infrastructure}) created.`, { type: "site", action: "create", id: siteId });
 			}
-			default:
-				await warn("Unsupported persistence type for site creation.", {
-					type: "site",
-					action: "create",
-					object: site,
-					persistence,
-					error: "Not implemented",
-				});
-				return {
-					error: { status: 501, message: "Not implemented", success: false },
-				};
+			await sendSiteCreatedMessage(form.url, form.infrastructure);
+			return { siteId };
 		}
-	} catch (errorData) {
-		await error("Failed to create site.", {
+
+		if (persistence === "database") {
+			const { siteId, error } = await createDatabaseSite(form);
+			if (error) {
+				await log.error("Failed to create site", { type: "site", action: "create", object: form, error: { message: error.message } });
+				return { error };
+			}
+			if (siteId) {
+				await log.info(`Site ${form.url} (${form.infrastructure}) created.`, { type: "site", action: "create", id: siteId });
+			}
+			await sendSiteCreatedMessage(form.url, form.infrastructure);
+			return { siteId };
+		}
+
+		await log.warn("Unsupported persistence type", { type: "site", action: "create", object: form });
+		return { error: { status: 501, message: "Not implemented", success: false } };
+	} catch (err) {
+		await log.error("Failed to create site", {
 			type: "site",
 			action: "create",
-			object: site,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			object: form,
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
 		});
-		console.error("Error creating site.", errorData);
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		return httpError.internal();
 	}
 }
 
-export async function updateSite(siteId: string, site: SiteFormType): Promise<{ error?: APIError }> {
+export async function updateSite(siteId: string, form: SiteForm): Promise<{ error?: APIError }> {
 	try {
-		const UPDATABLE_FIELDS = ["categories", "languages", "unitId", "title", "tagline", ...SITE_EXTRAS];
-
 		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
-			await warn("Permission denied to update the site.", {
-				type: "site",
-				action: "update",
-				id: siteId,
-				object: site,
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			await log.warn("Permission denied to update the site", { type: "site", action: "update", id: siteId });
+			return httpError.forbidden();
 		}
 
-		const { site: existingSite, error: fetchError } = await getSite(siteId);
-		if (fetchError || !existingSite) {
-			await error("Could not retrieve the site to update.", {
-				type: "site",
-				action: "update",
-				id: siteId,
-				error: fetchError?.message || "Site not found",
-			});
-			return {
-				error: fetchError || {
-					status: 404,
-					message: "Site not found",
-					success: false,
-				},
-			};
-		}
+		const { site: existing, error: fetchError } = await getSite(siteId);
+		if (!existing) return fetchError ? { error: fetchError } : httpError.notFound();
 
-		const immutableFieldsChanged: string[] = [];
-		for (const [key, value] of Object.entries(site)) {
-			if (!UPDATABLE_FIELDS.includes(key) && Object.hasOwn(existingSite, key)) {
-				const existingValue = existingSite[key as keyof typeof existingSite];
+		const persistence = getSitePersistence(form.infrastructure);
+		const changes = detectChanges(existing, form);
 
-				if (Array.isArray(value) && Array.isArray(existingValue)) {
-					if (value.length !== existingValue.length || !value.every((item, index) => item === existingValue[index])) {
-						immutableFieldsChanged.push(key);
-					}
-				} else if (existingValue !== value) {
-					immutableFieldsChanged.push(key);
-				}
+		if (persistence === "database") {
+			if (!Object.keys(changes).length) {
+				await log.info(`No changes for site ${existing.url}.`, { type: "site", action: "update", id: siteId, result: "no_changes" });
+				return {};
 			}
-		}
-
-		const persistence = getSitePersistence(site.infrastructure);
-		const changes: string[] = [];
-		const changeDetails: Record<string, { from: unknown; to: unknown }> = {};
-
-		for (const field of UPDATABLE_FIELDS) {
-			if (field in site) {
-				const newValue = site[field as keyof SiteFormType];
-				const existingValue = existingSite[field as keyof typeof existingSite];
-				let hasChanged = false;
-				if (Array.isArray(newValue) && Array.isArray(existingValue)) {
-					const newSet = new Set(newValue);
-					const existingSet = new Set(existingValue);
-
-					hasChanged = newSet.size !== existingSet.size || ![...newSet].every((item) => existingSet.has(item));
-				} else {
-					hasChanged = newValue !== existingValue;
-				}
-
-				if (hasChanged) {
-					const generateChangeMessage = (fieldName: string, oldVal: string | boolean | string[] | Date | undefined, newVal: string | string[] | boolean | number | undefined): string => {
-						const article = ["a", "e", "i", "o", "u"].includes(fieldName.toLowerCase()[0]) ? "an" : "a";
-
-						const formatValue = (val: string | boolean | string[] | Date | undefined | number): string => {
-							if (Array.isArray(val)) {
-								return val.join(", ");
-							}
-							return String(val);
-						};
-
-						if (typeof oldVal === "boolean" || typeof newVal === "boolean") {
-							if (newVal === true && oldVal === false) {
-								return `the ${fieldName.toLowerCase()} was enabled`;
-							} else if (newVal === false && oldVal === true) {
-								return `the ${fieldName.toLowerCase()} was disabled`;
-							} else if (newVal === true && (oldVal === undefined || oldVal === null)) {
-								return `the ${fieldName.toLowerCase()} was enabled`;
-							} else if (newVal === false && (oldVal === undefined || oldVal === null)) {
-								return `the ${fieldName.toLowerCase()} was disabled`;
-							} else if ((newVal === undefined || newVal === null) && oldVal === true) {
-								return `the ${fieldName.toLowerCase()} was disabled`;
-							} else if ((newVal === undefined || newVal === null) && oldVal === false) {
-								return `the ${fieldName.toLowerCase()} was removed`;
-							}
-						}
-
-						if (newVal && !oldVal) {
-							return `${article} ${fieldName.toLowerCase()} was added: '''${formatValue(newVal)}'''`;
-						} else if (!newVal && oldVal) {
-							return `the ${fieldName.toLowerCase()} was removed: '''${formatValue(oldVal)}'''`;
-						} else {
-							return `the ${fieldName.toLowerCase()} was changed: '''${formatValue(oldVal)} → ${formatValue(newVal)}'''`;
-						}
-					};
-
-					if (field === "categories" && site.infrastructure === "Kubernetes") {
-						const oldCategories = (existingValue as string[]) || [];
-						const newCategories = (newValue || []) as string[];
-
-						const added = newCategories.filter((c: string) => !oldCategories.includes(c));
-						const removed = oldCategories.filter((c: string) => !newCategories.includes(c));
-
-						if (added.length > 0) {
-							changes.push(`some categories were added: '''${added.join(", ")}'''`);
-						}
-						if (removed.length > 0) {
-							changes.push(`some categories were removed: '''${removed.join(", ")}'''`);
-						}
-					} else {
-						const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
-						changes.push(generateChangeMessage(fieldName, existingValue, newValue));
-					}
-
-					changeDetails[field] = { from: existingValue, to: newValue };
-				}
+			const { error } = await updateDatabaseSite(siteId, form);
+			if (error) {
+				await log.error(`Failed to update site ${form.url}.`, { type: "site", action: "update", id: siteId, error: { message: error.message } });
+				return { error };
 			}
-		}
-
-		if (changes.length === 0 && persistence !== "kubernetes") {
-			await info(`No changes were detected for the site ${existingSite.url}.`, {
-				type: "site",
-				action: "update",
-				id: siteId,
-				result: "no_changes",
-			});
+			await log.info(`Site ${form.url} updated. ${formatChanges(changes)}`, { type: "site", action: "update", id: siteId, changes });
 			return {};
 		}
 
-		switch (persistence) {
-			case "database": {
-				const { error: databaseError } = await updateDatabaseSite(siteId, site);
-				if (databaseError) {
-					await error(`Failed to update the site ${site.url}.`, {
-						type: "site",
-						action: "update",
-						id: siteId,
-						object: site,
-						changes: changeDetails,
-						error: databaseError.message,
-					});
-					return { error: databaseError };
-				}
-
-				await info(`The site ${site.url} (${site.infrastructure}) was updated. ${changes.join(", ").replace(/^./, (c) => c.toUpperCase())}.`, {
-					type: "site",
-					action: "update",
-					id: siteId,
-					changes: changeDetails,
-				});
-				break;
+		if (persistence === "kubernetes") {
+			const { error: k8sError } = await updateKubernetesSite(siteId, form);
+			if (k8sError) {
+				await log.error(`Failed to update site ${form.url}.`, { type: "site", action: "update", id: siteId, error: { message: k8sError.message } });
+				return { error: k8sError };
 			}
-
-			case "kubernetes": {
-				const { error: kubernetesError } = await updateKubernetesSite(siteId, site);
-				if (kubernetesError) {
-					await error(`Failed to update the site ${site.url}.`, {
-						type: "site",
-						action: "update",
-						id: siteId,
-						object: site,
-						changes: changeDetails,
-						error: kubernetesError.message,
-					});
-					return { error: kubernetesError };
-				}
-
-				const extras = extractExtras(site);
-				if (Object.keys(extras).length > 0) {
-					try {
-						await updateDatabaseSiteExtras(siteId, extras);
-					} catch (extrasError) {
-						console.error(`Error updating site extras for ${siteId}:`, extrasError);
-						await warn(`The extras could not be updated but the site update succeeded: ${site.url}.`, {
-							type: "site",
-							action: "update_extras",
-							id: siteId,
-							error: extrasError instanceof Error ? extrasError.message : "Unknown error",
-						});
-					}
-				}
-
-				await info(`Site ${site.url} (${site.infrastructure}) updated: ${changes.join(", ").replace(/^./, (c) => c.toUpperCase())}.`, {
-					type: "site",
-					action: "update",
-					id: siteId,
-					changes: changeDetails,
-				});
-				break;
+			try {
+				const { ticket, comment, monitored, responsibles } = form;
+				await upsertDatabaseSiteExtras(siteId, { ticket, comment, monitored, responsibles });
+			} catch {
+				await log.warn(`Failed to update extras for ${form.url}.`, { type: "site", action: "update_extras", id: siteId });
 			}
-
-			default:
-				await warn(`This type of site cannot be updated: ${site.url}.`, {
-					type: "site",
-					action: "update",
-					id: siteId,
-					object: site,
-					persistence,
-					error: "Not implemented",
-				});
-				return {
-					error: { status: 400, message: "Bad Request", success: false },
-				};
+			if (Object.keys(changes).length) {
+				await log.info(`Site ${form.url} updated. ${formatChanges(changes)}`, { type: "site", action: "update", id: siteId, changes });
+			}
+			return {};
 		}
 
-		return {};
-	} catch (errorData) {
-		await error(`The site could not be updated due to an error: ${site.url}.`, {
+		return { error: { status: 400, message: "Bad Request", success: false } };
+	} catch (err) {
+		await log.error("Failed to update site", {
 			type: "site",
 			action: "update",
 			id: siteId,
-			object: site,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
 		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		return httpError.internal();
 	}
 }
 
 export async function deleteSite(siteId: string): Promise<{ error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.DELETE))) {
-			await warn("Permission denied for site deletion", {
-				type: "site",
-				action: "delete",
-				id: siteId,
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			await log.warn("Permission denied for site deletion", { type: "site", action: "delete", id: siteId });
+			return httpError.forbidden();
 		}
 
-		const { site } = await getSite(siteId);
-		if (!site) {
-			await warn("Site not found for deletion", {
-				type: "site",
-				action: "delete",
-				id: siteId,
-				error: "Site not found",
-			});
-			return {
-				error: { status: 404, message: "Site not found", success: false },
-			};
+		const { site, error: fetchError } = await getSite(siteId);
+		if (!site) return fetchError ? { error: fetchError } : httpError.notFound();
+
+		const { tags, error: tagError } = await getTagsBySite(siteId);
+		if (tagError) return { error: tagError };
+		if (tags?.length) {
+			await Promise.all(tags.map((tag) => disassociateTagFromSite(tag.id, siteId)));
 		}
 
 		const persistence = getSitePersistence(site.infrastructure);
 
-		const { tags, error: tagError } = await getTagsBySite(siteId);
-		if (tagError) return { error: tagError };
-
-		if (tags && tags.length > 0) {
-			await Promise.all(
-				tags.map(async (tag) => {
-					await disassociateTagFromSite(tag.id, siteId);
-				}),
-			);
+		if (persistence === "kubernetes") {
+			const { error } = await deleteKubernetesSite(siteId);
+			if (error) {
+				await log.error("Failed to delete site", { type: "site", action: "delete", id: siteId, url: site.url, error: { message: error.message } });
+				return { error };
+			}
+			try {
+				await deleteDatabaseSiteExtras(siteId);
+			} catch {
+				/* extras are optional */
+			}
+			await log.info(`Site ${site.url} (${site.infrastructure}) deleted.`, { type: "site", action: "delete", id: siteId });
+			await sendSiteDeletedMessage(site.url, site.infrastructure);
+			return {};
 		}
 
-		switch (persistence) {
-			case "kubernetes": {
-				const { error: kubernetesError } = await deleteKubernetesSite(siteId);
-				if (kubernetesError) {
-					await error("Failed to delete site", {
-						type: "site",
-						action: "delete",
-						id: siteId,
-						site: site.url,
-						error: kubernetesError.message,
-					});
-					return { error: kubernetesError };
-				}
-
-				try {
-					await deleteDatabaseSiteExtras(siteId);
-				} catch (extrasError) {
-					console.error("Error deleting site extras", extrasError);
-				}
-
-				await info(`The site ${site.url} (${site.infrastructure}) deleted successfully.`, {
-					type: "site",
-					action: "delete",
-					id: siteId,
-					site: site.url,
-				});
-
-				await sendSiteDeletedMessage(site.url, site.infrastructure);
-				break;
+		if (persistence === "database") {
+			const { error } = await deleteDatabaseSite(siteId);
+			if (error) {
+				await log.error("Failed to delete site", { type: "site", action: "delete", id: siteId, url: site.url, error: { message: error.message } });
+				return { error };
 			}
-
-			case "database": {
-				const { error: databaseError } = await deleteDatabaseSite(siteId);
-				if (databaseError) {
-					await error("Failed to delete site", {
-						type: "site",
-						action: "delete",
-						id: siteId,
-						site: site.url,
-						error: databaseError.message,
-					});
-					return { error: databaseError };
-				}
-
-				await info(`The site ${site.url} (${site.infrastructure}) deleted successfully.`, {
-					type: "site",
-					action: "delete",
-					id: siteId,
-					site: site.url,
-				});
-
-				await sendSiteDeletedMessage(site.url, site.infrastructure);
-				break;
-			}
-			default:
-				return {
-					error: {
-						status: 501,
-						message: "Cannot delete sites with no persistence",
-						success: false,
-					},
-				};
+			await log.info(`Site ${site.url} (${site.infrastructure}) deleted.`, { type: "site", action: "delete", id: siteId });
+			await sendSiteDeletedMessage(site.url, site.infrastructure);
+			return {};
 		}
 
-		return {};
-	} catch (errorData) {
-		await error("Failed to delete site", {
+		return { error: { status: 501, message: "Cannot delete sites with no persistence", success: false } };
+	} catch (err) {
+		await log.error("Failed to delete site", {
 			type: "site",
 			action: "delete",
 			id: siteId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
 		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		return httpError.internal();
 	}
 }
 
-export async function getSite(siteId: string): Promise<{ site?: SiteType; error?: APIError }> {
-	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.READ))) {
-			await warn("Permission denied for site read", {
-				type: "site",
-				action: "read",
-				id: siteId,
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
-		}
-
-		const { site: kubernetesSite } = await getKubernetesSite(siteId);
-
-		if (kubernetesSite && isKubernetesSite(kubernetesSite)) {
-			const { site: dbSite } = await getDatabaseSite(siteId);
-			const mergedSite = mergeSiteWithExtras(kubernetesSite, dbSite as DatabaseSite);
-			const enrichedSite = await enrichSiteWithTags(mergedSite);
-
-			await info(`The ${enrichedSite.infrastructure} site ${enrichedSite.url} retrieved successfully.`, {
-				type: "site",
-				action: "read",
-				id: siteId,
-				infrastructure: enrichedSite.infrastructure,
-			});
-
-			return { site: enrichedSite };
-		}
-
-		const { site: databaseSite, error: databaseError } = await getDatabaseSite(siteId);
-		if (databaseError) {
-			await warn("Site not found", {
-				type: "site",
-				action: "read",
-				id: siteId,
-				error: databaseError.message,
-			});
-			return { error: databaseError };
-		}
-
-		if (databaseSite) {
-			const enrichedSite = await enrichSiteWithTags(databaseSite);
-
-			await info(`The ${enrichedSite.infrastructure} site ${enrichedSite.url} retrieved successfully.`, {
-				type: "site",
-				action: "read",
-				id: siteId,
-			});
-
-			return { site: enrichedSite };
-		}
-
-		return {
-			error: { status: 404, message: "Site not found", success: false },
-		};
-	} catch (errorData) {
-		await error("Failed to get site", {
-			type: "site",
-			action: "read",
-			id: siteId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
-		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
-	}
-}
-
-export async function listSites(): Promise<{
-	sites?: SiteType[];
-	error?: APIError;
-}> {
-	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
-			await warn("Permission denied for sites listing", {
-				type: "site",
-				action: "list",
-				error: "Forbidden - insufficient permissions",
-			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
-		}
-
-		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
-
-		const kubernetesSites = kubernetesResult.sites || [];
-		const databaseSites = databaseResult.sites || [];
-
-		const siteMap = new Map<string, SiteType>();
-
-		databaseSites.forEach((site) => {
-			if (isDatabaseSite(site)) {
-				siteMap.set(site.id, site);
-			}
-		});
-
-		kubernetesSites.forEach((kubernetesSite) => {
-			if (isKubernetesSite(kubernetesSite)) {
-				const dbSite = siteMap.get(kubernetesSite.id);
-				const mergedSite = dbSite && isDatabaseSite(dbSite) ? mergeSiteWithExtras(kubernetesSite, dbSite) : kubernetesSite;
-				siteMap.set(kubernetesSite.id, mergedSite);
-			}
-		});
-
-		const allSites = Array.from(siteMap.values());
-
-		if (allSites.length === 0) {
-			await info("No sites found", {
-				type: "site",
-				action: "list",
-				count: 0,
-			});
-			return {
-				error: { status: 404, message: "No sites found", success: false },
-			};
-		}
-
-		await info("Sites listed successfully", {
-			type: "site",
-			action: "list",
-			count: allSites.length,
-			kubernetesCount: kubernetesSites.length,
-			databaseCount: databaseSites.length,
-		});
-
-		return { sites: allSites };
-	} catch (errorData) {
-		await error("Failed to list sites", {
-			type: "site",
-			action: "list",
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
-		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
-	}
-}
-
-export async function searchSites(url: string): Promise<{ sites?: SearchSiteType[]; error?: APIError }> {
+export async function searchSites(url: string): Promise<{ sites?: SearchSite[]; error?: APIError }> {
 	try {
 		if (!(await hasPermission(PERMISSIONS.SITES.SEARCH))) {
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		let normalizedUrl = url.trim();
-		if (!normalizedUrl.match(/^https?:\/\//i)) {
-			normalizedUrl = `https://${normalizedUrl}`;
-		}
+		if (!normalizedUrl.match(/^https?:\/\//i)) normalizedUrl = `https://${normalizedUrl}`;
 
 		const urlNotFound = await fetch(normalizedUrl, { method: "HEAD" })
 			.then((r) => r.status === 404)
 			.catch(() => false);
 
-		const [kubernetesResult, databaseResult] = await Promise.all([getKubernetesSites(), listDatabaseSites()]);
+		const allSites = await getAllSites();
 
-		const kubernetesSites = kubernetesResult.sites || [];
-		const databaseSites = databaseResult.sites || [];
-
-		const siteMap = new Map<string, SiteType>();
-
-		databaseSites.forEach((site) => {
-			if (isDatabaseSite(site)) {
-				siteMap.set(site.id, site);
-			}
-		});
-
-		kubernetesSites.forEach((kubernetesSite) => {
-			if (isKubernetesSite(kubernetesSite)) {
-				const dbSite = siteMap.get(kubernetesSite.id);
-				const mergedSite = dbSite && isDatabaseSite(dbSite) ? mergeSiteWithExtras(kubernetesSite, dbSite) : kubernetesSite;
-				siteMap.set(kubernetesSite.id, mergedSite);
-			}
-		});
-
-		const sites = Array.from(siteMap.values());
-
-		if (!sites?.length) {
-			return {
-				error: { status: 404, message: "No sites found", success: false },
-			};
-		}
-
-		const filteredSites = sites
+		const matched = allSites
 			.filter((site) => {
 				try {
-					const [siteUrl, searchUrl] = [new URL(site.url), new URL(normalizedUrl)];
+					const siteUrl = new URL(site.url);
+					const searchUrl = new URL(normalizedUrl);
 					if (siteUrl.hostname !== searchUrl.hostname) return false;
-					const [sitePath, searchPath] = [siteUrl.pathname.replace(/\/$/, "") || "/", searchUrl.pathname.replace(/\/$/, "") || "/"];
-					return sitePath === searchPath || searchPath.startsWith(`${sitePath}/`) || (sitePath === "/" && searchPath.startsWith("/"));
+					const sitePath = siteUrl.pathname.replace(/\/$/, "") || "/";
+					const searchPath = searchUrl.pathname.replace(/\/$/, "") || "/";
+					return sitePath === searchPath || searchPath.startsWith(`${sitePath}/`) || sitePath === "/";
 				} catch {
 					return false;
 				}
 			})
+			.filter(isKubernetesSite)
 			.sort((a, b) => {
 				const aPath = new URL(a.url).pathname.replace(/\/$/, "") || "/";
 				const bPath = new URL(b.url).pathname.replace(/\/$/, "") || "/";
 				return bPath.length - aPath.length;
 			})
-			.slice(0, 1)
-			.filter((site) => isKubernetesSite(site));
+			.slice(0, 1);
 
-		if (!filteredSites.length) {
-			return {
-				error: {
-					status: 404,
-					message: "No sites found matching the URL",
-					success: false,
-				},
-			};
+		if (!matched.length) {
+			return { error: { status: 404, message: "No sites found matching the URL", success: false } };
 		}
 
 		const fetchWpData = async (endpoint: string, siteUrl: string) => {
 			try {
-				const response = await fetch(`${siteUrl}wp-json/epfl/v1/${endpoint}`);
-				if (response.status === 404) return null;
-				const data = await response.json();
+				const res = await fetch(`${siteUrl}wp-json/epfl/v1/${endpoint}`);
+				if (res.status === 404) return null;
+				const data = await res.json();
 				return data?.data?.status === 404 || (Array.isArray(data) && !data.length) ? null : data;
 			} catch {
 				return null;
 			}
 		};
 
-		const searchSites = await Promise.all(
-			filteredSites.map(async (site) => {
-				const [revisions, lastChange] = await Promise.all([fetchWpData("lastrevisions", site.url), fetchWpData(`lastchange?url=${normalizedUrl}`, site.url)]);
+		type Revision = { username: string; last_modified: string; post_title?: string; post_url?: string };
 
-				type Revision = {
-					username: string;
-					last_modified: string;
-					post_title?: string;
-					post_url?: string;
-				};
-				console.log("Fetched revisions:", revisions);
+		const sites = await Promise.all(
+			matched.map(async (site) => {
+				const [revisions, lastChange] = await Promise.all([fetchWpData("lastrevisions", site.url), fetchWpData(`lastchange?url=${normalizedUrl}`, site.url)]);
 
 				const userIds = [...(revisions?.map((r: Revision) => r.username) ?? []), ...(lastChange?.[0]?.username ? [lastChange[0].username] : [])];
 				const persons = await getPersonsByUsernames(userIds).then((res) => (res.success ? res.data : []));
 
-				let unitId = "0";
-				if (isKubernetesSite(site)) {
-					unitId = site.unitId?.toString() || "0";
+				let kubernetesExtraInfo: KubernetesSiteExtraInfo | undefined;
+				try {
+					kubernetesExtraInfo = await getKubernetesSiteExtraInfo(site.id);
+				} catch {
+					// extra info is optional
 				}
 
-				let kubernetesExtraInfo: KubernetesSiteExtraInfo | undefined;
-				if (isKubernetesSite(site)) {
-					try {
-						kubernetesExtraInfo = await getKubernetesSiteExtraInfo(site.id);
-					} catch (error) {
-						console.warn("Failed to fetch Kubernetes extra info:", error);
-					}
-				}
+				const loginUrl = site.url.endsWith("/") ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`;
+				const unit = await getUnitById(site.unitId.toString()).then((res) => (res.success ? res.data : null));
 
 				return {
 					id: site.id,
 					url: site.url,
-					loginUrl: site.url.endsWith("/") ? `${site.url}wp-admin/` : `${site.url}/wp-admin/`,
+					loginUrl,
 					infrastructure: site.infrastructure,
-					unit: await getUnitById(unitId).then((res) => (res.success ? res.data : null)),
+					unit,
 					lastModified: lastChange?.[0]?.last_modified
 						? {
-								date: lastChange?.[0]?.last_modified || "",
-								user: persons.find((p) => p.id === lastChange?.[0]?.username)?.name || lastChange?.[0]?.username || "",
+								date: lastChange[0].last_modified,
+								user: persons.find((p) => p.id === lastChange[0].username)?.name ?? lastChange[0].username,
 							}
 						: null,
 					recentModifications:
 						revisions?.slice(0, 5).map((r: Revision) => ({
 							date: r.last_modified,
-							user: persons.find((p) => p.id === r.username)?.name || r.username,
-							page: r.post_title || "page non disponible",
+							user: persons.find((p) => p.id === r.username)?.name ?? r.username,
+							page: r.post_title ?? "page non disponible",
 							available: Boolean(r.post_title && r.post_url),
-						})) || [],
+						})) ?? [],
 					permissions: {
-						editors: await getEditors(unitId),
+						editors: await getEditors(site.unitId.toString()),
 						accreditors: ["admin.epfl", "mediacom.admin"],
 					},
 					...(kubernetesExtraInfo && { kubernetesExtraInfo }),
 					urlNotFound,
 					searchedUrl: normalizedUrl,
-				};
+				} satisfies SearchSite;
 			}),
 		);
 
-		await info("Sites search completed", {
+		await log.info("Sites search completed", { type: "site", action: "search", url, count: sites.length });
+		return { sites };
+	} catch (err) {
+		await log.error("Failed to search sites", {
 			type: "site",
 			action: "search",
-			object: { url, resultsCount: searchSites.length },
+			url,
+			error: { message: err instanceof Error ? err.message : "Unknown", stack: err instanceof Error ? err.stack : undefined },
 		});
-
-		return { sites: searchSites };
-	} catch (errorData) {
-		console.error("Error searching sites:", errorData);
-		await error("Failed to search sites", {
-			type: "site",
-			action: "search",
-			object: { url },
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
-		});
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		return httpError.internal();
 	}
 }
 
-const statusToErrorCode = (status: number): ErrorCode => {
-	if (status === 401) return "UNAUTHORIZED";
-	if (status === 403) return "FORBIDDEN";
-	if (status === 404) return "NOT_FOUND";
-	if (status === 409) return "SITE_ALREADY_EXISTS";
-	if (status >= 500) return "DB_ERROR";
-	return "UNKNOWN";
-};
+// --- Server Actions (called from form submissions) ---
 
-export const updateSiteAction = async (siteId: string, site: SiteFormType): Promise<ServiceResponse<{ siteId: string }>> => {
+export const createSiteAction = async (form: SiteForm): Promise<ServiceResponse<{ siteId: string }>> => {
 	try {
 		const schema = await createSiteSchema();
-		const validate = await schema.safeParseAsync(site);
-		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
-		const result = await updateSite(siteId, validate.data);
-		if (result.error) return { success: false, error: result.error.message, code: statusToErrorCode(result.error.status) };
+		const parsed = await schema.safeParseAsync(form);
+		if (!parsed.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const { siteId, error } = await createSite(parsed.data);
+		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
+		if (!siteId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
+		return { success: true, data: { siteId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const updateSiteAction = async (siteId: string, form: SiteForm): Promise<ServiceResponse<{ siteId: string }>> => {
+	try {
+		const schema = await createSiteSchema();
+		const parsed = await schema.safeParseAsync(form);
+		if (!parsed.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const { error } = await updateSite(siteId, parsed.data);
+		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
 		return { success: true, data: { siteId } };
 	} catch {
 		return { success: false, error: "Unknown error", code: "UNKNOWN" };
@@ -865,21 +477,6 @@ export const updateSiteAction = async (siteId: string, site: SiteFormType): Prom
 };
 
 export const deleteSiteAction = async (siteId: string): Promise<void> => {
-	const result = await deleteSite(siteId);
-	if (result.error) throw new Error(result.error.message);
-};
-
-export const createSiteAction = async (site: SiteFormType): Promise<ServiceResponse<{ siteId: string }>> => {
-	try {
-		const schema = await createSiteSchema();
-		const validate = await schema.safeParseAsync(site);
-		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
-
-		const result = await createSite(validate.data);
-		if (result.error) return { success: false, error: result.error.message, code: statusToErrorCode(result.error.status) };
-		if (!result.siteId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
-		return { success: true, data: { siteId: result.siteId } };
-	} catch {
-		return { success: false, error: "Unknown error", code: "UNKNOWN" };
-	}
+	const { error } = await deleteSite(siteId);
+	if (error) throw new Error(error.message);
 };
