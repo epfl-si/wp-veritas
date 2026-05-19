@@ -73,7 +73,7 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			href: "/users",
 			label: translations.navigation("users"),
 			icon: Users,
-			permissions: PERMISSIONS.LOGS.LIST,
+			permissions: PERMISSIONS.USERS.LIST,
 		},
 	];
 
