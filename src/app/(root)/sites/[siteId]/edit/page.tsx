@@ -20,7 +20,7 @@ import { getSite, updateSiteAction } from "@/services/site";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { LogType } from "@/types/log";
 import type { ServiceResponse } from "@/types/response";
-import { isKubernetesSite, type SiteFormType, type SiteType, siteSchema } from "@/types/site";
+import { isKubernetesSite, type Site, type SiteForm, siteSchema } from "@/types/site";
 
 const LOG_ACTION_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ className?: string }> }> = {
 	create: { color: "#10b981", icon: Plus },
@@ -44,7 +44,7 @@ export default function SiteUpdatePage() {
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
 
-	const [site, setSite] = useState<SiteType | null>(null);
+	const [site, setSite] = useState<Site | null>(null);
 	const [units, setUnits] = useState<SelectOption[]>([]);
 	const [persons, setPersons] = useState<SelectOption[]>([]);
 	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
@@ -81,7 +81,7 @@ export default function SiteUpdatePage() {
 		loadData();
 	}, []);
 
-	const getFormConfig = (site: SiteType): FormConfig<SiteFormType> => {
+	const getFormConfig = (site: Site): FormConfig<SiteForm> => {
 		const fields: FieldConfig[] = [
 			{
 				name: "infrastructure",
@@ -236,7 +236,11 @@ export default function SiteUpdatePage() {
 								const cfg = LOG_ACTION_CONFIG[log.data.action] ?? LOG_ACTION_CONFIG.update;
 								const Icon = cfg.icon;
 								return (
-									<div key={log.id} className="flex items-center gap-2 px-2.5 py-2 text-xs">
+									<div
+										key={log.id}
+										className="flex items-center gap-2 px-2.5 py-2 text-xs"
+										title={`${cleanLogMessage(log.message, site.url)}\n${moment(log.timestamp).locale(locale).format("LLL")} (${log.user?.name})`}
+									>
 										<span className="shrink-0 rounded p-1" style={{ color: cfg.color, backgroundColor: `${cfg.color}18` }}>
 											<Icon className="size-3" />
 										</span>
@@ -273,7 +277,7 @@ export default function SiteUpdatePage() {
 			fields,
 			sections,
 			defaultValues: {
-				infrastructure: site.infrastructure || "kubernetes",
+				infrastructure: (site.infrastructure as SiteForm["infrastructure"]) || "Kubernetes",
 				url: site.url || "",
 				title: "title" in site && site.title ? decode(site.title) : "",
 				tagline: "tagline" in site && site.tagline ? decode(site.tagline) : "",
@@ -287,7 +291,7 @@ export default function SiteUpdatePage() {
 				monitored: site.monitored ?? false,
 				responsibles: site.responsibles || [],
 			},
-			serverAction: updateSiteAction.bind(null, site.id) as (data: SiteFormType) => Promise<ServiceResponse<unknown>>,
+			serverAction: updateSiteAction.bind(null, site.id) as (data: SiteForm) => Promise<ServiceResponse<unknown>>,
 			reset: false,
 			submitButtonText: translations.site("update.label"),
 			resetButtonText: translations.actions("reset"),

@@ -11,36 +11,10 @@ import { Table, type TableColumn } from "@/components/ui/table";
 import "moment/locale/fr";
 import { ChevronDown, Loader2, UserRound } from "lucide-react";
 import Link from "next/link";
+import { getLogLevelConfig, LogDetailDialog, parseMessage } from "@/components/dialog/log";
 import { LOG_LEVELS } from "@/constants/logs";
 import { searchLogsAction } from "@/services/logs";
 import type { LogType } from "@/types/log";
-
-const getLogLevelConfig = (level: string) => {
-	return Object.values(LOG_LEVELS).find((config) => config.NAME.toLowerCase() === level.toLowerCase());
-};
-
-const parseMessage = (message: string) => {
-	return message.split(/('''.*?''')/gs).flatMap((part, i) => {
-		if (part.startsWith("'''") && part.endsWith("'''")) {
-			return (
-				// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
-				<pre key={i} className="inline bg-gray-100 px-1 py-1 rounded text-xs font-mono break-all overflow-hidden whitespace-pre-wrap">
-					{part.slice(3, -3)}
-				</pre>
-			);
-		}
-		return part.split(/(\*\*.*?\*\*)/g).map((bp, j) =>
-			bp.startsWith("**") && bp.endsWith("**") ? (
-				// biome-ignore lint/suspicious/noArrayIndexKey: text parts have no stable ID
-				<strong key={`${i}-${j}`} className="font-semibold">
-					{bp.slice(2, -2)}
-				</strong>
-			) : (
-				bp
-			),
-		);
-	});
-};
 
 const logLevels = Object.values(LOG_LEVELS).map((level) => level.NAME.toLowerCase());
 
@@ -67,6 +41,7 @@ export default function LogListPage() {
 	});
 
 	const [selectedActions, setSelectedActions] = useState<string[]>(DEFAULT_SELECTED_ACTIONS);
+	const [selectedLog, setSelectedLog] = useState<LogType | null>(null);
 	const [search, setSearch] = useState({ message: "", level: "" });
 
 	const translations = {
@@ -239,9 +214,10 @@ export default function LogListPage() {
 			align: "left",
 			sortable: true,
 			render: (log) => (
-				<div className="text-sm py-1 leading-relaxed break-all overflow-hidden" title={log.message}>
+				<button type="button" className="text-left text-sm py-1 leading-relaxed break-all overflow-hidden w-full cursor-pointer" title={log.message} onClick={() => setSelectedLog(log)}>
 					{parseMessage(log.message)}
-				</div>
+					{log.data.error && <span className="ml-2 inline-flex items-center text-xs text-red-500 font-medium">[error details]</span>}
+				</button>
 			),
 		},
 		{
@@ -359,6 +335,7 @@ export default function LogListPage() {
 					)}
 				</div>
 			</div>
+			<LogDetailDialog log={selectedLog} onClose={() => setSelectedLog(null)} />
 		</div>
 	);
 }

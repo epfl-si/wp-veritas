@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import type { SearchSiteType, SearchState } from "@/types/site";
+import type { SearchSite } from "@/types/site";
 import "moment/locale/fr";
 import { useDebouncedCallback } from "@/hooks/useDebounce";
 import { searchSites as searchSitesAction } from "@/services/site";
@@ -22,8 +22,8 @@ export default function SiteInfoPage() {
 	const router = useRouter();
 	const pathname = usePathname();
 
-	const [search, setSearch] = useState<SearchState>({ url: searchParams.get("url") || "" });
-	const [sites, setSites] = useState<SearchSiteType[]>([]);
+	const [search, setSearch] = useState<{ url: string }>({ url: searchParams.get("url") || "" });
+	const [sites, setSites] = useState<SearchSite[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [hasSearched, setHasSearched] = useState(false);
@@ -50,7 +50,7 @@ export default function SiteInfoPage() {
 		[searchParams, pathname, router],
 	);
 
-	const searchSites = useDebouncedCallback(async (searchParams: SearchState) => {
+	const searchSites = useDebouncedCallback(async (searchParams: { url: string }) => {
 		if (!searchParams.url.trim()) {
 			setSites([]);
 			setHasSearched(false);
@@ -103,7 +103,7 @@ export default function SiteInfoPage() {
 		if (e.key === "Enter") handleSearch();
 	};
 
-	const SiteCard: React.FC<{ site: SearchSiteType }> = ({ site }) => (
+	const SiteCard: React.FC<{ site: SearchSite }> = ({ site }) => (
 		<Card className="w-full gap-2 border-l-4 border-l-blue-500">
 			<CardHeader className="pb-0">
 				<div className="flex items-start justify-between">

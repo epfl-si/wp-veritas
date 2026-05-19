@@ -17,7 +17,7 @@ import { createSiteAction } from "@/services/site";
 import type { BackupEnvironment } from "@/types/backup";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { ServiceResponse } from "@/types/response";
-import { type SiteFormType, siteSchema } from "@/types/site";
+import { type SiteForm, siteSchema } from "@/types/site";
 
 export default function SiteAddPage() {
 	const locale = useLocale();
@@ -27,7 +27,7 @@ export default function SiteAddPage() {
 	const [units, setUnits] = useState<SelectOption[]>([]);
 	const [persons, setPersons] = useState<SelectOption[]>([]);
 	const [backupSites, setBackupSites] = useState<SelectOption[]>([]);
-	const [formRef, setFormRef] = useState<UseFormReturn<SiteFormType> | null>(null);
+	const [formRef, setFormRef] = useState<UseFormReturn<SiteForm> | null>(null);
 	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
 
 	const translations = {
@@ -85,7 +85,7 @@ export default function SiteAddPage() {
 		}
 	};
 
-	const getFormConfig = (): FormConfig<SiteFormType> => {
+	const getFormConfig = (): FormConfig<SiteForm> => {
 		const fields: FieldConfig[] = [
 			{
 				name: "infrastructure",
@@ -311,7 +311,7 @@ export default function SiteAddPage() {
 				comment: "",
 				responsibles: [],
 			},
-			serverAction: createSiteAction as (data: SiteFormType) => Promise<ServiceResponse<unknown>>,
+			serverAction: createSiteAction as (data: SiteForm) => Promise<ServiceResponse<unknown>>,
 			submitButtonText: translations.site("create.label"),
 			resetButtonText: translations.actions("reset"),
 			loadingText: translations.actions("creating"),
@@ -320,12 +320,12 @@ export default function SiteAddPage() {
 			successActions: [
 				{
 					label: translations.site("visitSite"),
-					url: (formData: SiteFormType) => formData.url,
+					url: (formData: SiteForm) => formData.url,
 					icon: Eye,
 				},
 				{
 					label: translations.site("edit"),
-					url: (_formData: SiteFormType, response: unknown) => {
+					url: (_formData: SiteForm, response: unknown) => {
 						const r = response as ServiceResponse<{ siteId: string }>;
 						if (r?.success) return `/sites/${r.data.siteId}/edit`;
 						return "/error";
@@ -344,7 +344,7 @@ export default function SiteAddPage() {
 					await loadSiteDetails(value, environment);
 				}
 			},
-			onFormRef: (ref: UseFormReturn<SiteFormType>) => setFormRef(ref),
+			onFormRef: (ref: UseFormReturn<SiteForm>) => setFormRef(ref),
 		};
 	};
 

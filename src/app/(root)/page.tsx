@@ -23,7 +23,7 @@ import { PERMISSIONS } from "@/constants/permissions";
 import { THEMES } from "@/constants/theme";
 import { deleteSiteAction, listSites } from "@/services/site";
 import type { InfrastructureType } from "@/types/infrastructure";
-import type { SiteListFilters, SiteType } from "@/types/site";
+import type { Site, SiteListFilters } from "@/types/site";
 import { isDatabaseSite, isKubernetesSite, isNoneSite } from "@/types/site";
 import type { ThemeType } from "@/types/theme";
 
@@ -31,7 +31,7 @@ export default function SiteListPage() {
 	const { data: session } = useSession();
 	const permissions = session?.user?.permissions ?? [];
 	const searchParams = useSearchParams();
-	const [sites, setSites] = useState<SiteType[]>([]);
+	const [sites, setSites] = useState<Site[]>([]);
 
 	useEffect(() => {
 		listSites().then(({ sites: data }) => {
@@ -243,7 +243,7 @@ export default function SiteListPage() {
 
 	const statistics = getStatistics();
 
-	const columns: TableColumn<SiteType>[] = [
+	const columns: TableColumn<Site>[] = [
 		{
 			key: "url",
 			label: translations.list("column.url"),
