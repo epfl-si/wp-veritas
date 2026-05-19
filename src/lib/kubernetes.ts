@@ -3,11 +3,69 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { getBackupConfig } from "@/services/backup";
 import type { BackupEnvironment } from "@/types/backup";
 import type { APIError } from "@/types/error";
-import type { KubernetesSite, KubernetesSiteExtraInfo, KubernetesSiteFormType, KubernetesSiteType, SiteFormType, WordPressPlugins } from "@/types/site";
+import type { KubernetesSite, KubernetesSiteExtraInfo, KubernetesSiteForm, SiteForm, WordPressPlugins } from "@/types/site";
+
+// Raw CRD representation as returned by the Kubernetes API
+interface KubernetesSiteType {
+	metadata: {
+		uid: string;
+		name: string;
+		namespace: string;
+		labels?: Record<string, string>;
+		creationTimestamp: string;
+	};
+	spec: {
+		owner: {
+			epfl: {
+				unitId: number;
+			};
+		};
+		hostname: string;
+		path: string;
+		wordpress: {
+			debug: boolean;
+			downloadsProtectionScript?: string;
+			plugins: WordPressPlugins;
+			tagline: string;
+			theme: string;
+			title: string;
+		};
+	};
+	status?: {
+		wordpresssite?: {
+			lastCronJobRuntime?: string;
+			plugins?: Record<string, object>;
+			tagline?: string;
+			title?: string;
+		};
+	};
+}
+
+import { httpError } from "./errors";
 import { extractLanguages } from "./languages";
+import log from "./log";
 import { getCategoriesFromPlugins, getKubernetesPluginStruct } from "./plugins";
 import { cache, withCache } from "./redis";
 import { ensureNoSlashAtEnd, ensureSlashAtEnd } from "./utils";
+
+function captureError(err: unknown): { message: string; stack?: string } {
+	if (err instanceof Error) {
+		return { message: err.message, stack: err.stack };
+	}
+	try {
+		return { message: JSON.stringify(err) };
+	} catch {
+		return { message: String(err) };
+	}
+}
+
+function isK8sConflict(err: unknown): 409 | null {
+	if (typeof err === "object" && err !== null && "response" in err) {
+		const status = (err as { response?: { statusCode?: number } }).response?.statusCode;
+		if (status === 409) return 409;
+	}
+	return null;
+}
 
 const kc = new k8s.KubeConfig();
 kc.loadFromDefault();
@@ -29,7 +87,7 @@ export async function getNamespace(): Promise<string> {
 		}
 		return FALLBACK_NAMESPACE;
 	} catch (error) {
-		console.warn("Could not determine namespace, using default:", error);
+		void log.warn("Could not determine namespace, using default", { type: "system", action: "read", error: captureError(error) });
 		return DEFAULT_NAMESPACE;
 	}
 }
@@ -44,12 +102,12 @@ export async function getConfigMapValue(configMapName: string, key: string): Pro
 
 		return response.data?.[key] || null;
 	} catch (error) {
-		console.error(`Error reading ConfigMap ${configMapName}:`, error);
+		void log.error(`Error reading ConfigMap ${configMapName}`, { type: "system", action: "read", error: captureError(error) });
 		return null;
 	}
 }
 
-function generateSiteName(site: KubernetesSiteFormType): string {
+function generateSiteName(site: KubernetesSiteForm): string {
 	const url = new URL(site.url);
 	let name = url.hostname.replace(/\.epfl\.ch$/, "");
 
@@ -83,24 +141,18 @@ async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: Kuberne
 
 		const items = response.items as KubernetesSiteType[];
 		if (!items || items.length === 0) {
-			return {
-				error: { status: 404, message: "No sites found", success: false },
-			};
+			return httpError.notFound("No sites found");
 		}
 
 		const k8sSite = items.find((item: KubernetesSiteType) => item.metadata.uid === uid);
 		if (!k8sSite) {
-			return {
-				error: { status: 404, message: "Site not found", success: false },
-			};
+			return httpError.notFound("Site not found");
 		}
 
 		return { k8sSite };
 	} catch (error) {
-		console.error("Error finding Kubernetes site by UID:", error);
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		void log.error("Error finding Kubernetes site by UID", { type: "site", action: "read", error: captureError(error) });
+		return httpError.internal();
 	}
 }
 
@@ -141,7 +193,7 @@ async function getPersistentVolumeName(pvcName: string): Promise<string | null> 
 	return pvc.spec.volumeName;
 }
 
-async function createSiteSpec(site: KubernetesSiteFormType, name: string, namespace: string) {
+async function createSiteSpec(site: KubernetesSiteForm, name: string, namespace: string) {
 	const url = new URL(site.url);
 
 	const getBackupConfigForSite = async () => {
@@ -264,9 +316,7 @@ export async function getKubernetesSite(id: string): Promise<{ site?: Kubernetes
 		const { k8sSite, error } = await findKubernetesSiteByUid(id);
 		if (error) return { error };
 		if (!k8sSite) {
-			return {
-				error: { status: 404, message: "Site not found", success: false },
-			};
+			return httpError.notFound("Site not found");
 		}
 
 		const site = mapKubernetesToSite(k8sSite);
@@ -274,26 +324,18 @@ export async function getKubernetesSite(id: string): Promise<{ site?: Kubernetes
 
 		return { site, ...extras };
 	} catch (error) {
-		console.error("Error fetching WordPress site:", error);
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		void log.error("Error fetching WordPress site", { type: "site", action: "read", error: captureError(error) });
+		return httpError.internal();
 	}
 }
 
-export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId?: string; error?: APIError }> {
+export async function createKubernetesSite(site: SiteForm): Promise<{ siteId?: string; error?: APIError }> {
 	try {
 		if (site.infrastructure !== "Kubernetes") {
-			return {
-				error: {
-					status: 400,
-					message: "Invalid infrastructure for Kubernetes creation",
-					success: false,
-				},
-			};
+			return httpError.badRequest("Invalid infrastructure for Kubernetes creation");
 		}
 
-		const kubernetesSite = site as KubernetesSiteFormType;
+		const kubernetesSite = site as KubernetesSiteForm;
 
 		const namespace = await getNamespace();
 		const name = generateSiteName(kubernetesSite);
@@ -308,80 +350,42 @@ export async function createKubernetesSite(site: SiteFormType): Promise<{ siteId
 		});
 
 		if (!response) {
-			return {
-				error: {
-					status: 500,
-					message: "Failed to create WordPress site",
-					success: false,
-				},
-			};
+			return httpError.internal();
 		}
 
 		cache.invalidateSitesCache();
 		const siteId = response.metadata?.uid;
 		if (!siteId) {
-			return {
-				error: {
-					status: 500,
-					message: "Site created but no ID returned",
-					success: false,
-				},
-			};
+			return httpError.internal();
 		}
 
 		return { siteId };
 	} catch (error) {
-		console.error("Error creating WordPress site:", error);
-		if (
-			typeof error === "object" &&
-			error !== null &&
-			"response" in error &&
-			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
-			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
-		) {
-			return {
-				error: { status: 409, message: "Site already exists", success: false },
-			};
-		}
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		const k8sStatus = isK8sConflict(error);
+		void log.error("Error creating WordPress site", { type: "site", action: "create", error: captureError(error) });
+		return k8sStatus ? httpError.conflict("Site already exists") : httpError.internal();
 	}
 }
 
-export async function updateKubernetesSite(id: string, siteData: SiteFormType): Promise<{ site?: KubernetesSite; error?: APIError }> {
+export async function updateKubernetesSite(id: string, siteData: SiteForm): Promise<{ site?: KubernetesSite; error?: APIError }> {
 	try {
 		if (siteData.infrastructure !== "Kubernetes") {
-			return {
-				error: {
-					status: 400,
-					message: "Invalid infrastructure for Kubernetes update",
-					success: false,
-				},
-			};
+			return httpError.badRequest("Invalid infrastructure for Kubernetes update");
 		}
 
-		const kubernetesSiteData = siteData as KubernetesSiteFormType;
+		const kubernetesSiteData = siteData as KubernetesSiteForm;
 		const namespace = await getNamespace();
 
 		const { site: existingSite, error: fetchError } = await getKubernetesSite(id);
 		if (fetchError) return { error: fetchError };
 		if (!existingSite) {
-			return {
-				error: { status: 404, message: "Site not found", success: false },
-			};
+			return httpError.notFound("Site not found");
 		}
 
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return {
-				error: {
-					status: 404,
-					message: "Site not found in Kubernetes",
-					success: false,
-				},
-			};
+			return httpError.notFound("Site not found in Kubernetes");
 		}
 
 		const patchOperations = [];
@@ -485,21 +489,9 @@ export async function updateKubernetesSite(id: string, siteData: SiteFormType): 
 
 		return { site: updatedSite };
 	} catch (error) {
-		console.error("Error updating WordPress site:", error);
-		if (
-			typeof error === "object" &&
-			error !== null &&
-			"response" in error &&
-			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
-			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
-		) {
-			return {
-				error: { status: 409, message: "Site already exists", success: false },
-			};
-		}
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		const k8sStatus = isK8sConflict(error);
+		void log.error("Error updating WordPress site", { type: "site", action: "update", error: captureError(error) });
+		return k8sStatus ? httpError.conflict("Site already exists") : httpError.internal();
 	}
 }
 
@@ -510,9 +502,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 		const { k8sSite, error: findError } = await findKubernetesSiteByUid(id);
 		if (findError) return { error: findError };
 		if (!k8sSite) {
-			return {
-				error: { status: 404, message: "Site not found", success: false },
-			};
+			return httpError.notFound("Site not found");
 		}
 
 		await k8sCustomObjectsApi.deleteNamespacedCustomObject({
@@ -526,21 +516,8 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 		cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
-		console.error("Error deleting WordPress site:", error);
-		if (
-			typeof error === "object" &&
-			error !== null &&
-			"response" in error &&
-			typeof (error as { response?: { statusCode?: number } }).response === "object" &&
-			(error as { response?: { statusCode?: number } }).response?.statusCode === 409
-		) {
-			return {
-				error: { status: 409, message: "Site already exists", success: false },
-			};
-		}
-		return {
-			error: { status: 500, message: "Internal Server Error", success: false },
-		};
+		void log.error("Error deleting WordPress site", { type: "site", action: "delete", error: captureError(error) });
+		return httpError.internal();
 	}
 }
 
@@ -564,23 +541,15 @@ export async function getKubernetesSites(): Promise<{
 				const items = response.items as KubernetesSiteType[];
 
 				if (!items) {
-					return {
-						error: { status: 404, message: "No sites found", success: false },
-					};
+					return httpError.notFound("No sites found");
 				}
 
 				const kubernetesSites = items.map(mapKubernetesToSite);
 
 				return { sites: kubernetesSites };
 			} catch (error) {
-				console.error("Error fetching Kubernetes sites:", error);
-				return {
-					error: {
-						status: 500,
-						message: "Internal Server Error",
-						success: false,
-					},
-				};
+				void log.error("Error fetching Kubernetes sites", { type: "site", action: "list", error: captureError(error) });
+				return httpError.internal();
 			}
 		},
 		480,
@@ -636,7 +605,7 @@ export async function getKubernetesSiteExtraInfo(siteId: string): Promise<Kubern
 			namespace: namespace,
 		} as KubernetesSiteExtraInfo;
 	} catch (error) {
-		console.error("Error extracting Kubernetes site info:", error);
+		void log.error("Error extracting Kubernetes site info", { type: "site", action: "read", error: captureError(error) });
 		throw { status: 500, message: "Internal Server Error", success: false };
 	}
 }
