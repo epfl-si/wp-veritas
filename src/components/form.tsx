@@ -905,11 +905,11 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 						UNAUTHORIZED: translations.errors("codes.UNAUTHORIZED"),
 						FORBIDDEN: translations.errors("codes.FORBIDDEN"),
 						NOT_FOUND: translations.errors("codes.NOT_FOUND"),
+						CONFLICT: translations.errors("codes.CONFLICT"),
 						VALIDATION_ERROR: translations.errors("codes.VALIDATION_ERROR"),
-						DB_ERROR: translations.errors("codes.DB_ERROR"),
+						INTERNAL: translations.errors("codes.INTERNAL"),
 						MAIL_ERROR: translations.errors("codes.MAIL_ERROR"),
 						UNKNOWN: translations.errors("codes.UNKNOWN"),
-						SITE_ALREADY_EXISTS: translations.errors("codes.SITE_ALREADY_EXISTS"),
 						API_ERROR: translations.errors("codes.API_ERROR"),
 					};
 					throw new Error(errorMessages[code] ?? response.error);
@@ -961,7 +961,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 			{submissionResult?.success && (
 				<div className="mb-6 border border-green-200 bg-green-50 p-4">
 					<div className="flex gap-4 items-center">
-						<div className="flex-shrink-0">
+						<div className="shrink-0">
 							<CircleCheck className="h-6 w-6 text-green-600" />
 						</div>
 						<div className="flex-1 min-w-0">
