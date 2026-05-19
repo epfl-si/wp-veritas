@@ -51,11 +51,7 @@ export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error
 					},
 					hasSiteWrite: {
 						$max: {
-							$cond: [
-								{ $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["create", "update", "delete"]] }] },
-								1,
-								0,
-							],
+							$cond: [{ $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["create", "update", "delete"]] }] }, 1, 0],
 						},
 					},
 					hasTheme: {
@@ -65,10 +61,7 @@ export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error
 						$max: {
 							$cond: [
 								{
-									$or: [
-										{ $eq: ["$data.type", "tag"] },
-										{ $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["list", "read"]] }] },
-									],
+									$or: [{ $eq: ["$data.type", "tag"] }, { $and: [{ $eq: ["$data.type", "site"] }, { $in: ["$data.action", ["list", "read"]] }] }],
 								},
 								1,
 								0,

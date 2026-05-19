@@ -499,7 +499,23 @@ export const createTagAction = async (tag: TagFormType): Promise<ServiceResponse
 		const validate = await schema.safeParseAsync(tag);
 		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
 		const { tagId, error } = await createTag(validate.data);
-		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
 		if (!tagId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
 		return { success: true, data: { tagId } };
 	} catch {
@@ -513,7 +529,23 @@ export const updateTagAction = async (tagId: string, tag: TagFormType): Promise<
 		const validate = await schema.safeParseAsync(tag);
 		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
 		const { error } = await updateTag(tagId, validate.data);
-		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
 		return { success: true, data: { tagId } };
 	} catch {
 		return { success: false, error: "Unknown error", code: "UNKNOWN" };

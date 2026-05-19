@@ -455,7 +455,23 @@ export const createSiteAction = async (form: SiteForm): Promise<ServiceResponse<
 		const parsed = await schema.safeParseAsync(form);
 		if (!parsed.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
 		const { siteId, error } = await createSite(parsed.data);
-		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
 		if (!siteId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
 		return { success: true, data: { siteId } };
 	} catch {
@@ -469,7 +485,23 @@ export const updateSiteAction = async (siteId: string, form: SiteForm): Promise<
 		const parsed = await schema.safeParseAsync(form);
 		if (!parsed.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
 		const { error } = await updateSite(siteId, parsed.data);
-		if (error) return { success: false, error: error.message, code: error.status === 401 ? "UNAUTHORIZED" : error.status === 403 ? "FORBIDDEN" : error.status === 404 ? "NOT_FOUND" : error.status === 409 ? "CONFLICT" : error.status >= 500 ? "INTERNAL" : "UNKNOWN" };
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
 		return { success: true, data: { siteId } };
 	} catch {
 		return { success: false, error: "Unknown error", code: "UNKNOWN" };

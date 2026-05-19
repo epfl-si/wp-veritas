@@ -1,7 +1,7 @@
 "use client";
 import moment from "moment";
 import "moment/locale/fr";
-import { ArrowRight, MoveRight } from "lucide-react";
+import { MoveRight } from "lucide-react";
 import { useLocale } from "next-intl";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

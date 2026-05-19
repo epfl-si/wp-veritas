@@ -54,9 +54,7 @@ export default function UserListPage() {
 			width: "w-[20%]",
 			align: "left",
 			sortable: true,
-			render: (user) => (
-				<span className={`text-xs font-semibold px-2 py-1 rounded-sm ${ROLE_STYLES[user.role] ?? ""}`}>{translations.userList(`role.${user.role}`)}</span>
-			),
+			render: (user) => <span className={`text-xs font-semibold px-2 py-1 rounded-sm ${ROLE_STYLES[user.role] ?? ""}`}>{translations.userList(`role.${user.role}`)}</span>,
 		},
 		{
 			key: "lastActivity",
@@ -90,11 +88,7 @@ export default function UserListPage() {
 				<div className="flex gap-2 mt-6">
 					<Input onChange={(e) => setSearch(e.target.value)} value={search} placeholder={translations.userList("search.placeholder")} className="flex-1 h-10" disabled={loading} />
 				</div>
-				{!loading && (
-					<p className="mt-2 text-sm text-gray-500">
-						{translations.userList("results", { count: filtered.length, total: users.length })}
-					</p>
-				)}
+				{!loading && <p className="mt-2 text-sm text-gray-500">{translations.userList("results", { count: filtered.length, total: users.length })}</p>}
 			</div>
 			<div className="px-6 pb-0 flex-1 overflow-hidden">
 				<div className="h-full overflow-y-auto">
