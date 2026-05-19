@@ -11,9 +11,9 @@
           app: "{{ app_name }}"
           component: redis
       spec:
-        storageClassName: "sc-gold"
+        storageClassName: "ocs-storagecluster-cephfs"
         accessModes:
-          - ReadWriteOnce
+          - ReadWriteMany
         resources:
           requests:
             storage: 1Gi
