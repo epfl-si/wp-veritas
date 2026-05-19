@@ -392,7 +392,8 @@
 			},
 			"role": {
 				"admin": "Administrateur",
-				"editor": "Éditeur"
+				"editor": "Éditeur",
+				"public": "Public"
 			}
 		}
 	},
