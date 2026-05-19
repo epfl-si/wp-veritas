@@ -169,7 +169,7 @@ export const WP_CATEGORIES = {
 							domains: [],
 							version: "3.6.7",
 							first_activation: Math.floor(Date.now() / 1000),
-							default_lang: "en",
+							default_lang: site.languages.includes("en") ? "en" : site.languages.length > 0 ? site.languages[0] : "en",
 						},
 					},
 				],
