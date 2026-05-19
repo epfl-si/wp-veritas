@@ -1,5 +1,5 @@
 "use client";
-import { BadgeInfo, Bookmark, Bot, CirclePlus, GalleryVerticalEnd, House, Palette, Users } from "lucide-react";
+import { BadgeInfo, Bookmark, Bot, CirclePlus, GalleryVerticalEnd, House, LinkIcon, Palette, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { User } from "next-auth";
@@ -57,23 +57,23 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 		// 	icon: Trash2,
 		// 	permissions: PERMISSIONS.SITES.DELETE,
 		// },
-		// {
-		// 	href: '/redirections',
-		// 	label: translations.navigation('redirections'),
-		// 	icon: LinkIcon,
-		// 	permissions: PERMISSIONS.REDIRECTIONS.LIST,
-		// },
-		{
-			href: "/logs",
-			label: translations.navigation("logs"),
-			icon: GalleryVerticalEnd,
-			permissions: PERMISSIONS.LOGS.LIST,
-		},
 		{
 			href: "/users",
 			label: translations.navigation("users"),
 			icon: Users,
 			permissions: PERMISSIONS.USERS.LIST,
+		},
+		{
+			href: "/redirections",
+			label: translations.navigation("redirections"),
+			icon: LinkIcon,
+			permissions: PERMISSIONS.REDIRECTIONS.LIST,
+		},
+		{
+			href: "/logs",
+			label: translations.navigation("logs"),
+			icon: GalleryVerticalEnd,
+			permissions: PERMISSIONS.LOGS.LIST,
 		},
 	];
 
