@@ -1,0 +1,37 @@
+name: Lint
+
+on:
+    workflow_call:
+
+jobs:
+    lint:
+        name: Lint
+        runs-on: ubuntu-24.04
+        permissions:
+            contents: read
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: latest
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Biome CI check
+              run: bunx biome ci --reporter=github ./src
+
+            - name: Biome lint report
+              if: always()
+              run: bunx biome lint --reporter=json ./src > biome-report.json || true
+
+            - name: Upload lint report
+              if: always()
+              uses: actions/upload-artifact@v7
+              with:
+                  name: biome-lint-report
+                  path: biome-report.json
+                  retention-days: 7
