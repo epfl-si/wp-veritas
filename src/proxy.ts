@@ -12,6 +12,7 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
 	"/themes": PERMISSIONS.THEME.LIST,
 	"/logs": PERMISSIONS.LOGS.LIST,
 	"/api-docs": PERMISSIONS.SITES.LIST,
+	"/users": PERMISSIONS.USERS.LIST,
 };
 
 const DYNAMIC_ROUTES = [

@@ -31,4 +31,7 @@ export const PERMISSIONS = {
 	THEME: {
 		LIST: "theme:list",
 	},
+	USERS: {
+		LIST: "users:list",
+	},
 };

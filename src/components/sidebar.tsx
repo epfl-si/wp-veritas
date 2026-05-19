@@ -1,5 +1,5 @@
 "use client";
-import { BadgeInfo, Bookmark, Bot, CirclePlus, GalleryVerticalEnd, House, Palette } from "lucide-react";
+import { BadgeInfo, Bookmark, Bot, CirclePlus, GalleryVerticalEnd, House, Palette, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { User } from "next-auth";
@@ -67,6 +67,12 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 			href: "/logs",
 			label: translations.navigation("logs"),
 			icon: GalleryVerticalEnd,
+			permissions: PERMISSIONS.LOGS.LIST,
+		},
+		{
+			href: "/users",
+			label: translations.navigation("users"),
+			icon: Users,
 			permissions: PERMISSIONS.LOGS.LIST,
 		},
 	];
