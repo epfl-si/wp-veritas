@@ -2,7 +2,7 @@
 import { CheckSquare, Frown, Square, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DeleteDialog } from "@/components/dialog/delete";
 import { Form } from "@/components/form";
 import { Button } from "@/components/ui/button";
@@ -162,9 +162,9 @@ export default function TagUpdatePage() {
 	};
 
 	return (
-		<Fragment>
-			<div className="p-6 pb-0 shrink-0 mt-1">
-				<div className="flex items-center justify-between mb-6">
+		<div className="w-full flex-1 flex flex-col h-full">
+			<div className="p-6 pb-4 shrink-0 mt-1">
+				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold">{translations.tag("update.title")}</h1>
 					<div className="flex bg-gray-100 rounded-lg p-1">
 						<button
@@ -197,7 +197,11 @@ export default function TagUpdatePage() {
 				</div>
 			</div>
 			<div className="px-6 pb-6 h-full overflow-y-auto">
-				{activeTab === "form" && tag && <Form config={getFormConfig()} />}
+				{activeTab === "form" && tag && (
+					<div className="mx-auto">
+						<Form config={getFormConfig()} />
+					</div>
+				)}
 				{activeTab === "sites" && (
 					<div className="space-y-6">
 						<div className="flex items-center justify-between">
@@ -272,6 +276,6 @@ export default function TagUpdatePage() {
 					</div>
 				)}
 			</div>
-		</Fragment>
+		</div>
 	);
 }
