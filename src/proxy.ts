@@ -1,27 +1,26 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { PERMISSIONS } from "@/constants/permissions";
+import { type AppAbility, defineAbilityFor } from "@/lib/ability";
 import { auth } from "@/services/auth";
-import { getPermissions } from "@/services/policy";
 
-const ROUTE_PERMISSIONS: Record<string, string> = {
-	"/": PERMISSIONS.SITES.LIST,
-	"/new": PERMISSIONS.SITES.CREATE,
-	"/search": PERMISSIONS.SITES.SEARCH,
-	"/tags": PERMISSIONS.TAGS.LIST,
-	"/tags/add": PERMISSIONS.TAGS.CREATE,
-	"/themes": PERMISSIONS.THEME.LIST,
-	"/logs": PERMISSIONS.LOGS.LIST,
-	"/api-docs": PERMISSIONS.SITES.LIST,
-	"/users": PERMISSIONS.USERS.LIST,
+type RouteCheck = (ability: AppAbility) => boolean;
+
+const STATIC_ROUTES: Record<string, RouteCheck> = {
+	"/": (a) => a.can("list", "Site"),
+	"/new": (a) => a.can("create", "Site"),
+	"/search": (a) => a.can("search", "Site"),
+	"/tags": (a) => a.can("list", "Tag"),
+	"/tags/add": (a) => a.can("create", "Tag"),
+	"/themes": (a) => a.can("list", "Theme"),
+	"/logs": (a) => a.can("list", "Log"),
+	"/api-docs": (a) => a.can("list", "Site"),
+	"/users": (a) => a.can("list", "User"),
+	"/redirections": (a) => a.can("list", "Redirection"),
 };
 
-const DYNAMIC_ROUTES = [
-	{ pattern: /^\/tags\/[^/]+\/edit$/, permission: PERMISSIONS.TAGS.UPDATE },
-	{ pattern: /^\/sites\/[^/]+\/edit$/, permission: PERMISSIONS.SITES.UPDATE },
-	{
-		pattern: /^\/sites\/[^/]+\/tags$/,
-		permission: PERMISSIONS.TAGS.ASSOCIATE,
-	},
+const DYNAMIC_ROUTES: { pattern: RegExp; check: RouteCheck }[] = [
+	{ pattern: /^\/tags\/[^/]+\/edit$/, check: (a) => a.can("update", "Tag") },
+	{ pattern: /^\/sites\/[^/]+\/edit$/, check: (a) => a.can("update", "Site") },
+	{ pattern: /^\/sites\/[^/]+\/tags$/, check: (a) => a.can("associate", "Tag") },
 ];
 
 const ROUTE_PRIORITY = ["/", "/search", "/tags", "/themes", "/new", "/tags/add", "/logs", "/api-docs"];
@@ -50,23 +49,22 @@ function logRequest(method: string, pathname: string, ip: string, userAgent: str
 	console.info(logMessage);
 }
 
-function hasPermissionForRoute(pathname: string, userPermissions: string[]): boolean {
-	if (ROUTE_PERMISSIONS[pathname]) {
-		return userPermissions.includes(ROUTE_PERMISSIONS[pathname]);
-	}
+function hasAbilityForRoute(pathname: string, ability: AppAbility): boolean {
+	const staticCheck = STATIC_ROUTES[pathname];
+	if (staticCheck) return staticCheck(ability);
 
-	for (const { pattern, permission } of DYNAMIC_ROUTES) {
+	for (const { pattern, check } of DYNAMIC_ROUTES) {
 		if (pattern.test(pathname)) {
-			return userPermissions.includes(permission);
+			return check(ability);
 		}
 	}
 
 	return false;
 }
 
-function getFirstAuthorizedRoute(userPermissions: string[]): string | null {
+function getFirstAuthorizedRoute(ability: AppAbility): string | null {
 	for (const route of ROUTE_PRIORITY) {
-		if (hasPermissionForRoute(route, userPermissions)) {
+		if (hasAbilityForRoute(route, ability)) {
 			return route;
 		}
 	}
@@ -93,11 +91,11 @@ export default async function middleware(req: NextRequest) {
 
 	try {
 		const userGroups = [...(session.user.groups || []), "public"];
-		const userPermissions = await getPermissions(userGroups);
+		const ability = defineAbilityFor(userGroups);
 
-		if (!hasPermissionForRoute(pathname, userPermissions)) {
-			if (!userPermissions.includes(PERMISSIONS.SITES.LIST)) {
-				const authorizedRoute = getFirstAuthorizedRoute(userPermissions);
+		if (!hasAbilityForRoute(pathname, ability)) {
+			if (!ability.can("list", "Site")) {
+				const authorizedRoute = getFirstAuthorizedRoute(ability);
 				if (authorizedRoute) {
 					logRequest(req.method, pathname, ip, req.headers.get("user-agent") || "unknown");
 					return NextResponse.redirect(new URL(authorizedRoute, req.url));
