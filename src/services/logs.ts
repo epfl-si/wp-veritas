@@ -1,5 +1,4 @@
 "use server";
-import { PERMISSIONS } from "@/constants/permissions";
 import { httpError } from "@/lib/errors";
 import log from "@/lib/log";
 import db from "@/lib/mongo";
@@ -7,7 +6,7 @@ import { type ILog, LogModel } from "@/models/Log";
 import type { APIError } from "@/types/error";
 import type { LogType, SearchLogsParams } from "@/types/log";
 import { getPersonsByIds } from "./api";
-import { hasPermission } from "./policy";
+import { getAbility } from "./policy";
 
 function toLogType(doc: ILog, users: Array<{ id: string; name: string; userId?: string }>): LogType {
 	return {
@@ -30,7 +29,7 @@ async function resolveUsers(logs: ILog[]): Promise<Array<{ id: string; name: str
 
 export async function searchLogs(params: SearchLogsParams): Promise<{ logs?: LogType[]; total?: number; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.LOGS.LIST))) {
+		if (!(await getAbility()).can("list", "Log")) {
 			await log.warn("Permission denied for logs search", { type: "log", action: "search" });
 			return httpError.forbidden();
 		}

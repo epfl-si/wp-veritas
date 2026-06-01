@@ -1,6 +1,5 @@
 "use server";
 import { getInfrastructureByName } from "@/constants/infrastructures";
-import { PERMISSIONS } from "@/constants/permissions";
 import { getEditors } from "@/lib/api";
 import {
 	createDatabaseSite,
@@ -34,7 +33,7 @@ import {
 	type SiteForm,
 } from "@/types/site";
 import { getPersonsByUsernames, getUnitById } from "./api";
-import { hasPermission } from "./policy";
+import { getAbility } from "./policy";
 import { sendSiteCreatedMessage, sendSiteDeletedMessage } from "./telegram";
 
 async function getAllSites(): Promise<Site[]> {
@@ -93,12 +92,13 @@ function formatChanges(changes: Record<string, { from: unknown; to: unknown }>):
 
 export async function getSite(siteId: string): Promise<{ site?: Site; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.READ))) {
+		const ability = await getAbility();
+		if (!ability.can("read", "Site")) {
 			await log.warn("Permission denied for site read", { type: "site", action: "read", id: siteId });
 			return httpError.forbidden();
 		}
 
-		const canReadTags = await hasPermission(PERMISSIONS.TAGS.READ);
+		const canReadTags = ability.can("read", "Tag");
 		const loadTags = () =>
 			canReadTags
 				? getTagsBySite(siteId)
@@ -137,7 +137,7 @@ export async function getSite(siteId: string): Promise<{ site?: Site; error?: AP
 
 export async function listSites(): Promise<{ sites?: Site[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.LIST))) {
+		if (!(await getAbility()).can("list", "Site")) {
 			await log.warn("Permission denied for sites listing", { type: "site", action: "list" });
 			return httpError.forbidden();
 		}
@@ -157,7 +157,7 @@ export async function listSites(): Promise<{ sites?: Site[]; error?: APIError }>
 
 export async function createSite(form: SiteForm): Promise<{ siteId?: string; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.CREATE))) {
+		if (!(await getAbility()).can("create", "Site")) {
 			await log.warn("Permission denied for site creation", { type: "site", action: "create", object: form });
 			return httpError.forbidden();
 		}
@@ -222,7 +222,7 @@ export async function createSite(form: SiteForm): Promise<{ siteId?: string; err
 
 export async function updateSite(siteId: string, form: SiteForm): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.UPDATE))) {
+		if (!(await getAbility()).can("update", "Site")) {
 			await log.warn("Permission denied to update the site", { type: "site", action: "update", id: siteId });
 			return httpError.forbidden();
 		}
@@ -279,7 +279,7 @@ export async function updateSite(siteId: string, form: SiteForm): Promise<{ erro
 
 export async function deleteSite(siteId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.DELETE))) {
+		if (!(await getAbility()).can("delete", "Site")) {
 			await log.warn("Permission denied for site deletion", { type: "site", action: "delete", id: siteId });
 			return httpError.forbidden();
 		}
@@ -336,7 +336,7 @@ export async function deleteSite(siteId: string): Promise<{ error?: APIError }> 
 
 export async function searchSites(url: string): Promise<{ sites?: SearchSite[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.SITES.SEARCH))) {
+		if (!(await getAbility()).can("search", "Site")) {
 			return httpError.forbidden();
 		}
 

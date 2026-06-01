@@ -1,6 +1,5 @@
 "use server";
 import { v4 as uuidv4 } from "uuid";
-import { PERMISSIONS } from "@/constants/permissions";
 import { httpError } from "@/lib/errors";
 import log from "@/lib/log";
 import db from "@/lib/mongo";
@@ -10,12 +9,12 @@ import { type ITag, TagModel } from "@/models/Tag";
 import type { APIError } from "@/types/error";
 import type { ServiceResponse } from "@/types/response";
 import { createTagSchema, type TagFormType, type TagsType, type TagType } from "@/types/tag";
-import { hasPermission } from "./policy";
+import { getAbility } from "./policy";
 import { getSite, listSites } from "./site";
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.CREATE))) {
+		if (!(await getAbility()).can("create", "Tag")) {
 			await log.warn("Permission denied for tag creation", {
 				type: "tag",
 				action: "create",
@@ -65,7 +64,7 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 
 export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.UPDATE))) {
+		if (!(await getAbility()).can("update", "Tag")) {
 			await log.warn("Permission denied for tag update", {
 				type: "tag",
 				action: "update",
@@ -125,7 +124,7 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 
 export async function deleteTag(tagId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.DELETE))) {
+		if (!(await getAbility()).can("delete", "Tag")) {
 			await log.warn("Permission denied for tag deletion", {
 				type: "tag",
 				action: "delete",
@@ -181,7 +180,7 @@ export async function deleteTag(tagId: string): Promise<{ error?: APIError }> {
 
 export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.READ))) {
+		if (!(await getAbility()).can("read", "Tag")) {
 			await log.warn("Permission denied for tag read", {
 				type: "tag",
 				action: "read",
@@ -245,7 +244,7 @@ export async function listTags(): Promise<{
 	error?: APIError;
 }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) {
+		if (!(await getAbility()).can("list", "Tag")) {
 			await log.warn("Permission denied for tags listing", {
 				type: "tag",
 				action: "list",
@@ -288,7 +287,7 @@ export async function listTags(): Promise<{
 
 export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.READ))) {
+		if (!(await getAbility()).can("read", "Tag")) {
 			await log.warn("Permission denied for tags by site", {
 				type: "tag",
 				action: "read",
@@ -348,7 +347,7 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 
 export async function associateTagWithSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.ASSOCIATE))) {
+		if (!(await getAbility()).can("associate", "Tag")) {
 			await log.warn("Permission denied for tag-site association", {
 				type: "tag",
 				action: "associate",
@@ -422,7 +421,7 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 
 export async function disassociateTagFromSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.DISSOCIATE))) {
+		if (!(await getAbility()).can("dissociate", "Tag")) {
 			await log.warn("Permission denied for tag-site dissociation", {
 				type: "tag",
 				action: "disassociate",

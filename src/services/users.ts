@@ -1,5 +1,4 @@
 "use server";
-import { PERMISSIONS } from "@/constants/permissions";
 import { httpError } from "@/lib/errors";
 import log from "@/lib/log";
 import db from "@/lib/mongo";
@@ -7,7 +6,7 @@ import { LogModel } from "@/models/Log";
 import type { APIError } from "@/types/error";
 import type { UserSummary } from "@/types/user";
 import { getPersonsByIds } from "./api";
-import { hasPermission } from "./policy";
+import { getAbility } from "./policy";
 
 // Actions only admins can perform (not in editor or public group permissions)
 // - logs:list        → data.type = "log"
@@ -32,7 +31,7 @@ interface AggregatedUser {
 
 export async function getUsersFromLogs(): Promise<{ users?: UserSummary[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.LOGS.LIST))) {
+		if (!(await getAbility()).can("list", "Log")) {
 			await log.warn("Permission denied for users list", { type: "user", action: "list" });
 			return httpError.forbidden();
 		}
