@@ -47,6 +47,7 @@ jobs:
             tags: |
                 quay-its.epfl.ch/svc0041/wp-veritas:latest
                 quay-its.epfl.ch/svc0041/wp-veritas:${{ needs.detect-version.outputs.version }}
+            version: ${{ needs.detect-version.outputs.version }}
         secrets: inherit
 
     create-release:
