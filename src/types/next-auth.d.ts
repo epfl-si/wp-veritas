@@ -6,7 +6,6 @@ declare module "next-auth" {
 			username: string;
 			userId: string;
 			groups: string[];
-			permissions: string[];
 		} & DefaultSession["user"];
 		expires: string;
 	}
@@ -15,7 +14,6 @@ declare module "next-auth" {
 		username?: string;
 		userId?: string;
 		groups?: string[];
-		permissions?: string[];
 	}
 }
 
