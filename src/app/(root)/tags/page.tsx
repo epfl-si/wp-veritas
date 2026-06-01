@@ -2,7 +2,6 @@
 import { Pencil, TagIcon, Trash2 } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,17 +9,16 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, type TableColumn } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAbility } from "@/hooks/useAbility";
 import "moment/locale/fr";
 import { Plus } from "lucide-react";
 import { DeleteDialog } from "@/components/dialog/delete";
-import { PERMISSIONS } from "@/constants/permissions";
 import { TAG_CATEGORIES } from "@/constants/tags";
 import { deleteTagAction, listTags } from "@/services/tag";
 import type { TagCategoryType, TagsType } from "@/types/tag";
 
 export default function TagListPage() {
-	const { data: session } = useSession();
-	const permissions = session?.user?.permissions ?? [];
+	const ability = useAbility();
 	const [tags, setTags] = useState<TagsType[]>([]);
 	const [search, setSearch] = useState({ name: "", type: "" });
 	const translations = {
@@ -98,18 +96,18 @@ export default function TagListPage() {
 			align: "left",
 			sortable: false,
 			render: (tag) => {
-				const canDelete = permissions.includes(PERMISSIONS.TAGS.DELETE) && tag.sites.length === 0;
+				const canDelete = ability.can("delete", "Tag") && tag.sites.length === 0;
 				const hasAssociatedSites = tag.sites.length > 0;
 				return (
 					<div className="flex gap-1.5 items-center py-1">
-						{permissions.includes(PERMISSIONS.TAGS.UPDATE) && (
+						{ability.can("update", "Tag") && (
 							<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
 								<Link href={`/tags/${tag.id}/edit`}>
 									<Pencil strokeWidth={2.3} className="size-5" />
 								</Link>
 							</Button>
 						)}
-						{permissions.includes(PERMISSIONS.TAGS.DELETE) &&
+						{ability.can("delete", "Tag") &&
 							(canDelete ? (
 								<DeleteDialog icon={TagIcon} displayName={locale === "fr" ? tag.nameFr : tag.nameEn} type="tag" onDelete={() => deleteTagAction(tag.id)} />
 							) : hasAssociatedSites ? (
@@ -137,7 +135,7 @@ export default function TagListPage() {
 			<div className="p-6 pb-0 shrink-0 mt-1">
 				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold">{translations.list("title")}</h1>
-					{permissions.includes(PERMISSIONS.TAGS.CREATE) && (
+					{ability.can("create", "Tag") && (
 						<Button className="h-10" asChild>
 							<Link href="/tags/add">
 								<Plus className="size-5" />

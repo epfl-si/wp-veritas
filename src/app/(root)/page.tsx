@@ -2,7 +2,6 @@
 import { AlertTriangle, ArrowLeft, BarChart3, Calendar, ChevronRight, Download, Filter, GlobeIcon, Info, Languages, Layers, MoreHorizontal, Pencil, Plus, Tags, Zap } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -13,13 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, type TableColumn } from "@/components/ui/table";
+import { useAbility } from "@/hooks/useAbility";
 import "moment/locale/fr";
 import { useSearchParams } from "next/navigation";
 import { DeleteDialog } from "@/components/dialog/delete";
 import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { LANGUAGES } from "@/constants/languages";
-import { PERMISSIONS } from "@/constants/permissions";
 import { THEMES } from "@/constants/theme";
 import { deleteSiteAction, listSites } from "@/services/site";
 import type { InfrastructureType } from "@/types/infrastructure";
@@ -28,8 +27,7 @@ import { isDatabaseSite, isKubernetesSite, isNoneSite } from "@/types/site";
 import type { ThemeType } from "@/types/theme";
 
 export default function SiteListPage() {
-	const { data: session } = useSession();
-	const permissions = session?.user?.permissions ?? [];
+	const ability = useAbility();
 	const searchParams = useSearchParams();
 	const [sites, setSites] = useState<Site[]>([]);
 
@@ -304,28 +302,28 @@ export default function SiteListPage() {
 			sortable: false,
 			render: (site) => (
 				<div className="flex gap-1.5 items-center py-1">
-					{permissions.includes(PERMISSIONS.SITES.READ) && (
+					{ability.can("read", "Site") && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
 							<Link prefetch={false} href={`/search?url=${site.url}`}>
 								<Info strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
 					)}
-					{permissions.includes(PERMISSIONS.SITES.UPDATE) && (
+					{ability.can("update", "Site") && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
 							<Link prefetch={false} href={`/sites/${site.id}/edit`}>
 								<Pencil strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
 					)}
-					{permissions.includes(PERMISSIONS.TAGS.ASSOCIATE) && (
+					{ability.can("associate", "Tag") && (
 						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
 							<Link prefetch={false} href={`/sites/${site.id}/tags`}>
 								<Tags strokeWidth={2.3} className="size-5" />
 							</Link>
 						</Button>
 					)}
-					{permissions.includes(PERMISSIONS.SITES.DELETE) && (
+					{ability.can("delete", "Site") && (
 						<DeleteDialog
 							icon={GlobeIcon}
 							displayName={site.url}
@@ -753,7 +751,7 @@ export default function SiteListPage() {
 							</DialogContent>
 						</Dialog>
 
-						{permissions.includes(PERMISSIONS.SITES.CREATE) && (
+						{ability.can("create", "Site") && (
 							<Button className="h-10" asChild>
 								<Link href="/new">
 									<Plus className="size-5" />
