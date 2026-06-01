@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { User } from "next-auth";
 import { useTranslations } from "next-intl";
-import { PERMISSIONS } from "@/constants/permissions";
+import { defineAbilityFor } from "@/lib/ability";
 import { cn } from "@/lib/utils";
 import pjson from "../../package.json";
 
@@ -14,85 +14,74 @@ export const Sidebar: React.FC<{ user: User }> = ({ user }) => {
 		navigation: useTranslations("navigation"),
 	};
 
+	const ability = defineAbilityFor(user.groups ?? []);
+
 	const navItems = [
 		{
 			href: "/",
 			label: translations.navigation("home"),
 			icon: House,
-			permissions: PERMISSIONS.SITES.LIST,
+			show: ability.can("list", "Site"),
 		},
 		{
 			href: "/new",
 			label: translations.navigation("new"),
 			icon: CirclePlus,
-			permissions: PERMISSIONS.SITES.CREATE,
+			show: ability.can("create", "Site"),
 		},
 		{
 			href: "/search",
 			label: translations.navigation("info"),
 			icon: BadgeInfo,
-			permissions: PERMISSIONS.SITES.SEARCH,
+			show: ability.can("search", "Site"),
 		},
 		{
 			href: "/tags",
 			label: translations.navigation("tags"),
 			icon: Bookmark,
-			permissions: PERMISSIONS.TAGS.LIST,
+			show: ability.can("list", "Tag"),
 		},
 		{
 			href: "/themes",
 			label: translations.navigation("themes"),
 			icon: Palette,
-			permissions: PERMISSIONS.THEME.LIST,
+			show: ability.can("list", "Theme"),
 		},
 		{
 			href: "/api-docs",
 			label: translations.navigation("apiDocs"),
 			icon: Bot,
-			permissions: PERMISSIONS.SITES.LIST,
+			show: ability.can("list", "Site"),
 		},
-		// {
-		// 	href: '/trash',
-		// 	label: translations.navigation('trash'),
-		// 	icon: Trash2,
-		// 	permissions: PERMISSIONS.SITES.DELETE,
-		// },
 		{
 			href: "/users",
 			label: translations.navigation("users"),
 			icon: Users,
-			permissions: PERMISSIONS.USERS.LIST,
+			show: ability.can("list", "User"),
 		},
 		{
 			href: "/redirections",
 			label: translations.navigation("redirections"),
 			icon: LinkIcon,
-			permissions: PERMISSIONS.REDIRECTIONS.LIST,
+			show: ability.can("list", "Redirection"),
 		},
 		{
 			href: "/logs",
 			label: translations.navigation("logs"),
 			icon: GalleryVerticalEnd,
-			permissions: PERMISSIONS.LOGS.LIST,
+			show: ability.can("list", "Log"),
 		},
-	];
-
-	const filteredNavItems = navItems.filter((item) => {
-		return !item.permissions || user.permissions?.includes(item.permissions);
-	});
+	].filter((item) => item.show);
 
 	return (
 		<aside className="max-w-72 flex-1 space-y-2 border-r p-4 flex flex-col justify-between">
 			<nav className="space-y-2 w-full">
-				{filteredNavItems.map((item) => (
+				{navItems.map((item) => (
 					<Link
 						key={item.href}
 						href={item.href}
 						prefetch={true}
-						className={cn(
-							"px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2",
-							pathname === item.href ? "text-primary font-semibold" : "hover:bg-muted/80",
-						)}
+						className={cn("px-6 py-3 rounded-lg flex text-primary-secondary font-medium w-full items-center justify-start gap-2", pathname === item.href ? "text-primary" : "hover:bg-muted/80")}
 					>
 						<item.icon className="w-5 h-5" />
 						{item.label}
