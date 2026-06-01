@@ -427,5 +427,11 @@
 			"placeholder": "Search...",
 			"noResults": "No results found"
 		}
+	},
+	"redirections": {
+		"wip": {
+			"title": "Feature under development",
+			"description": "Redirections management will be available soon."
+		}
 	}
 }
