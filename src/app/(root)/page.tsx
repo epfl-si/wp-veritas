@@ -251,18 +251,18 @@ export default function SiteListPage() {
 			align: "left",
 			sortable: true,
 			render: (site) => (
-				<Link href={`/sites/${site.id}/edit`} className="flex items-center justify-between gap-2">
-					<div className="flex items-center gap-2 font-medium text-blue-600 group">
+				<div className="flex items-center justify-between gap-2">
+					<a href={site.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-medium text-blue-600 hover:underline">
 						<GlobeIcon className="size-6 shrink-0" />
 						<span className="text-base font-medium leading-relaxed">{site.url}</span>
-					</div>
+					</a>
 					{!site.managed && (
 						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
 							<AlertTriangle className="size-5" />
 							<p className="font-medium">{translations.site("unmanaged")}</p>
 						</div>
 					)}
-				</Link>
+				</div>
 			),
 		},
 		{
