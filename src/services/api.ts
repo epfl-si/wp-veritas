@@ -10,8 +10,20 @@ export async function getPersons(): Promise<ServiceResponse<{ id: string; name: 
 		const persons = await withCacheSWR(
 			"persons-list",
 			async () => {
-				const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>("/v1/persons?isaccredited=1", { method: "GET" });
-				return data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
+				const PAGE_SIZE = 500;
+				const all: { id: string; name: string }[] = [];
+				let pageIndex = 0;
+				while (true) {
+					const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(`/v1/persons?isaccredited=1&pagesize=${PAGE_SIZE}&pageindex=${pageIndex}`, {
+						method: "GET",
+					});
+					const page = data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
+					console.log(`Fetched page ${pageIndex} with ${page.length} persons`);
+					all.push(...page);
+					if (page.length < PAGE_SIZE) break;
+					pageIndex++;
+				}
+				return all;
 			},
 			CACHE_TTL,
 		);
