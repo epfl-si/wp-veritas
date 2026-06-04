@@ -216,6 +216,7 @@
 		"siteList": {
 			"title": "Source of truth for WordPress websites",
 			"searchUrl": "Search for websites...",
+			"count": "{count, plural, =0 {No results} =1 {# result} other {# results}}",
 			"empty": "No websites found",
 			"moreTools": "More Tools",
 			"column": {
