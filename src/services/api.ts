@@ -18,7 +18,7 @@ export async function getPersons(): Promise<ServiceResponse<{ id: string; name: 
 						method: "GET",
 					});
 					const page = data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
-					console.log(`Fetched page ${pageIndex} with ${page.length} persons`);
+					console.warn(`Fetched page ${pageIndex} with ${page.length} persons`);
 					all.push(...page);
 					if (page.length < PAGE_SIZE) break;
 					pageIndex++;
