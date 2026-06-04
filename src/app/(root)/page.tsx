@@ -792,7 +792,7 @@ export default function SiteListPage() {
 							))}
 						</SelectContent>
 					</Select>
-					</div>
+				</div>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Table data={filteredSites} columns={columns} defaultSort={{ key: "createdAt", direction: "desc" }} />
