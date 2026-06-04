@@ -761,8 +761,11 @@ export default function SiteListPage() {
 						)}
 					</div>
 				</div>
-				<div className="flex gap-2 mt-6">
-					<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={translations.list("searchUrl")} className="flex-1 h-10" />
+				<div className="flex gap-2 mt-6 items-center">
+					<div className="relative flex-1">
+						<Input onChange={(e) => updateFilters({ ...filters, url: e.target.value })} value={filters.url} placeholder={translations.list("searchUrl")} className="w-full h-10 pr-20" />
+						<span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">{translations.list("count", { count: filteredSites.length })}</span>
+					</div>
 					<Select onValueChange={(value) => updateFilters({ ...filters, infrastructure: value === "all" ? "" : value })} value={filters.infrastructure || "all"}>
 						<SelectTrigger className="w-64 h-10!">
 							<SelectValue placeholder={translations.list("filter.infrastructure.placeholder")} />
@@ -789,7 +792,7 @@ export default function SiteListPage() {
 							))}
 						</SelectContent>
 					</Select>
-				</div>
+					</div>
 			</div>
 			<div className="px-6 pb-0 h-full overflow-y-auto">
 				<Table data={filteredSites} columns={columns} defaultSort={{ key: "createdAt", direction: "desc" }} />
