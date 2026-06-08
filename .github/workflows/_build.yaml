@@ -6,6 +6,9 @@ on:
             tags:
                 type: string
                 required: true
+            version:
+                type: string
+                required: true
         secrets:
             QUAY_ROBOT_USERNAME:
                 required: true
@@ -28,6 +31,9 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v5
+
+            - name: Set version in package.json
+              run: jq --arg v "${{ inputs.version }}" '.version = $v' package.json > package.json.tmp && mv package.json.tmp package.json
 
             - name: Setup Docker Buildx
               uses: docker/setup-buildx-action@v4

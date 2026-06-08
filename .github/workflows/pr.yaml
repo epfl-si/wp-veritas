@@ -9,13 +9,16 @@ jobs:
         runs-on: ubuntu-24.04
         outputs:
             tag: ${{ steps.compute.outputs.tag }}
+            version: ${{ steps.compute.outputs.version }}
         steps:
             - name: Compute image tag
               id: compute
               run: |
                   BRANCH=$(echo "${{ github.head_ref }}" | sed 's/[^a-zA-Z0-9._-]/-/g')
                   SHA="${{ github.sha }}"
-                  echo "tag=quay-its.epfl.ch/svc0041/wp-veritas:${BRANCH}-${SHA:0:7}" >> $GITHUB_OUTPUT
+                  VERSION="${BRANCH}-${SHA:0:7}"
+                  echo "tag=quay-its.epfl.ch/svc0041/wp-veritas:${VERSION}" >> $GITHUB_OUTPUT
+                  echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
     lint:
         uses: ./.github/workflows/_lint.yaml
@@ -26,4 +29,5 @@ jobs:
         uses: ./.github/workflows/_build.yaml
         with:
             tags: ${{ needs.prepare.outputs.tag }}
+            version: ${{ needs.prepare.outputs.version }}
         secrets: inherit

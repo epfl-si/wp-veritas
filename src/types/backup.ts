@@ -1,3 +1,9 @@
+import type { KubernetesSiteForm } from "@/types/site";
+
+export interface BackupSite extends KubernetesSiteForm {
+	id: string;
+}
+
 export interface BackupConfig {
 	test: {
 		s3: {
@@ -7,7 +13,6 @@ export interface BackupConfig {
 			secretName: string;
 			accessKeyIdSecretKeyRef: string;
 			secretAccessKeySecretKeyRef: string;
-
 		};
 		media: {
 			claimName: string;

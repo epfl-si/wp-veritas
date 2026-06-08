@@ -74,13 +74,28 @@ class RedisCache {
 
 export const cache = RedisCache.getInstance();
 
-export async function withCache<T>(
-	cacheKey: string,
-	fetchFn: () => Promise<T>,
-	ttlSeconds = 480,
-): Promise<T> {
+export async function withCache<T>(cacheKey: string, fetchFn: () => Promise<T>, ttlSeconds = 480): Promise<T> {
 	const cached = await cache.get<T>(cacheKey);
 	if (cached) {
+		return cached;
+	}
+
+	const result = await fetchFn();
+	await cache.set(cacheKey, result, ttlSeconds);
+	return result;
+}
+
+export async function withCacheSWR<T>(cacheKey: string, fetchFn: () => Promise<T>, ttlSeconds = 480): Promise<T> {
+	const cached = await cache.get<T>(cacheKey);
+	if (cached) {
+		void (async () => {
+			try {
+				const fresh = await fetchFn();
+				await cache.set(cacheKey, fresh, ttlSeconds);
+			} catch (err) {
+				console.error(`Background cache refresh failed for ${cacheKey}:`, err);
+			}
+		})();
 		return cached;
 	}
 

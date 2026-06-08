@@ -1,9 +1,8 @@
 "use server";
-import { Fragment, ReactNode } from "react";
-import React from "react";
+import { Fragment, type ReactNode } from "react";
 import { Header } from "@/components/header";
-import { getUser } from "@/services/auth";
 import { Sidebar } from "@/components/sidebar";
+import { getUser } from "@/services/auth";
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
 	const user = await getUser();
@@ -11,7 +10,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 	return (
 		<Fragment>
 			<Header user={user} />
-			<main className="flex sm:h-[calc(100%-90px)]">
+			<main className="flex sm:h-[calc(100%-81.5px)]">
 				<Sidebar user={user} />
 				{children}
 			</main>

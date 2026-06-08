@@ -1,3 +1,5 @@
+export type ErrorCode = "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "VALIDATION_ERROR" | "INTERNAL" | "MAIL_ERROR" | "UNKNOWN" | "API_ERROR";
+
 export interface APIError {
 	success: boolean;
 	status: number;

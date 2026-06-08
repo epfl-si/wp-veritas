@@ -1,7 +1,100 @@
-"use server";
+"use client";
+import { useLocale, useTranslations } from "next-intl";
+import { Form } from "@/components/form";
+import { TAG_CATEGORIES } from "@/constants/tags";
+import { useZodErrorMessages } from "@/hooks/zod";
+import { createTagAction } from "@/services/tag";
+import type { FieldConfig, FormConfig, SectionConfig } from "@/types/form";
+import type { ServiceResponse } from "@/types/response";
+import { type TagFormType, tagSchema } from "@/types/tag";
 
-import { TagAdd } from "@/components/pages/tags/add";
+export default function TagAddPage() {
+	const translations = {
+		tag: useTranslations("tag"),
+		actions: useTranslations("actions"),
+	};
+	const locale = useLocale();
+	const errorMessages = useZodErrorMessages();
 
-export default async function TagAddPage() {
-	return <TagAdd />;
+	const getFormConfig = (): FormConfig<TagFormType> => {
+		const fields: FieldConfig[] = [
+			{
+				name: "type",
+				type: "boxes",
+				label: translations.tag("form.type.label"),
+				section: "general",
+				width: "full",
+				options: Object.values(TAG_CATEGORIES).map((type) => ({
+					value: type.NAME,
+					label: type.LABEL[locale as "fr" | "en"] || type.NAME,
+					color: type.COLOR,
+					icon: type.ICON,
+				})),
+			},
+			{
+				name: "nameFr",
+				type: "text",
+				label: translations.tag("form.nameFr.label"),
+				placeholder: translations.tag("form.nameFr.placeholder"),
+				section: "names",
+				width: "half",
+			},
+			{
+				name: "nameEn",
+				type: "text",
+				label: translations.tag("form.nameEn.label"),
+				placeholder: translations.tag("form.nameEn.placeholder"),
+				section: "names",
+				width: "half",
+			},
+			{
+				name: "urlFr",
+				type: "text",
+				label: translations.tag("form.urlFr.label"),
+				placeholder: translations.tag("form.urlFr.placeholder"),
+				section: "names",
+				width: "full",
+			},
+			{
+				name: "urlEn",
+				type: "text",
+				label: translations.tag("form.urlEn.label"),
+				placeholder: translations.tag("form.urlEn.placeholder"),
+				section: "names",
+				width: "full",
+			},
+		];
+
+		const sections: SectionConfig[] = [
+			{ name: "general", title: translations.tag("form.sections.general.title"), columns: 1 },
+			{ name: "names", title: translations.tag("form.sections.names.title"), columns: 2 },
+		];
+
+		return {
+			schema: tagSchema(errorMessages),
+			fields,
+			sections,
+			defaultValues: { type: "faculty", nameFr: "", nameEn: "", urlFr: "", urlEn: "" },
+			serverAction: createTagAction as (data: TagFormType) => Promise<ServiceResponse<unknown>>,
+			submitButtonText: translations.tag("create.label"),
+			resetButtonText: translations.tag("reset"),
+			loadingText: translations.actions("creating"),
+			successTitle: translations.tag("create.success"),
+			successMessage: translations.tag("create.successMessage"),
+			errorMessage: translations.tag("create.error"),
+			onSuccess: () => {},
+			onError: (error) => console.error("Error creating tag:", error),
+		};
+	};
+
+	return (
+		<div className="w-full flex-1 flex flex-col h-full">
+			<div className="p-6 pb-4 shrink-0 mt-1">
+				<h1 className="text-3xl font-bold">{translations.tag("create.title")}</h1>
+			</div>
+			<div className="px-6 pb-0 h-full overflow-y-auto">
+				<Form config={getFormConfig()} />
+			</div>
+		</div>
+	);
 }

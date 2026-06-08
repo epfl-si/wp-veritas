@@ -12,10 +12,7 @@ function ReactSwagger() {
 			SwaggerUIBundle({
 				url: "/openapi.json",
 				dom_id: "#swagger-ui",
-				presets: [
-					SwaggerUIBundle.presets.apis,
-					SwaggerUIStandalonePreset,
-				],
+				presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
 			});
 		}
 	}, []);

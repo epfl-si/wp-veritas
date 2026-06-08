@@ -1,6 +1,6 @@
-import mongoose, { Document } from "mongoose";
-import type { InfrastructureName } from "@/types/infrastructure";
+import mongoose, { type Document } from "mongoose";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
+import type { InfrastructureName } from "@/types/infrastructure";
 
 export interface ISite extends Document {
 	id: string;
@@ -11,6 +11,7 @@ export interface ISite extends Document {
 	ticket?: string;
 	comment?: string;
 	monitored?: boolean;
+	responsibles?: string[];
 	createdAt: Date;
 }
 
@@ -27,6 +28,7 @@ const siteSchema = new mongoose.Schema<ISite>({
 	ticket: { type: String, required: false },
 	comment: { type: String, required: false },
 	monitored: { type: Boolean, required: false, default: false },
+	responsibles: { type: [String], required: false, default: [] },
 	createdAt: { type: Date, required: true, default: Date.now },
 });
 

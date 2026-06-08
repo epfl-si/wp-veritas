@@ -1,25 +1,27 @@
-import { APIError } from "@/types/error";
-import { hasPermission } from "./policy";
-import { PERMISSIONS } from "@/constants/permissions";
-import { TagFormType, TagsType, TagType } from "@/types/tag";
-import db from "@/lib/mongo";
-import { ITag, TagModel } from "@/models/Tag";
+"use server";
 import { v4 as uuidv4 } from "uuid";
-import { isValidUUID } from "@/lib/utils";
-import { info, warn, error } from "@/lib/log";
-import { getSite, listSites } from "./site";
+import { httpError } from "@/lib/errors";
+import log from "@/lib/log";
+import db from "@/lib/mongo";
 import { cache } from "@/lib/redis";
+import { isValidUUID } from "@/lib/utils";
+import { type ITag, TagModel } from "@/models/Tag";
+import type { APIError } from "@/types/error";
+import type { ServiceResponse } from "@/types/response";
+import { createTagSchema, type TagFormType, type TagsType, type TagType } from "@/types/tag";
+import { getAbility } from "./policy";
+import { getSite, listSites } from "./site";
 
 export async function createTag(tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.CREATE))) {
-			await warn("Permission denied for tag creation", {
+		if (!(await getAbility()).can("create", "Tag")) {
+			await log.warn("Permission denied for tag creation", {
 				type: "tag",
 				action: "create",
 				object: tag,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
@@ -35,10 +37,10 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 		});
 
 		const savedTag = await newTag.save();
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
-		await info(`The tag ${tag.nameEn} (${tag.type}) created successfully.`, {
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) created successfully.`, {
 			type: "tag",
 			action: "create",
 			id: tagId,
@@ -50,33 +52,33 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 		};
 	} catch (errorData) {
 		console.error("Error creating tag:", errorData);
-		await error("Failed to create tag", {
+		await log.error("Failed to create tag", {
 			type: "tag",
 			action: "create",
 			object: tag,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
 
 export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagId?: string; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.UPDATE))) {
-			await warn("Permission denied for tag update", {
+		if (!(await getAbility()).can("update", "Tag")) {
+			await log.warn("Permission denied for tag update", {
 				type: "tag",
 				action: "update",
 				id: tagId,
 				object: tag,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return httpError.badRequest("Invalid tag ID format");
 		}
 
 		const updatedTag = await TagModel.findOneAndUpdate(
@@ -92,12 +94,12 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 		);
 
 		if (!updatedTag) {
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return httpError.notFound("Tag not found");
 		}
 
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
-		await info(`The tag ${tag.nameEn} (${tag.type}) updated successfully.`, {
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) updated successfully.`, {
 			type: "tag",
 			action: "update",
 			id: tagId,
@@ -109,98 +111,98 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 		};
 	} catch (errorData) {
 		console.error("Error updating tag:", errorData);
-		await error("Failed to update tag", {
+		await log.error("Failed to update tag", {
 			type: "tag",
 			action: "update",
 			id: tagId,
 			object: tag,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
 
-export async function deleteTag(tagId: string): Promise<APIError> {
+export async function deleteTag(tagId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.DELETE))) {
-			await warn("Permission denied for tag deletion", {
+		if (!(await getAbility()).can("delete", "Tag")) {
+			await log.warn("Permission denied for tag deletion", {
 				type: "tag",
 				action: "delete",
 				id: tagId,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { status: 403, message: "Forbidden", success: false };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { status: 400, message: "Invalid tag ID format", success: false };
+			return httpError.badRequest("Invalid tag ID format");
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
 		if (!tag) {
-			return { status: 404, message: "Tag not found", success: false };
+			return httpError.notFound("Tag not found");
 		}
 
 		if (tag.sites && tag.sites.length > 0) {
-			await warn("Tag deletion attempted with associated sites", {
+			await log.warn("Tag deletion attempted with associated sites", {
 				type: "tag",
 				action: "delete",
 				id: tagId,
-				error: "Tag cannot be deleted while associated with sites",
+				error: { message: "Tag cannot be deleted while associated with sites" },
 			});
-			return { status: 400, message: "Tag cannot be deleted while associated with sites", success: false };
+			return httpError.badRequest("Tag cannot be deleted while associated with sites");
 		}
 
 		await TagModel.deleteOne({ id: tagId });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
-		await info(`The tag ${tag.nameEn} (${tag.type}) deleted successfully.`, {
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) deleted successfully.`, {
 			type: "tag",
 			action: "delete",
 			id: tagId,
 		});
 
-		return { success: true, message: "Tag deleted successfully", status: 200 };
+		return {};
 	} catch (errorData) {
 		console.error("Error deleting tag:", errorData);
-		await error("Failed to delete tag", {
+		await log.error("Failed to delete tag", {
 			type: "tag",
 			action: "delete",
 			id: tagId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { status: 500, message: "Internal Server Error", success: false };
+		return httpError.internal();
 	}
 }
 
 export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.READ))) {
-			await warn("Permission denied for tag read", {
+		if (!(await getAbility()).can("read", "Tag")) {
+			await log.warn("Permission denied for tag read", {
 				type: "tag",
 				action: "read",
 				id: tagId,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return httpError.badRequest("Invalid tag ID format");
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
 
 		if (!tag) {
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return httpError.notFound("Tag not found");
 		}
 
-		await info(`The tag ${tag.nameEn} (${tag.type}) retrieved successfully.`, {
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) retrieved successfully.`, {
 			type: "tag",
 			action: "read",
 			id: tagId,
@@ -227,32 +229,35 @@ export async function getTag(tagId: string): Promise<{ tag?: TagType; error?: AP
 		};
 	} catch (errorData) {
 		console.error("Error getting tag:", errorData);
-		await error("Failed to get tag", {
+		await log.error("Failed to get tag", {
 			type: "tag",
 			action: "read",
 			id: tagId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
 
-export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError }> {
+export async function listTags(): Promise<{
+	tags?: TagsType[];
+	error?: APIError;
+}> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.LIST))) {
-			await warn("Permission denied for tags listing", {
+		if (!(await getAbility()).can("list", "Tag")) {
+			await log.warn("Permission denied for tags listing", {
 				type: "tag",
 				action: "list",
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		const tags = await TagModel.find<ITag>();
 
-		await info("The tags listed successfully", {
+		await log.info("The tags listed successfully", {
 			type: "tag",
 			action: "list",
 			count: tags.length,
@@ -271,47 +276,47 @@ export async function listTags(): Promise<{ tags?: TagsType[]; error?: APIError 
 		};
 	} catch (errorData) {
 		console.error("Error listing tags:", errorData);
-		await error("Failed to list tags", {
+		await log.error("Failed to list tags", {
 			type: "tag",
 			action: "list",
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
 
 export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[]; error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.READ))) {
-			await warn("Permission denied for tags by site", {
+		if (!(await getAbility()).can("read", "Tag")) {
+			await log.warn("Permission denied for tags by site", {
 				type: "tag",
 				action: "read",
 				siteId,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return httpError.badRequest("Invalid site ID format");
 		}
 
 		const tags = await TagModel.find({ sites: siteId });
 		const { sites } = await listSites();
 		if (!sites) {
-			await warn("No sites found while retrieving tags by site", {
+			await log.warn("No sites found while retrieving tags by site", {
 				type: "tag",
 				action: "read",
 				siteId,
-				error: "No sites available",
+				error: { message: "No sites available" },
 			});
-			return { error: { status: 404, message: "No sites found", success: false } };
+			return httpError.notFound("No sites found");
 		}
 		const site = sites.find((s) => s.id === siteId);
 
-		await info(`Tags for site ${site?.url || "Unknown Site"} retrieved successfully.`, {
+		await log.info(`Tags for site ${site?.url || "Unknown Site"} retrieved successfully.`, {
 			type: "tag",
 			action: "read",
 			siteId,
@@ -330,68 +335,69 @@ export async function getTagsBySite(siteId: string): Promise<{ tags?: TagType[];
 		};
 	} catch (errorData) {
 		console.error("Error getting tags by site:", errorData);
-		await error("Failed to get tags by site", {
+		await log.error("Failed to get tags by site", {
 			type: "tag",
 			action: "read",
 			siteId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
+
 export async function associateTagWithSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.ASSOCIATE))) {
-			await warn("Permission denied for tag-site association", {
+		if (!(await getAbility()).can("associate", "Tag")) {
+			await log.warn("Permission denied for tag-site association", {
 				type: "tag",
 				action: "associate",
 				tagId,
 				siteId,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return httpError.badRequest("Invalid tag ID format");
 		}
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return httpError.badRequest("Invalid site ID format");
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
 		if (!tag) {
-			await warn("Tag not found for association", {
+			await log.warn("Tag not found for association", {
 				type: "tag",
 				action: "associate",
 				tagId,
 				siteId,
-				error: "Tag not found",
+				error: { message: "Tag not found" },
 			});
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return httpError.notFound("Tag not found");
 		}
 
-		if (tag.sites && tag.sites.includes(siteId)) {
-			await warn("Site already associated with tag", {
+		if (tag.sites?.includes(siteId)) {
+			await log.warn("Site already associated with tag", {
 				type: "tag",
 				action: "associate",
 				tagId,
 				siteId,
-				error: "Site already associated",
+				error: { message: "Site already associated" },
 			});
-			return { error: { status: 409, message: "Site already associated with this tag", success: false } };
+			return httpError.conflict("Site already associated with this tag");
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $addToSet: { sites: siteId } }, { new: true });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
 		const { site } = await getSite(siteId);
 
-		await info(`The tag ${tag.nameEn} (${tag.type}) associated with site ${site?.url} successfully.`, {
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) associated with site ${site?.url} successfully.`, {
 			type: "tag",
 			action: "associate",
 			tagId,
@@ -402,69 +408,69 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 
 		return {};
 	} catch (errorData) {
-		await error("Failed to associate tag with site", {
+		await log.error("Failed to associate tag with site", {
 			type: "tag",
 			action: "associate",
 			tagId,
 			siteId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
 
 export async function disassociateTagFromSite(tagId: string, siteId: string): Promise<{ error?: APIError }> {
 	try {
-		if (!(await hasPermission(PERMISSIONS.TAGS.DISSOCIATE))) {
-			await warn("Permission denied for tag-site dissociation", {
+		if (!(await getAbility()).can("dissociate", "Tag")) {
+			await log.warn("Permission denied for tag-site dissociation", {
 				type: "tag",
 				action: "disassociate",
 				tagId,
 				siteId,
-				error: "Forbidden - insufficient permissions",
+				error: { message: "Forbidden" },
 			});
-			return { error: { status: 403, message: "Forbidden", success: false } };
+			return httpError.forbidden();
 		}
 
 		await db.connect();
 
 		if (!isValidUUID(tagId)) {
-			return { error: { status: 400, message: "Invalid tag ID format", success: false } };
+			return httpError.badRequest("Invalid tag ID format");
 		}
 
 		if (!isValidUUID(siteId)) {
-			return { error: { status: 400, message: "Invalid site ID format", success: false } };
+			return httpError.badRequest("Invalid site ID format");
 		}
 
 		const tag = await TagModel.findOne({ id: tagId });
 		if (!tag) {
-			await warn("Tag not found for dissociation", {
+			await log.warn("Tag not found for dissociation", {
 				type: "tag",
 				action: "disassociate",
 				tagId,
 				siteId,
-				error: "Tag not found",
+				error: { message: "Tag not found" },
 			});
-			return { error: { status: 404, message: "Tag not found", success: false } };
+			return httpError.notFound("Tag not found");
 		}
 
-		if (!tag.sites || !tag.sites.includes(siteId)) {
-			await warn("Site not associated with tag", {
+		if (!tag.sites?.includes(siteId)) {
+			await log.warn("Site not associated with tag", {
 				type: "tag",
 				action: "disassociate",
 				tagId,
 				siteId,
-				error: "Site not associated",
+				error: { message: "Site not associated" },
 			});
-			return { error: { status: 404, message: "Site is not associated with this tag", success: false } };
+			return httpError.notFound("Site is not associated with this tag");
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $pull: { sites: siteId } }, { new: true });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 		const { site } = await getSite(siteId);
 
-		await info(`The tag ${tag.nameEn} (${tag.type}) disassociated from site ${site?.url} successfully.`, {
+		await log.info(`The tag ${tag.nameEn} (${tag.type}) disassociated from site ${site?.url} successfully.`, {
 			type: "tag",
 			action: "disassociate",
 			tagId,
@@ -475,13 +481,77 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 
 		return {};
 	} catch (errorData) {
-		await error("Failed to disassociate tag from site", {
+		await log.error("Failed to disassociate tag from site", {
 			type: "tag",
 			action: "disassociate",
 			tagId,
 			siteId,
-			error: errorData instanceof Error ? errorData.stack : "Unknown error",
+			error: { message: errorData instanceof Error ? errorData.message : "Unknown error", stack: errorData instanceof Error ? errorData.stack : undefined },
 		});
-		return { error: { status: 500, message: "Internal Server Error", success: false } };
+		return httpError.internal();
 	}
 }
+
+export const createTagAction = async (tag: TagFormType): Promise<ServiceResponse<{ tagId: string }>> => {
+	try {
+		const schema = await createTagSchema();
+		const validate = await schema.safeParseAsync(tag);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const { tagId, error } = await createTag(validate.data);
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
+		if (!tagId) return { success: false, error: "Unknown error", code: "UNKNOWN" };
+		return { success: true, data: { tagId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const updateTagAction = async (tagId: string, tag: TagFormType): Promise<ServiceResponse<{ tagId: string }>> => {
+	try {
+		const schema = await createTagSchema();
+		const validate = await schema.safeParseAsync(tag);
+		if (!validate.success) return { success: false, error: "Invalid data", code: "VALIDATION_ERROR" };
+		const { error } = await updateTag(tagId, validate.data);
+		if (error)
+			return {
+				success: false,
+				error: error.message,
+				code:
+					error.status === 401
+						? "UNAUTHORIZED"
+						: error.status === 403
+							? "FORBIDDEN"
+							: error.status === 404
+								? "NOT_FOUND"
+								: error.status === 409
+									? "CONFLICT"
+									: error.status >= 500
+										? "INTERNAL"
+										: "UNKNOWN",
+			};
+		return { success: true, data: { tagId } };
+	} catch {
+		return { success: false, error: "Unknown error", code: "UNKNOWN" };
+	}
+};
+
+export const deleteTagAction = async (tagId: string): Promise<void> => {
+	const { error } = await deleteTag(tagId);
+	if (error) throw new Error(error.message);
+};
