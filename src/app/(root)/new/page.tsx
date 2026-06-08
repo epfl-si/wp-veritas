@@ -44,6 +44,15 @@ export default function SiteAddPage() {
 	}, []);
 
 	useEffect(() => {
+		if (environments.length > 0 && formRef) {
+			const currentEnv = formRef.getValues("backupEnvironment") as string;
+			if (!environments.includes(currentEnv as BackupEnvironment)) {
+				formRef.setValue("backupEnvironment", environments[0] as BackupEnvironment);
+			}
+		}
+	}, [environments, formRef]);
+
+	useEffect(() => {
 		const loadData = async () => {
 			setLoadings({ environments: true, units: true, backupSites: true, persons: true });
 			await Promise.all([
