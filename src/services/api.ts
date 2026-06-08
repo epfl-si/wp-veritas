@@ -1,5 +1,6 @@
 "use server";
 import { makeRequest } from "@/lib/api";
+import { ldapSearchPersons } from "@/lib/ldap";
 import { withCacheSWR } from "@/lib/redis";
 import type { ServiceResponse } from "@/types/response";
 
@@ -10,20 +11,8 @@ export async function getPersons(): Promise<ServiceResponse<{ id: string; name: 
 		const persons = await withCacheSWR(
 			"persons-list",
 			async () => {
-				const PAGE_SIZE = 500;
-				const all: { id: string; name: string }[] = [];
-				let pageIndex = 0;
-				while (true) {
-					const data = await makeRequest<{ persons: { id: string; firstname: string; lastname: string }[] }>(`/v1/persons?isaccredited=1&pagesize=${PAGE_SIZE}&pageindex=${pageIndex}`, {
-						method: "GET",
-					});
-					const page = data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
-					console.warn(`Fetched page ${pageIndex} with ${page.length} persons`);
-					all.push(...page);
-					if (page.length < PAGE_SIZE) break;
-					pageIndex++;
-				}
-				return all;
+				const data = await ldapSearchPersons();
+				return data.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` }));
 			},
 			CACHE_TTL,
 		);
@@ -39,9 +28,7 @@ export async function getPersonsByIds(userIds: string[]): Promise<ServiceRespons
 		if (!userIds?.length) return { success: true, data: [] };
 		const data = await makeRequest<{
 			persons: { id: string; firstname: string; lastname: string }[];
-		}>(`/v1/persons?ids=${userIds.join(",")}`, {
-			method: "GET",
-		});
+		}>(`/v1/persons?ids=${userIds.join(",")}`, { method: "GET" });
 		return { success: true, data: data.persons.map((p) => ({ id: p.id, name: `${p.firstname} ${p.lastname}` })) };
 	} catch (error) {
 		console.error("Error fetching persons by IDs:", error);
@@ -52,21 +39,12 @@ export async function getPersonsByIds(userIds: string[]): Promise<ServiceRespons
 export async function getPersonsByUsernames(usernames: string[]): Promise<ServiceResponse<{ id: string; name: string }[]>> {
 	try {
 		if (!usernames?.length) return { success: true, data: [] };
-
 		const results = await Promise.all(
 			usernames.map(async (username) => {
 				if (username === "admin") return { id: username, name: "Admin" };
 				try {
-					const data = await makeRequest<{
-						firstname: string;
-						lastname: string;
-					}>(`/v1/persons/${username}`, {
-						method: "GET",
-					});
-					return {
-						id: username,
-						name: `${data.firstname} ${data.lastname}`.trim(),
-					};
+					const data = await makeRequest<{ firstname: string; lastname: string }>(`/v1/persons/${username}`, { method: "GET" });
+					return { id: username, name: `${data.firstname} ${data.lastname}`.trim() };
 				} catch {
 					return { id: username, name: "Unknown" };
 				}
