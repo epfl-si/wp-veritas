@@ -155,20 +155,20 @@ export default function SiteListPage() {
 
 		const languageStats = Object.values(LANGUAGES).map((language) => ({
 			name: language.common,
-			count: kubernetesSites.filter((site) => site.languages.includes(language.locale)).length,
-			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => site.languages.includes(language.locale)).length / kubernetesSites.length) * 100) : 0,
+			count: kubernetesSites.filter((site) => (site.languages ?? []).includes(language.locale)).length,
+			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => (site.languages ?? []).includes(language.locale)).length / kubernetesSites.length) * 100) : 0,
 		}));
 
 		const categoryStats = OPTIONAL_CATEGORIES.map((category) => ({
 			name: category.LABEL,
-			count: kubernetesSites.filter((site) => site.categories.includes(category.NAME)).length,
-			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => site.categories.includes(category.NAME)).length / kubernetesSites.length) * 100) : 0,
+			count: kubernetesSites.filter((site) => (site.categories ?? []).includes(category.NAME)).length,
+			percentage: kubernetesSites.length > 0 ? Math.round((kubernetesSites.filter((site) => (site.categories ?? []).includes(category.NAME)).length / kubernetesSites.length) * 100) : 0,
 		}));
 
 		const recentSites = sites.filter((site) => moment(site.createdAt).isAfter(moment().subtract(30, "days"))).length;
 		const sitesWithDownloadsProtection = kubernetesSites.filter((site) => site.downloadsProtectionScript).length;
-		const sitesWithCategories = kubernetesSites.filter((site) => site.categories.length > 0).length;
-		const multilingualSites = kubernetesSites.filter((site) => site.languages.length > 1).length;
+		const sitesWithCategories = kubernetesSites.filter((site) => (site.categories ?? []).length > 0).length;
+		const multilingualSites = kubernetesSites.filter((site) => (site.languages ?? []).length > 1).length;
 		const unitIds = kubernetesSites.map((site) => site.unitId);
 		const uniqueUnits = new Set(unitIds).size;
 		const avgSitesPerUnit = uniqueUnits > 0 ? Math.round(kubernetesSites.length / uniqueUnits) : 0;
@@ -200,8 +200,8 @@ export default function SiteListPage() {
 			isKubernetesSite(site) ? site.title || "" : "",
 			isKubernetesSite(site) ? site.tagline || "" : "",
 			isKubernetesSite(site) ? site.unitId.toString() : "",
-			isKubernetesSite(site) ? site.languages.join(";") : "",
-			isKubernetesSite(site) ? site.categories.join(";") : "",
+			isKubernetesSite(site) ? (site.languages ?? []).join(";") : "",
+			isKubernetesSite(site) ? (site.categories ?? []).join(";") : "",
 			isKubernetesSite(site) ? (site.downloadsProtectionScript ? "Yes" : "No") : "",
 			moment(site.createdAt).format("YYYY-MM-DD HH:mm:ss"),
 			site.ticket || "",
