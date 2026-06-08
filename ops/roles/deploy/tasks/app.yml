@@ -24,6 +24,7 @@
         selector:
           matchLabels:
             app.kubernetes.io/component: web
+            app.kubernetes.io/name: "{{ app_name }}"
         template:
           metadata:
             labels:

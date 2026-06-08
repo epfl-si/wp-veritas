@@ -48,3 +48,4 @@
             targetPort: 3000
         selector:
           app.kubernetes.io/component: web
+          app.kubernetes.io/name: "{{ app_name }}"
