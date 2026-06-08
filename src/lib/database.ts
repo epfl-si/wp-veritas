@@ -116,7 +116,7 @@ export async function createDatabaseSite(form: SiteForm): Promise<{ siteId?: str
 			responsibles: dbForm.responsibles,
 		}).save();
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return { siteId: id };
 	} catch (err) {
 		void log.error("Error creating database site", { type: "site", action: "create", error: { message: err instanceof Error ? err.message : String(err) } });
@@ -172,7 +172,7 @@ export async function upsertDatabaseSiteExtras(siteId: string, extras: SiteExtra
 				...(extras.monitored !== undefined && { monitored: extras.monitored }),
 				...(extras.responsibles !== undefined && { responsibles: extras.responsibles }),
 			});
-			cache.invalidateSitesCache();
+			await cache.invalidateSitesCache();
 			return {};
 		}
 
@@ -186,7 +186,7 @@ export async function upsertDatabaseSiteExtras(siteId: string, extras: SiteExtra
 			},
 		);
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return {};
 	} catch (err) {
 		void log.error("Error upserting database site extras", { type: "site", action: "update", id: siteId, error: { message: err instanceof Error ? err.message : String(err) } });
@@ -198,7 +198,7 @@ export async function deleteDatabaseSiteExtras(siteId: string): Promise<{ error?
 	try {
 		await db.connect();
 		await SiteModel.deleteOne({ id: siteId });
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return {};
 	} catch (err) {
 		void log.error("Error deleting database site extras", { type: "site", action: "delete", id: siteId, error: { message: err instanceof Error ? err.message : String(err) } });
@@ -232,7 +232,7 @@ export async function updateDatabaseSite(siteId: string, form: SiteForm): Promis
 		const updated = await SiteModel.findOneAndUpdate({ id: siteId }, update, { new: true });
 		if (!updated) return httpError.notFound("Site not found");
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return {};
 	} catch (err) {
 		void log.error("Error updating database site", { type: "site", action: "update", id: siteId, error: { message: err instanceof Error ? err.message : String(err) } });
@@ -244,7 +244,7 @@ export async function deleteDatabaseSite(id: string): Promise<{ error?: APIError
 	try {
 		await db.connect();
 		await SiteModel.deleteOne({ id });
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return {};
 	} catch (err) {
 		void log.error("Error deleting database site", { type: "site", action: "delete", id, error: { message: err instanceof Error ? err.message : String(err) } });

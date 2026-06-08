@@ -37,8 +37,8 @@ export async function createTag(tag: TagFormType): Promise<{ tagId?: string; err
 		});
 
 		const savedTag = await newTag.save();
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
 		await log.info(`The tag ${tag.nameEn} (${tag.type}) created successfully.`, {
 			type: "tag",
@@ -97,8 +97,8 @@ export async function updateTag(tagId: string, tag: TagFormType): Promise<{ tagI
 			return httpError.notFound("Tag not found");
 		}
 
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 		await log.info(`The tag ${tag.nameEn} (${tag.type}) updated successfully.`, {
 			type: "tag",
 			action: "update",
@@ -156,8 +156,8 @@ export async function deleteTag(tagId: string): Promise<{ error?: APIError }> {
 		}
 
 		await TagModel.deleteOne({ id: tagId });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
 		await log.info(`The tag ${tag.nameEn} (${tag.type}) deleted successfully.`, {
 			type: "tag",
@@ -392,8 +392,8 @@ export async function associateTagWithSite(tagId: string, siteId: string): Promi
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $addToSet: { sites: siteId } }, { new: true });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 
 		const { site } = await getSite(siteId);
 
@@ -466,8 +466,8 @@ export async function disassociateTagFromSite(tagId: string, siteId: string): Pr
 		}
 
 		await TagModel.findOneAndUpdate({ id: tagId }, { $pull: { sites: siteId } }, { new: true });
-		cache.invalidateTagsCache();
-		cache.invalidateSitesCache();
+		await cache.invalidateTagsCache();
+		await cache.invalidateSitesCache();
 		const { site } = await getSite(siteId);
 
 		await log.info(`The tag ${tag.nameEn} (${tag.type}) disassociated from site ${site?.url} successfully.`, {

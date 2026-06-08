@@ -353,7 +353,7 @@ export async function createKubernetesSite(site: SiteForm): Promise<{ siteId?: s
 			return httpError.internal();
 		}
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		const siteId = response.metadata?.uid;
 		if (!siteId) {
 			return httpError.internal();
@@ -483,7 +483,7 @@ export async function updateKubernetesSite(id: string, siteData: SiteForm): Prom
 			body: patchOperations,
 		});
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		const { site: updatedSite, error: updateError } = await getKubernetesSite(id);
 		if (updateError) return { error: updateError };
 
@@ -513,7 +513,7 @@ export async function deleteKubernetesSite(id: string): Promise<{ success?: bool
 			name: k8sSite.metadata.name,
 		});
 
-		cache.invalidateSitesCache();
+		await cache.invalidateSitesCache();
 		return { success: true };
 	} catch (error) {
 		void log.error("Error deleting WordPress site", { type: "site", action: "delete", error: captureError(error) });
