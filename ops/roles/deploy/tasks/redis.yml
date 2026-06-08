@@ -8,8 +8,10 @@
         name: "{{ redis_name }}-data"
         namespace: "{{ inventory_hostname }}"
         labels:
-          app: "{{ app_name }}"
-          component: redis
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: redis
+          app.kubernetes.io/part-of: "{{ app_name }}"
+          app.kubernetes.io/managed-by: ansible
       spec:
         storageClassName: "ocs-storagecluster-cephfs"
         accessModes:
@@ -28,19 +30,22 @@
         name: "{{ redis_name }}"
         namespace: "{{ inventory_hostname }}"
         labels:
-          app: "{{ app_name }}"
-          component: redis
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: redis
+          app.kubernetes.io/part-of: "{{ app_name }}"
+          app.kubernetes.io/managed-by: ansible
       spec:
         replicas: 1
         selector:
           matchLabels:
-            app: "{{ app_name }}"
-            component: redis
+            app.kubernetes.io/component: redis
         template:
           metadata:
             labels:
-              app: "{{ app_name }}"
-              component: redis
+              app.kubernetes.io/name: redis
+              app.kubernetes.io/component: redis
+              app.kubernetes.io/part-of: "{{ app_name }}"
+              app.kubernetes.io/managed-by: ansible
           spec:
             serviceAccountName: "{{ app_name }}"
             containers:
@@ -56,7 +61,7 @@
                   limits:
                     memory: "128Mi"
                   requests:
-                    memory: "64Mi"
+                    memory: "128Mi"
                     cpu: "100m"
                 livenessProbe:
                   tcpSocket:
@@ -83,8 +88,10 @@
         name: "{{ redis_name }}"
         namespace: "{{ inventory_hostname }}"
         labels:
-          app: "{{ app_name }}"
-          component: redis
+          app.kubernetes.io/name: redis
+          app.kubernetes.io/component: redis
+          app.kubernetes.io/part-of: "{{ app_name }}"
+          app.kubernetes.io/managed-by: ansible
       spec:
         type: ClusterIP
         ports:
@@ -92,5 +99,4 @@
             targetPort: 6379
             name: redis
         selector:
-          app: "{{ app_name }}"
-          component: redis
+          app.kubernetes.io/component: redis

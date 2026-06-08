@@ -7,8 +7,10 @@
         name: "{{ app_name }}"
         namespace: "{{ inventory_hostname }}"
         labels:
-          app: "{{ app_name }}"
-          component: web
+          app.kubernetes.io/name: "{{ app_name }}"
+          app.kubernetes.io/component: web
+          app.kubernetes.io/part-of: "{{ app_name }}"
+          app.kubernetes.io/managed-by: ansible
         annotations:
           app.openshift.io/vcs-uri: "https://github.com/epfl-si/wp-veritas/"
       spec:
@@ -21,13 +23,14 @@
             maxSurge: 1
         selector:
           matchLabels:
-            app: "{{ app_name }}"
-            component: web
+            app.kubernetes.io/component: web
         template:
           metadata:
             labels:
-              app: "{{ app_name }}"
-              component: web
+              app.kubernetes.io/name: "{{ app_name }}"
+              app.kubernetes.io/component: web
+              app.kubernetes.io/part-of: "{{ app_name }}"
+              app.kubernetes.io/managed-by: ansible
           spec:
             serviceAccountName: "{{ app_name }}"
             affinity:
@@ -35,7 +38,6 @@
                 requiredDuringSchedulingIgnoredDuringExecution:
                   - labelSelector:
                       matchLabels:
-                        app: "{{ app_name }}"
                     topologyKey: kubernetes.io/hostname
             containers:
               - name: "{{ app_name }}"
@@ -67,6 +69,6 @@
                 resources:
                   requests:
                     cpu: 250m
-                    memory: 456Mi
+                    memory: 650Mi
                   limits:
-                    memory: 856Mi
+                    memory: 650Mi
