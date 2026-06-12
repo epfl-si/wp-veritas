@@ -219,7 +219,7 @@ export default function SiteAddPage() {
 						},
 					]
 				: []),
-			...(environments.length > 1
+			...(environments.length >= 1
 				? [
 						{
 							name: "backupEnvironment" as const,
@@ -228,6 +228,7 @@ export default function SiteAddPage() {
 							placeholder: translations.site("form.backupEnvironment.placeholder"),
 							section: "advanced" as const,
 							width: "full" as const,
+							disabled: environments.length === 1,
 							options: environments.map((env) => {
 								const envConfig = ENVIRONMENTS.find((e) => e.name === env);
 								return { value: env, label: envConfig?.displayName || env };
