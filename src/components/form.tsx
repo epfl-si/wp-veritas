@@ -1,9 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, CircleAlert, CircleCheck, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
+import { ChevronDown, ExternalLink, LinkIcon, Loader2, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { type FieldValues, type Path, type SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, Form as UiForm } from "@/components/ui/form";
@@ -13,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { ApiResponse } from "@/types/api";
 import type { ErrorCode } from "@/types/error";
 import type { FieldCondition, FieldConfig, FieldType, ReusableFormProps, SectionConfig, SelectOption } from "@/types/form";
 
@@ -36,12 +36,6 @@ function isValueUnset(value: unknown, fieldType: FieldType): boolean {
 
 export function Form<T extends FieldValues>({ config, className = "" }: ReusableFormProps<T>) {
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [submissionResult, setSubmissionResult] = useState<ApiResponse | null>(null);
-	const [submissionData, setSubmissionData] = useState<{
-		formData: T;
-		response: unknown;
-	} | null>(null);
-	const [hasSubmitted, setHasSubmitted] = useState(false);
 	const appliedDefaults = useRef<Set<string>>(new Set());
 
 	const translations = {
@@ -888,9 +882,7 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 	);
 
 	const onSubmit: SubmitHandler<T> = async (data) => {
-		setHasSubmitted(true);
 		setIsSubmitting(true);
-		setSubmissionResult(null);
 
 		const startTime = Date.now();
 
@@ -924,32 +916,26 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 
 			await new Promise((resolve) => setTimeout(resolve, remainingTime));
 
-			const successResult: ApiResponse = {
-				success: true,
-				message: config.successMessage || "Data saved successfully",
-				data: result,
-			};
-
-			setSubmissionResult(successResult);
-			setSubmissionData({ formData: data, response: result });
+			// Clear any lingering toasts (e.g. persistent error toasts) before showing the success.
+			toast.dismiss();
+			toast.success(config.successTitle || config.successMessage || "Success", {
+				description: config.successTitle ? config.successMessage : undefined,
+			});
 			config.onSuccess?.(data, result);
 			if (config.reset !== false) {
 				form.reset();
 				appliedDefaults.current.clear();
 			}
-			setHasSubmitted(false);
 		} catch (error) {
 			const elapsedTime = Date.now() - startTime;
 			const remainingTime = Math.max(0, 3000 - elapsedTime);
 
 			await new Promise((resolve) => setTimeout(resolve, remainingTime));
 
-			const errorResult: ApiResponse = {
-				success: false,
-				message: error instanceof Error ? error.message : "An error occurred",
-			};
-
-			setSubmissionResult(errorResult);
+			toast.error(config.errorMessage || "Error", {
+				description: error instanceof Error ? error.message : "An error occurred",
+				duration: 30000,
+			});
 			config.onError?.(error instanceof Error ? error : new Error("Unknown error"));
 		} finally {
 			setIsSubmitting(false);
@@ -958,49 +944,6 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 
 	return (
 		<div className={`w-full ${className}`}>
-			{submissionResult?.success && (
-				<div className="mb-6 border border-green-200 bg-green-50 p-4">
-					<div className="flex gap-4 items-center">
-						<div className="shrink-0">
-							<CircleCheck className="h-6 w-6 text-green-600" />
-						</div>
-						<div className="flex-1 min-w-0">
-							<h3 className="text-sm font-semibold text-green-800">{config.successTitle}</h3>
-							{config.successMessage && <p className="text-sm text-green-700 mt-1">{config.successMessage}</p>}
-						</div>
-						{config.successActions && submissionData && (
-							<div className="flex gap-2 shrink-0">
-								{config.successActions.map((action) => {
-									const Icon = action.icon;
-									return (
-										<Button key={action.label} variant="outline" size="sm" asChild className="h-8 text-xs border-green-300 text-green-800 hover:bg-green-100">
-											<a href={action.url(submissionData.formData, submissionData.response)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-												{Icon && <Icon className="h-3 w-3" />}
-												{action.label}
-												<ExternalLink className="h-3 w-3" />
-											</a>
-										</Button>
-									);
-								})}
-							</div>
-						)}
-					</div>
-				</div>
-			)}
-			{hasSubmitted && submissionResult && !submissionResult.success && (
-				<div className="w-full mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg">
-					<div className="flex items-center gap-2">
-						<CircleAlert className="h-5 w-5 flex-shrink-0 mt-0.5" />
-						<div className="flex-1">
-							<p className="font-medium">{config.errorMessage}</p>
-							{submissionResult.message && <p className="text-sm opacity-80">{submissionResult.message}</p>}
-						</div>
-						<Button variant="ghost" size="sm" className="h-6 w-6 p-0 hover:bg-red-100 flex-shrink-0" onClick={() => setSubmissionResult(null)}>
-							<X className="h-4 w-4" />
-						</Button>
-					</div>
-				</div>
-			)}
 			<UiForm {...form}>
 				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 					{config.sections && config.sections.length > 0 ? (
@@ -1031,8 +974,6 @@ export function Form<T extends FieldValues>({ config, className = "" }: Reusable
 								onClick={() => {
 									form.reset();
 									appliedDefaults.current.clear();
-									setHasSubmitted(false);
-									setSubmissionResult(null);
 								}}
 								className="cursor-pointer"
 								disabled={isSubmitting}
