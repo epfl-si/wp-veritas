@@ -15,12 +15,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const suisse = localFont({
 	src: [
 		{
-			path: "../../fonts/SuisseIntl-Regular-WebS.woff2",
+			path: "../fonts/SuisseIntl-Regular-WebS.woff2",
 			weight: "400",
 			style: "normal",
 		},
 		{
-			path: "../../fonts/SuisseIntl-SemiBold-WebS.woff2",
+			path: "../fonts/SuisseIntl-SemiBold-WebS.woff2",
 			weight: "600",
 			style: "normal",
 		},
