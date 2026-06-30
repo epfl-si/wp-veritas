@@ -1,6 +1,6 @@
 "use client";
 import { decode } from "html-entities";
-import { Edit, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import type { UseFormReturn } from "react-hook-form";
@@ -20,6 +20,7 @@ import type { ServiceResponse } from "@/types/response";
 import { type SiteForm, siteSchema } from "@/types/site";
 
 export default function SiteAddPage() {
+	const router = useRouter();
 	const locale = useLocale();
 	const errorMessages = useZodErrorMessages();
 
@@ -327,24 +328,12 @@ export default function SiteAddPage() {
 			loadingText: translations.actions("creating"),
 			successTitle: translations.site("create.success"),
 			successMessage: translations.site("create.successMessage"),
-			successActions: [
-				{
-					label: translations.site("visitSite"),
-					url: (formData: SiteForm) => formData.url,
-					icon: Eye,
-				},
-				{
-					label: translations.site("edit"),
-					url: (_formData: SiteForm, response: unknown) => {
-						const r = response as ServiceResponse<{ siteId: string }>;
-						if (r?.success) return `/sites/${r.data.siteId}/edit`;
-						return "/error";
-					},
-					icon: Edit,
-				},
-			],
 			errorMessage: translations.site("create.error"),
-			onSuccess: () => {},
+			onSuccess: (_data: SiteForm, response: unknown) => {
+				const r = response as ServiceResponse<{ siteId: string }>;
+				// The Form already fired the success toast; give it a beat before navigating to the detail page.
+				if (r?.success) setTimeout(() => router.push(`/sites/${r.data.siteId}/edit`), 1200);
+			},
 			onError: (err) => console.error("Error creating site:", err),
 			onFieldChange: async (fieldName: string, value: unknown) => {
 				if (fieldName === "backupEnvironment" && typeof value === "string") {
