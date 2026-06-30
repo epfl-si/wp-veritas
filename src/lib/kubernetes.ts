@@ -3,7 +3,7 @@ import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { getBackupConfig } from "@/services/backup";
 import type { BackupEnvironment } from "@/types/backup";
 import type { APIError } from "@/types/error";
-import type { KubernetesSite, KubernetesSiteExtraInfo, KubernetesSiteForm, SiteForm, WordPressPlugins } from "@/types/site";
+import type { KubernetesSite, KubernetesSiteExtraInfo, KubernetesSiteForm, SiteEvent, SiteForm, WordPressPlugins } from "@/types/site";
 
 // Raw CRD representation as returned by the Kubernetes API
 interface KubernetesSiteType {
@@ -13,6 +13,7 @@ interface KubernetesSiteType {
 		namespace: string;
 		labels?: Record<string, string>;
 		creationTimestamp: string;
+		deletionTimestamp?: string;
 	};
 	spec: {
 		owner: {
@@ -172,6 +173,8 @@ function mapKubernetesToSite(item: KubernetesSiteType): KubernetesSite {
 		categories: getCategoriesFromPlugins(item.spec.wordpress.plugins) || [],
 		downloadsProtectionScript: Boolean(item.spec.wordpress.downloadsProtectionScript),
 		managed: item.metadata.labels?.["app.kubernetes.io/managed-by"] === "wp-veritas" && !isTemporary,
+		deletedAt: item.metadata.deletionTimestamp ? new Date(item.metadata.deletionTimestamp) : undefined,
+		creating: !item.status?.wordpresssite,
 		tags: [],
 		ticket: undefined,
 		comment: undefined,
@@ -554,6 +557,25 @@ export async function getKubernetesSites(): Promise<{
 		},
 		480,
 	); // 8 minutes cache
+}
+
+export async function watchKubernetesSites(onEvent: (event: SiteEvent) => void, onDone: (err?: unknown) => void): Promise<{ abort(): void }> {
+	const namespace = await getNamespace();
+	const watch = new k8s.Watch(kc);
+
+	return watch.watch(
+		`/apis/${WORDPRESS_GROUP}/${WORDPRESS_VERSION}/namespaces/${namespace}/${WORDPRESS_PLURAL}`,
+		{},
+		(phase: string, obj: KubernetesSiteType) => {
+			const id = obj.metadata?.uid;
+			if (!id) return;
+
+			if (phase === "ADDED") onEvent({ type: "added", id, site: mapKubernetesToSite(obj) });
+			else if (phase === "MODIFIED") onEvent({ type: "modified", id, site: mapKubernetesToSite(obj) });
+			else if (phase === "DELETED") onEvent({ type: "deleted", id });
+		},
+		onDone,
+	);
 }
 
 export async function getKubernetesSiteExtraInfo(siteId: string): Promise<KubernetesSiteExtraInfo> {
