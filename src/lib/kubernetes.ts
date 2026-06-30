@@ -126,7 +126,7 @@ function generateSiteName(site: KubernetesSiteForm): string {
 		segmentIndex++;
 	}
 
-	return name.toLowerCase();
+	return name.toLowerCase().replaceAll("_", "-").replace(/-+/g, "-");
 }
 
 async function findKubernetesSiteByUid(uid: string): Promise<{ k8sSite?: KubernetesSiteType; error?: APIError }> {
