@@ -39,6 +39,8 @@ interface BaseSite extends SiteExtras {
 	id: string;
 	url: string;
 	createdAt: Date;
+	deletedAt?: Date;
+	creating?: boolean;
 	tags: string[];
 	managed: boolean;
 }
@@ -62,6 +64,12 @@ export interface DatabaseSite extends BaseSite {
 }
 
 export type Site = KubernetesSite | DatabaseSite;
+
+// --- Real-time lifecycle events (streamed over SSE) ---
+// Declarative: added/modified always carry the full site (with its `creating`/`deletedAt`
+// flags), so the client reconciles state from the payload and self-heals on watch reconnect.
+
+export type SiteEvent = { type: "added"; id: string; site: Site } | { type: "modified"; id: string; site: Site } | { type: "deleted"; id: string };
 
 // --- Type guards ---
 // Temporary sites run in K8s (managed by wp-kleenex) but have persistence "none".
