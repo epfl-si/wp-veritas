@@ -570,9 +570,15 @@ export async function watchKubernetesSites(onEvent: (event: SiteEvent) => void, 
 			const id = obj.metadata?.uid;
 			if (!id) return;
 
-			if (phase === "ADDED") onEvent({ type: "added", id, site: mapKubernetesToSite(obj) });
-			else if (phase === "MODIFIED") onEvent({ type: "modified", id, site: mapKubernetesToSite(obj) });
-			else if (phase === "DELETED") onEvent({ type: "deleted", id });
+			if (phase === "ADDED") {
+				onEvent({ type: "added", id, site: mapKubernetesToSite(obj) });
+			} else if (phase === "MODIFIED") {
+				void cache.invalidateSitesCache();
+				onEvent({ type: "modified", id, site: mapKubernetesToSite(obj) });
+			} else if (phase === "DELETED") {
+				void cache.invalidateSitesCache();
+				onEvent({ type: "deleted", id });
+			}
 		},
 		onDone,
 	);
