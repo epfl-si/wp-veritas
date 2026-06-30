@@ -15,9 +15,10 @@ interface DeleteDialogProps {
 	itemCount?: number;
 	triggerText?: string;
 	isPlural?: boolean;
+	disabled?: boolean;
 }
 
-export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, type, icon, onDelete, onBulkDelete, itemCount, triggerText, isPlural = false }) => {
+export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, type, icon, onDelete, onBulkDelete, itemCount, triggerText, isPlural = false, disabled = false }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -54,12 +55,12 @@ export const DeleteDialog: React.FC<DeleteDialogProps> = ({ displayName, type, i
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
 				{triggerText ? (
-					<Button variant="destructive" className="flex items-center space-x-1">
+					<Button variant="destructive" className="flex items-center space-x-1" disabled={disabled}>
 						<Trash2 className="w-4 h-4" />
 						<span>{triggerText}</span>
 					</Button>
 				) : (
-					<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-red-400 text-red-600 hover:text-red-600 hover:bg-red-100">
+					<Button variant="outline" className="p-1 w-9 h-9 cursor-pointer border-2 border-red-400 text-red-600 hover:text-red-600 hover:bg-red-100" disabled={disabled}>
 						<Trash2 strokeWidth={2.3} className="size-5" />
 					</Button>
 				)}

@@ -40,6 +40,8 @@
 		"info": "Informations",
 		"editTags": "Modifier les tags",
 		"unmanaged": "Non géré",
+		"deleting": "En suppression",
+		"creating": "En création",
 		"create": {
 			"label": "Créer",
 			"success": "Site créé avec succès",

@@ -1,9 +1,10 @@
 "use client";
-import { AlertTriangle, ArrowLeft, BarChart3, Calendar, ChevronRight, Download, Filter, GlobeIcon, Info, Languages, Layers, MoreHorizontal, Pencil, Plus, Tags, Zap } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BarChart3, Calendar, ChevronRight, Download, Filter, GlobeIcon, Info, Languages, Layers, Loader2, MoreHorizontal, Pencil, Plus, Tags, Zap } from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
+import { ActionLink } from "@/components/ui/action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, type TableColumn } from "@/components/ui/table";
 import { useAbility } from "@/hooks/useAbility";
+import { useServerEvents } from "@/hooks/useServerEvents";
 import "moment/locale/fr";
 import { useSearchParams } from "next/navigation";
 import { DeleteDialog } from "@/components/dialog/delete";
@@ -22,7 +24,7 @@ import { LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { deleteSiteAction, listSites } from "@/services/site";
 import type { InfrastructureType } from "@/types/infrastructure";
-import type { Site, SiteListFilters } from "@/types/site";
+import type { Site, SiteEvent, SiteListFilters } from "@/types/site";
 import { isDatabaseSite, isKubernetesSite, isNoneSite } from "@/types/site";
 import type { ThemeType } from "@/types/theme";
 
@@ -30,12 +32,37 @@ export default function SiteListPage() {
 	const ability = useAbility();
 	const searchParams = useSearchParams();
 	const [sites, setSites] = useState<Site[]>([]);
+	const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
 		listSites().then(({ sites: data }) => {
 			if (data) setSites(data);
 		});
 	}, []);
+
+	const removeFromSet = (set: Set<string>, id: string): Set<string> => {
+		if (!set.has(id)) return set;
+		const next = new Set(set);
+		next.delete(id);
+		return next;
+	};
+
+	useServerEvents<{ site: SiteEvent }>("/api/sites/events", {
+		site: (event) => {
+			switch (event.type) {
+				case "added":
+				case "modified":
+					// Upsert with the authoritative site; `creating`/`deletedAt` flags live on the object itself.
+					setSites((prev) => (prev.some((s) => s.id === event.id) ? prev.map((s) => (s.id === event.id ? event.site : s)) : [event.site, ...prev]));
+					if (!event.site.deletedAt) setDeletingIds((prev) => removeFromSet(prev, event.id));
+					break;
+				case "deleted":
+					setSites((prev) => prev.filter((s) => s.id !== event.id));
+					setDeletingIds((prev) => removeFromSet(prev, event.id));
+					break;
+			}
+		},
+	});
 
 	const getInitialFilters = () => {
 		const filters: SiteListFilters = {
@@ -248,20 +275,36 @@ export default function SiteListPage() {
 			width: "w-[55%]",
 			align: "left",
 			sortable: true,
-			render: (site) => (
-				<div className="flex items-center justify-between gap-2">
-					<a href={site.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-medium text-blue-600 hover:underline">
-						<GlobeIcon className="size-6 shrink-0" />
-						<span className="text-base font-medium leading-relaxed">{site.url}</span>
-					</a>
-					{!site.managed && (
-						<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
-							<AlertTriangle className="size-5" />
-							<p className="font-medium">{translations.site("unmanaged")}</p>
-						</div>
-					)}
-				</div>
-			),
+			render: (site) => {
+				const isDeleting = deletingIds.has(site.id) || Boolean(site.deletedAt);
+				const isCreating = Boolean(site.creating);
+				return (
+					<div className="flex items-center justify-between gap-2">
+						<a href={site.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 font-medium text-blue-600 hover:underline">
+							<GlobeIcon className="size-6 shrink-0" />
+							<span className="text-base font-medium leading-relaxed">{site.url}</span>
+						</a>
+						{isDeleting ? (
+							<div className="flex items-center gap-1 text-red-500 px-2 py-1">
+								<Loader2 className="size-5 animate-spin" />
+								<p className="font-medium">{translations.site("deleting")}</p>
+							</div>
+						) : isCreating ? (
+							<div className="flex items-center gap-1 text-blue-500 px-2 py-1">
+								<Loader2 className="size-5 animate-spin" />
+								<p className="font-medium">{translations.site("creating")}</p>
+							</div>
+						) : (
+							!site.managed && (
+								<div className="flex items-center gap-1 text-yellow-500 px-2 py-1">
+									<AlertTriangle className="size-5" />
+									<p className="font-medium">{translations.site("unmanaged")}</p>
+								</div>
+							)
+						)}
+					</div>
+				);
+			},
 		},
 		{
 			key: "infrastructure",
@@ -300,42 +343,42 @@ export default function SiteListPage() {
 			width: "w-[15%]",
 			align: "left",
 			sortable: false,
-			render: (site) => (
-				<div className="flex gap-1.5 items-center py-1">
-					{ability.can("read", "Site") && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100" asChild>
-							<Link prefetch={false} href={`/search?url=${site.url}`}>
+			render: (site) => {
+				const isDeleting = deletingIds.has(site.id) || Boolean(site.deletedAt);
+				const isCreating = Boolean(site.creating);
+				const locked = isDeleting || isCreating;
+				return (
+					<div className="flex gap-1.5 items-center py-1">
+						{ability.can("read", "Site") && (
+							<ActionLink href={`/search?url=${site.url}`} locked={locked} className="p-1 w-9 h-9 border-2 border-green-500 text-green-600 hover:text-green-600 hover:bg-green-100">
 								<Info strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
-					{ability.can("update", "Site") && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/edit`}>
+							</ActionLink>
+						)}
+						{ability.can("update", "Site") && (
+							<ActionLink href={`/sites/${site.id}/edit`} locked={locked} className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100">
 								<Pencil strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
-					{ability.can("associate", "Tag") && (
-						<Button variant="outline" className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100" asChild>
-							<Link prefetch={false} href={`/sites/${site.id}/tags`}>
+							</ActionLink>
+						)}
+						{ability.can("associate", "Tag") && (
+							<ActionLink href={`/sites/${site.id}/tags`} locked={locked} className="p-1 w-9 h-9 border-2 border-blue-400 text-blue-600 hover:text-blue-600 hover:bg-blue-100">
 								<Tags strokeWidth={2.3} className="size-5" />
-							</Link>
-						</Button>
-					)}
-					{ability.can("delete", "Site") && (
-						<DeleteDialog
-							icon={GlobeIcon}
-							displayName={site.url}
-							type="site"
-							onDelete={async () => {
-								await deleteSiteAction(site.id);
-								setSites((prev) => prev.filter((s) => s.id !== site.id));
-							}}
-						/>
-					)}
-				</div>
-			),
+							</ActionLink>
+						)}
+						{ability.can("delete", "Site") && (
+							<DeleteDialog
+								icon={GlobeIcon}
+								displayName={site.url}
+								type="site"
+								disabled={locked}
+								onDelete={async () => {
+									await deleteSiteAction(site.id);
+									setDeletingIds((prev) => new Set([...prev, site.id]));
+								}}
+							/>
+						)}
+					</div>
+				);
+			},
 		},
 	];
 
