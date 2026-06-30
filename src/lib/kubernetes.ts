@@ -563,22 +563,35 @@ export async function watchKubernetesSites(onEvent: (event: SiteEvent) => void, 
 	const namespace = await getNamespace();
 	const watch = new k8s.Watch(kc);
 
+	// Start the watch at the cluster's current resourceVersion so it only streams subsequent
+	// changes. Without this, the API replays every existing site as an ADDED event on connect,
+	// which floods the client (the initial list already comes from listSites()).
+	let resourceVersion: string | undefined;
+	try {
+		const list = await k8sCustomObjectsApi.listNamespacedCustomObject({
+			group: WORDPRESS_GROUP,
+			version: WORDPRESS_VERSION,
+			namespace,
+			plural: WORDPRESS_PLURAL,
+		});
+		resourceVersion = (list as { metadata?: { resourceVersion?: string } }).metadata?.resourceVersion;
+	} catch {
+		// If we cannot read the current version, fall back to a full replay rather than no events.
+	}
+
 	return watch.watch(
 		`/apis/${WORDPRESS_GROUP}/${WORDPRESS_VERSION}/namespaces/${namespace}/${WORDPRESS_PLURAL}`,
-		{},
+		resourceVersion ? { resourceVersion } : {},
 		(phase: string, obj: KubernetesSiteType) => {
 			const id = obj.metadata?.uid;
 			if (!id) return;
 
-			if (phase === "ADDED") {
-				onEvent({ type: "added", id, site: mapKubernetesToSite(obj) });
-			} else if (phase === "MODIFIED") {
-				void cache.invalidateSitesCache();
-				onEvent({ type: "modified", id, site: mapKubernetesToSite(obj) });
-			} else if (phase === "DELETED") {
-				void cache.invalidateSitesCache();
-				onEvent({ type: "deleted", id });
-			}
+			// Any change to the watched collection means the cached list is stale.
+			void cache.invalidateSitesCache();
+
+			if (phase === "ADDED") onEvent({ type: "added", id, site: mapKubernetesToSite(obj) });
+			else if (phase === "MODIFIED") onEvent({ type: "modified", id, site: mapKubernetesToSite(obj) });
+			else if (phase === "DELETED") onEvent({ type: "deleted", id });
 		},
 		onDone,
 	);
