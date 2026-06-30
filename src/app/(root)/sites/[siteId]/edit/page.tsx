@@ -15,7 +15,7 @@ import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
 import { useServerEvents } from "@/hooks/useServerEvents";
 import { useZodErrorMessages } from "@/hooks/zod";
-import { getPersons, getUnits } from "@/services/api";
+import { getPersons, getPersonsByIds, getUnits } from "@/services/api";
 import { getSiteLogsAction } from "@/services/logs";
 import { getSite, updateSiteAction } from "@/services/site";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
@@ -62,6 +62,18 @@ export default function SiteUpdatePage() {
 			if (data) {
 				setSite(data);
 				if (data.creating) setWasCreating(true);
+				// The bulk persons list (getPersons) is capped on the real LDAP directory, so already-assigned
+				// responsibles may be missing from it and wouldn't render. Resolve them by id and merge them in.
+				if (data.responsibles?.length) {
+					getPersonsByIds(data.responsibles).then((res) => {
+						if (!res.success) return;
+						setPersons((prev) => {
+							const merged = new Map(prev.map((p) => [p.value, p]));
+							for (const person of res.data) merged.set(person.id, { value: person.id, label: person.name });
+							return Array.from(merged.values());
+						});
+					});
+				}
 			}
 		});
 		getSiteLogsAction(siteId).then(({ logs }) => {
@@ -87,7 +99,16 @@ export default function SiteUpdatePage() {
 					.finally(() => setLoadings((prev) => ({ ...prev, units: false })))
 					.catch((error) => console.error("Error loading units:", error)),
 				getPersons()
-					.then((result) => result.success && setPersons(result.data.map((p) => ({ value: p.id, label: p.name }))))
+					.then(
+						(result) =>
+							result.success &&
+							// Merge (don't replace) so the responsibles resolved by id aren't clobbered, regardless of which request finishes first.
+							setPersons((prev) => {
+								const merged = new Map(prev.map((p) => [p.value, p]));
+								for (const person of result.data) if (!merged.has(person.id)) merged.set(person.id, { value: person.id, label: person.name });
+								return Array.from(merged.values());
+							}),
+					)
 					.finally(() => setLoadings((prev) => ({ ...prev, persons: false })))
 					.catch((error) => console.error("Error loading persons:", error)),
 			]);
