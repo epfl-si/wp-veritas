@@ -1,6 +1,6 @@
 "use client";
 import { decode } from "html-entities";
-import { Info, Pencil, Plus, Tags, Trash2 } from "lucide-react";
+import { CircleCheck, Info, Loader2, Pencil, Plus, Tags, Trash2 } from "lucide-react";
 import moment from "moment";
 import "moment/locale/fr";
 import Link from "next/link";
@@ -13,6 +13,7 @@ import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { DEFAULT_LANGUAGE, LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
+import { useServerEvents } from "@/hooks/useServerEvents";
 import { useZodErrorMessages } from "@/hooks/zod";
 import { getPersons, getUnits } from "@/services/api";
 import { getSiteLogsAction } from "@/services/logs";
@@ -20,7 +21,7 @@ import { getSite, updateSiteAction } from "@/services/site";
 import type { FieldConfig, FormConfig, SectionConfig, SelectOption } from "@/types/form";
 import type { LogType } from "@/types/log";
 import type { ServiceResponse } from "@/types/response";
-import { isKubernetesSite, type Site, type SiteForm, siteSchema } from "@/types/site";
+import { isKubernetesSite, type Site, type SiteEvent, type SiteForm, siteSchema } from "@/types/site";
 
 const LOG_ACTION_CONFIG: Record<string, { color: string; icon: React.ComponentType<{ className?: string }> }> = {
 	create: { color: "#10b981", icon: Plus },
@@ -45,6 +46,7 @@ export default function SiteUpdatePage() {
 	const errorMessages = useZodErrorMessages();
 
 	const [site, setSite] = useState<Site | null>(null);
+	const [wasCreating, setWasCreating] = useState(false);
 	const [units, setUnits] = useState<SelectOption[]>([]);
 	const [persons, setPersons] = useState<SelectOption[]>([]);
 	const [loadings, setLoadings] = useState<{ [key: string]: boolean }>({});
@@ -57,12 +59,24 @@ export default function SiteUpdatePage() {
 
 	useEffect(() => {
 		getSite(siteId).then(({ site: data }) => {
-			if (data) setSite(data);
+			if (data) {
+				setSite(data);
+				if (data.creating) setWasCreating(true);
+			}
 		});
 		getSiteLogsAction(siteId).then(({ logs }) => {
 			setSiteLogs(logs.filter((l) => ["create", "update", "delete"].includes(l.data.action)).slice(0, 2));
 		});
 	}, [siteId]);
+
+	// Keep the lifecycle flags (`creating`/`deletedAt`/`managed`) in sync in real time without clobbering the form's loaded data.
+	useServerEvents<{ site: SiteEvent }>("/api/sites/events", {
+		site: (event) => {
+			if (event.id !== siteId || event.type === "deleted") return;
+			if (event.site.creating) setWasCreating(true);
+			setSite((prev) => (prev ? { ...prev, creating: event.site.creating, deletedAt: event.site.deletedAt, managed: event.site.managed } : event.site));
+		},
+	});
 
 	useEffect(() => {
 		const loadData = async () => {
@@ -308,8 +322,27 @@ export default function SiteUpdatePage() {
 		<div className="w-full flex-1 flex flex-col h-full">
 			<div className="p-6 pb-4 shrink-0 mt-1">
 				<div className="flex items-start justify-between">
-					<div>
-						<h1 className="text-3xl font-bold">{translations.site("update.title")}</h1>
+					<div className="flex min-w-0 items-center gap-3">
+						{site && (
+							<h1 className="flex min-w-0 items-baseline gap-2 text-3xl font-bold">
+								<span className="font-normal text-muted-foreground">{site.creating ? translations.site("createPrefix") : translations.site("editPrefix")}</span>
+								<span className="text-muted-foreground">·</span>
+								<span className="truncate">{"title" in site && site.title ? decode(site.title) : site.url}</span>
+							</h1>
+						)}
+						{site?.creating ? (
+							<span className="inline-flex shrink-0 items-center gap-1.5 border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-600">
+								<Loader2 className="size-3.5 animate-spin" />
+								{translations.site("creating")}
+							</span>
+						) : (
+							wasCreating && (
+								<span className="inline-flex shrink-0 items-center gap-1.5 border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-medium text-green-600">
+									<CircleCheck className="size-3.5" />
+									{translations.site("created")}
+								</span>
+							)
+						)}
 					</div>
 					<div className="flex gap-2">
 						<Button variant="outline" asChild>
