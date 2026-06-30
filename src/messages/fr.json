@@ -42,6 +42,9 @@
 		"unmanaged": "Non géré",
 		"deleting": "En suppression",
 		"creating": "En création",
+		"created": "Site créé",
+		"editPrefix": "Modifier",
+		"createPrefix": "Création",
 		"create": {
 			"label": "Créer",
 			"success": "Site créé avec succès",
