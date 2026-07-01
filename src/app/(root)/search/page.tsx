@@ -274,11 +274,6 @@ export default function SiteInfoPage() {
 							</div>
 						</div>
 					</div>
-					<div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-						<p className="text-xs text-yellow-800">
-							<strong>{translations.site("details.note")}:</strong> {translations.site("details.permissionsNote")}
-						</p>
-					</div>
 				</div>
 			</CardContent>
 		</Card>
