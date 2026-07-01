@@ -84,8 +84,7 @@
 			"editors": "Éditeurs WordPress",
 			"accreditors": "Accréditants de l'unité",
 			"note": "Note",
-			"neverModified": "Ce site n'a jamais été modifié.",
-			"permissionsNote": "Les éditeurs WordPress peuvent modifier le contenu. Les accréditants peuvent gérer les permissions et accorder les droits d'édition."
+			"neverModified": "Ce site n'a jamais été modifié."
 		},
 		"form": {
 			"infrastructure": {

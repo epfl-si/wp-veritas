@@ -84,8 +84,7 @@
 			"editors": "WordPress editors",
 			"accreditors": "Unit accreditors",
 			"note": "Note",
-			"neverModified": "This website has never been modified.",
-			"permissionsNote": "WordPress editors have content modification rights. Unit accreditors can manage permissions and grant editing rights."
+			"neverModified": "This website has never been modified."
 		},
 		"form": {
 			"infrastructure": {
