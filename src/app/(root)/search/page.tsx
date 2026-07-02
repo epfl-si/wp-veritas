@@ -1,5 +1,24 @@
 "use client";
-import { AlertCircle, Calendar, Clock, Database, Edit, ExternalLink, GlobeIcon, Link as LinkIcon, Loader2, Network, Pencil, Search, Server, Shield, User, Users } from "lucide-react";
+import {
+	AlertCircle,
+	Calendar,
+	ChevronDown,
+	ChevronUp,
+	Clock,
+	Database,
+	Edit,
+	ExternalLink,
+	GlobeIcon,
+	Link as LinkIcon,
+	Loader2,
+	Network,
+	Pencil,
+	Search,
+	Server,
+	Shield,
+	User,
+	Users,
+} from "lucide-react";
 import moment from "moment";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +35,194 @@ import type { SearchSite } from "@/types/site";
 import "moment/locale/fr";
 import { useDebouncedCallback } from "@/hooks/useDebounce";
 import { searchSites as searchSitesAction } from "@/services/site";
+
+const SiteCard: React.FC<{ site: SearchSite }> = ({ site }) => {
+	const translations = {
+		site: useTranslations("site"),
+	};
+	const [showRecentModifications, setShowRecentModifications] = useState(false);
+
+	return (
+		<Card className="w-full gap-2 border-l-4 border-l-blue-500">
+			<CardHeader className="pb-0">
+				<div className="flex items-start justify-between">
+					<div className="space-y-2 flex-1">
+						<div className="flex items-center gap-3">
+							<div className="p-2 size-12 flex justify-center items-center bg-blue-100">
+								<GlobeIcon className="w-6 h-6 text-blue-600" />
+							</div>
+							<div>
+								<CardTitle className="text-xl font-bold text-gray-900">{translations.site("details.title")}</CardTitle>
+								<CardDescription className="text-base -mt-1 text-gray-600">{translations.site("details.description")}</CardDescription>
+							</div>
+						</div>
+					</div>
+					<Button variant="outline" asChild>
+						<Link href={`/sites/${site.id}/edit`}>
+							<Pencil className="size-4" />
+							{translations.site("edit")}
+						</Link>
+					</Button>
+				</div>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				<div className="flex items-center gap-3">
+					<div className="flex items-center w-full gap-3 p-3 bg-gray-50 rounded-lg">
+						<LinkIcon className="w-5 h-5 text-gray-500 shrink-0" />
+						<a href={site.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
+							{site.url}
+							<ExternalLink className="w-4 h-4" />
+						</a>
+					</div>
+					<div className="flex items-center w-full gap-3 p-3 bg-gray-50 rounded-lg">
+						<LinkIcon className="w-5 h-5 text-gray-500 shrink-0" />
+						<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
+							{site.loginUrl}
+							<ExternalLink className="w-4 h-4" />
+						</a>
+					</div>
+				</div>
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-purple-100 rounded-lg">
+							<Calendar className="size-5 text-purple-700" />
+						</div>
+						<div>
+							<div className="text-sm font-medium text-gray-700">{translations.site("details.lastModified")}</div>
+							{site.lastModified ? (
+								<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+									<div className="flex items-center gap-0.5">
+										<Clock className="size-4" strokeWidth={2} />
+										<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format("DD/MM/YYYY HH:mm")}</p>
+									</div>
+									<div className="flex items-center gap-0.5">
+										<User className="size-4" strokeWidth={2} />
+										<p className="text-sm leading-4 flex items-center h-4">{site.lastModified.user}</p>
+									</div>
+								</div>
+							) : (
+								<p className="text-sm text-gray-500">{translations.site("details.neverModified")}</p>
+							)}
+						</div>
+					</div>
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-orange-100 rounded-lg">
+							<Users className="size-5 text-orange-700" />
+						</div>
+						<div>
+							<div className="text-sm font-semibold text-gray-700">{translations.site("details.unit")}</div>
+							<span className="flex items-center gap-1">
+								<p className="text-sm font-medium text-gray-600">{site.unit?.name}</p>
+								<p className="text-xs text-gray-500">{site.unit?.id}</p>
+							</span>
+						</div>
+					</div>
+					<div className="flex items-center gap-3">
+						<div className="p-2 size-10 flex justify-center items-center bg-blue-100 rounded-lg">
+							<Shield className="size-5 text-blue-700" />
+						</div>
+						<div>
+							<div className="text-sm font-semibold text-gray-700">{translations.site("details.loginUrl")}</div>
+							<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="mt-0 text-blue-600 hover:text-blue-800 underline text-sm inline-flex items-center gap-1">
+								{translations.site("details.adminAccess")}
+								<ExternalLink className="w-3 h-3" strokeWidth={3} />
+							</a>
+						</div>
+					</div>
+					{site.infrastructure === "Kubernetes" && site.kubernetesExtraInfo && (
+						<Fragment>
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-green-100 rounded-lg">
+									<Network className="size-5 text-green-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Ingress</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.ingressName || "N/A"}</p>
+								</div>
+							</div>
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-teal-100 rounded-lg">
+									<Server className="size-5 text-teal-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Object name</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.wordpressSiteName || "N/A"}</p>
+								</div>
+							</div>
+							<div className="flex items-center gap-3">
+								<div className="p-2 size-10 flex justify-center items-center bg-red-100 rounded-lg">
+									<Database className="size-5 text-red-700" />
+								</div>
+								<div>
+									<div className="text-sm font-semibold text-gray-700">Database</div>
+									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.databaseRef || "N/A"}</p>
+								</div>
+							</div>
+						</Fragment>
+					)}
+				</div>
+				{site.recentModifications && site.recentModifications.length > 0 && (
+					<div className="space-y-2">
+						<button type="button" onClick={() => setShowRecentModifications((prev) => !prev)} className="flex items-center justify-between w-full gap-2 px-2 cursor-pointer">
+							<div className="flex items-center gap-2">
+								<Clock className="size-5 text-gray-500" />
+								<span className="text-sm font-semibold text-gray-700">{translations.site("details.recentModifications")}</span>
+							</div>
+							{showRecentModifications ? <ChevronUp className="size-4 text-gray-500" /> : <ChevronDown className="size-4 text-gray-500" />}
+						</button>
+						{showRecentModifications && (
+							<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
+								{site.recentModifications.map((mod) => (
+									<div key={`${mod.user}-${mod.date}-${mod.page}`} className="flex items-start gap-2 text-xs">
+										<span className="text-gray-400 mt-1">•</span>
+										<div className="flex flex-wrap items-center gap-1">
+											<Badge variant="outline" className="text-xs">
+												{mod.user}
+											</Badge>
+											<span className="text-gray-600">{moment(mod.date).format("DD/MM HH:mm")}</span>
+											{mod.available ? (
+												<span className="text-gray-600">
+													- <span className="font-medium">{mod.page}</span>
+												</span>
+											) : (
+												<span className="text-gray-500 italic">- ({mod.page})</span>
+											)}
+										</div>
+									</div>
+								))}
+							</div>
+						)}
+					</div>
+				)}
+				<Separator className="my-4" />
+				<div className="space-y-4">
+					<div className="flex items-center gap-2 px-2">
+						<Shield className="size-5 text-blue-600" />
+						<span className="text-sm font-semibold text-gray-700">{translations.site("details.permissions")}</span>
+					</div>
+					<div className="w-full">
+						<div className="p-3 bg-blue-50 rounded-lg">
+							<div className="flex items-center gap-2 mb-2">
+								<Edit className="w-4 h-4 text-blue-600" />
+								<span className="text-sm font-medium text-blue-900">{translations.site("details.editors")}</span>
+								<Badge variant="outline" className="text-xs">
+									{site.permissions.editors.length}
+								</Badge>
+							</div>
+							<div className="flex flex-wrap gap-1">
+								{site.permissions.editors.map((editor) => (
+									<Badge key={editor.userId} variant="outline" className="text-xs">
+										{editor.name}
+									</Badge>
+								))}
+							</div>
+						</div>
+					</div>
+				</div>
+			</CardContent>
+		</Card>
+	);
+};
 
 export default function SiteInfoPage() {
 	const searchParams = useSearchParams();
@@ -102,182 +309,6 @@ export default function SiteInfoPage() {
 	const handleKeyDown = (e: React.KeyboardEvent) => {
 		if (e.key === "Enter") handleSearch();
 	};
-
-	const SiteCard: React.FC<{ site: SearchSite }> = ({ site }) => (
-		<Card className="w-full gap-2 border-l-4 border-l-blue-500">
-			<CardHeader className="pb-0">
-				<div className="flex items-start justify-between">
-					<div className="space-y-2 flex-1">
-						<div className="flex items-center gap-3">
-							<div className="p-2 size-12 flex justify-center items-center bg-blue-100">
-								<GlobeIcon className="w-6 h-6 text-blue-600" />
-							</div>
-							<div>
-								<CardTitle className="text-xl font-bold text-gray-900">{translations.site("details.title")}</CardTitle>
-								<CardDescription className="text-base -mt-1 text-gray-600">{translations.site("details.description")}</CardDescription>
-							</div>
-						</div>
-					</div>
-					<Button variant="outline" asChild>
-						<Link href={`/sites/${site.id}/edit`}>
-							<Pencil className="size-4" />
-							{translations.site("edit")}
-						</Link>
-					</Button>
-				</div>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<div className="flex items-center gap-3">
-					<div className="flex items-center w-full gap-3 p-3 bg-gray-50 rounded-lg">
-						<LinkIcon className="w-5 h-5 text-gray-500 shrink-0" />
-						<a href={site.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
-							{site.url}
-							<ExternalLink className="w-4 h-4" />
-						</a>
-					</div>
-					<div className="flex items-center w-full gap-3 p-3 bg-gray-50 rounded-lg">
-						<LinkIcon className="w-5 h-5 text-gray-500 shrink-0" />
-						<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline flex items-center gap-2 text-sm font-medium">
-							{site.loginUrl}
-							<ExternalLink className="w-4 h-4" />
-						</a>
-					</div>
-				</div>
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-					<div className="flex items-center gap-3">
-						<div className="p-2 size-10 flex justify-center items-center bg-blue-100 rounded-lg">
-							<Shield className="size-5 text-blue-700" />
-						</div>
-						<div>
-							<div className="text-sm font-semibold text-gray-700">{translations.site("details.loginUrl")}</div>
-							<a href={site.loginUrl} target="_blank" rel="noopener noreferrer" className="mt-0 text-blue-600 hover:text-blue-800 underline text-sm inline-flex items-center gap-1">
-								{translations.site("details.adminAccess")}
-								<ExternalLink className="w-3 h-3" strokeWidth={3} />
-							</a>
-						</div>
-					</div>
-					<div className="flex items-center gap-3">
-						<div className="p-2 size-10 flex justify-center items-center bg-orange-100 rounded-lg">
-							<Users className="size-5 text-orange-700" />
-						</div>
-						<div>
-							<div className="text-sm font-semibold text-gray-700">{translations.site("details.unit")}</div>
-							<span className="flex items-center gap-1">
-								<p className="text-sm font-medium text-gray-600">{site.unit?.name}</p>
-								<p className="text-xs text-gray-500">{site.unit?.id}</p>
-							</span>
-						</div>
-					</div>
-					<div className="flex items-center gap-3">
-						<div className="p-2 size-10 flex justify-center items-center bg-purple-100 rounded-lg">
-							<Calendar className="size-5 text-purple-700" />
-						</div>
-						<div>
-							<div className="text-sm font-medium text-gray-700">{translations.site("details.lastModified")}</div>
-							{site.lastModified ? (
-								<div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
-									<div className="flex items-center gap-0.5">
-										<Clock className="size-4" strokeWidth={2} />
-										<p className="text-sm leading-4 flex items-center h-4">{moment(site.lastModified.date).format("DD/MM/YYYY HH:mm")}</p>
-									</div>
-									<div className="flex items-center gap-0.5">
-										<User className="size-4" strokeWidth={2} />
-										<p className="text-sm leading-4 flex items-center h-4">{site.lastModified.user}</p>
-									</div>
-								</div>
-							) : (
-								<p className="text-sm text-gray-500">{translations.site("details.neverModified")}</p>
-							)}
-						</div>
-					</div>
-					{site.infrastructure === "Kubernetes" && site.kubernetesExtraInfo && (
-						<Fragment>
-							<div className="flex items-center gap-3">
-								<div className="p-2 size-10 flex justify-center items-center bg-green-100 rounded-lg">
-									<Network className="size-5 text-green-700" />
-								</div>
-								<div>
-									<div className="text-sm font-semibold text-gray-700">Ingress</div>
-									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.ingressName || "N/A"}</p>
-								</div>
-							</div>
-							<div className="flex items-center gap-3">
-								<div className="p-2 size-10 flex justify-center items-center bg-teal-100 rounded-lg">
-									<Server className="size-5 text-teal-700" />
-								</div>
-								<div>
-									<div className="text-sm font-semibold text-gray-700">Object name</div>
-									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.wordpressSiteName || "N/A"}</p>
-								</div>
-							</div>
-							<div className="flex items-center gap-3">
-								<div className="p-2 size-10 flex justify-center items-center bg-red-100 rounded-lg">
-									<Database className="size-5 text-red-700" />
-								</div>
-								<div>
-									<div className="text-sm font-semibold text-gray-700">Database</div>
-									<p className="text-sm font-medium text-gray-600">{site.kubernetesExtraInfo.databaseRef || "N/A"}</p>
-								</div>
-							</div>
-						</Fragment>
-					)}
-				</div>
-				{site.recentModifications && site.recentModifications.length > 0 && (
-					<div className="space-y-2">
-						<div className="flex items-center gap-2 px-2">
-							<Clock className="size-5 text-gray-500" />
-							<span className="text-sm font-semibold text-gray-700">{translations.site("details.recentModifications")}</span>
-						</div>
-						<div className="bg-gray-50 p-3 rounded-lg space-y-2 max-h-48 overflow-y-auto">
-							{site.recentModifications.map((mod) => (
-								<div key={`${mod.user}-${mod.date}-${mod.page}`} className="flex items-start gap-2 text-xs">
-									<span className="text-gray-400 mt-1">•</span>
-									<div className="flex flex-wrap items-center gap-1">
-										<Badge variant="outline" className="text-xs">
-											{mod.user}
-										</Badge>
-										<span className="text-gray-600">{moment(mod.date).format("DD/MM HH:mm")}</span>
-										{mod.available ? (
-											<span className="text-gray-600">
-												- <span className="font-medium">{mod.page}</span>
-											</span>
-										) : (
-											<span className="text-gray-500 italic">- ({mod.page})</span>
-										)}
-									</div>
-								</div>
-							))}
-						</div>
-					</div>
-				)}
-				<Separator className="my-4" />
-				<div className="space-y-4">
-					<div className="flex items-center gap-2 px-2">
-						<Shield className="size-5 text-blue-600" />
-						<span className="text-sm font-semibold text-gray-700">{translations.site("details.permissions")}</span>
-					</div>
-					<div className="w-full">
-						<div className="p-3 bg-blue-50 rounded-lg">
-							<div className="flex items-center gap-2 mb-2">
-								<Edit className="w-4 h-4 text-blue-600" />
-								<span className="text-sm font-medium text-blue-900">{translations.site("details.editors")}</span>
-								<Badge variant="outline" className="text-xs">
-									{site.permissions.editors.length}
-								</Badge>
-							</div>
-							<div className="flex flex-wrap gap-1">
-								{site.permissions.editors.map((editor) => (
-									<Badge key={editor.userId} variant="outline" className="text-xs">
-										{editor.name}
-									</Badge>
-								))}
-							</div>
-						</div>
-					</div>
-				</div>
-			</CardContent>
-		</Card>
-	);
 
 	return (
 		<div className="w-full flex-1 flex flex-col h-full">
