@@ -31,6 +31,13 @@ import { isKubernetesSite } from "@/types/site";
  *         required: false
  *         description: Filter sites by exact URL match (should be URL encoded).
  *         example: "https://epfl.ch"
+ *       - in: query
+ *         name: monitored
+ *         schema:
+ *           type: boolean
+ *         required: false
+ *         description: Filter sites by monitored status. Use 'true' to get only monitored sites, 'false' for sites that are not monitored.
+ *         example: true
  *     responses:
  *       200:
  *         description: A list of sites retrieved successfully.
@@ -144,6 +151,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const siteUrlFilter = siteUrlRaw ? ensureSlashAtEnd(decodeURIComponent(siteUrlRaw)) : null;
 		const hasTaggedFilter = searchParams.has("tagged");
 		const infrastructureFilter = searchParams.get("infrastructure");
+		const monitoredFilter = searchParams.has("monitored") ? searchParams.get("monitored")?.toLowerCase() === "true" : null;
 
 		const sites = await withCache(
 			"api-v2-sites",
@@ -211,7 +219,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 			(site) =>
 				(!siteUrlFilter || site.url === siteUrlFilter) &&
 				(!hasTaggedFilter || (taggedFilter ? site.tags.length > 0 : site.tags.length === 0)) &&
-				(!infrastructureFilter || site.infrastructure.toLowerCase() === infrastructureFilter.toLowerCase()),
+				(!infrastructureFilter || site.infrastructure.toLowerCase() === infrastructureFilter.toLowerCase()) &&
+				(monitoredFilter === null || site.monitored === monitoredFilter),
 		);
 
 		return NextResponse.json(filtered);
