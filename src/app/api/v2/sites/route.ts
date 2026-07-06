@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { listDatabaseSites } from "@/lib/database";
+import { listDatabaseSites, listKubernetesExtras } from "@/lib/database";
 import { getKubernetesSites } from "@/lib/kubernetes";
 import db from "@/lib/mongo";
 import { withCache } from "@/lib/redis";
@@ -156,13 +156,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 		const sites = await withCache(
 			"api-v2-sites",
 			async () => {
-				const [[k8sResult, dbResult], tags] = await Promise.all([
-					Promise.all([getKubernetesSites(), listDatabaseSites()]),
+				const [[k8sResult, dbResult, extrasResult], tags] = await Promise.all([
+					Promise.all([getKubernetesSites(), listDatabaseSites(), listKubernetesExtras()]),
 					db.connect().then(() => TagModel.find({}).select("sites id nameFr nameEn urlFr urlEn type").lean()),
 				]);
 
-				const k8sSites = k8sResult.sites || [];
 				const dbSites = dbResult.sites || [];
+				const extrasById = new Map((extrasResult.extras || []).map((e) => [e.id, e]));
+				const k8sSites = (k8sResult.sites || []).map((site) => {
+					const extra = extrasById.get(site.id);
+					return extra ? { ...site, monitored: extra.monitored } : site;
+				});
 
 				const tagMap = new Map();
 				const siteMap = new Map();
