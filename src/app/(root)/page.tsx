@@ -149,7 +149,7 @@ export default function SiteListPage() {
 	};
 
 	const filteredSites = sites.filter((site) => {
-		const matchesUrl = site.url.toLowerCase().includes(filters.url.toLowerCase());
+		const matchesUrl = site.url.toLowerCase().includes(filters.url.toLowerCase().trim());
 		const matchesType = !filters.infrastructure || site.infrastructure === filters.infrastructure;
 		const matchesTheme = !filters.theme || (isKubernetesSite(site) && site.theme === filters.theme);
 		const matchesDateFrom = !filters.dateRange.from || !site.createdAt || moment(site.createdAt).isAfter(moment(filters.dateRange.from));
