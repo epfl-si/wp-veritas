@@ -507,6 +507,14 @@ export const WP_CATEGORIES = {
 		}),
 	},
 
+	SHORTHAND_EDITOR: {
+		NAME: "ShorthandEditor",
+		LABEL: "Shorthand Editor",
+		getPlugins: () => ({
+			"the-shorthand-editor": {},
+		}),
+	},
+
 	EPFL_MENUS: {
 		NAME: "epfl-menus",
 		LABEL: "EPFL Menus",
