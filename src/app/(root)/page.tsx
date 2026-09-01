@@ -3,7 +3,7 @@ import { AlertTriangle, ArrowLeft, BarChart3, Calendar, ChevronRight, Download, 
 import moment from "moment";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ActionLink } from "@/components/ui/action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,15 +28,34 @@ import type { Site, SiteEvent, SiteListFilters } from "@/types/site";
 import { isDatabaseSite, isKubernetesSite, isNoneSite } from "@/types/site";
 import type { ThemeType } from "@/types/theme";
 
+// Pure so it can replay queued events over the bulk-loaded list in one shot; see loadedRef below.
+const applySiteEvent = (prev: Site[], event: SiteEvent): Site[] => {
+	switch (event.type) {
+		case "added":
+		case "modified":
+			// Upsert with the authoritative site; `creating`/`deletedAt` flags live on the object itself.
+			return prev.some((s) => s.id === event.id) ? prev.map((s) => (s.id === event.id ? event.site : s)) : [event.site, ...prev];
+		case "deleted":
+			return prev.filter((s) => s.id !== event.id);
+	}
+};
+
 export default function SiteListPage() {
 	const ability = useAbility();
 	const searchParams = useSearchParams();
 	const [sites, setSites] = useState<Site[]>([]);
 	const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+	// The bulk fetch and the SSE connection race on mount; events that land before the bulk
+	// fetch resolves are queued and replayed in the same setSites call so the list paints once
+	// instead of trickling in row by row.
+	const loadedRef = useRef(false);
+	const pendingEventsRef = useRef<SiteEvent[]>([]);
 
 	useEffect(() => {
 		listSites().then(({ sites: data }) => {
-			if (data) setSites(data);
+			if (data) setSites(pendingEventsRef.current.reduce(applySiteEvent, data));
+			pendingEventsRef.current = [];
+			loadedRef.current = true;
 		});
 	}, []);
 
@@ -49,15 +68,17 @@ export default function SiteListPage() {
 
 	useServerEvents<{ site: SiteEvent }>("/api/sites/events", {
 		site: (event) => {
+			if (!loadedRef.current) {
+				pendingEventsRef.current.push(event);
+				return;
+			}
+			setSites((prev) => applySiteEvent(prev, event));
 			switch (event.type) {
 				case "added":
 				case "modified":
-					// Upsert with the authoritative site; `creating`/`deletedAt` flags live on the object itself.
-					setSites((prev) => (prev.some((s) => s.id === event.id) ? prev.map((s) => (s.id === event.id ? event.site : s)) : [event.site, ...prev]));
 					if (!event.site.deletedAt) setDeletingIds((prev) => removeFromSet(prev, event.id));
 					break;
 				case "deleted":
-					setSites((prev) => prev.filter((s) => s.id !== event.id));
 					setDeletingIds((prev) => removeFromSet(prev, event.id));
 					break;
 			}
