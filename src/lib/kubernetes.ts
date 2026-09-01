@@ -575,8 +575,9 @@ export async function watchKubernetesSites(onEvent: (event: SiteEvent) => void, 
 			plural: WORDPRESS_PLURAL,
 		});
 		resourceVersion = (list as { metadata?: { resourceVersion?: string } }).metadata?.resourceVersion;
-	} catch {
+	} catch (error) {
 		// If we cannot read the current version, fall back to a full replay rather than no events.
+		void log.warn("Could not resolve resourceVersion for sites watch, falling back to full replay", { type: "site", action: "watch", error: captureError(error) });
 	}
 
 	return watch.watch(
