@@ -22,6 +22,7 @@ import { OPTIONAL_CATEGORIES } from "@/constants/categories";
 import { INFRASTRUCTURES } from "@/constants/infrastructures";
 import { LANGUAGES } from "@/constants/languages";
 import { THEMES } from "@/constants/theme";
+import { getUnitNamesByIds } from "@/services/api";
 import { deleteSiteAction, listSites } from "@/services/site";
 import type { InfrastructureType } from "@/types/infrastructure";
 import type { Site, SiteEvent, SiteListFilters } from "@/types/site";
@@ -228,8 +229,9 @@ export default function SiteListPage() {
 		};
 	};
 
-	const exportToCSV = () => {
-		const headers = ["URL", "Infrastructure", "Theme", "Title", "Tagline", "Unit ID", "Languages", "Categories", "Downloads Protection", "Created At", "Ticket", "Comment"];
+	const exportToCSV = async () => {
+		const headers = ["URL", "Infrastructure", "Theme", "Title", "Tagline", "Unit ID", "Unit Name", "Languages", "Categories", "Downloads Protection", "Created At", "Ticket", "Comment"];
+		const unitNames = await getUnitNamesByIds(filteredSites.filter(isKubernetesSite).map((site) => site.unitId));
 		const csvData = filteredSites.map((site) => [
 			site.url,
 			site.infrastructure,
@@ -237,6 +239,7 @@ export default function SiteListPage() {
 			isKubernetesSite(site) ? site.title || "" : "",
 			isKubernetesSite(site) ? site.tagline || "" : "",
 			isKubernetesSite(site) ? site.unitId.toString() : "",
+			isKubernetesSite(site) ? unitNames[site.unitId] || "" : "",
 			isKubernetesSite(site) ? (site.languages ?? []).join(";") : "",
 			isKubernetesSite(site) ? (site.categories ?? []).join(";") : "",
 			isKubernetesSite(site) ? (site.downloadsProtectionScript ? "Yes" : "No") : "",

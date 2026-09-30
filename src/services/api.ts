@@ -74,6 +74,12 @@ export async function getUnits(): Promise<ServiceResponse<{ id: string; name: st
 	}
 }
 
+export async function getUnitNamesByIds(unitIds: number[]): Promise<Record<number, string>> {
+	const uniqueIds = [...new Set(unitIds.filter((id) => id > 0))];
+	const entries = await Promise.all(uniqueIds.map(async (id) => [id, await getUnitById(id.toString()).then((res) => (res.success ? (res.data?.name ?? "") : ""))] as const));
+	return Object.fromEntries(entries);
+}
+
 export async function getUnitById(unitId: string): Promise<ServiceResponse<{ id: string; name: string } | null>> {
 	try {
 		const data = await makeRequest<{ id: string; name: string }>(`/v1/units/${unitId}`, { method: "GET" });
