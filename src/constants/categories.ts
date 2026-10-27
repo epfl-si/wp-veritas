@@ -144,7 +144,7 @@ export const WP_CATEGORIES = {
 					{ name: "ewww_image_optimizer_debug", value: "" },
 				],
 			},
-			"find-my-blocks": {},
+			"block-finder": {},
 			"flowpaper-lite-pdf-flipbook": {},
 			polylang: {
 				wp_options: [
